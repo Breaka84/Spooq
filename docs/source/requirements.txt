@@ -1,3 +1,4 @@
 pyspark==2.4.3
 pandas==0.24.2
 sphinxcontrib-plantuml==0.18
+-e git+git@github.com:Breaka84/Spooq.git@465f07b4de8d333df167dc3c6af57152b0a25fc6#egg=Spooq2
