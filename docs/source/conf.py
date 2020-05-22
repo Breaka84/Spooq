@@ -14,10 +14,10 @@
 #
 import os
 import sys
-# sys.path.insert(0, os.path.abspath('.'))
+sys.path.insert(0, os.path.abspath('../../src/spooq2'))
 # sys.path[0:0] = [os.path.abspath('_themes/foundation-sphinx-theme')]
 
-import easydev
+# import easydev
 # from recommonmark.parser import CommonMarkParser
 # from recommonmark.transform import AutoStructify
 # import sphinx_bootstrap_theme
@@ -54,7 +54,7 @@ extensions = [
     'sphinx.ext.napoleon',
     'sphinx.ext.intersphinx',
     'sphinxcontrib.plantuml',
-    'easydev.copybutton',
+    # 'easydev.copybutton',
     # 'foundation_sphinx_theme'
 ]
 
@@ -95,13 +95,13 @@ pygments_style = 'default'
 # a list of builtin themes.
 #
 # html_theme = 'alabaster'
-# html_theme = 'sphinx_rtd_theme'
+html_theme = 'sphinx_rtd_theme'
 # html_theme = 'groundwork'
-html_theme = 'agogo'
-html_theme_options = {
+# html_theme = 'agogo'
+# html_theme_options = {
     # "pagewidth": "200em",
     # "documentwidth": "50%",
-}
+# }
 
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the
