@@ -1,0 +1,15 @@
+--- original
++++ adapted
+@@ -7,14 +7,15 @@
+ .. toctree::
+
+     exploder
+     sieve
+     mapper
+     threshold_cleaner
+     newest_by_group
++    no_id_dropper
+
+ Class Diagram of Transformer Subpackage
+ ------------------------------------------------
+ .. uml:: ../diagrams/from_thesis/class_diagram/transformers.puml

@@ -1,0 +1,458 @@
+============================= test session starts ==============================
+platform linux2 -- Python 2.7.17, pytest-3.10.1, py-1.8.1, pluggy-0.13.1
+Spark will be initialized with options:
+  spark.app.name: spooq-pyspark-tests
+  spark.default.parallelism: 1
+  spark.driver.extraClassPath: ../bin/custom_jars/sqlite-jdbc.jar
+  spark.dynamicAllocation.enabled: false
+  spark.executor.cores: 1
+  spark.executor.extraClassPath: ../bin/custom_jars/sqlite-jdbc.jar
+  spark.executor.instances: 7
+  spark.io.compression.codec: lz4
+  spark.rdd.compress: false
+  spark.shuffle.compress: false
+  spark.sql.shuffle.partitions: 1
+rootdir: /home/david/projects/spooq2/tests, inifile: pytest.ini
+plugins: html-1.19.0, doubles-1.5.0, metadata-1.8.0, cov-2.5.1, env-0.6.2, pspec-0.0.3, spark-0.5.2, assume-1.2.1, mock-2.0.0
+collected 361 items
+
+unit/extractor/test_jdbc.py
+Basic Attributes
+  ✓ logger should be accessible
+  ✓ name is set
+  ✓ str representation is correct
+
+Deriving boundaries from previous loads logs (spooq2_values_pd_df)
+  ✓ Getting the upper boundary partition to load
+  ✓ Getting the upper boundary partition to load
+  ✓ Getting the upper boundary partition to load
+  ✓ Getting the lower boundary partition to load
+  ✓ Getting the lower boundary partition to load
+  ✓ Getting the lower boundary partition to load
+  ✓ Getting the lower boundary partition to load
+  ✓ get lower and upper bounds from current partition[20180515-boundaries0]
+  ✓ get lower and upper bounds from current partition[20180516-boundaries1]
+  ✓ get lower and upper bounds from current partition[20180517-boundaries2]
+  ✓ Getting boundaries from previously loaded partitions
+  ✓ get boundaries for import[20180510-boundaries0]
+  ✓ get boundaries for import[20180515-boundaries1]
+  ✓ get boundaries for import[20180516-boundaries2]
+  ✓ get boundaries for import[20180517-boundaries3]
+  ✓ get boundaries for import[20180518-boundaries4]
+  ✓ get boundaries for import[20180520-boundaries5]
+
+Constructing Query for Source Extraction with Boundaries in Where Clause
+  ✓ construct query for partition[boundaries0-select * from MOCK DATA]
+  ✓ construct query for partition[boundaries1-select * from MOCK DATA where updated at <= 1024]
+  ✓ construct query for partition[boundaries2-select * from MOCK DATA where updated at <= 1024]
+  ✓ construct query for partition[boundaries3-select * from MOCK DATA where updated at <= "g1024"]
+  ✓ construct query for partition[boundaries4-select * from MOCK DATA where updated at <= "2018-05-16 03:29:59"]
+  ✓ construct query for partition[boundaries5-select * from MOCK DATA where updated at > 1024]
+  ✓ construct query for partition[boundaries6-select * from MOCK DATA where updated at > 1024]
+  ✓ construct query for partition[boundaries7-select * from MOCK DATA where updated at > "g1024"]
+  ✓ construct query for partition[boundaries8-select * from MOCK DATA where updated at > "2018-05-16 03:29:59"]
+  ✓ construct query for partition[boundaries9-select * from MOCK DATA where updated at > "2018-01-01 03:30:00" and updated at <= "2018-05-16 03:29:59"]
+
+JDBC Options
+  ✓ missing jdbc option raises error[url]
+  ✓ missing jdbc option raises error[driver]
+  ✓ missing jdbc option raises error[user]
+  ✓ missing jdbc option raises error[password]
+  ✓ wrong jdbc option raises error[url]
+  ✓ wrong jdbc option raises error[driver]
+  ✓ wrong jdbc option raises error[user]
+  ✓ wrong jdbc option raises error[password]
+
+unit/extractor/test_json_files.py
+Basic Attributes
+  ✓ logger should be accessible
+  ✓ name is set
+  ✓ str representation is correct
+
+Path manipulating Methods
+  ✓ infer input path from partition[input params0-base/17/06/01/*]
+  ✓ infer input path from partition[input params1-/base/17/06/01/*]
+  ✓ infer input path from partition[input params2-/base/path/17/06/01/*]
+  ✓ infer input path from partition[input params3-/base/path/17/06/01/*]
+  ✓ Chooses whether to use Full Input Path or derive it from Base Path and Partition
+  ✓ Chooses whether to use Full Input Path or derive it from Base Path and Partition
+  ✓ Chooses whether to use Full Input Path or derive it from Base Path and Partition
+
+Extraction of JSON Files
+  ✓ JSON File is converted to a DataFrame
+  ✓ JSON File is converted to a DataFrame
+  ✓ JSON File is converted to the correct schema
+  ✓ JSON File is converted to the correct schema
+  ✓ Converted DataFrame contains the same Number of Rows as in the Source Data
+  ✓ Converted DataFrame contains the same Number of Rows as in the Source Data
+
+unit/loader/test_hive_loader.py
+Basic Attributes
+  ✓ logger should be accessible
+  ✓ name is set
+  ✓ str representation is correct
+
+Warnings
+  ✓ more columns than expected
+  ✓ less columns than expected
+  ✓ different columns order than expected
+
+Clearing the Hive Table Partition before inserting
+  ✓ Partition is dropped
+  ✓ Partition is dropped
+  ✓ Partition is dropped
+  ✓ Partition is dropped
+  ✓ Partition is dropped
+  ✓ Clear Partition is called exactly once (Default)
+  ✓ Clear Partition is not called (Default Values was Overridden)
+
+Partition Definitions
+  ✓ input is not a list[Some string]
+  ✓ input is not a list[123]
+  ✓ input is not a list[75.0]
+  ✓ input is not a list[abcd]
+  ✓ input is not a list[partition definitions4]
+  ✓ input is not a list[partition definitions5]
+  ✓ list input contains non dict items[Some string]
+  ✓ list input contains non dict items[123]
+  ✓ list input contains non dict items[75.0]
+  ✓ list input contains non dict items[abcd]
+  ✓ list input contains non dict items[partition definitions4]
+  ✓ column name is missing
+  ✓ column type not a valid spark sql type[13]
+  ✓ column type not a valid spark sql type[no spark type]
+  ✓ column type not a valid spark sql type[arrray]
+  ✓ column type not a valid spark sql type[INT]
+  ✓ column type not a valid spark sql type[data type4]
+  ✓ default value is empty[None]
+  ✓ default value is empty[]
+  ✓ default value is empty[default value2]
+  ✓ default value is empty[default value3]
+  ✓ default value is missing
+
+Load Partition
+  ✓ add new static partition[0]
+  ✓ add new static partition[2]
+  ✓ add new static partition[3]
+  ✓ add new static partition[6]
+  ✓ add new static partition[9]
+  ✓ overwrite static partition[0]
+  ✓ overwrite static partition[2]
+  ✓ overwrite static partition[3]
+  ✓ overwrite static partition[6]
+  ✓ overwrite static partition[9]
+  ✓ append to static partition[0]
+  ✓ append to static partition[2]
+  ✓ append to static partition[3]
+  ✓ append to static partition[6]
+  ✓ append to static partition[9]
+  ✓ create partitioned table[0]
+  ✓ create partitioned table[2]
+  ✓ create partitioned table[3]
+  ✓ create partitioned table[6]
+  ✓ create partitioned table[9]
+  ✓ add new static partition with overwritten partition value[0]
+  ✓ add new static partition with overwritten partition value[2]
+  ✓ add new static partition with overwritten partition value[3]
+  ✓ add new static partition with overwritten partition value[6]
+  ✓ add new static partition with overwritten partition value[9]
+
+Clearing the Hive Table Partition before inserting
+  ✓ Partition is dropped
+  ✓ Partition is dropped
+  ✓ Partition is dropped
+  ✓ Partition is dropped
+  ✓ Partition is dropped
+  ✓ Clear Partition is called exactly once (Default)
+  ✓ Clear Partition is not called (Default Values was Overridden)
+
+Partition Definitions
+  ✓ input is not a list[Some string]
+  ✓ input is not a list[123]
+  ✓ input is not a list[75.0]
+  ✓ input is not a list[abcd]
+  ✓ input is not a list[partition definitions4]
+  ✓ input is not a list[partition definitions5]
+  ✓ list input contains non dict items[Some string]
+  ✓ list input contains non dict items[123]
+  ✓ list input contains non dict items[75.0]
+  ✓ list input contains non dict items[abcd]
+  ✓ list input contains non dict items[partition definitions4]
+  ✓ column name is missing
+  ✓ column type not a valid spark sql type[13]
+  ✓ column type not a valid spark sql type[no spark type]
+  ✓ column type not a valid spark sql type[arrray]
+  ✓ column type not a valid spark sql type[INT]
+  ✓ column type not a valid spark sql type[data type4]
+  ✓ default value is empty[None]
+  ✓ default value is empty[]
+  ✓ default value is empty[default value2]
+  ✓ default value is empty[default value3]
+  ✓ default value is missing
+
+Load Partition
+  ✓ add new static partition[partition0]
+  ✓ add new static partition[partition1]
+  ✓ add new static partition[partition2]
+  ✓ add new static partition[partition3]
+  ✓ add new static partition[partition4]
+  ✓ overwrite static partition[partition0]
+  ✓ overwrite static partition[partition1]
+  ✓ overwrite static partition[partition2]
+  ✓ overwrite static partition[partition3]
+  ✓ overwrite static partition[partition4]
+  ✓ append to static partition[partition0]
+  ✓ append to static partition[partition1]
+  ✓ append to static partition[partition2]
+  ✓ append to static partition[partition3]
+  ✓ append to static partition[partition4]
+  ✓ create partitioned table[partition0]
+  ✓ create partitioned table[partition1]
+  ✓ create partitioned table[partition2]
+  ✓ create partitioned table[partition3]
+  ✓ create partitioned table[partition4]
+  ✓ add new static partition with overwritten partition value[partition0]
+  ✓ add new static partition with overwritten partition value[partition1]
+  ✓ add new static partition with overwritten partition value[partition2]
+  ✓ add new static partition with overwritten partition value[partition3]
+  ✓ add new static partition with overwritten partition value[partition4]
+
+unit/pipeline/test_pipeline.py
+Pipeline with an Extractor, a Transformers and a Loader
+  ✓ Extracting from JSON SequenceFile, Mapping and Loading to Hive Table
+
+unit/pipeline/test_pipeline_factory.py
+ETL Batch Pipeline
+  ✓ get pipeline[ETL Batch Pipeline]
+  ✓ get pipeline[ELT Ad Hoc Pipeline]
+
+unit/transformer/test_exploder.py
+Mapper for Exploding Arrays
+  ✓ logger should be accessible
+  ✓ name is set
+  ✓ str representation is correct
+
+Exploding
+  ✓ count
+  ✓ exploded array is added
+  ✓ array is converted to struct
+
+unit/transformer/test_mapper.py
+Basic attributes and parameters
+  ✓ logger
+  ✓ name
+  ✓ str representation
+
+Shape Of Mapped Data Frame
+  ✓ Amount of Rows is the same after the transformation
+  ✓ Amount of Columns of the mapped DF is according to the Mapping
+  ✓ Mapped DF has renamed the Columns according to the Mapping
+  ✓ base column is missing in input
+  ✓ struct column is empty in input
+
+Data Types Of Mapped Data Frame
+  ✓ data type of mapped column[id-integer]
+  ✓ data type of mapped column[guid-string]
+  ✓ data type of mapped column[created at-long]
+  ✓ data type of mapped column[created at ms-long]
+  ✓ data type of mapped column[birthday-timestamp]
+  ✓ data type of mapped column[location struct-struct]
+  ✓ data type of mapped column[latitude-double]
+  ✓ data type of mapped column[longitude-double]
+  ✓ data type of mapped column[birthday str-string]
+  ✓ data type of mapped column[email-string]
+  ✓ data type of mapped column[myspace-string]
+  ✓ data type of mapped column[first name-string]
+  ✓ data type of mapped column[last name-string]
+  ✓ data type of mapped column[gender-string]
+  ✓ data type of mapped column[ip address-string]
+  ✓ data type of mapped column[university-string]
+  ✓ data type of mapped column[friends-array]
+  ✓ data type of mapped column[friends json-string]
+
+unit/transformer/test_mapper_custom_data_types.py
+Dynamically Call Methods By Data Type Name
+  ✓ get select expression for custom type[ generate select expression for as is-as is]
+  ✓ get select expression for custom type[ generate select expression without casting-as is]
+  ✓ get select expression for custom type[ generate select expression without casting-keep]
+  ✓ get select expression for custom type[ generate select expression without casting-no change]
+  ✓ get select expression for custom type[ generate select expression for json string-json string]
+  ✓ get select expression for custom type[ generate select expression for timestamp ms to ms-timestamp ms to ms]
+  ✓ get select expression for custom type[ generate select expression for timestamp ms to s-timestamp ms to s]
+  ✓ get select expression for custom type[ generate select expression for timestamp s to ms-timestamp s to ms0]
+  ✓ get select expression for custom type[ generate select expression for timestamp s to ms-timestamp s to ms1]
+  ✓ get select expression for custom type[ generate select expression for StringNull-StringNull]
+  ✓ get select expression for custom type[ generate select expression for IntNull-IntNull]
+  ✓ get select expression for custom type[ generate select expression for IntBoolean-IntBoolean]
+  ✓ get select expression for custom type[ generate select expression for StringBoolean-StringBoolean]
+  ✓ get select expression for custom type[ generate select expression for TimestampMonth-TimestampMonth]
+  ✓ exception is raised if data type not found
+
+mapper custom data types
+  ✓ generate select expression without casting[only some text-only some text]
+  ✓ generate select expression without casting[None-None]
+  ✓ generate select expression without casting[input value2-value2]
+  ✓ generate select expression without casting[input value3-value3]
+  ✓ generate select expression without casting[input value4-value4]
+  ✓ generate select expression without casting[input value5-value5]
+  ✓ generate select expression without casting[input value6-value6]
+  ✓ generate select expression without casting[input value7-value7]
+  ✓ generate select expression for json string[only some text-only some text]
+  ✓ generate select expression for json string[None-None]
+  ✓ generate select expression for json string[input value2-{"key": "value"}]
+  ✓ generate select expression for json string[input value3-{"key": {"other key": "value"}}]
+  ✓ generate select expression for json string[input value4-{"age": 18, "weight": 75}]
+  ✓ generate select expression for json string[input value5-{"list of friend ids": [12, 75, 44, 76]}]
+  ✓ generate select expression for json string[input value6-[{"weight": "75"}, {"weight": "76"}, {"weight": "73"}]]
+  ✓ generate select expression for json string[input value7-{"list of friend ids": [{"id": 12}, {"id": 75}, {"id": 44}, {"id": 76}]}]
+
+Anonymizing Methods
+  ✓ generate select expression for StringBoolean[my first mail@myspace.com-1]
+  ✓ generate select expression for StringBoolean[-None]
+  ✓ generate select expression for StringBoolean[None-None]
+  ✓ generate select expression for StringBoolean[ -1]
+  ✓ generate select expression for StringBoolean[100-1]
+  ✓ generate select expression for StringBoolean[0-1]
+  ✓ generate select expression for StringNull[my first mail@myspace.com-None]
+  ✓ generate select expression for StringNull[-None]
+  ✓ generate select expression for StringNull[None-None]
+  ✓ generate select expression for StringNull[ -None]
+  ✓ generate select expression for StringNull[100-None]
+  ✓ generate select expression for StringNull[0-None]
+  ✓ generate select expression for IntBoolean[12345-1]
+  ✓ generate select expression for IntBoolean[-1]
+  ✓ generate select expression for IntBoolean[some text-1]
+  ✓ generate select expression for IntBoolean[None-None]
+  ✓ generate select expression for IntBoolean[0-1]
+  ✓ generate select expression for IntBoolean[1-1]
+  ✓ generate select expression for IntBoolean[-1-1]
+  ✓ generate select expression for IntBoolean[5445.23-1]
+  ✓ generate select expression for IntBoolean[inf-1]
+  ✓ generate select expression for IntBoolean[-inf-1]
+  ✓ generate select expression for IntNull[12345-None]
+  ✓ generate select expression for IntNull[-None]
+  ✓ generate select expression for IntNull[some text-None]
+  ✓ generate select expression for IntNull[None-None]
+  ✓ generate select expression for IntNull[0-None]
+  ✓ generate select expression for IntNull[1-None]
+  ✓ generate select expression for IntNull[-1-None]
+  ✓ generate select expression for IntNull[5445.23-None]
+  ✓ generate select expression for IntNull[inf-None]
+  ✓ generate select expression for IntNull[-inf-None]
+  ✓ generate select expression for TimestampMonth[None-None]
+  ✓ generate select expression for TimestampMonth[1955-09-41-None]
+  ✓ generate select expression for TimestampMonth[1969-04-03-1969-04-01]
+  ✓ generate select expression for TimestampMonth[1985-03-07-1985-03-01]
+  ✓ generate select expression for TimestampMonth[1998-06-10-1998-06-01]
+  ✓ generate select expression for TimestampMonth[1967-05-16-1967-05-01]
+  ✓ generate select expression for TimestampMonth[1953-01-01-1953-01-01]
+  ✓ generate select expression for TimestampMonth[1954-11-06-1954-11-01]
+  ✓ generate select expression for TimestampMonth[1978-09-05-1978-09-01]
+  ✓ generate select expression for TimestampMonth[1999-05-23-1999-05-01]
+
+Timestamp Methods
+  ✓ generate select expression for timestamp ms to ms[0-0]
+  ✓ generate select expression for timestamp ms to ms[-1-None]
+  ✓ generate select expression for timestamp ms to ms[None-None]
+  ✓ generate select expression for timestamp ms to ms[4102358400000-4102358400000]
+  ✓ generate select expression for timestamp ms to ms[4102358400001-None]
+  ✓ generate select expression for timestamp ms to ms[5049688276000-None]
+  ✓ generate select expression for timestamp ms to ms[3469296996000-3469296996000]
+  ✓ generate select expression for timestamp ms to ms[7405162940000-None]
+  ✓ generate select expression for timestamp ms to ms[2769601503000-2769601503000]
+  ✓ generate select expression for timestamp ms to ms[-1429593275000-None]
+  ✓ generate select expression for timestamp ms to ms[3412549669000-3412549669000]
+  ✓ generate select expression for timestamp ms to s[0-0]
+  ✓ generate select expression for timestamp ms to s[-1-None]
+  ✓ generate select expression for timestamp ms to s[None-None]
+  ✓ generate select expression for timestamp ms to s[4102358400000-4102358400]
+  ✓ generate select expression for timestamp ms to s[4102358400001-None]
+  ✓ generate select expression for timestamp ms to s[5049688276000-None]
+  ✓ generate select expression for timestamp ms to s[3469296996000-3469296996]
+  ✓ generate select expression for timestamp ms to s[7405162940000-None]
+  ✓ generate select expression for timestamp ms to s[2769601503000-2769601503]
+  ✓ generate select expression for timestamp ms to s[-1429593275000-None]
+  ✓ generate select expression for timestamp ms to s[3412549669000-3412549669]
+  ✓ generate select expression for timestamp s to ms[0-0]
+  ✓ generate select expression for timestamp s to ms[-1-None]
+  ✓ generate select expression for timestamp s to ms[None-None]
+  ✓ generate select expression for timestamp s to ms[4102358400-4102358400000]
+  ✓ generate select expression for timestamp s to ms[4102358401-None]
+  ✓ generate select expression for timestamp s to ms[5049688276-None]
+  ✓ generate select expression for timestamp s to ms[3469296996-3469296996000]
+  ✓ generate select expression for timestamp s to ms[7405162940-None]
+  ✓ generate select expression for timestamp s to ms[2769601503-2769601503000]
+  ✓ generate select expression for timestamp s to ms[-1429593275-None]
+  ✓ generate select expression for timestamp s to ms[3412549669-3412549669000]
+  ✓ generate select expression for timestamp s to s[0-0]
+  ✓ generate select expression for timestamp s to s[-1-None]
+  ✓ generate select expression for timestamp s to s[None-None]
+  ✓ generate select expression for timestamp s to s[4102358400-4102358400]
+  ✓ generate select expression for timestamp s to s[4102358401-None]
+  ✓ generate select expression for timestamp s to s[5049688276-None]
+  ✓ generate select expression for timestamp s to s[3469296996-3469296996]
+  ✓ generate select expression for timestamp s to s[7405162940-None]
+  ✓ generate select expression for timestamp s to s[2769601503-2769601503]
+  ✓ generate select expression for timestamp s to s[-1429593275-None]
+  ✓ generate select expression for timestamp s to s[3412549669-3412549669]
+
+Add Custom Data Type In Runtime
+  ✓ custom data type is added
+  ✓ custom data type is applied[Some other string-Hello World]
+  ✓ custom data type is applied[-None]
+  ✓ custom data type is applied[None-None]
+  ✓ custom data type is applied[ -Hello World]
+  ✓ custom data type is applied[100-Hello World]
+  ✓ custom data type is applied[0-None]
+  ✓ multiple columns are accessed
+  ✓ function name is shortened
+
+unit/transformer/test_newest_by_group.py
+Transformer to Group, Sort and Select the Top Row per Group
+  ✓ logger should be accessible
+  ✓ name is set
+  ✓ str representation is correct
+
+Transform Method
+  ✓ Correct Row per Group (Single Column) is returned
+  ✓ Correct Row per Group (Single Column) is returned
+  ✓ Correct Row per Group (Single Column) is returned
+  ✓ Correct Row per Group (Single Column) is returned
+  ✓ Correct Row per Group (Single Column) is returned
+  ✓ Correct Row per Group (Single Column) is returned
+  ✓ Correct Row per Group (Multiple Columns) is returned
+  ✓ Correct Row per Group (Multiple Columns) is returned
+  ✓ Correct Row per Group (Multiple Columns) is returned
+  ✓ Correct Row per Group (Multiple Columns) is returned
+  ✓ Correct Row per Group (Multiple Columns) is returned
+  ✓ Correct Row per Group (Multiple Columns) is returned
+  ✓ Correct Row per Group (Multiple Columns) is returned
+  ✓ Correct Row per Group (Multiple Columns) is returned
+  ✓ Correct Row per Group (Multiple Columns) is returned
+  ✓ Correct Row per Group (Multiple Columns) is returned
+  ✓ Correct Row per Group (Multiple Columns) is returned
+  ✓ Columns to Group by and Sort by are passed as Strings
+
+unit/transformer/test_sieve.py
+Mapper for filtering desired Elements
+  ✓ logger should be accessible
+  ✓ name is set
+  ✓ str representation is correct
+
+Filtering
+  ✓ comparison
+  ✓ regex
+
+unit/transformer/test_threshold_cleaner.py
+Cleaner based on ranges for numerical data
+  ✓ logger
+  ✓ name
+  ✓ str representation
+
+Cleaning
+  ✓ numbers[integers]
+  ✓ numbers[floats]
+  ✓ non numbers
+
+
+========================= 361 passed in 153.52 seconds =========================

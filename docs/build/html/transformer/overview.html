@@ -1,0 +1,222 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Transformers &#8212; Spooq2 2.0.0b0 documentation</title>
+    <link rel="stylesheet" href="../_static/agogo.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../_static/theme_overrides.css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="../_static/language_data.js"></script>
+    <script type="text/javascript" src="../_static/copybutton.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Exploder" href="exploder.html" />
+    <link rel="prev" title="JDBC Source" href="../extractor/jdbc.html" /> 
+  </head><body>
+    <div class="header-wrapper" role="banner">
+      <div class="header">
+        <div class="headertitle"><a
+          href="../index.html">Spooq2 2.0.0b0 documentation</a></div>
+        <div class="rel" role="navigation" aria-label="related navigation">
+          <a href="../extractor/jdbc.html" title="JDBC Source"
+             accesskey="P">previous</a> |
+          <a href="exploder.html" title="Exploder"
+             accesskey="N">next</a> |
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a>
+        </div>
+       </div>
+    </div>
+
+    <div class="content-wrapper">
+      <div class="content">
+        <div class="document">
+            
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-spooq2.transformer.transformer">
+<span id="transformers"></span><h1>Transformers<a class="headerlink" href="#module-spooq2.transformer.transformer" title="Permalink to this headline">¶</a></h1>
+<p>Transformers take a <a class="reference external" href="https://spark.apache.org/docs/2.4.3/api/python/pyspark.sql.html#pyspark.sql.DataFrame" title="(in PySpark vmaster)"><code class="xref py py-class docutils literal notranslate"><span class="pre">pyspark.sql.DataFrame</span></code></a> as an input, transform it accordingly
+and return a PySpark DataFrame.</p>
+<p>Each Transformer class has to have a <cite>transform</cite> method which takes no arguments
+and returns a PySpark DataFrame.</p>
+<p>Possible transformation methods can be <strong>Selecting the most up to date record by id</strong>,
+<strong>Exploding an array</strong>, <strong>Filter (on an exploded array)</strong>, <strong>Apply basic threshold cleansing</strong> or
+<strong>Map the incoming DataFrame to at provided structure</strong>.</p>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="exploder.html">Exploder</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sieve.html">Sieve (Filter)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mapper.html">Mapper</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="mapper.html#module-spooq2.transformer.mapper">Class</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mapper.html#activity-diagram">Activity Diagram</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mapper.html#module-spooq2.transformer.mapper_custom_data_types">Custom Mapping Methods</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="threshold_cleaner.html">Threshold-based Cleaner</a></li>
+<li class="toctree-l1"><a class="reference internal" href="newest_by_group.html">Newest by Group (Most current record per ID)</a></li>
+</ul>
+</div>
+<div class="section" id="class-diagram-of-transformer-subpackage">
+<h2>Class Diagram of Transformer Subpackage<a class="headerlink" href="#class-diagram-of-transformer-subpackage" title="Permalink to this headline">¶</a></h2>
+<p class="plantuml">
+<img src="../_images/plantuml-a3417a3ea8f19e7458e42a227d228903e302f0b7.svg" alt="&#64;startuml
+
+skinparam monochrome true
+skinparam defaultFontname Bitstream Vera Sans Mono
+skinparam defaultFontSize 18
+
+
+left to right direction
+
+
+namespace transformer{
+    
+  class Transformer {
+    .. derived ..
+    name : str
+    logger : logging.logger
+    __
+    transform(input_df : DataFrame)
+  }
+  class Mapper {
+    mapping : list
+    __
+    transform(input_df : DataFrame)
+  }
+  class Exploder {
+    exploded_elem_name : str = &quot;included&quot;
+    path_to_array : str = &quot;elem&quot;
+    __
+    transform(input_df : DataFrame)
+  }
+  class NewestByGroup {
+    group_by : list = [&quot;id&quot;]
+    order_by : list = [&quot;updated_at&quot;, &quot;deleted_at&quot;]
+    __
+    transform(input_df : DataFrame)
+  }
+  class Sieve {
+    filter_expression : str
+    __
+    transform(input_df : DataFrame)
+  }
+  class ThresholdCleaner {
+    thresholds : dict
+    __
+    transform(input_df : DataFrame)
+  }
+  class mapper_custom_data_types &lt;&lt; (M,orchid) &gt;&gt; {
+    add_custom_data_type(function_name, func)
+    _get_select_expression_for_custom_type(*mapping_tuple)
+  }
+
+  ' Exploder --|&gt; Transformer
+  ' NewestByGroup --|&gt; Transformer
+  ' Mapper --|&gt; Transformer
+  ' Sieve --|&gt; Transformer
+  ' ThresholdCleaner --|&gt; Transformer
+  Transformer --|&gt; Mapper 
+  Mapper &lt;. mapper_custom_data_types : provides custom data types
+  Transformer --|&gt; Exploder
+  Transformer --|&gt; NewestByGroup 
+  Transformer --|&gt; Sieve 
+  Transformer --|&gt; ThresholdCleaner 
+
+}
+ &#64;enduml
+"/></p>
+</div>
+<div class="section" id="create-your-own-transformer">
+<h2>Create your own Transformer<a class="headerlink" href="#create-your-own-transformer" title="Permalink to this headline">¶</a></h2>
+<p>Please see the <a class="reference internal" href="../base_classes/transformer.html#custom-transformer"><span class="std std-ref">Create your own Transformer</span></a> for further details.</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+        </div>
+        <div class="sidebar">
+          <h3>Table of Contents</h3>
+          <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation / Deployment</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../extractor/overview.html">Extractors</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Transformers</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="exploder.html">Exploder</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sieve.html">Sieve (Filter)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mapper.html">Mapper</a></li>
+<li class="toctree-l2"><a class="reference internal" href="threshold_cleaner.html">Threshold-based Cleaner</a></li>
+<li class="toctree-l2"><a class="reference internal" href="newest_by_group.html">Newest by Group (Most current record per ID)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#class-diagram-of-transformer-subpackage">Class Diagram of Transformer Subpackage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#create-your-own-transformer">Create your own Transformer</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../loader/overview.html">Loaders</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../pipeline/overview.html">Pipeline</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../base_classes/overview.html">Spooq Base</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../setup_development_testing.html">Setup for Development, Testing, Documenting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../architecture.html">Architecture Overview</a></li>
+</ul>
+
+          <div role="search">
+            <h3 style="margin-top: 1.5em;">Search</h3>
+            <form class="search" action="../search.html" method="get">
+                <input type="text" name="q" />
+                <input type="submit" value="Go" />
+                <input type="hidden" name="check_keywords" value="yes" />
+                <input type="hidden" name="area" value="default" />
+            </form>
+          </div>
+        </div>
+        <div class="clearer"></div>
+      </div>
+    </div>
+
+    <div class="footer-wrapper">
+      <div class="footer">
+        <div class="left">
+          <div role="navigation" aria-label="related navigaton">
+            <a href="../extractor/jdbc.html" title="JDBC Source"
+              >previous</a> |
+            <a href="exploder.html" title="Exploder"
+              >next</a> |
+            <a href="../py-modindex.html" title="Python Module Index"
+              >modules</a> |
+            <a href="../genindex.html" title="General Index"
+              >index</a>
+          </div>
+          <div role="note" aria-label="source link">
+              <br/>
+              <a href="../_sources/transformer/overview.rst.txt"
+                rel="nofollow">Show Source</a>
+          </div>
+        </div>
+
+        <div class="right">
+          
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2020, David Eigenstuhler.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.5.
+    </div>
+        </div>
+        <div class="clearer"></div>
+      </div>
+    </div>
+
+  </body>
+</html>

@@ -1,0 +1,17 @@
+@startuml
+
+skinparam monochrome true
+skinparam defaultFontname Bitstream Vera Sans Mono
+skinparam defaultTextAlignment center
+
+start
+-[#Black]->
+if (data is array-like?) then (yes)
+  -[#Grey,dotted]->
+  #LightGray:explode array;
+  -[#Grey,dotted]->
+else (no)
+  :no transformation;
+endif
+stop
+@enduml

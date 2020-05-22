@@ -1,0 +1,48 @@
+@startuml
+
+skinparam titleFontSize 24
+skinparam TitleFontStyle Bold
+
+'title Spooq2 - Interfaces / API
+
+left to right direction
+
+interface Pipeline {
+    +execute()
+    --
+    +extract()
+    +transform()
+    +load()
+    +set_extractor()
+    +add_transformers()
+    +clear_transformers()
+    +set_loader()
+}
+
+interface Extractor {
+    +extract() -> DataFrame
+}
+
+interface Transformer {
+    +transform(input_df: DataFrame) -> DataFrame
+}
+
+interface Loader {
+    +load(input_df: DataFrame) -> None
+}
+
+Pipeline "1" *-- "1" Extractor : contains
+
+Pipeline "1" *-- "1 - *" Transformer : contains
+
+Pipeline "1" *-- "1" Loader : contains
+
+
+footer
+<font color=red>Hint!</font>
+Extractors, Transformers & Loaders can also be used directly if special
+use cases require additional logic not covered with provided classes!
+For example saving to a Hive Table with multiple partition attributes (e.g., dt & type).
+endfooter
+
+@enduml

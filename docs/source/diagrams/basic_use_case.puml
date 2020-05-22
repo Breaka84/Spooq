@@ -1,0 +1,92 @@
+@startuml
+
+skinparam titleFontSize 24
+skinparam TitleFontStyle Bold
+
+'title Spooq2 - Basic Use Case
+
+allow_mixing
+
+class Client
+
+class Pipeline {
+    execute()
+}
+
+Client -> Pipeline
+note on link
+execute()
+end note
+
+database "Source System"
+database "Target System"
+
+package "Extractor"  {
+
+    Pipeline ..> "Specific Extractor"
+
+    class "Specific Extractor" {
+        extract()
+    }
+
+}
+
+"Source System" -> "Specific Extractor"
+note on link
+    Raw Data
+end note
+
+
+package "Transformers"  {
+
+    "Specific Extractor" ..> "Specific Transformer 1"
+
+    note on link
+        DataFrame
+    end note
+
+    class "Specific Transformer 1" {
+        transform()
+    }
+
+    "Specific Transformer 1" .> "Specific Transformer 2"
+
+    note on link
+        DataFrame
+    end note
+
+    class "Specific Transformer 2" {
+        transform()
+    }
+
+    "Specific Transformer 2" .> "Specific Transformer 3"
+
+    note on link
+        DataFrame
+    end note
+
+    class "Specific Transformer 3" {
+        transform()
+    }
+
+}
+
+package "Loader" {
+
+    "Specific Transformer 3" ..> "Specific Loader"
+
+    note on link
+        DataFrame
+    end note
+
+    class "Specific Loader" {
+        load()
+    }
+}
+
+"Target System" <- "Specific Loader"
+note on link
+    Transformed Data
+end note
+
+@enduml

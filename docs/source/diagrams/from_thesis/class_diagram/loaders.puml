@@ -1,0 +1,37 @@
+@startuml
+
+skinparam monochrome true
+skinparam defaultFontname Bitstream Vera Sans Mono
+skinparam defaultFontSize 18
+
+
+' left to right direction
+
+
+  namespace loader {
+    
+    class Loader {
+      .. derived ..
+      name : str
+      logger : logging.logger
+      __
+      load(input_df : DataFrame)
+    }
+    Loader <|-- HiveLoader
+    class HiveLoader {
+      db_name : str
+      table_name : str
+      partition_definitions : list
+      clear_partition : bool = True
+      repartition_size : int = 40
+      auto_create_table : bool = True
+      overwrite_partition_value : bool = True
+      .. derived ..
+      full_table_name : str
+      spark : SparkSession
+      __
+      load(input_df : DataFrame)
+    }
+  }
+' }
+ @enduml

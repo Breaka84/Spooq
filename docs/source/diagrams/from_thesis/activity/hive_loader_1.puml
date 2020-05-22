@@ -1,0 +1,35 @@
+@startuml
+
+skinparam monochrome true
+skinparam defaultFontname Bitstream Vera Sans Mono
+skinparam defaultTextAlignment center
+
+start
+  :repartition DataFrame to **""repartition_size""**;
+  while (for **""partition_definition""** in **""partition_definitions""**)
+    if (**""column_name""** not in DataFrame //or// **""overwrite_partition_value""**) then (true)
+      :add/overwrite **""column_name""** with **""default_value""**;
+      :cast **""column_name""** as **""column_type""**;
+    else (false)
+    endif
+  endwhile
+  if (**""full_table_name""** already exists) then (true)
+    :assert DataFrame schema equals
+    **""full_table_name""** schema;
+    if (**""clear_partition""**) then (true)
+      :drop partition in **""full_table_name""**;
+    else (false)
+    endif
+  else (false)
+    if (**""auto_create_table""**) then (true)
+    :partition DataFrame
+    by **""partition_definitions""**;
+    :create **""full_table_name""**;
+    else (false)
+      end
+    endif
+  endif
+  :insert into **""full_table_name""**;
+
+stop
+@enduml

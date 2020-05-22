@@ -1,0 +1,153 @@
+\begin{sphinxtheindex}
+\let\bigletter\sphinxstyleindexlettergroup
+\let\spxpagem \sphinxstyleindexpagemain
+\let\spxentry \sphinxstyleindexentry
+\let\spxextra \sphinxstyleindexextra
+
+  \bigletter {\sphinxsymbolsname}
+  \item \spxentry{\_generate\_select\_expression\_for\_IntBoolean()}\spxextra{in module spooq2.transformer.mapper\_custom\_data\_types}, 
+		\hyperpage{21}
+  \item \spxentry{\_generate\_select\_expression\_for\_IntNull()}\spxextra{in module spooq2.transformer.mapper\_custom\_data\_types}, 
+		\hyperpage{21}
+  \item \spxentry{\_generate\_select\_expression\_for\_StringBoolean()}\spxextra{in module spooq2.transformer.mapper\_custom\_data\_types}, 
+		\hyperpage{21}
+  \item \spxentry{\_generate\_select\_expression\_for\_StringNull()}\spxextra{in module spooq2.transformer.mapper\_custom\_data\_types}, 
+		\hyperpage{20}
+  \item \spxentry{\_generate\_select\_expression\_for\_TimestampMonth()}\spxextra{in module spooq2.transformer.mapper\_custom\_data\_types}, 
+		\hyperpage{22}
+  \item \spxentry{\_generate\_select\_expression\_for\_as\_is()}\spxextra{in module spooq2.transformer.mapper\_custom\_data\_types}, 
+		\hyperpage{18}
+  \item \spxentry{\_generate\_select\_expression\_for\_json\_string()}\spxextra{in module spooq2.transformer.mapper\_custom\_data\_types}, 
+		\hyperpage{18}
+  \item \spxentry{\_generate\_select\_expression\_for\_keep()}\spxextra{in module spooq2.transformer.mapper\_custom\_data\_types}, 
+		\hyperpage{18}
+  \item \spxentry{\_generate\_select\_expression\_for\_no\_change()}\spxextra{in module spooq2.transformer.mapper\_custom\_data\_types}, 
+		\hyperpage{18}
+  \item \spxentry{\_generate\_select\_expression\_for\_timestamp\_ms\_to\_ms()}\spxextra{in module spooq2.transformer.mapper\_custom\_data\_types}, 
+		\hyperpage{18}
+  \item \spxentry{\_generate\_select\_expression\_for\_timestamp\_ms\_to\_s()}\spxextra{in module spooq2.transformer.mapper\_custom\_data\_types}, 
+		\hyperpage{19}
+  \item \spxentry{\_generate\_select\_expression\_for\_timestamp\_s\_to\_ms()}\spxextra{in module spooq2.transformer.mapper\_custom\_data\_types}, 
+		\hyperpage{19}
+  \item \spxentry{\_generate\_select\_expression\_for\_timestamp\_s\_to\_s()}\spxextra{in module spooq2.transformer.mapper\_custom\_data\_types}, 
+		\hyperpage{20}
+  \item \spxentry{\_generate\_select\_expression\_without\_casting()}\spxextra{in module spooq2.transformer.mapper\_custom\_data\_types}, 
+		\hyperpage{18}
+  \item \spxentry{\_get\_select\_expression\_for\_custom\_type()}\spxextra{in module spooq2.transformer.mapper\_custom\_data\_types}, 
+		\hyperpage{18}
+
+  \indexspace
+  \bigletter A
+  \item \spxentry{add\_custom\_data\_type()}\spxextra{in module spooq2.transformer.mapper\_custom\_data\_types}, 
+		\hyperpage{16}
+  \item \spxentry{add\_transformers()}\spxextra{Pipeline method}, \hyperpage{31}
+
+  \indexspace
+  \bigletter C
+  \item \spxentry{clear\_transformers()}\spxextra{Pipeline method}, \hyperpage{31}
+
+  \indexspace
+  \bigletter E
+  \item \spxentry{execute()}\spxextra{Pipeline method}, \hyperpage{30}
+  \item \spxentry{execute()}\spxextra{PipelineFactory method}, \hyperpage{32}
+  \item \spxentry{Exploder}\spxextra{class in spooq2.transformer.exploder}, \hyperpage{12}
+  \item \spxentry{extract()}\spxextra{Extractor method}, \hyperpage{34}
+  \item \spxentry{extract()}\spxextra{JDBCExtractorFullLoad method}, \hyperpage{10}
+  \item \spxentry{extract()}\spxextra{JDBCExtractorIncremental method}, \hyperpage{11}
+  \item \spxentry{extract()}\spxextra{JSONExtractor method}, \hyperpage{9}
+  \item \spxentry{extract()}\spxextra{Pipeline method}, \hyperpage{30}
+  \item \spxentry{Extractor}\spxextra{class in spooq2.extractor.extractor}, \hyperpage{34}
+  \item \spxentry{extractor}\spxextra{Pipeline attribute}, \hyperpage{29}
+
+  \indexspace
+  \bigletter G
+  \item \spxentry{get\_logging\_level()}\spxextra{in module spooq2.spooq2\_logger}, \hyperpage{34}
+  \item \spxentry{get\_metadata()}\spxextra{PipelineFactory method}, \hyperpage{32}
+  \item \spxentry{get\_pipeline()}\spxextra{PipelineFactory method}, \hyperpage{32}
+
+  \indexspace
+  \bigletter H
+  \item \spxentry{HiveLoader}\spxextra{class in spooq2.loader.hive\_loader}, \hyperpage{25}
+
+  \indexspace
+  \bigletter I
+  \item \spxentry{initialize()}\spxextra{in module spooq2.spooq2\_logger}, \hyperpage{34}
+
+  \indexspace
+  \bigletter J
+  \item \spxentry{JDBCExtractor}\spxextra{class in spooq2.extractor.jdbc}, \hyperpage{9}
+  \item \spxentry{JDBCExtractorFullLoad}\spxextra{class in spooq2.extractor.jdbc}, \hyperpage{9}
+  \item \spxentry{JDBCExtractorIncremental}\spxextra{class in spooq2.extractor.jdbc}, 
+		\hyperpage{10}
+  \item \spxentry{JSONExtractor}\spxextra{class in spooq2.extractor.json\_files}, \hyperpage{8}
+
+  \indexspace
+  \bigletter L
+  \item \spxentry{load()}\spxextra{HiveLoader method}, \hyperpage{26}
+  \item \spxentry{load()}\spxextra{Loader method}, \hyperpage{42}
+  \item \spxentry{load()}\spxextra{Pipeline method}, \hyperpage{30}
+  \item \spxentry{Loader}\spxextra{class in spooq2.loader.loader}, \hyperpage{41}
+  \item \spxentry{loader}\spxextra{Pipeline attribute}, \hyperpage{29}
+  \item \spxentry{logger}\spxextra{Extractor attribute}, \hyperpage{34}
+  \item \spxentry{logger}\spxextra{Loader attribute}, \hyperpage{42}
+  \item \spxentry{logger}\spxextra{Pipeline attribute}, \hyperpage{29}
+  \item \spxentry{logger}\spxextra{Transformer attribute}, \hyperpage{38}
+
+  \indexspace
+  \bigletter M
+  \item \spxentry{Mapper}\spxextra{class in spooq2.transformer.mapper}, \hyperpage{14}
+
+  \indexspace
+  \bigletter N
+  \item \spxentry{name}\spxextra{Extractor attribute}, \hyperpage{34}
+  \item \spxentry{name}\spxextra{Loader attribute}, \hyperpage{42}
+  \item \spxentry{name}\spxextra{Pipeline attribute}, \hyperpage{29}
+  \item \spxentry{name}\spxextra{Transformer attribute}, \hyperpage{38}
+  \item \spxentry{NewestByGroup}\spxextra{class in spooq2.transformer.newest\_by\_group}, 
+		\hyperpage{23}
+
+  \indexspace
+  \bigletter P
+  \item \spxentry{Pipeline}\spxextra{class in spooq2.pipeline.pipeline}, \hyperpage{28}
+  \item \spxentry{PipelineFactory}\spxextra{class in spooq2.pipeline.factory}, \hyperpage{31}
+
+  \indexspace
+  \bigletter S
+  \item \spxentry{set\_extractor()}\spxextra{Pipeline method}, \hyperpage{30}
+  \item \spxentry{set\_loader()}\spxextra{Pipeline method}, \hyperpage{31}
+  \item \spxentry{Sieve}\spxextra{class in spooq2.transformer.sieve}, \hyperpage{13}
+  \item \spxentry{spooq2.extractor.extractor}\spxextra{module}, \hyperpage{8}, \hyperpage{34}
+  \item \spxentry{spooq2.extractor.jdbc}\spxextra{module}, \hyperpage{9}
+  \item \spxentry{spooq2.extractor.json\_files}\spxextra{module}, \hyperpage{8}
+  \item \spxentry{spooq2.loader.hive\_loader}\spxextra{module}, \hyperpage{25}
+  \item \spxentry{spooq2.loader.loader}\spxextra{module}, \hyperpage{25}, \hyperpage{41}
+  \item \spxentry{spooq2.pipeline.factory}\spxextra{module}, \hyperpage{31}
+  \item \spxentry{spooq2.pipeline.pipeline}\spxextra{module}, \hyperpage{28}
+  \item \spxentry{spooq2.spooq2\_logger}\spxextra{module}, \hyperpage{33}
+  \item \spxentry{spooq2.transformer.exploder}\spxextra{module}, \hyperpage{12}
+  \item \spxentry{spooq2.transformer.mapper}\spxextra{module}, \hyperpage{14}
+  \item \spxentry{spooq2.transformer.mapper\_custom\_data\_types}\spxextra{module}, \hyperpage{16}
+  \item \spxentry{spooq2.transformer.newest\_by\_group}\spxextra{module}, \hyperpage{23}
+  \item \spxentry{spooq2.transformer.sieve}\spxextra{module}, \hyperpage{13}
+  \item \spxentry{spooq2.transformer.threshold\_cleaner}\spxextra{module}, \hyperpage{22}
+  \item \spxentry{spooq2.transformer.transformer}\spxextra{module}, \hyperpage{12}, \hyperpage{38}
+
+  \indexspace
+  \bigletter T
+  \item \spxentry{ThresholdCleaner}\spxextra{class in spooq2.transformer.threshold\_cleaner}, 
+		\hyperpage{22}
+  \item \spxentry{transform()}\spxextra{Exploder method}, \hyperpage{13}
+  \item \spxentry{transform()}\spxextra{Mapper method}, \hyperpage{15}
+  \item \spxentry{transform()}\spxextra{NewestByGroup method}, \hyperpage{24}
+  \item \spxentry{transform()}\spxextra{Pipeline method}, \hyperpage{30}
+  \item \spxentry{transform()}\spxextra{Sieve method}, \hyperpage{14}
+  \item \spxentry{transform()}\spxextra{ThresholdCleaner method}, \hyperpage{23}
+  \item \spxentry{transform()}\spxextra{Transformer method}, \hyperpage{38}
+  \item \spxentry{Transformer}\spxextra{class in spooq2.transformer.transformer}, \hyperpage{38}
+  \item \spxentry{transformers}\spxextra{Pipeline attribute}, \hyperpage{29}
+
+  \indexspace
+  \bigletter U
+  \item \spxentry{url}\spxextra{PipelineFactory attribute}, \hyperpage{31}
+
+\end{sphinxtheindex}

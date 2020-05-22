@@ -1,0 +1,384 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Transformer Base Class &#8212; Spooq2 2.0.0b0 documentation</title>
+    <link rel="stylesheet" href="../_static/agogo.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../_static/theme_overrides.css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="../_static/language_data.js"></script>
+    <script type="text/javascript" src="../_static/copybutton.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Loader Base Class" href="loader.html" />
+    <link rel="prev" title="Extractor Base Class" href="extractor.html" /> 
+  </head><body>
+    <div class="header-wrapper" role="banner">
+      <div class="header">
+        <div class="headertitle"><a
+          href="../index.html">Spooq2 2.0.0b0 documentation</a></div>
+        <div class="rel" role="navigation" aria-label="related navigation">
+          <a href="extractor.html" title="Extractor Base Class"
+             accesskey="P">previous</a> |
+          <a href="loader.html" title="Loader Base Class"
+             accesskey="N">next</a> |
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a>
+        </div>
+       </div>
+    </div>
+
+    <div class="content-wrapper">
+      <div class="content">
+        <div class="document">
+            
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-spooq2.transformer.transformer">
+<span id="transformer-base-class"></span><h1>Transformer Base Class<a class="headerlink" href="#module-spooq2.transformer.transformer" title="Permalink to this headline">¶</a></h1>
+<p>Transformers take a <a class="reference external" href="https://spark.apache.org/docs/2.4.3/api/python/pyspark.sql.html#pyspark.sql.DataFrame" title="(in PySpark vmaster)"><code class="xref py py-class docutils literal notranslate"><span class="pre">pyspark.sql.DataFrame</span></code></a> as an input, transform it accordingly
+and return a PySpark DataFrame.</p>
+<p>Each Transformer class has to have a <cite>transform</cite> method which takes no arguments
+and returns a PySpark DataFrame.</p>
+<p>Possible transformation methods can be <strong>Selecting the most up to date record by id</strong>,
+<strong>Exploding an array</strong>, <strong>Filter (on an exploded array)</strong>, <strong>Apply basic threshold cleansing</strong> or
+<strong>Map the incoming DataFrame to at provided structure</strong>.</p>
+<dl class="class">
+<dt id="spooq2.transformer.transformer.Transformer">
+<em class="property">class </em><code class="descname">Transformer</code><a class="reference internal" href="../_modules/spooq2/transformer/transformer.html#Transformer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spooq2.transformer.transformer.Transformer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/2.7/library/functions.html#object" title="(in Python v2.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>Base Class of Transformer Classes.</p>
+<dl class="attribute">
+<dt id="spooq2.transformer.transformer.Transformer.name">
+<code class="descname">name</code><a class="headerlink" href="#spooq2.transformer.transformer.Transformer.name" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets the <cite>__name__</cite> of the class’ type as <cite>name</cite>, which is essentially the Class’ Name.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/2.7/library/functions.html#str" title="(in Python v2.7)"><code class="xref any docutils literal notranslate"><span class="pre">str</span></code></a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="spooq2.transformer.transformer.Transformer.logger">
+<code class="descname">logger</code><a class="headerlink" href="#spooq2.transformer.transformer.Transformer.logger" title="Permalink to this definition">¶</a></dt>
+<dd><p>Shared, class level logger for all instances.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/2.7/library/logging.html#logging.Logger" title="(in Python v2.7)"><code class="xref any docutils literal notranslate"><span class="pre">logging.Logger</span></code></a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="spooq2.transformer.transformer.Transformer.transform">
+<code class="descname">transform</code><span class="sig-paren">(</span><em>input_df</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/spooq2/transformer/transformer.html#Transformer.transform"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spooq2.transformer.transformer.Transformer.transform" title="Permalink to this definition">¶</a></dt>
+<dd><p>Performs a transformation on a DataFrame.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>input_df</strong> (<a class="reference external" href="https://spark.apache.org/docs/2.4.3/api/python/pyspark.sql.html#pyspark.sql.DataFrame" title="(in PySpark vmaster)"><code class="xref py py-class docutils literal notranslate"><span class="pre">pyspark.sql.DataFrame</span></code></a>) – Input DataFrame</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Transformed DataFrame.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference external" href="https://spark.apache.org/docs/2.4.3/api/python/pyspark.sql.html#pyspark.sql.DataFrame" title="(in PySpark vmaster)"><code class="xref py py-class docutils literal notranslate"><span class="pre">pyspark.sql.DataFrame</span></code></a></td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">This method does only take the Input DataFrame as a parameters. All other needed parameters
+are defined in the initialization of the Transformator Object.</p>
+</div>
+</dd></dl>
+
+</dd></dl>
+
+<div class="section" id="create-your-own-transformer">
+<span id="custom-transformer"></span><h2>Create your own Transformer<a class="headerlink" href="#create-your-own-transformer" title="Permalink to this headline">¶</a></h2>
+<p>Let your transformer class inherit from the transformer base class.
+This includes the name, string representation and logger attributes from the superclass.</p>
+<div class="line-block">
+<div class="line">The only mandatory thing is to provide a <cite>transform()</cite> method which</div>
+<div class="line"><strong>takes</strong> a</div>
+<div class="line">=&gt; <em>PySpark DataFrame!</em></div>
+<div class="line">and <strong>returns</strong> a</div>
+<div class="line">=&gt; <em>PySpark DataFrame!</em></div>
+</div>
+<p>All configuration and parameterization should be done while initializing the class instance.</p>
+<p>Here would be a simple example for a transformer which drops records without an Id:</p>
+<div class="section" id="exemplary-sample-code">
+<h3>Exemplary Sample Code<a class="headerlink" href="#exemplary-sample-code" title="Permalink to this headline">¶</a></h3>
+<div class="literal-block-wrapper docutils container" id="id1">
+<div class="code-block-caption"><span class="caption-text">src/spooq2/transformer/no_id_dropper.py:</span><a class="headerlink" href="#id1" title="Permalink to this code">¶</a></div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">transformer</span> <span class="kn">import</span> <span class="n">Transformer</span>
+
+<span class="k">class</span> <span class="nc">NoIdDropper</span><span class="p">(</span><span class="n">Transformer</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This is a simplified example on how to implement a new transformer class.</span>
+<span class="sd">    Please take your time to write proper docstrings as they are automatically</span>
+<span class="sd">    parsed via Sphinx to build the HTML and PDF documentation.</span>
+<span class="sd">    Docstrings use the style of Numpy (via the napoleon plug-in).</span>
+
+<span class="sd">    This class uses the :meth:`pyspark.sql.DataFrame.dropna` method internally.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    input_df = some_extractor_instance.extract()</span>
+<span class="sd">    transformed_df = NoIdDropper(</span>
+<span class="sd">        id_columns=&#39;user_id&#39;</span>
+<span class="sd">    ).transform(input_df)</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    id_columns: :any:`str` or :any:`list`</span>
+<span class="sd">        The name of the column containing the identifying Id values.</span>
+<span class="sd">        Defaults to &quot;id&quot; </span>
+<span class="sd">    </span>
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    :any:`exceptions.ValueError`: </span>
+<span class="sd">        &quot;how (&#39;&quot; + how + &quot;&#39;) should be &#39;any&#39; or &#39;all&#39;&quot;</span>
+<span class="sd">    :any:`exceptions.ValueError`: </span>
+<span class="sd">        &quot;subset should be a list or tuple of column names&quot;</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">id_columns</span><span class="o">=</span><span class="s1">&#39;id&#39;</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">NoIdDropper</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">id_columns</span> <span class="o">=</span> <span class="n">id_columns</span>
+
+
+    <span class="k">def</span> <span class="nf">transform</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_df</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Dropping records without an Id (columns to consider: </span><span class="si">{col}</span><span class="s2">)&quot;</span>
+            <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">col</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">id_columns</span><span class="p">))</span>
+        <span class="n">output_df</span> <span class="o">=</span> <span class="n">input_df</span><span class="o">.</span><span class="n">dropna</span><span class="p">(</span>
+            <span class="n">how</span><span class="o">=</span><span class="s1">&#39;all&#39;</span><span class="p">,</span> 
+            <span class="n">thresh</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> 
+            <span class="n">subset</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">id_columns</span>
+        <span class="p">)</span>
+        
+        <span class="k">return</span> <span class="n">output_df</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="references-to-include">
+<h3>References to include<a class="headerlink" href="#references-to-include" title="Permalink to this headline">¶</a></h3>
+<p>This makes it possible to import the new transformer class directly
+from <cite>spooq2.transformer</cite> instead of <cite>spooq2.transformer.no_id_dropper</cite>.
+It will also be imported if you use <cite>from spooq2.transformer import *</cite>.</p>
+<div class="literal-block-wrapper docutils container" id="id2">
+<div class="code-block-caption"><span class="caption-text">src/spooq2/transformer/__init__.py:</span><a class="headerlink" href="#id2" title="Permalink to this code">¶</a></div>
+<div class="highlight-udiff notranslate"><div class="highlight"><pre><span></span><span class="gd">--- original </span>
+<span class="gi">+++ adapted </span>
+<span class="gu">@@ -1,13 +1,15 @@</span>
+ from newest_by_group import NewestByGroup
+ from mapper import Mapper
+ from exploder import Exploder
+ from threshold_cleaner import ThresholdCleaner
+ from sieve import Sieve
+<span class="gi">+from no_id_dropper import NoIdDropper</span>
+ 
+ __all__ = [
+     &quot;NewestByGroup&quot;,
+     &quot;Mapper&quot;,
+     &quot;Exploder&quot;,
+     &quot;ThresholdCleaner&quot;,
+     &quot;Sieve&quot;,
+<span class="gi">+    &quot;NoIdDropper&quot;,</span>
+ ]
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="tests">
+<h3>Tests<a class="headerlink" href="#tests" title="Permalink to this headline">¶</a></h3>
+<p>One of Spooq2’s features is to provide tested code for multiple data pipelines.
+Please take your time to write sufficient unit tests!
+You can reuse test data from <cite>tests/data</cite> or create a new schema / data set if needed.
+A SparkSession is provided as a global fixture called <cite>spark_session</cite>.</p>
+<div class="literal-block-wrapper docutils container" id="id3">
+<div class="code-block-caption"><span class="caption-text">tests/unit/transformer/test_no_id_dropper.py:</span><a class="headerlink" href="#id3" title="Permalink to this code">¶</a></div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pytest</span>
+<span class="kn">from</span> <span class="nn">pyspark.sql.dataframe</span> <span class="kn">import</span> <span class="n">DataFrame</span>
+
+<span class="kn">from</span> <span class="nn">spooq2.transformer</span> <span class="kn">import</span> <span class="n">NoIdDropper</span>
+
+
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">fixture</span><span class="p">()</span>
+<span class="k">def</span> <span class="nf">default_transformer</span><span class="p">():</span>
+    <span class="k">return</span> <span class="n">NoIdDropper</span><span class="p">(</span><span class="n">id_columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;first_name&quot;</span><span class="p">,</span> <span class="s2">&quot;last_name&quot;</span><span class="p">])</span>
+
+
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">fixture</span><span class="p">()</span>
+<span class="k">def</span> <span class="nf">input_df</span><span class="p">(</span><span class="n">spark_session</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">spark_session</span><span class="o">.</span><span class="n">read</span><span class="o">.</span><span class="n">parquet</span><span class="p">(</span><span class="s2">&quot;../data/schema_v1/parquetFiles&quot;</span><span class="p">)</span>
+
+
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">fixture</span><span class="p">()</span>
+<span class="k">def</span> <span class="nf">transformed_df</span><span class="p">(</span><span class="n">default_transformer</span><span class="p">,</span> <span class="n">input_df</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">default_transformer</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">input_df</span><span class="p">)</span>
+
+
+<span class="k">class</span> <span class="nc">TestBasicAttributes</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">test_logger_should_be_accessible</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">default_transformer</span><span class="p">):</span>
+        <span class="k">assert</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">default_transformer</span><span class="p">,</span> <span class="s2">&quot;logger&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">test_name_is_set</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">default_transformer</span><span class="p">):</span>
+        <span class="k">assert</span> <span class="n">default_transformer</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s2">&quot;NoIdDropper&quot;</span>
+
+    <span class="k">def</span> <span class="nf">test_str_representation_is_correct</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">default_transformer</span><span class="p">):</span>
+        <span class="k">assert</span> <span class="n">unicode</span><span class="p">(</span><span class="n">default_transformer</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;Transformer Object of Class NoIdDropper&quot;</span>
+
+<span class="k">class</span> <span class="nc">TestNoIdDropper</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">test_records_are_dropped</span><span class="p">(</span><span class="n">transformed_df</span><span class="p">,</span> <span class="n">input_df</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Transformed DataFrame has no records with missing first_name and last_name&quot;&quot;&quot;</span>
+        <span class="k">assert</span> <span class="n">input_df</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="s2">&quot;first_name is null or last_name is null&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">count</span><span class="p">()</span> <span class="o">&gt;</span> <span class="mi">0</span>
+        <span class="k">assert</span> <span class="n">transformed_df</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="s2">&quot;first_name is null or last_name is null&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">count</span><span class="p">()</span> <span class="o">==</span> <span class="mi">0</span>
+
+    <span class="k">def</span> <span class="nf">test_schema_is_unchanged</span><span class="p">(</span><span class="n">transformed_df</span><span class="p">,</span> <span class="n">input_df</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Converted DataFrame has the expected schema&quot;&quot;&quot;</span>
+        <span class="k">assert</span> <span class="n">transformed_df</span><span class="o">.</span><span class="n">schema</span> <span class="o">==</span> <span class="n">input_df</span><span class="o">.</span><span class="n">schema</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="documentation">
+<h3>Documentation<a class="headerlink" href="#documentation" title="Permalink to this headline">¶</a></h3>
+<p>You need to create a <cite>rst</cite> for your transformer
+which needs to contain at minimum the <cite>automodule</cite> or the <cite>autoclass</cite> directive.</p>
+<div class="literal-block-wrapper docutils container" id="id4">
+<div class="code-block-caption"><span class="caption-text">docs/source/transformer/no_id_dropper.rst:</span><a class="headerlink" href="#id4" title="Permalink to this code">¶</a></div>
+<div class="highlight-RST notranslate"><div class="highlight"><pre><span></span><span class="gh">Record Dropper if Id is missing</span>
+<span class="gh">===============================</span>
+
+Some text if you like...
+
+<span class="p">..</span> <span class="ow">automodule</span><span class="p">::</span> spooq2.transformer.no_id_dropper
+</pre></div>
+</div>
+</div>
+<p>To automatically include your new transformer in the HTML / PDF documentation
+you need to add it to a <cite>toctree</cite> directive. Just refer to your newly created
+<cite>no_id_dropper.rst</cite> file within the transformer overview page.</p>
+<div class="literal-block-wrapper docutils container" id="id5">
+<div class="code-block-caption"><span class="caption-text">docs/source/transformer/overview.rst:</span><a class="headerlink" href="#id5" title="Permalink to this code">¶</a></div>
+<div class="highlight-udiff notranslate"><div class="highlight"><pre><span></span><span class="gd">--- original</span>
+<span class="gi">+++ adapted</span>
+<span class="gu">@@ -7,14 +7,15 @@</span>
+ .. toctree::
+
+     exploder
+     sieve
+     mapper
+     threshold_cleaner
+     newest_by_group
+<span class="gi">+    no_id_dropper</span>
+
+ Class Diagram of Transformer Subpackage
+ ------------------------------------------------
+ .. uml:: ../diagrams/from_thesis/class_diagram/transformers.puml
+</pre></div>
+</div>
+</div>
+<p>That should be it!</p>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+        </div>
+        <div class="sidebar">
+          <h3>Table of Contents</h3>
+          <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation / Deployment</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../extractor/overview.html">Extractors</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../transformer/overview.html">Transformers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../loader/overview.html">Loaders</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../pipeline/overview.html">Pipeline</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="overview.html">Spooq Base</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="spooq2_logger.html">Global Logger</a></li>
+<li class="toctree-l2"><a class="reference internal" href="extractor.html">Extractor Base Class</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Transformer Base Class</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#create-your-own-transformer">Create your own Transformer</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="loader.html">Loader Base Class</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../setup_development_testing.html">Setup for Development, Testing, Documenting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../architecture.html">Architecture Overview</a></li>
+</ul>
+
+          <div role="search">
+            <h3 style="margin-top: 1.5em;">Search</h3>
+            <form class="search" action="../search.html" method="get">
+                <input type="text" name="q" />
+                <input type="submit" value="Go" />
+                <input type="hidden" name="check_keywords" value="yes" />
+                <input type="hidden" name="area" value="default" />
+            </form>
+          </div>
+        </div>
+        <div class="clearer"></div>
+      </div>
+    </div>
+
+    <div class="footer-wrapper">
+      <div class="footer">
+        <div class="left">
+          <div role="navigation" aria-label="related navigaton">
+            <a href="extractor.html" title="Extractor Base Class"
+              >previous</a> |
+            <a href="loader.html" title="Loader Base Class"
+              >next</a> |
+            <a href="../py-modindex.html" title="Python Module Index"
+              >modules</a> |
+            <a href="../genindex.html" title="General Index"
+              >index</a>
+          </div>
+          <div role="note" aria-label="source link">
+              <br/>
+              <a href="../_sources/base_classes/transformer.rst.txt"
+                rel="nofollow">Show Source</a>
+          </div>
+        </div>
+
+        <div class="right">
+          
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2020, David Eigenstuhler.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.5.
+    </div>
+        </div>
+        <div class="clearer"></div>
+      </div>
+    </div>
+
+  </body>
+</html>

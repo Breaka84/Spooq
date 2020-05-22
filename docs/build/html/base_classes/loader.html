@@ -1,0 +1,411 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Loader Base Class &#8212; Spooq2 2.0.0b0 documentation</title>
+    <link rel="stylesheet" href="../_static/agogo.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../_static/theme_overrides.css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="../_static/language_data.js"></script>
+    <script type="text/javascript" src="../_static/copybutton.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Setup for Development, Testing, Documenting" href="../setup_development_testing.html" />
+    <link rel="prev" title="Transformer Base Class" href="transformer.html" /> 
+  </head><body>
+    <div class="header-wrapper" role="banner">
+      <div class="header">
+        <div class="headertitle"><a
+          href="../index.html">Spooq2 2.0.0b0 documentation</a></div>
+        <div class="rel" role="navigation" aria-label="related navigation">
+          <a href="transformer.html" title="Transformer Base Class"
+             accesskey="P">previous</a> |
+          <a href="../setup_development_testing.html" title="Setup for Development, Testing, Documenting"
+             accesskey="N">next</a> |
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a>
+        </div>
+       </div>
+    </div>
+
+    <div class="content-wrapper">
+      <div class="content">
+        <div class="document">
+            
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-spooq2.loader.loader">
+<span id="loader-base-class"></span><h1>Loader Base Class<a class="headerlink" href="#module-spooq2.loader.loader" title="Permalink to this headline">¶</a></h1>
+<p>Loaders take a <a class="reference external" href="https://spark.apache.org/docs/2.4.3/api/python/pyspark.sql.html#pyspark.sql.DataFrame" title="(in PySpark vmaster)"><code class="xref py py-class docutils literal notranslate"><span class="pre">pyspark.sql.DataFrame</span></code></a> as an input and save it to a sink.</p>
+<p>Each Loader class has to have a <cite>load</cite> method which takes a DataFrame as single paremter.</p>
+<p>Possible Loader sinks can be <strong>Hive Tables</strong>, <strong>Kudu Tables</strong>, <strong>HBase Tables</strong>, <strong>JDBC
+Sinks</strong> or <strong>ParquetFiles</strong>.</p>
+<dl class="class">
+<dt id="spooq2.loader.loader.Loader">
+<em class="property">class </em><code class="descname">Loader</code><a class="reference internal" href="../_modules/spooq2/loader/loader.html#Loader"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spooq2.loader.loader.Loader" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/2.7/library/functions.html#object" title="(in Python v2.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>Base Class of Loader Objects.</p>
+<dl class="attribute">
+<dt id="spooq2.loader.loader.Loader.name">
+<code class="descname">name</code><a class="headerlink" href="#spooq2.loader.loader.Loader.name" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets the <cite>__name__</cite> of the class’ type as <cite>name</cite>, which is essentially the Class’ Name.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/2.7/library/functions.html#str" title="(in Python v2.7)"><code class="xref any docutils literal notranslate"><span class="pre">str</span></code></a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="spooq2.loader.loader.Loader.logger">
+<code class="descname">logger</code><a class="headerlink" href="#spooq2.loader.loader.Loader.logger" title="Permalink to this definition">¶</a></dt>
+<dd><p>Shared, class level logger for all instances.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/2.7/library/logging.html#logging.Logger" title="(in Python v2.7)"><code class="xref any docutils literal notranslate"><span class="pre">logging.Logger</span></code></a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="spooq2.loader.loader.Loader.load">
+<code class="descname">load</code><span class="sig-paren">(</span><em>input_df</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/spooq2/loader/loader.html#Loader.load"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spooq2.loader.loader.Loader.load" title="Permalink to this definition">¶</a></dt>
+<dd><p>Persists data from a PySpark DataFrame to a target table.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>input_df</strong> (<a class="reference external" href="https://spark.apache.org/docs/2.4.3/api/python/pyspark.sql.html#pyspark.sql.DataFrame" title="(in PySpark vmaster)"><code class="xref any docutils literal notranslate"><span class="pre">pyspark.sql.DataFrame</span></code></a>) – Input DataFrame which has to be loaded to a target destination.</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">This method takes only a single DataFrame as an input parameter. All other needed
+parameters are defined in the initialization of the Loader object.</p>
+</div>
+</dd></dl>
+
+</dd></dl>
+
+<div class="section" id="create-your-own-loader">
+<span id="custom-loader"></span><h2>Create your own Loader<a class="headerlink" href="#create-your-own-loader" title="Permalink to this headline">¶</a></h2>
+<p>Let your loader class inherit from the loader base class.
+This includes the name, string representation and logger attributes from the superclass.</p>
+<div class="line-block">
+<div class="line">The only mandatory thing is to provide a <cite>load()</cite> method which</div>
+<div class="line"><strong>takes</strong> a</div>
+<div class="line">=&gt; <em>PySpark DataFrame!</em></div>
+<div class="line">and <strong>returns</strong></div>
+<div class="line"><em>nothing</em> (or at least the API does not expect anything)</div>
+</div>
+<p>All configuration and parameterization should be done while initializing the class instance.</p>
+<p>Here would be a simple example for a loader which save a DataFrame to parquet files:</p>
+<div class="section" id="exemplary-sample-code">
+<h3>Exemplary Sample Code<a class="headerlink" href="#exemplary-sample-code" title="Permalink to this headline">¶</a></h3>
+<div class="literal-block-wrapper docutils container" id="id1">
+<div class="code-block-caption"><span class="caption-text">src/spooq2/loader/parquet.py:</span><a class="headerlink" href="#id1" title="Permalink to this code">¶</a></div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pyspark.sql</span> <span class="kn">import</span> <span class="n">functions</span> <span class="k">as</span> <span class="n">F</span>
+
+<span class="kn">from</span> <span class="nn">loader</span> <span class="kn">import</span> <span class="n">Loader</span>
+
+<span class="k">class</span> <span class="nc">ParquetLoader</span><span class="p">(</span><span class="n">loader</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This is a simplified example on how to implement a new loader class.</span>
+<span class="sd">    Please take your time to write proper docstrings as they are automatically</span>
+<span class="sd">    parsed via Sphinx to build the HTML and PDF documentation.</span>
+<span class="sd">    Docstrings use the style of Numpy (via the napoleon plug-in).</span>
+
+<span class="sd">    This class uses the :meth:`pyspark.sql.DataFrameWriter.parquet` method internally.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    input_df = some_extractor_instance.extract()</span>
+<span class="sd">    output_df = some_transformer_instance.transform(input_df)</span>
+<span class="sd">    ParquetLoader(</span>
+<span class="sd">        path=&quot;data/parquet_files&quot;,</span>
+<span class="sd">        partition_by=&quot;dt&quot;,</span>
+<span class="sd">        explicit_partition_values=20200201,</span>
+<span class="sd">        compression=&quot;&quot;gzip&quot;&quot;</span>
+<span class="sd">    ).load(output_df)</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    path: :any:`str`</span>
+<span class="sd">        The path to where the loader persists the output parquet files.</span>
+<span class="sd">        If partitioning is set, this will be the base path where the partitions </span>
+<span class="sd">        are stored.</span>
+
+<span class="sd">    partition_by: :any:`str` or :any:`list` of (:any:`str`)</span>
+<span class="sd">        The column name or names by which the output should be partitioned.</span>
+<span class="sd">        If the partition_by parameter is set to None, no partitioning will be </span>
+<span class="sd">        performed.</span>
+<span class="sd">        Defaults to &quot;dt&quot;</span>
+
+<span class="sd">    explicit_partition_values: :any:`str` or :any:`int` </span>
+<span class="sd">                                or :any:`list` of (:any:`str` and :any:`int`)</span>
+<span class="sd">        Only allowed if partition_by is not None.</span>
+<span class="sd">        If explicit_partition_values is not None, the dataframe will</span>
+<span class="sd">            * overwrite the partition_by columns values if it already exists or</span>
+<span class="sd">            * create and fill the partition_by columns if they do not yet exist</span>
+<span class="sd">        Defaults to None</span>
+
+<span class="sd">    compression: :any:`str`</span>
+<span class="sd">        The compression codec used for the parquet output files.</span>
+<span class="sd">        Defaults to &quot;snappy&quot;</span>
+
+<span class="sd">    </span>
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    :any:`exceptions.AssertionError`:</span>
+<span class="sd">        explicit_partition_values can only be used when partition_by is not None</span>
+<span class="sd">    :any:`exceptions.AssertionError`:</span>
+<span class="sd">        explicit_partition_values and partition_by must have the same length</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">partition_by</span><span class="o">=</span><span class="s2">&quot;dt&quot;</span><span class="p">,</span> <span class="n">explicit_partition_values</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">compression_codec</span><span class="o">=</span><span class="s2">&quot;snappy&quot;</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">ParquetLoader</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">path</span> <span class="o">=</span> <span class="n">path</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">partition_by</span> <span class="o">=</span> <span class="n">partition_by</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">explicit_partition_values</span> <span class="o">=</span> <span class="n">explicit_partition_values</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">compression_codec</span> <span class="o">=</span> <span class="n">compression_codec</span>
+        <span class="k">if</span> <span class="n">explicit_partition_values</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="p">(</span><span class="n">partition_by</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span>
+                <span class="s2">&quot;explicit_partition_values can only be used when partition_by is not None&quot;</span><span class="p">)</span>
+            <span class="k">assert</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">partition_by</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">explicit_partition_values</span><span class="p">),</span>
+                <span class="s2">&quot;explicit_partition_values and partition_by must have the same length&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">load</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_df</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Persisting DataFrame as Parquet Files to &quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">explicit_partition_values</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+            <span class="k">for</span> <span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">partition_by</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">explicit_partition_values</span><span class="p">):</span>
+                <span class="n">input_df</span> <span class="o">=</span> <span class="n">input_df</span><span class="o">.</span><span class="n">withColumn</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">F</span><span class="o">.</span><span class="n">lit</span><span class="p">(</span><span class="n">v</span><span class="p">))</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">explicit_partition_values</span><span class="p">,</span> <span class="n">basestring</span><span class="p">):</span>
+            <span class="n">input_df</span> <span class="o">=</span> <span class="n">input_df</span><span class="o">.</span><span class="n">withColumn</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">partition_by</span><span class="p">,</span> <span class="n">F</span><span class="o">.</span><span class="n">lit</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">explicit_partition_values</span><span class="p">))</span>
+
+        <span class="n">input_df</span><span class="o">.</span><span class="n">write</span><span class="o">.</span><span class="n">parquet</span><span class="p">(</span>
+            <span class="n">path</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">,</span>
+            <span class="n">partitionBy</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">partition_by</span><span class="p">,</span>
+            <span class="n">compression</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">compression_codec</span>
+        <span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="references-to-include">
+<h3>References to include<a class="headerlink" href="#references-to-include" title="Permalink to this headline">¶</a></h3>
+<p>This makes it possible to import the new loader class directly
+from <cite>spooq2.loader</cite> instead of <cite>spooq2.loader.parquet</cite>.
+It will also be imported if you use <cite>from spooq2.loader import *</cite>.</p>
+<div class="literal-block-wrapper docutils container" id="id2">
+<div class="code-block-caption"><span class="caption-text">src/spooq2/loader/__init__.py:</span><a class="headerlink" href="#id2" title="Permalink to this code">¶</a></div>
+<div class="highlight-udiff notranslate"><div class="highlight"><pre><span></span><span class="gd">--- original </span>
+<span class="gi">+++ adapted </span>
+<span class="gu">@@ -1,7 +1,9 @@</span>
+ from loader import Loader
+ from hive_loader import HiveLoader
+<span class="gi">+from parquet import ParquetLoader</span>
+ 
+ __all__ = [
+     &quot;Loader&quot;,
+     &quot;HiveLoader&quot;,
+<span class="gi">+    &quot;ParquetLoader&quot;,</span>
+ ]
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="tests">
+<h3>Tests<a class="headerlink" href="#tests" title="Permalink to this headline">¶</a></h3>
+<p>One of Spooq2’s features is to provide tested code for multiple data pipelines.
+Please take your time to write sufficient unit tests!
+You can reuse test data from <cite>tests/data</cite> or create a new schema / data set if needed.
+A SparkSession is provided as a global fixture called <cite>spark_session</cite>.</p>
+<div class="literal-block-wrapper docutils container" id="id3">
+<div class="code-block-caption"><span class="caption-text">tests/unit/loader/test_parquet.py:</span><a class="headerlink" href="#id3" title="Permalink to this code">¶</a></div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pytest</span>
+<span class="kn">from</span> <span class="nn">pyspark.sql.dataframe</span> <span class="kn">import</span> <span class="n">DataFrame</span>
+
+<span class="kn">from</span> <span class="nn">spooq2.loader</span> <span class="kn">import</span> <span class="n">ParquetLoader</span>
+
+
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">fixture</span><span class="p">(</span><span class="n">scope</span><span class="o">=</span><span class="s2">&quot;module&quot;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">output_path</span><span class="p">(</span><span class="n">tmpdir_factory</span><span class="p">):</span>
+    <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">tmpdir_factory</span><span class="o">.</span><span class="n">mktemp</span><span class="p">(</span><span class="s2">&quot;parquet_output&quot;</span><span class="p">))</span>
+
+
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">fixture</span><span class="p">(</span><span class="n">scope</span><span class="o">=</span><span class="s2">&quot;module&quot;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">default_loader</span><span class="p">(</span><span class="n">output_path</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">ParquetLoader</span><span class="p">(</span>
+        <span class="n">path</span><span class="o">=</span><span class="n">output_path</span><span class="p">,</span>
+        <span class="n">partition_by</span><span class="o">=</span><span class="s2">&quot;attributes.gender&quot;</span><span class="p">,</span>
+        <span class="n">explicit_partition_values</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">compression_codec</span><span class="o">=</span><span class="kc">None</span>
+    <span class="p">)</span>
+
+
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">fixture</span><span class="p">(</span><span class="n">scope</span><span class="o">=</span><span class="s2">&quot;module&quot;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">input_df</span><span class="p">(</span><span class="n">spark_session</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">spark_session</span><span class="o">.</span><span class="n">read</span><span class="o">.</span><span class="n">parquet</span><span class="p">(</span><span class="s2">&quot;../data/schema_v1/parquetFiles&quot;</span><span class="p">)</span>
+
+
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">fixture</span><span class="p">(</span><span class="n">scope</span><span class="o">=</span><span class="s2">&quot;module&quot;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">loaded_df</span><span class="p">(</span><span class="n">default_loader</span><span class="p">,</span> <span class="n">input_df</span><span class="p">,</span> <span class="n">spark_session</span><span class="p">,</span> <span class="n">output_path</span><span class="p">):</span>
+    <span class="n">default_loader</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">input_df</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">spark_session</span><span class="o">.</span><span class="n">read</span><span class="o">.</span><span class="n">parquet</span><span class="p">(</span><span class="n">output_path</span><span class="p">)</span>
+
+
+<span class="k">class</span> <span class="nc">TestBasicAttributes</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">test_logger_should_be_accessible</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">default_loader</span><span class="p">):</span>
+        <span class="k">assert</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">default_loader</span><span class="p">,</span> <span class="s2">&quot;logger&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">test_name_is_set</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">default_loader</span><span class="p">):</span>
+        <span class="k">assert</span> <span class="n">default_loader</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s2">&quot;ParquetLoader&quot;</span>
+
+    <span class="k">def</span> <span class="nf">test_str_representation_is_correct</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">default_loader</span><span class="p">):</span>
+        <span class="k">assert</span> <span class="n">unicode</span><span class="p">(</span><span class="n">default_loader</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;loader Object of Class ParquetLoader&quot;</span>
+
+<span class="k">class</span> <span class="nc">TestParquetLoader</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">test_count_did_not_change</span><span class="p">(</span><span class="n">loaded_df</span><span class="p">,</span> <span class="n">input_df</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Persisted DataFrame has the same number of records than the input DataFrame&quot;&quot;&quot;</span>
+        <span class="k">assert</span> <span class="n">input_df</span><span class="o">.</span><span class="n">count</span><span class="p">()</span> <span class="o">==</span> <span class="n">output_df</span><span class="o">.</span><span class="n">count</span><span class="p">()</span> <span class="ow">and</span> <span class="n">input_df</span><span class="o">.</span><span class="n">count</span><span class="p">()</span> <span class="o">&gt;</span> <span class="mi">0</span>
+
+    <span class="k">def</span> <span class="nf">test_schema_is_unchanged</span><span class="p">(</span><span class="n">loaded_df</span><span class="p">,</span> <span class="n">input_df</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Loaded DataFrame has the same schema as the input DataFrame&quot;&quot;&quot;</span>
+        <span class="k">assert</span> <span class="n">loaded</span><span class="o">.</span><span class="n">schema</span> <span class="o">==</span> <span class="n">input_df</span><span class="o">.</span><span class="n">schema</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="documentation">
+<h3>Documentation<a class="headerlink" href="#documentation" title="Permalink to this headline">¶</a></h3>
+<p>You need to create a <cite>rst</cite> for your loader
+which needs to contain at minimum the <cite>automodule</cite> or the <cite>autoclass</cite> directive.</p>
+<div class="literal-block-wrapper docutils container" id="id4">
+<div class="code-block-caption"><span class="caption-text">docs/source/loader/parquet.rst:</span><a class="headerlink" href="#id4" title="Permalink to this code">¶</a></div>
+<div class="highlight-RST notranslate"><div class="highlight"><pre><span></span><span class="gh">Parquet Loader</span>
+<span class="gh">===============================</span>
+
+Some text if you like...
+
+<span class="p">..</span> <span class="ow">automodule</span><span class="p">::</span> spooq2.loader.parquet
+</pre></div>
+</div>
+</div>
+<p>To automatically include your new loader in the HTML / PDF documentation
+you need to add it to a <cite>toctree</cite> directive. Just refer to your newly created
+<cite>parquet.rst</cite> file within the loader overview page.</p>
+<div class="literal-block-wrapper docutils container" id="id5">
+<div class="code-block-caption"><span class="caption-text">docs/source/loader/overview.rst:</span><a class="headerlink" href="#id5" title="Permalink to this code">¶</a></div>
+<div class="highlight-udiff notranslate"><div class="highlight"><pre><span></span><span class="gd">--- original </span>
+<span class="gi">+++ adapted </span>
+<span class="gu">@@ -7,4 +7,5 @@</span>
+ .. toctree::
+     hive_loader
+<span class="gi">+    parquet</span>
+ 
+ Class Diagram of Loader Subpackage
+</pre></div>
+</div>
+</div>
+<p>That should be it!</p>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+        </div>
+        <div class="sidebar">
+          <h3>Table of Contents</h3>
+          <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation / Deployment</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../extractor/overview.html">Extractors</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../transformer/overview.html">Transformers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../loader/overview.html">Loaders</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../pipeline/overview.html">Pipeline</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="overview.html">Spooq Base</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="spooq2_logger.html">Global Logger</a></li>
+<li class="toctree-l2"><a class="reference internal" href="extractor.html">Extractor Base Class</a></li>
+<li class="toctree-l2"><a class="reference internal" href="transformer.html">Transformer Base Class</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Loader Base Class</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#create-your-own-loader">Create your own Loader</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../setup_development_testing.html">Setup for Development, Testing, Documenting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../architecture.html">Architecture Overview</a></li>
+</ul>
+
+          <div role="search">
+            <h3 style="margin-top: 1.5em;">Search</h3>
+            <form class="search" action="../search.html" method="get">
+                <input type="text" name="q" />
+                <input type="submit" value="Go" />
+                <input type="hidden" name="check_keywords" value="yes" />
+                <input type="hidden" name="area" value="default" />
+            </form>
+          </div>
+        </div>
+        <div class="clearer"></div>
+      </div>
+    </div>
+
+    <div class="footer-wrapper">
+      <div class="footer">
+        <div class="left">
+          <div role="navigation" aria-label="related navigaton">
+            <a href="transformer.html" title="Transformer Base Class"
+              >previous</a> |
+            <a href="../setup_development_testing.html" title="Setup for Development, Testing, Documenting"
+              >next</a> |
+            <a href="../py-modindex.html" title="Python Module Index"
+              >modules</a> |
+            <a href="../genindex.html" title="General Index"
+              >index</a>
+          </div>
+          <div role="note" aria-label="source link">
+              <br/>
+              <a href="../_sources/base_classes/loader.rst.txt"
+                rel="nofollow">Show Source</a>
+          </div>
+        </div>
+
+        <div class="right">
+          
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2020, David Eigenstuhler.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.5.
+    </div>
+        </div>
+        <div class="clearer"></div>
+      </div>
+    </div>
+
+  </body>
+</html>

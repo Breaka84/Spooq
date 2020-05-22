@@ -1,0 +1,65 @@
+@startuml
+
+skinparam monochrome true
+skinparam defaultFontname Bitstream Vera Sans Mono
+skinparam defaultFontSize 18
+
+
+left to right direction
+
+
+namespace transformer{
+    
+  class Transformer {
+    .. derived ..
+    name : str
+    logger : logging.logger
+    __
+    transform(input_df : DataFrame)
+  }
+  class Mapper {
+    mapping : list
+    __
+    transform(input_df : DataFrame)
+  }
+  class Exploder {
+    exploded_elem_name : str = "included"
+    path_to_array : str = "elem"
+    __
+    transform(input_df : DataFrame)
+  }
+  class NewestByGroup {
+    group_by : list = ["id"]
+    order_by : list = ["updated_at", "deleted_at"]
+    __
+    transform(input_df : DataFrame)
+  }
+  class Sieve {
+    filter_expression : str
+    __
+    transform(input_df : DataFrame)
+  }
+  class ThresholdCleaner {
+    thresholds : dict
+    __
+    transform(input_df : DataFrame)
+  }
+  class mapper_custom_data_types << (M,orchid) >> {
+    add_custom_data_type(function_name, func)
+    _get_select_expression_for_custom_type(*mapping_tuple)
+  }
+
+  ' Exploder --|> Transformer
+  ' NewestByGroup --|> Transformer
+  ' Mapper --|> Transformer
+  ' Sieve --|> Transformer
+  ' ThresholdCleaner --|> Transformer
+  Transformer --|> Mapper 
+  Mapper <. mapper_custom_data_types : provides custom data types
+  Transformer --|> Exploder
+  Transformer --|> NewestByGroup 
+  Transformer --|> Sieve 
+  Transformer --|> ThresholdCleaner 
+
+}
+ @enduml

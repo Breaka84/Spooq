@@ -1,0 +1,148 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>spooq2.transformer.sieve &#8212; Spooq2 2.0.0b0 documentation</title>
+    <link rel="stylesheet" href="../../../_static/agogo.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/theme_overrides.css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../../_static/language_data.js"></script>
+    <script type="text/javascript" src="../../../_static/copybutton.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+  </head><body>
+    <div class="header-wrapper" role="banner">
+      <div class="header">
+        <div class="headertitle"><a
+          href="../../../index.html">Spooq2 2.0.0b0 documentation</a></div>
+        <div class="rel" role="navigation" aria-label="related navigation">
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a>
+        </div>
+       </div>
+    </div>
+
+    <div class="content-wrapper">
+      <div class="content">
+        <div class="document">
+            
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for spooq2.transformer.sieve</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">transformer</span> <span class="kn">import</span> <span class="n">Transformer</span>
+
+
+<div class="viewcode-block" id="Sieve"><a class="viewcode-back" href="../../../transformer/sieve.html#spooq2.transformer.sieve.Sieve">[docs]</a><span class="k">class</span> <span class="nc">Sieve</span><span class="p">(</span><span class="n">Transformer</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Filters rows depending on provided filter expression.</span>
+<span class="sd">    Only records complying with filter condition are kept.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; transformer = T.Sieve(filter_expression=\&quot;\&quot;\&quot; attributes.last_name rlike &quot;^.{7}$&quot; \&quot;\&quot;\&quot;)</span>
+
+<span class="sd">    &gt;&gt;&gt; transformer = T.Sieve(filter_expression=\&quot;\&quot;\&quot; lower(gender) = &quot;f&quot; \&quot;\&quot;\&quot;)</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    filter_expression  : :any:`str`</span>
+<span class="sd">        A valid PySpark SQL expression which returns a boolean</span>
+<span class="sd">        </span>
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    :any:`exceptions.ValueError`</span>
+<span class="sd">         filter_expression has to be a valid (Spark)SQL expression provided as a string</span>
+
+<span class="sd">    Note</span>
+<span class="sd">    ----</span>
+<span class="sd">    The :meth:`~pyspark.sql.DataFrame.filter` method is used internally.</span>
+
+<span class="sd">    Note</span>
+<span class="sd">    ----</span>
+<span class="sd">    The Size of the resulting DataFrame is not guaranteed to be equal to the Input DataFrame!</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filter_expression</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">Sieve</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">filter_expression</span> <span class="o">=</span> <span class="n">filter_expression</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">filter_expression</span><span class="p">,</span> <span class="n">basestring</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;filter_expression has to be a valid (Spark)SQL expression &quot;</span><span class="p">,</span>
+                <span class="s2">&quot;provided as a string&quot;</span><span class="p">,</span>
+            <span class="p">)</span>
+
+<div class="viewcode-block" id="Sieve.transform"><a class="viewcode-back" href="../../../transformer/sieve.html#spooq2.transformer.sieve.Sieve.transform">[docs]</a>    <span class="k">def</span> <span class="nf">transform</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_df</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">input_df</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">filter_expression</span><span class="p">)</span></div></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+        </div>
+        <div class="sidebar">
+          <h3>Table of Contents</h3>
+          <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation / Deployment</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../extractor/overview.html">Extractors</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../transformer/overview.html">Transformers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../loader/overview.html">Loaders</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../pipeline/overview.html">Pipeline</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../base_classes/overview.html">Spooq Base</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../setup_development_testing.html">Setup for Development, Testing, Documenting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../architecture.html">Architecture Overview</a></li>
+</ul>
+
+          <div role="search">
+            <h3 style="margin-top: 1.5em;">Search</h3>
+            <form class="search" action="../../../search.html" method="get">
+                <input type="text" name="q" />
+                <input type="submit" value="Go" />
+                <input type="hidden" name="check_keywords" value="yes" />
+                <input type="hidden" name="area" value="default" />
+            </form>
+          </div>
+        </div>
+        <div class="clearer"></div>
+      </div>
+    </div>
+
+    <div class="footer-wrapper">
+      <div class="footer">
+        <div class="left">
+          <div role="navigation" aria-label="related navigaton">
+            <a href="../../../py-modindex.html" title="Python Module Index"
+              >modules</a> |
+            <a href="../../../genindex.html" title="General Index"
+              >index</a>
+          </div>
+          <div role="note" aria-label="source link">
+          </div>
+        </div>
+
+        <div class="right">
+          
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2020, David Eigenstuhler.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.5.
+    </div>
+        </div>
+        <div class="clearer"></div>
+      </div>
+    </div>
+
+  </body>
+</html>

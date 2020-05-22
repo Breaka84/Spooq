@@ -1,0 +1,65 @@
+@startuml
+
+skinparam monochrome true
+skinparam defaultFontname Bitstream Vera Sans Mono
+skinparam defaultFontSize 18
+
+left to right direction
+hide empty members
+
+' namespace spooq2 {
+  namespace extractor {
+      
+      class Extractor {
+      }
+      Extractor <|-- JSONExtractor
+      class JSONExtractor{
+      }
+      Extractor <|-- JDBCExtractor
+      class JDBCExtractor{
+      }
+      JDBCExtractor <|- JDBCExtractorFullLoad
+      class JDBCExtractorFullLoad {
+      }
+      JDBCExtractorIncremental -|> JDBCExtractor
+      class JDBCExtractorIncremental {
+      }
+
+  }
+  namespace transformer{
+    
+    class Transformer
+    Transformer <|-- Exploder
+    class Exploder
+    Transformer <|-- Mapper
+    class Mapper
+    Transformer <|-- NewestByGroup
+    class NewestByGroup
+    Transformer <|-- Sieve
+    class Sieve
+    Transformer <|-- ThresholdCleaner
+    class ThresholdCleaner
+
+  }
+  namespace loader {
+    
+    class Loader
+    Loader <|-- HiveLoader
+    class HiveLoader
+  }
+  namespace pipeline {
+    
+    class Pipeline 
+    Pipeline o-- extractor : has 1 instance >
+    Pipeline o-- transformer : has 1+ instances >
+    Pipeline o-- loader : has 1 instance >
+
+    class PipelineFactory
+    PipelineFactory .> Pipeline : "creates"
+  }
+' }
+
+' skinparam ClassArrowFontSize 18
+skinparam ClassRelationFontSize 30
+
+@enduml

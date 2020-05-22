@@ -1,0 +1,191 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>spooq2.spooq2_logger &#8212; Spooq2 2.0.0b0 documentation</title>
+    <link rel="stylesheet" href="../../_static/agogo.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/theme_overrides.css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../_static/language_data.js"></script>
+    <script type="text/javascript" src="../../_static/copybutton.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+  </head><body>
+    <div class="header-wrapper" role="banner">
+      <div class="header">
+        <div class="headertitle"><a
+          href="../../index.html">Spooq2 2.0.0b0 documentation</a></div>
+        <div class="rel" role="navigation" aria-label="related navigation">
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a>
+        </div>
+       </div>
+    </div>
+
+    <div class="content-wrapper">
+      <div class="content">
+        <div class="document">
+            
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for spooq2.spooq2_logger</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Global Logger instance used by Spooq2.</span>
+
+<span class="sd">Example</span>
+<span class="sd">-------</span>
+<span class="sd">&gt;&gt;&gt; import logging</span>
+<span class="sd">&gt;&gt;&gt; logga = logging.getLogger(&quot;spooq2&quot;)</span>
+<span class="sd">&lt;logging.Logger at 0x7f5dc8eb2890&gt;</span>
+<span class="sd">&gt;&gt;&gt; logga.info(&quot;Hello World&quot;)</span>
+<span class="sd">[spooq2] 2020-03-21 23:55:48,253 INFO logging_example::&lt;module&gt;::4: Hello World</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+
+<span class="n">initialized</span> <span class="o">=</span> <span class="kc">False</span>
+
+
+<div class="viewcode-block" id="initialize"><a class="viewcode-back" href="../../base_classes/spooq2_logger.html#spooq2.spooq2_logger.initialize">[docs]</a><span class="k">def</span> <span class="nf">initialize</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Initializes the global logger for Spooq with pre-defined levels for ``stdout`` and ``stderr``.</span>
+<span class="sd">    No input parameters are needed, as the configuration is received via :py:meth:`get_logging_level`.</span>
+
+<span class="sd">    Note</span>
+<span class="sd">    ----</span>
+<span class="sd">    The output format is defined as:</span>
+<span class="sd">        | &quot;[%(name)s] %(asctime)s %(levelname)s %(module)s::%(funcName)s::%(lineno)d: %(message)s&quot;</span>
+<span class="sd">        | For example &quot;[spooq2] 2020-03-11 15:40:59,313 DEBUG newest_by_group::__init__::53: group by columns: [u&#39;user_id&#39;]&quot;</span>
+
+<span class="sd">    Warning</span>
+<span class="sd">    -------</span>
+<span class="sd">    The ``root`` logger of python is also affected as it has to have a level at least as </span>
+<span class="sd">    fine grained as the logger of Spooq, to be able to produce an output.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">global</span> <span class="n">initialized</span>
+    <span class="k">if</span> <span class="n">initialized</span><span class="p">:</span>
+        <span class="k">return</span>
+
+    <span class="n">logging_level</span> <span class="o">=</span> <span class="n">get_logging_level</span><span class="p">()</span>
+    
+    <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s2">&quot;root&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">logging_level</span><span class="p">)</span>
+    <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s2">&quot;spooq2&quot;</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">logging_level</span><span class="p">)</span>
+    
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">len</span><span class="p">(</span><span class="n">logger</span><span class="o">.</span><span class="n">handlers</span><span class="p">):</span>
+        <span class="n">formatter</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">Formatter</span><span class="p">(</span>
+            <span class="s2">&quot;[</span><span class="si">%(name)s</span><span class="s2">] </span><span class="si">%(asctime)s</span><span class="s2"> </span><span class="si">%(levelname)s</span><span class="s2"> </span><span class="si">%(module)s</span><span class="s2">::</span><span class="si">%(funcName)s</span><span class="s2">::</span><span class="si">%(lineno)d</span><span class="s2">: </span><span class="si">%(message)s</span><span class="s2">&quot;</span>
+        <span class="p">)</span>
+
+        <span class="c1"># STDOUT Handler</span>
+        <span class="n">ch_out</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">StreamHandler</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="p">)</span>
+        <span class="n">ch_out</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">logging_level</span><span class="p">)</span>
+        <span class="n">ch_out</span><span class="o">.</span><span class="n">setFormatter</span><span class="p">(</span><span class="n">formatter</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">addHandler</span><span class="p">(</span><span class="n">ch_out</span><span class="p">)</span>
+
+        <span class="c1"># STDERR Handler</span>
+        <span class="n">ch_err</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">StreamHandler</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="p">)</span>
+        <span class="n">ch_err</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">logging_level</span><span class="p">)</span>
+        <span class="n">ch_err</span><span class="o">.</span><span class="n">setFormatter</span><span class="p">(</span><span class="n">formatter</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">addHandler</span><span class="p">(</span><span class="n">ch_err</span><span class="p">)</span>
+        
+        <span class="n">initialized</span> <span class="o">=</span> <span class="kc">True</span></div>
+
+<div class="viewcode-block" id="get_logging_level"><a class="viewcode-back" href="../../base_classes/spooq2_logger.html#spooq2.spooq2_logger.get_logging_level">[docs]</a><span class="k">def</span> <span class="nf">get_logging_level</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Returns the logging level depending on the environment variable `SPOOQ_ENV`.</span>
+
+<span class="sd">    Note</span>
+<span class="sd">    ----</span>
+<span class="sd">    If SPOOQ_ENV is</span>
+<span class="sd">        * **dev**        -&gt; &quot;DEBUG&quot;</span>
+<span class="sd">        * **test**       -&gt; &quot;ERROR&quot;</span>
+<span class="sd">        * something else -&gt; &quot;INFO&quot;</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    :any:`str`</span>
+<span class="sd">        Logging level</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">spooq_env</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s1">&#39;SPOOQ_ENV&#39;</span><span class="p">,</span> <span class="s2">&quot;default&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">spooq_env</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;dev&quot;</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s2">&quot;DEBUG&quot;</span>
+    <span class="k">elif</span> <span class="n">spooq_env</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;test&quot;</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s2">&quot;ERROR&quot;</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s2">&quot;INFO&quot;</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+        </div>
+        <div class="sidebar">
+          <h3>Table of Contents</h3>
+          <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation / Deployment</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../extractor/overview.html">Extractors</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../transformer/overview.html">Transformers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../loader/overview.html">Loaders</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../pipeline/overview.html">Pipeline</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../base_classes/overview.html">Spooq Base</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../setup_development_testing.html">Setup for Development, Testing, Documenting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../architecture.html">Architecture Overview</a></li>
+</ul>
+
+          <div role="search">
+            <h3 style="margin-top: 1.5em;">Search</h3>
+            <form class="search" action="../../search.html" method="get">
+                <input type="text" name="q" />
+                <input type="submit" value="Go" />
+                <input type="hidden" name="check_keywords" value="yes" />
+                <input type="hidden" name="area" value="default" />
+            </form>
+          </div>
+        </div>
+        <div class="clearer"></div>
+      </div>
+    </div>
+
+    <div class="footer-wrapper">
+      <div class="footer">
+        <div class="left">
+          <div role="navigation" aria-label="related navigaton">
+            <a href="../../py-modindex.html" title="Python Module Index"
+              >modules</a> |
+            <a href="../../genindex.html" title="General Index"
+              >index</a>
+          </div>
+          <div role="note" aria-label="source link">
+          </div>
+        </div>
+
+        <div class="right">
+          
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2020, David Eigenstuhler.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.5.
+    </div>
+        </div>
+        <div class="clearer"></div>
+      </div>
+    </div>
+
+  </body>
+</html>

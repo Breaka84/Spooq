@@ -1,0 +1,97 @@
+@startuml
+
+skinparam monochrome true
+skinparam defaultFontname Bitstream Vera Sans Mono
+skinparam defaultFontSize 18
+
+hide empty members
+
+' title Spooq2 - Data Flow Diagram
+
+allow_mixing
+
+actor Client
+
+package "Pipeline"  {
+    class "Pipeline Instance" {
+        execute()
+    }
+}
+
+Client -> "Pipeline Instance"
+note on link
+execute()
+end note
+
+database "Source System"
+database "Target System"
+
+package "Extractor"  {
+
+    "Pipeline Instance" --> "Extractor Instance"
+
+    class "Extractor Instance" {
+        extract()
+    }
+
+}
+
+"Extractor Instance" <- "Source System"
+note on link
+    Raw Data
+end note
+
+
+package "Transformers"  {
+
+    "Extractor Instance" --> "Transformer  Instance 1"
+
+    note on link
+        DataFrame
+    end note
+
+    class "Transformer  Instance 1" {
+        transform(input_df: DataFrame)
+    }
+
+    "Transformer  Instance 1" --> "Transformer  Instance 2"
+
+    note on link
+        DataFrame
+    end note
+
+    class "Transformer  Instance 2" {
+        transform(input_df: DataFrame)
+    }
+
+    "Transformer  Instance 2" --> "Transformer  Instance N"
+
+    note on link
+        DataFrame
+    end note
+
+    class "Transformer  Instance N" {
+        transform(input_df: DataFrame)
+    }
+
+}
+
+package "Loader" {
+
+    "Transformer  Instance N" -> "Loader Instance"
+
+    note on link
+        DataFrame
+    end note
+
+    class "Loader Instance" {
+        load(input_df: DataFrame)
+    }
+}
+
+"Target System" <----- "Loader Instance"
+note on link
+    Transformed Data
+end note
+
+@enduml

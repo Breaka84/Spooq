@@ -1,0 +1,58 @@
+@startuml
+
+skinparam monochrome true
+skinparam defaultFontname Bitstream Vera Sans Mono
+skinparam defaultFontSize 18
+
+' left to right direction
+
+
+' namespace spooq2 {
+  namespace extractor {
+      
+      class Extractor {
+        .. derived ..
+        name : str
+        logger : logging.logger
+        __
+        extract()
+      }
+      Extractor <|-- JSONExtractor
+      class JSONExtractor{
+        input_path : str
+        base_path : str
+        partition : str
+        .. derived ..
+        spark : SparkSession
+        __
+        extract()
+      }
+      Extractor <|-- JDBCExtractor
+      class JDBCExtractor{
+        jdbc_options : dict
+        cache : bool = True
+        .. derived ..
+        spark : SparkSession
+        __
+        extract()
+      }
+      JDBCExtractor <|-- JDBCExtractorFullLoad
+      class JDBCExtractorFullLoad {
+        query : str
+        __
+        extract()
+      }
+      JDBCExtractor <|-- JDBCExtractorIncremental
+      class JDBCExtractorIncremental {
+        partition : str 
+        source_table : str 
+        spooq2_values_table : str 
+        spooq2_values_db : str = "spooq2_values"
+        spooq2_values_partition_column : str = "updated_at"
+        __
+        extract()
+      }
+
+  }
+' }
+ @enduml

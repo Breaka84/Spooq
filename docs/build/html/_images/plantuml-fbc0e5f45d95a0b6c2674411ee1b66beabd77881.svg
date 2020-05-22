@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" contentScriptType="application/ecmascript" contentStyleType="text/css" height="868px" preserveAspectRatio="none" style="width:1055px;height:868px;" version="1.1" viewBox="0 0 1055 868" width="1055px" zoomAndPan="magnify"><defs><filter height="300%" id="f1lsrkc1s4f8a6" width="300%" x="-1" y="-1"><feGaussianBlur result="blurOut" stdDeviation="2.0"/><feColorMatrix in="blurOut" result="blurOut2" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .4 0"/><feOffset dx="4.0" dy="4.0" in="blurOut2" result="blurOut3"/><feBlend in="SourceGraphic" in2="blurOut3" mode="normal"/></filter></defs><g><!--MD5=[0875fb5665145b00eb44c01edeb96b42]
+cluster Pipeline--><polygon fill="#FFFFFF" filter="url(#f1lsrkc1s4f8a6)" points="225,24.5,319,24.5,326,51.4531,477,51.4531,477,142.5,225,142.5,225,24.5" style="stroke: #000000; stroke-width: 1.5;"/><line style="stroke: #000000; stroke-width: 1.5;" x1="225" x2="326" y1="51.4531" y2="51.4531"/><text fill="#000000" font-family="Bitstream Vera Sans Mono" font-size="18" font-weight="bold" lengthAdjust="spacingAndGlyphs" textLength="88" x="229" y="43.208">Pipeline</text><!--MD5=[480c1d6210ea81c9123d208053c05d1b]
+cluster Extractor--><polygon fill="#FFFFFF" filter="url(#f1lsrkc1s4f8a6)" points="219,185,324,185,331,211.9531,483,211.9531,483,303,219,303,219,185" style="stroke: #000000; stroke-width: 1.5;"/><line style="stroke: #000000; stroke-width: 1.5;" x1="219" x2="331" y1="211.9531" y2="211.9531"/><text fill="#000000" font-family="Bitstream Vera Sans Mono" font-size="18" font-weight="bold" lengthAdjust="spacingAndGlyphs" textLength="99" x="223" y="203.708">Extractor</text><!--MD5=[b2f04391a9b6d814f60c002d9a8d6d18]
+cluster Transformers--><polygon fill="#FFFFFF" filter="url(#f1lsrkc1s4f8a6)" points="167,379,305,379,312,405.9531,541,405.9531,541,856,167,856,167,379" style="stroke: #000000; stroke-width: 1.5;"/><line style="stroke: #000000; stroke-width: 1.5;" x1="167" x2="312" y1="405.9531" y2="405.9531"/><text fill="#000000" font-family="Bitstream Vera Sans Mono" font-size="18" font-weight="bold" lengthAdjust="spacingAndGlyphs" textLength="132" x="171" y="397.708">Transformers</text><!--MD5=[f504221dae15b154bc64fdfab34a1f62]
+cluster Loader--><polygon fill="#FFFFFF" filter="url(#f1lsrkc1s4f8a6)" points="680,738,752,738,759,764.9531,1000,764.9531,1000,856,680,856,680,738" style="stroke: #000000; stroke-width: 1.5;"/><line style="stroke: #000000; stroke-width: 1.5;" x1="680" x2="759" y1="764.9531" y2="764.9531"/><text fill="#000000" font-family="Bitstream Vera Sans Mono" font-size="18" font-weight="bold" lengthAdjust="spacingAndGlyphs" textLength="66" x="684" y="756.708">Loader</text><!--MD5=[8fdb8700c4b19a7cef83580aab5047af]
+class Pipeline Instance--><rect fill="#F8F8F8" filter="url(#f1lsrkc1s4f8a6)" height="62.9531" id="Pipeline Instance" style="stroke: #383838; stroke-width: 1.5;" width="221" x="240.5" y="63.5"/><ellipse cx="256.5" cy="80.5" fill="#C2C2C2" rx="12" ry="12" style="stroke: #383838; stroke-width: 1.0;"/><path d="M259.5,86.625 Q258.8906,86.9375 258.2031,87.0938 Q257.5313,87.25 256.7813,87.25 Q254.125,87.25 252.7344,85.5 Q251.3438,83.75 251.3438,80.4531 Q251.3438,77.1406 252.7344,75.3906 Q254.125,73.6406 256.7813,73.6406 Q257.5313,73.6406 258.2188,73.7969 Q258.9063,73.9531 259.5,74.2656 L259.5,77.1563 Q258.8281,76.5469 258.2031,76.2656 Q257.5781,75.9688 256.9063,75.9688 Q255.4844,75.9688 254.75,77.1094 Q254.0313,78.2344 254.0313,80.4531 Q254.0313,82.6719 254.75,83.7969 Q255.4844,84.9219 256.9063,84.9219 Q257.5781,84.9219 258.2031,84.6406 Q258.8281,84.3594 259.5,83.7344 L259.5,86.625 Z "/><text fill="#000000" font-family="Bitstream Vera Sans Mono" font-size="18" lengthAdjust="spacingAndGlyphs" textLength="187" x="271.5" y="86.7314">Pipeline Instance</text><line style="stroke: #383838; stroke-width: 1.5;" x1="241.5" x2="460.5" y1="97.5" y2="97.5"/><text fill="#000000" font-family="Bitstream Vera Sans Mono" font-size="18" lengthAdjust="spacingAndGlyphs" textLength="99" x="246.5" y="118.208">execute()</text><!--MD5=[bbfa3cc61be4ae951331422f993de17c]
+class Extractor Instance--><rect fill="#F8F8F8" filter="url(#f1lsrkc1s4f8a6)" height="62.9531" id="Extractor Instance" style="stroke: #383838; stroke-width: 1.5;" width="232" x="235" y="224"/><ellipse cx="251" cy="241" fill="#C2C2C2" rx="12" ry="12" style="stroke: #383838; stroke-width: 1.0;"/><path d="M254,247.125 Q253.3906,247.4375 252.7031,247.5938 Q252.0313,247.75 251.2813,247.75 Q248.625,247.75 247.2344,246 Q245.8438,244.25 245.8438,240.9531 Q245.8438,237.6406 247.2344,235.8906 Q248.625,234.1406 251.2813,234.1406 Q252.0313,234.1406 252.7188,234.2969 Q253.4063,234.4531 254,234.7656 L254,237.6563 Q253.3281,237.0469 252.7031,236.7656 Q252.0781,236.4688 251.4063,236.4688 Q249.9844,236.4688 249.25,237.6094 Q248.5313,238.7344 248.5313,240.9531 Q248.5313,243.1719 249.25,244.2969 Q249.9844,245.4219 251.4063,245.4219 Q252.0781,245.4219 252.7031,245.1406 Q253.3281,244.8594 254,244.2344 L254,247.125 Z "/><text fill="#000000" font-family="Bitstream Vera Sans Mono" font-size="18" lengthAdjust="spacingAndGlyphs" textLength="198" x="266" y="247.2314">Extractor Instance</text><line style="stroke: #383838; stroke-width: 1.5;" x1="236" x2="466" y1="258" y2="258"/><text fill="#000000" font-family="Bitstream Vera Sans Mono" font-size="18" lengthAdjust="spacingAndGlyphs" textLength="99" x="241" y="278.708">extract()</text><!--MD5=[c6b6a1d26680ed8525b9eb00f089e6d9]
+class Transformer  Instance 1--><rect fill="#F8F8F8" filter="url(#f1lsrkc1s4f8a6)" height="62.9531" id="Transformer  Instance 1" style="stroke: #383838; stroke-width: 1.5;" width="342" x="183" y="418"/><ellipse cx="223.75" cy="435" fill="#C2C2C2" rx="12" ry="12" style="stroke: #383838; stroke-width: 1.0;"/><path d="M226.75,441.125 Q226.1406,441.4375 225.4531,441.5938 Q224.7813,441.75 224.0313,441.75 Q221.375,441.75 219.9844,440 Q218.5938,438.25 218.5938,434.9531 Q218.5938,431.6406 219.9844,429.8906 Q221.375,428.1406 224.0313,428.1406 Q224.7813,428.1406 225.4688,428.2969 Q226.1563,428.4531 226.75,428.7656 L226.75,431.6563 Q226.0781,431.0469 225.4531,430.7656 Q224.8281,430.4688 224.1563,430.4688 Q222.7344,430.4688 222,431.6094 Q221.2813,432.7344 221.2813,434.9531 Q221.2813,437.1719 222,438.2969 Q222.7344,439.4219 224.1563,439.4219 Q224.8281,439.4219 225.4531,439.1406 Q226.0781,438.8594 226.75,438.2344 L226.75,441.125 Z "/><text fill="#000000" font-family="Bitstream Vera Sans Mono" font-size="18" lengthAdjust="spacingAndGlyphs" textLength="253" x="244.25" y="441.2314">Transformer  Instance 1</text><line style="stroke: #383838; stroke-width: 1.5;" x1="184" x2="524" y1="452" y2="452"/><text fill="#000000" font-family="Bitstream Vera Sans Mono" font-size="18" lengthAdjust="spacingAndGlyphs" textLength="330" x="189" y="472.708">transform(input_df: DataFrame)</text><!--MD5=[b3812c385e6024ebcb9fa8fee586e3a1]
+class Transformer  Instance 2--><rect fill="#F8F8F8" filter="url(#f1lsrkc1s4f8a6)" height="62.9531" id="Transformer  Instance 2" style="stroke: #383838; stroke-width: 1.5;" width="342" x="183" y="585"/><ellipse cx="223.75" cy="602" fill="#C2C2C2" rx="12" ry="12" style="stroke: #383838; stroke-width: 1.0;"/><path d="M226.75,608.125 Q226.1406,608.4375 225.4531,608.5938 Q224.7813,608.75 224.0313,608.75 Q221.375,608.75 219.9844,607 Q218.5938,605.25 218.5938,601.9531 Q218.5938,598.6406 219.9844,596.8906 Q221.375,595.1406 224.0313,595.1406 Q224.7813,595.1406 225.4688,595.2969 Q226.1563,595.4531 226.75,595.7656 L226.75,598.6563 Q226.0781,598.0469 225.4531,597.7656 Q224.8281,597.4688 224.1563,597.4688 Q222.7344,597.4688 222,598.6094 Q221.2813,599.7344 221.2813,601.9531 Q221.2813,604.1719 222,605.2969 Q222.7344,606.4219 224.1563,606.4219 Q224.8281,606.4219 225.4531,606.1406 Q226.0781,605.8594 226.75,605.2344 L226.75,608.125 Z "/><text fill="#000000" font-family="Bitstream Vera Sans Mono" font-size="18" lengthAdjust="spacingAndGlyphs" textLength="253" x="244.25" y="608.2314">Transformer  Instance 2</text><line style="stroke: #383838; stroke-width: 1.5;" x1="184" x2="524" y1="619" y2="619"/><text fill="#000000" font-family="Bitstream Vera Sans Mono" font-size="18" lengthAdjust="spacingAndGlyphs" textLength="330" x="189" y="639.708">transform(input_df: DataFrame)</text><!--MD5=[e4cf2903ea19acc3d10463da33ce2969]
+class Transformer  Instance N--><rect fill="#F8F8F8" filter="url(#f1lsrkc1s4f8a6)" height="62.9531" id="Transformer  Instance N" style="stroke: #383838; stroke-width: 1.5;" width="342" x="183" y="777"/><ellipse cx="223.75" cy="794" fill="#C2C2C2" rx="12" ry="12" style="stroke: #383838; stroke-width: 1.0;"/><path d="M226.75,800.125 Q226.1406,800.4375 225.4531,800.5938 Q224.7813,800.75 224.0313,800.75 Q221.375,800.75 219.9844,799 Q218.5938,797.25 218.5938,793.9531 Q218.5938,790.6406 219.9844,788.8906 Q221.375,787.1406 224.0313,787.1406 Q224.7813,787.1406 225.4688,787.2969 Q226.1563,787.4531 226.75,787.7656 L226.75,790.6563 Q226.0781,790.0469 225.4531,789.7656 Q224.8281,789.4688 224.1563,789.4688 Q222.7344,789.4688 222,790.6094 Q221.2813,791.7344 221.2813,793.9531 Q221.2813,796.1719 222,797.2969 Q222.7344,798.4219 224.1563,798.4219 Q224.8281,798.4219 225.4531,798.1406 Q226.0781,797.8594 226.75,797.2344 L226.75,800.125 Z "/><text fill="#000000" font-family="Bitstream Vera Sans Mono" font-size="18" lengthAdjust="spacingAndGlyphs" textLength="253" x="244.25" y="800.2314">Transformer  Instance N</text><line style="stroke: #383838; stroke-width: 1.5;" x1="184" x2="524" y1="811" y2="811"/><text fill="#000000" font-family="Bitstream Vera Sans Mono" font-size="18" lengthAdjust="spacingAndGlyphs" textLength="330" x="189" y="831.708">transform(input_df: DataFrame)</text><!--MD5=[532107c345adc8f92a59fc1821946ed1]
+class Loader Instance--><rect fill="#F8F8F8" filter="url(#f1lsrkc1s4f8a6)" height="62.9531" id="Loader Instance" style="stroke: #383838; stroke-width: 1.5;" width="287" x="696.5" y="777"/><ellipse cx="753" cy="794" fill="#C2C2C2" rx="12" ry="12" style="stroke: #383838; stroke-width: 1.0;"/><path d="M756,800.125 Q755.3906,800.4375 754.7031,800.5938 Q754.0313,800.75 753.2813,800.75 Q750.625,800.75 749.2344,799 Q747.8438,797.25 747.8438,793.9531 Q747.8438,790.6406 749.2344,788.8906 Q750.625,787.1406 753.2813,787.1406 Q754.0313,787.1406 754.7188,787.2969 Q755.4063,787.4531 756,787.7656 L756,790.6563 Q755.3281,790.0469 754.7031,789.7656 Q754.0781,789.4688 753.4063,789.4688 Q751.9844,789.4688 751.25,790.6094 Q750.5313,791.7344 750.5313,793.9531 Q750.5313,796.1719 751.25,797.2969 Q751.9844,798.4219 753.4063,798.4219 Q754.0781,798.4219 754.7031,798.1406 Q755.3281,797.8594 756,797.2344 L756,800.125 Z "/><text fill="#000000" font-family="Bitstream Vera Sans Mono" font-size="18" lengthAdjust="spacingAndGlyphs" textLength="165" x="775" y="800.2314">Loader Instance</text><line style="stroke: #383838; stroke-width: 1.5;" x1="697.5" x2="982.5" y1="811" y2="811"/><text fill="#000000" font-family="Bitstream Vera Sans Mono" font-size="18" lengthAdjust="spacingAndGlyphs" textLength="275" x="702.5" y="831.708">load(input_df: DataFrame)</text><!--MD5=[0ba5ee7700168656dc1b457c6fe9fdac]
+entity Client--><ellipse cx="39" cy="61.5" fill="#F8F8F8" filter="url(#f1lsrkc1s4f8a6)" rx="8" ry="8" style="stroke: #383838; stroke-width: 1.5;"/><path d="M39,69.5 L39,96.5 M26,77.5 L52,77.5 M39,96.5 L26,111.5 M39,96.5 L52,111.5 " fill="none" filter="url(#f1lsrkc1s4f8a6)" style="stroke: #383838; stroke-width: 1.5;"/><text fill="#000000" font-family="Bitstream Vera Sans Mono" font-size="18" lengthAdjust="spacingAndGlyphs" textLength="66" x="6" y="133.708">Client</text><!--MD5=[52962d28892b98a2190bdb1772897f1a]
+entity Source System--><path d="M624.5,240.5 C624.5,230.5 706,230.5 706,230.5 C706,230.5 787.5,230.5 787.5,240.5 L787.5,270.4531 C787.5,280.4531 706,280.4531 706,280.4531 C706,280.4531 624.5,280.4531 624.5,270.4531 L624.5,240.5 " fill="#F8F8F8" filter="url(#f1lsrkc1s4f8a6)" style="stroke: #000000; stroke-width: 1.5;"/><path d="M624.5,240.5 C624.5,250.5 706,250.5 706,250.5 C706,250.5 787.5,250.5 787.5,240.5 " fill="none" style="stroke: #000000; stroke-width: 1.5;"/><text fill="#000000" font-family="Bitstream Vera Sans Mono" font-size="18" lengthAdjust="spacingAndGlyphs" textLength="143" x="634.5" y="271.208">Source System</text><!--MD5=[8775fa86ed190e21e6f7483126f6d4d0]
+entity Target System--><path d="M759.5,80 C759.5,70 841,70 841,70 C841,70 922.5,70 922.5,80 L922.5,109.9531 C922.5,119.9531 841,119.9531 841,119.9531 C841,119.9531 759.5,119.9531 759.5,109.9531 L759.5,80 " fill="#F8F8F8" filter="url(#f1lsrkc1s4f8a6)" style="stroke: #000000; stroke-width: 1.5;"/><path d="M759.5,80 C759.5,90 841,90 841,90 C841,90 922.5,90 922.5,80 " fill="none" style="stroke: #000000; stroke-width: 1.5;"/><text fill="#000000" font-family="Bitstream Vera Sans Mono" font-size="18" lengthAdjust="spacingAndGlyphs" textLength="143" x="769.5" y="110.708">Target System</text><!--MD5=[49a6625ab9199488231b8ac68703387a]
+link Client to Pipeline Instance--><path d="M72.09,95 C110.76,95 176.87,95 235.02,95 " fill="none" id="Client-&gt;Pipeline Instance" style="stroke: #383838; stroke-width: 1.0;"/><polygon fill="#383838" points="240.26,95,231.26,91,235.26,95,231.26,99,240.26,95" style="stroke: #383838; stroke-width: 1.0;"/><path d="M94.25,53 L94.25,83 L214.25,83 L214.25,63 L204.25,53 L94.25,53 " fill="#ECECEC" filter="url(#f1lsrkc1s4f8a6)" style="stroke: #383838; stroke-width: 1.0;"/><path d="M204.25,53 L204.25,63 L214.25,63 L204.25,53 " fill="#ECECEC" style="stroke: #383838; stroke-width: 1.0;"/><text fill="#000000" font-family="Bitstream Vera Sans Mono" font-size="18" lengthAdjust="spacingAndGlyphs" textLength="99" x="100.25" y="74.708">execute()</text><!--MD5=[c4f9b88908910c1ba2fc5d729684ff63]
+link Pipeline Instance to Extractor Instance--><path d="M351,126.56 C351,152.9 351,190.95 351,218.71 " fill="none" id="Pipeline Instance-&gt;Extractor Instance" style="stroke: #383838; stroke-width: 1.0;"/><polygon fill="#383838" points="351,223.76,355,214.76,351,218.76,347,214.76,351,223.76" style="stroke: #383838; stroke-width: 1.0;"/><!--MD5=[9f22f972ba9bb20d1a60c071a385edbf]
+reverse link Extractor Instance to Source System--><path d="M472.38,255.5 C522.52,255.5 579.31,255.5 624.35,255.5 " fill="none" id="Extractor Instance&lt;-Source System" style="stroke: #383838; stroke-width: 1.0;"/><polygon fill="#383838" points="467.24,255.5,476.24,259.5,472.24,255.5,476.24,251.5,467.24,255.5" style="stroke: #383838; stroke-width: 1.0;"/><path d="M489.25,213.5 L489.25,243.5 L598.25,243.5 L598.25,223.5 L588.25,213.5 L489.25,213.5 " fill="#ECECEC" filter="url(#f1lsrkc1s4f8a6)" style="stroke: #383838; stroke-width: 1.0;"/><path d="M588.25,213.5 L588.25,223.5 L598.25,223.5 L588.25,213.5 " fill="#ECECEC" style="stroke: #383838; stroke-width: 1.0;"/><text fill="#000000" font-family="Bitstream Vera Sans Mono" font-size="18" lengthAdjust="spacingAndGlyphs" textLength="88" x="495.25" y="235.208">Raw Data</text><!--MD5=[add161c9c28d77ad119d1c2e9142b337]
+link Extractor Instance to Transformer  Instance 1--><path d="M351.48,287.35 C352.02,321.5 352.87,376.47 353.44,412.55 " fill="none" id="Extractor Instance-&gt;Transformer  Instance 1" style="stroke: #383838; stroke-width: 1.0;"/><polygon fill="#383838" points="353.52,417.73,357.3651,408.6628,353.4343,412.7307,349.3663,408.7999,353.52,417.73" style="stroke: #383838; stroke-width: 1.0;"/><path d="M357,324 L357,354 L477,354 L477,334 L467,324 L357,324 " fill="#ECECEC" filter="url(#f1lsrkc1s4f8a6)" style="stroke: #383838; stroke-width: 1.0;"/><path d="M467,324 L467,334 L477,334 L467,324 " fill="#ECECEC" style="stroke: #383838; stroke-width: 1.0;"/><text fill="#000000" font-family="Bitstream Vera Sans Mono" font-size="18" lengthAdjust="spacingAndGlyphs" textLength="99" x="363" y="345.708">DataFrame</text><!--MD5=[122d43359706038bfacf036e094b7bca]
+link Transformer  Instance 1 to Transformer  Instance 2--><path d="M354,481.15 C354,508.96 354,549.99 354,579.39 " fill="none" id="Transformer  Instance 1-&gt;Transformer  Instance 2" style="stroke: #383838; stroke-width: 1.0;"/><polygon fill="#383838" points="354,584.74,358,575.74,354,579.74,350,575.74,354,584.74" style="stroke: #383838; stroke-width: 1.0;"/><path d="M359,516 L359,546 L479,546 L479,526 L469,516 L359,516 " fill="#ECECEC" filter="url(#f1lsrkc1s4f8a6)" style="stroke: #383838; stroke-width: 1.0;"/><path d="M469,516 L469,526 L479,526 L469,516 " fill="#ECECEC" style="stroke: #383838; stroke-width: 1.0;"/><text fill="#000000" font-family="Bitstream Vera Sans Mono" font-size="18" lengthAdjust="spacingAndGlyphs" textLength="99" x="365" y="537.708">DataFrame</text><!--MD5=[5113f56bc807d61413f8ed2f15e7226a]
+link Transformer  Instance 2 to Transformer  Instance N--><path d="M354,648.03 C354,681.72 354,735.9 354,771.61 " fill="none" id="Transformer  Instance 2-&gt;Transformer  Instance N" style="stroke: #383838; stroke-width: 1.0;"/><polygon fill="#383838" points="354,776.73,358,767.73,354,771.73,350,767.73,354,776.73" style="stroke: #383838; stroke-width: 1.0;"/><path d="M359,683 L359,713 L479,713 L479,693 L469,683 L359,683 " fill="#ECECEC" filter="url(#f1lsrkc1s4f8a6)" style="stroke: #383838; stroke-width: 1.0;"/><path d="M469,683 L469,693 L479,693 L469,683 " fill="#ECECEC" style="stroke: #383838; stroke-width: 1.0;"/><text fill="#000000" font-family="Bitstream Vera Sans Mono" font-size="18" lengthAdjust="spacingAndGlyphs" textLength="99" x="365" y="704.708">DataFrame</text><!--MD5=[86662bd44a6926934b220f74aecf05b5]
+link Transformer  Instance N to Loader Instance--><path d="M525,808.5 C579.17,808.5 638.57,808.5 691.06,808.5 " fill="none" id="Transformer  Instance N-&gt;Loader Instance" style="stroke: #383838; stroke-width: 1.0;"/><polygon fill="#383838" points="696.12,808.5,687.12,804.5,691.12,808.5,687.12,812.5,696.12,808.5" style="stroke: #383838; stroke-width: 1.0;"/><path d="M548.75,766.5 L548.75,796.5 L668.75,796.5 L668.75,776.5 L658.75,766.5 L548.75,766.5 " fill="#ECECEC" filter="url(#f1lsrkc1s4f8a6)" style="stroke: #383838; stroke-width: 1.0;"/><path d="M658.75,766.5 L658.75,776.5 L668.75,776.5 L658.75,766.5 " fill="#ECECEC" style="stroke: #383838; stroke-width: 1.0;"/><text fill="#000000" font-family="Bitstream Vera Sans Mono" font-size="18" lengthAdjust="spacingAndGlyphs" textLength="99" x="554.75" y="788.208">DataFrame</text><!--MD5=[7c43ce48be2b18cf1adfcf8ddb96faab]
+reverse link Target System to Loader Instance--><path d="M841,125.48 C841,157.31 841,209.5 841,254.5 C841,254.5 841,254.5 841,617.5 C841,673.74 840.56,739.35 840.26,776.9 " fill="none" id="Target System&lt;-Loader Instance" style="stroke: #383838; stroke-width: 1.0;"/><polygon fill="#383838" points="841,120.17,837,129.17,841,125.17,845,129.17,841,120.17" style="stroke: #383838; stroke-width: 1.0;"/><path d="M846,432.5 L846,462.5 L1043,462.5 L1043,442.5 L1033,432.5 L846,432.5 " fill="#ECECEC" filter="url(#f1lsrkc1s4f8a6)" style="stroke: #383838; stroke-width: 1.0;"/><path d="M1033,432.5 L1033,442.5 L1043,442.5 L1033,432.5 " fill="#ECECEC" style="stroke: #383838; stroke-width: 1.0;"/><text fill="#000000" font-family="Bitstream Vera Sans Mono" font-size="18" lengthAdjust="spacingAndGlyphs" textLength="176" x="852" y="454.208">Transformed Data</text><!--MD5=[3c1092531f28098c058ecf166c831efb]
+@startuml
+
+skinparam monochrome true
+skinparam defaultFontname Bitstream Vera Sans Mono
+skinparam defaultFontSize 18
+
+hide empty members
+
+
+allow_mixing
+
+actor Client
+
+package "Pipeline"  {
+    class "Pipeline Instance" {
+        execute()
+    }
+}
+
+Client -> "Pipeline Instance"
+note on link
+execute()
+end note
+
+database "Source System"
+database "Target System"
+
+package "Extractor"  {
+
+    "Pipeline Instance" - -> "Extractor Instance"
+
+    class "Extractor Instance" {
+        extract()
+    }
+
+}
+
+"Extractor Instance" <- "Source System"
+note on link
+    Raw Data
+end note
+
+
+package "Transformers"  {
+
+    "Extractor Instance" - -> "Transformer  Instance 1"
+
+    note on link
+        DataFrame
+    end note
+
+    class "Transformer  Instance 1" {
+        transform(input_df: DataFrame)
+    }
+
+    "Transformer  Instance 1" - -> "Transformer  Instance 2"
+
+    note on link
+        DataFrame
+    end note
+
+    class "Transformer  Instance 2" {
+        transform(input_df: DataFrame)
+    }
+
+    "Transformer  Instance 2" - -> "Transformer  Instance N"
+
+    note on link
+        DataFrame
+    end note
+
+    class "Transformer  Instance N" {
+        transform(input_df: DataFrame)
+    }
+
+}
+
+package "Loader" {
+
+    "Transformer  Instance N" -> "Loader Instance"
+
+    note on link
+        DataFrame
+    end note
+
+    class "Loader Instance" {
+        load(input_df: DataFrame)
+    }
+}
+
+"Target System" <- - - - - "Loader Instance"
+note on link
+    Transformed Data
+end note
+
+@enduml
+
+PlantUML version 1.2020.07(Sun Apr 19 13:42:40 CEST 2020)
+(GPL source distribution)
+Java Runtime: OpenJDK Runtime Environment
+JVM: OpenJDK 64-Bit Server VM
+Java Version: 1.8.0_242-b08
+Operating System: Linux
+Default Encoding: UTF-8
+Language: en
+Country: US
+--></g></svg>

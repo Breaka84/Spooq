@@ -1,0 +1,8 @@
+--- original 
++++ adapted 
+@@ -7,4 +7,5 @@
+ .. toctree::
+     hive_loader
++    parquet
+ 
+ Class Diagram of Loader Subpackage

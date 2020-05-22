@@ -1,0 +1,310 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Setup for Development, Testing, Documenting &#8212; Spooq2 2.0.0b0 documentation</title>
+    <link rel="stylesheet" href="_static/agogo.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="_static/theme_overrides.css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/language_data.js"></script>
+    <script type="text/javascript" src="_static/copybutton.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Architecture Overview" href="architecture.html" />
+    <link rel="prev" title="Loader Base Class" href="base_classes/loader.html" /> 
+  </head><body>
+    <div class="header-wrapper" role="banner">
+      <div class="header">
+        <div class="headertitle"><a
+          href="index.html">Spooq2 2.0.0b0 documentation</a></div>
+        <div class="rel" role="navigation" aria-label="related navigation">
+          <a href="base_classes/loader.html" title="Loader Base Class"
+             accesskey="P">previous</a> |
+          <a href="architecture.html" title="Architecture Overview"
+             accesskey="N">next</a> |
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a>
+        </div>
+       </div>
+    </div>
+
+    <div class="content-wrapper">
+      <div class="content">
+        <div class="document">
+            
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="setup-for-development-testing-documenting">
+<span id="dev-setup"></span><h1>Setup for Development, Testing, Documenting<a class="headerlink" href="#setup-for-development-testing-documenting" title="Permalink to this headline">¶</a></h1>
+<p><strong>Attention: The current version of Spooq is designed (and tested) only for Python 2.7 on ubuntu, manjaro linux and WSL2 (Windows Subsystem Linux).</strong></p>
+<div class="section" id="prerequisites">
+<h2>Prerequisites<a class="headerlink" href="#prerequisites" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>python 2.7</li>
+<li>Java 8 (jdk8-openjdk)</li>
+<li>pipenv</li>
+<li>Latex (for PDF documentation)</li>
+</ul>
+</div>
+<div class="section" id="setting-up-the-environment">
+<h2>Setting up the Environment<a class="headerlink" href="#setting-up-the-environment" title="Permalink to this headline">¶</a></h2>
+<p>The requirements are stored in the file <cite>Pipfile</cite> separated for production and development packages.</p>
+<p>To install the packages needed for development and testing run the following command:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ pipenv install --dev
+</pre></div>
+</div>
+<p>This will create a virtual environment in <cite>~/.local/share/virtualenvs</cite>.</p>
+<p>If you want to have your virtual environment installed as a sub-folder (.venv) you have to set the
+environment variable <cite>PIPENV_VENV_IN_PROJECT</cite> to 1.</p>
+<p>To remove a virtual environment created with pipenv just change in the folder where you created it
+and execute <cite>pipenv –rm</cite>.</p>
+</div>
+<div class="section" id="activate-the-virtual-environment">
+<h2>Activate the Virtual Environment<a class="headerlink" href="#activate-the-virtual-environment" title="Permalink to this headline">¶</a></h2>
+<div class="literal-block-wrapper docutils container" id="id10">
+<div class="code-block-caption"><span class="caption-text">To activate the virtual environment enter:</span><a class="headerlink" href="#id10" title="Permalink to this code">¶</a></div>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ pipenv shell
+</pre></div>
+</div>
+</div>
+<div class="literal-block-wrapper docutils container" id="id11">
+<div class="code-block-caption"><span class="caption-text">To deactivate the virtual environment simply enter:</span><a class="headerlink" href="#id11" title="Permalink to this code">¶</a></div>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ <span class="nb">exit</span>
+<span class="c1"># or close the shell</span>
+</pre></div>
+</div>
+</div>
+<p>For more commands of pipenv call <cite>pipenv -h</cite>.</p>
+</div>
+<div class="section" id="creating-your-own-components">
+<h2>Creating Your Own Components<a class="headerlink" href="#creating-your-own-components" title="Permalink to this headline">¶</a></h2>
+<p>Implementing new extractors, transformers, or loaders is fairly straightforward.
+Please refer to following descriptions and examples to get an idea:</p>
+<ul class="simple">
+<li><a class="reference internal" href="base_classes/extractor.html#custom-extractor"><span class="std std-ref">Create your own Extractor</span></a></li>
+<li><a class="reference internal" href="base_classes/transformer.html#custom-transformer"><span class="std std-ref">Create your own Transformer</span></a></li>
+<li><a class="reference internal" href="base_classes/loader.html#custom-loader"><span class="std std-ref">Create your own Loader</span></a></li>
+</ul>
+</div>
+<div class="section" id="running-tests">
+<h2>Running Tests<a class="headerlink" href="#running-tests" title="Permalink to this headline">¶</a></h2>
+<p>The tests are implemented with the <a class="reference external" href="https://docs.pytest.org/en/3.10.1/">pytest</a> framework.</p>
+<div class="literal-block-wrapper docutils container" id="id12">
+<div class="code-block-caption"><span class="caption-text">Start all tests:</span><a class="headerlink" href="#id12" title="Permalink to this code">¶</a></div>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ pipenv shell
+$ <span class="nb">cd</span> tests
+$ pytest
+</pre></div>
+</div>
+</div>
+<div class="section" id="test-plugins">
+<h3>Test Plugins<a class="headerlink" href="#test-plugins" title="Permalink to this headline">¶</a></h3>
+<p>Those are the most useful plugins automatically used:</p>
+<div class="section" id="id1">
+<h4><a class="reference external" href="https://github.com/pytest-dev/pytest-html">html</a><a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h4>
+<div class="literal-block-wrapper docutils container" id="id13">
+<div class="code-block-caption"><span class="caption-text">Generate an HTML report for the test results:</span><a class="headerlink" href="#id13" title="Permalink to this code">¶</a></div>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ pytest --html<span class="o">=</span>report.html
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="id2">
+<h4><a class="reference external" href="https://pythonhosted.org/pytest-random-order/">random-order</a><a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h4>
+<p>Shuffles the order of execution for the tests to avoid / discover dependencies of the tests.</p>
+<p>Randomization is set by a seed number. To re-test the same order of execution where you found
+an error, just set the seed value to the same as for the failing test.
+To temporarily disable this feature run with <cite>pytest -p no:random-order -v</cite></p>
+</div>
+<div class="section" id="id3">
+<h4><a class="reference external" href="https://pytest-cov.readthedocs.io/en/v2.6.0/">cov</a><a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h4>
+<p>Generates an HTML for the test coverage</p>
+<div class="literal-block-wrapper docutils container" id="id14">
+<div class="code-block-caption"><span class="caption-text">Get a test coverage report in the terminal:</span><a class="headerlink" href="#id14" title="Permalink to this code">¶</a></div>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ pytest --cov-report term --cov<span class="o">=</span>spooq2
+</pre></div>
+</div>
+</div>
+<div class="literal-block-wrapper docutils container" id="id15">
+<div class="code-block-caption"><span class="caption-text">Get the test coverage report as HTML</span><a class="headerlink" href="#id15" title="Permalink to this code">¶</a></div>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ pytest --cov-report html:cov_html --cov<span class="o">=</span>spooq2
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="id4">
+<h4><a class="reference external" href="https://github.com/gotcha/ipdb">ipdb</a><a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h4>
+<dl class="docutils">
+<dt>To use ipdb (IPython Debugger) add following code at your breakpoint::</dt>
+<dd><div class="first last highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">ipdb</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ipdb</span><span class="o">.</span><span class="n">set_trace</span><span class="p">()</span>
+</pre></div>
+</div>
+</dd>
+</dl>
+<p>You have to start pytest with <cite>-s</cite> if you want to use interactive debugger.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ pytest -s
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="section" id="generate-documentation">
+<h2>Generate Documentation<a class="headerlink" href="#generate-documentation" title="Permalink to this headline">¶</a></h2>
+<p>This project uses <a class="reference external" href="https://www.sphinx-doc.org/en/1.8/">Sphinx</a> for creating its documentation.
+Graphs and diagrams are produced with PlantUML.</p>
+<p>The main documentation content is defined as docstrings within the source code.
+To view the current documentation open <cite>docs/build/html/index.html</cite>
+or <cite>docs/build/latex/spooq2.pdf</cite> in your application of choice.
+There are symlinks in the root folder for symplicity:</p>
+<ul class="simple">
+<li>Documentation.html</li>
+<li>Documentation.pdf</li>
+</ul>
+<p>Although, if you are reading this, you have probably already found the documentation…</p>
+<div class="section" id="diagrams">
+<h3>Diagrams<a class="headerlink" href="#diagrams" title="Permalink to this headline">¶</a></h3>
+<p>For generating the graphs and diagrams, you need a working plantuml installation
+on your computer! Please refer to <a class="reference external" href="https://pypi.org/project/sphinxcontrib-plantuml/">sphinxcontrib-plantuml</a>.</p>
+</div>
+<div class="section" id="id5">
+<h3>HTML<a class="headerlink" href="#id5" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ <span class="nb">cd</span> docs
+$ make html
+$ chromium build/html/index.html
+</pre></div>
+</div>
+</div>
+<div class="section" id="pdf">
+<h3>PDF<a class="headerlink" href="#pdf" title="Permalink to this headline">¶</a></h3>
+<p>For generating documentation in the PDF format you need to have a working (pdf)latex installation
+on your computer! Please refer to <a class="reference external" href="https://www.tug.org/texlive/">TexLive</a> on how to install
+TeX Live - a compatible latex distribution. But beware, the download size is huge!</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ <span class="nb">cd</span> docs
+$ make latexpdf
+$ evince build/latex/Spooq2.pdf
+</pre></div>
+</div>
+</div>
+<div class="section" id="configuration">
+<h3>Configuration<a class="headerlink" href="#configuration" title="Permalink to this headline">¶</a></h3>
+<p>Themes, plugins, settings, … are defined in <cite>docs/source/conf.py</cite>.</p>
+<div class="section" id="id6">
+<h4><a class="reference external" href="https://sphinxcontrib-napoleon.readthedocs.io/en/latest/">napoleon</a><a class="headerlink" href="#id6" title="Permalink to this headline">¶</a></h4>
+<p>Enables support for parsing docstrings in NumPy / Google Style</p>
+</div>
+<div class="section" id="id7">
+<h4><a class="reference external" href="http://www.sphinx-doc.org/en/master/usage/extensions/intersphinx.html">intersphinx</a><a class="headerlink" href="#id7" title="Permalink to this headline">¶</a></h4>
+<p>Allows linking to other projects’ documentation. E.g., PySpark, Python2
+To add an external project, at the documentation link to <cite>intersphinx_mapping</cite> in <cite>conf.py</cite></p>
+</div>
+<div class="section" id="id8">
+<h4><a class="reference external" href="https://recommonmark.readthedocs.io/en/latest/">recommonmark</a><a class="headerlink" href="#id8" title="Permalink to this headline">¶</a></h4>
+<p>This allows you to write CommonMark (Markdown) inside of Docutils &amp; Sphinx projects instead
+of rst.</p>
+</div>
+<div class="section" id="id9">
+<h4><a class="reference external" href="https://github.com/sphinx-contrib/plantuml/">plantuml</a><a class="headerlink" href="#id9" title="Permalink to this headline">¶</a></h4>
+<p>Allows for inline Plant UML code (uml directive) which is automatically rendered into an
+svg image and placed in the document. Allows also to source puml-files. See <a class="reference internal" href="architecture.html#architecture"><span class="std std-ref">Architecture Overview</span></a>
+for an example.</p>
+</div>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+        </div>
+        <div class="sidebar">
+          <h3>Table of Contents</h3>
+          <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation / Deployment</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="extractor/overview.html">Extractors</a></li>
+<li class="toctree-l1"><a class="reference internal" href="transformer/overview.html">Transformers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="loader/overview.html">Loaders</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pipeline/overview.html">Pipeline</a></li>
+<li class="toctree-l1"><a class="reference internal" href="base_classes/overview.html">Spooq Base</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Setup for Development, Testing, Documenting</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#prerequisites">Prerequisites</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#setting-up-the-environment">Setting up the Environment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#activate-the-virtual-environment">Activate the Virtual Environment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#creating-your-own-components">Creating Your Own Components</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#running-tests">Running Tests</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#test-plugins">Test Plugins</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#generate-documentation">Generate Documentation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#diagrams">Diagrams</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id5">HTML</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pdf">PDF</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#configuration">Configuration</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="architecture.html">Architecture Overview</a></li>
+</ul>
+
+          <div role="search">
+            <h3 style="margin-top: 1.5em;">Search</h3>
+            <form class="search" action="search.html" method="get">
+                <input type="text" name="q" />
+                <input type="submit" value="Go" />
+                <input type="hidden" name="check_keywords" value="yes" />
+                <input type="hidden" name="area" value="default" />
+            </form>
+          </div>
+        </div>
+        <div class="clearer"></div>
+      </div>
+    </div>
+
+    <div class="footer-wrapper">
+      <div class="footer">
+        <div class="left">
+          <div role="navigation" aria-label="related navigaton">
+            <a href="base_classes/loader.html" title="Loader Base Class"
+              >previous</a> |
+            <a href="architecture.html" title="Architecture Overview"
+              >next</a> |
+            <a href="py-modindex.html" title="Python Module Index"
+              >modules</a> |
+            <a href="genindex.html" title="General Index"
+              >index</a>
+          </div>
+          <div role="note" aria-label="source link">
+              <br/>
+              <a href="_sources/setup_development_testing.rst.txt"
+                rel="nofollow">Show Source</a>
+          </div>
+        </div>
+
+        <div class="right">
+          
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2020, David Eigenstuhler.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.5.
+    </div>
+        </div>
+        <div class="clearer"></div>
+      </div>
+    </div>
+
+  </body>
+</html>

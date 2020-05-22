@@ -1,0 +1,209 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>JSON Files &#8212; Spooq2 2.0.0b0 documentation</title>
+    <link rel="stylesheet" href="../_static/agogo.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../_static/theme_overrides.css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="../_static/language_data.js"></script>
+    <script type="text/javascript" src="../_static/copybutton.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="JDBC Source" href="jdbc.html" />
+    <link rel="prev" title="Extractors" href="overview.html" /> 
+  </head><body>
+    <div class="header-wrapper" role="banner">
+      <div class="header">
+        <div class="headertitle"><a
+          href="../index.html">Spooq2 2.0.0b0 documentation</a></div>
+        <div class="rel" role="navigation" aria-label="related navigation">
+          <a href="overview.html" title="Extractors"
+             accesskey="P">previous</a> |
+          <a href="jdbc.html" title="JDBC Source"
+             accesskey="N">next</a> |
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a>
+        </div>
+       </div>
+    </div>
+
+    <div class="content-wrapper">
+      <div class="content">
+        <div class="document">
+            
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-spooq2.extractor.json_files">
+<span id="json-files"></span><h1>JSON Files<a class="headerlink" href="#module-spooq2.extractor.json_files" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="spooq2.extractor.json_files.JSONExtractor">
+<em class="property">class </em><code class="descname">JSONExtractor</code><span class="sig-paren">(</span><em>input_path=None</em>, <em>base_path=None</em>, <em>partition=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/spooq2/extractor/json_files.html#JSONExtractor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spooq2.extractor.json_files.JSONExtractor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="../base_classes/extractor.html#spooq2.extractor.extractor.Extractor" title="spooq2.extractor.extractor.Extractor"><code class="xref py py-class docutils literal notranslate"><span class="pre">spooq2.extractor.extractor.Extractor</span></code></a></p>
+<p>The JSONExtractor class provides an API to extract data stored as JSON format,
+deserializes it into a PySpark dataframe and returns it. Currently only
+single-line JSON files are supported, stored either as textFile or sequenceFile.</p>
+<p class="rubric">Examples</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">spooq2</span> <span class="kn">import</span> <span class="n">extractor</span> <span class="k">as</span> <span class="n">E</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">extractor</span> <span class="o">=</span> <span class="n">E</span><span class="o">.</span><span class="n">JSONExtractor</span><span class="p">(</span><span class="n">input_path</span><span class="o">=</span><span class="s2">&quot;tests/data/schema_v1/sequenceFiles&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">extractor</span><span class="o">.</span><span class="n">input_path</span> <span class="o">==</span> <span class="s2">&quot;tests/data/schema_v1/sequenceFiles&quot;</span> <span class="o">+</span> <span class="s2">&quot;/*&quot;</span>
+<span class="go">True</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">extractor</span> <span class="o">=</span> <span class="n">E</span><span class="o">.</span><span class="n">JSONExtractor</span><span class="p">(</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">base_path</span><span class="o">=</span><span class="s2">&quot;tests/data/schema_v1/sequenceFiles&quot;</span><span class="p">,</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">partition</span><span class="o">=</span><span class="s2">&quot;20200201&quot;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">extractor</span><span class="o">.</span><span class="n">input_path</span> <span class="o">==</span> <span class="s2">&quot;tests/data/schema_v1/sequenceFiles&quot;</span> <span class="o">+</span> <span class="s2">&quot;/20/02/01&quot;</span> <span class="o">+</span> <span class="s2">&quot;/*&quot;</span>
+<span class="go">True</span>
+</pre></div>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>input_path</strong> (<a class="reference external" href="https://docs.python.org/2.7/library/functions.html#str" title="(in Python v2.7)"><code class="xref any docutils literal notranslate"><span class="pre">str</span></code></a>) – The path from which the JSON files should be loaded (“/*” will be added if omitted)</li>
+<li><strong>base_path</strong> (<a class="reference external" href="https://docs.python.org/2.7/library/functions.html#str" title="(in Python v2.7)"><code class="xref any docutils literal notranslate"><span class="pre">str</span></code></a>) – Spooq tries to infer the <code class="docutils literal notranslate"><span class="pre">input_path</span></code> from the <code class="docutils literal notranslate"><span class="pre">base_path</span></code> and the <code class="docutils literal notranslate"><span class="pre">partition</span></code> if the
+<code class="docutils literal notranslate"><span class="pre">input_path</span></code> is missing.</li>
+<li><strong>partition</strong> (<a class="reference external" href="https://docs.python.org/2.7/library/functions.html#str" title="(in Python v2.7)"><code class="xref any docutils literal notranslate"><span class="pre">str</span></code></a> or <a class="reference external" href="https://docs.python.org/2.7/library/functions.html#int" title="(in Python v2.7)"><code class="xref any docutils literal notranslate"><span class="pre">int</span></code></a>) – Spooq tries to infer the <code class="docutils literal notranslate"><span class="pre">input_path</span></code> from the <code class="docutils literal notranslate"><span class="pre">base_path</span></code> and the <code class="docutils literal notranslate"><span class="pre">partition</span></code> if the
+<code class="docutils literal notranslate"><span class="pre">input_path</span></code> is missing.
+Only daily partitions in the form of “YYYYMMDD” are supported. e.g., “20200201” =&gt; &lt;base_path&gt; + “/20/02/01/*”</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">The extracted data set as a PySpark DataFrame</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first"><a class="reference external" href="https://spark.apache.org/docs/2.4.3/api/python/pyspark.sql.html#pyspark.sql.DataFrame" title="(in PySpark vmaster)"><code class="xref any docutils literal notranslate"><span class="pre">pyspark.sql.DataFrame</span></code></a></p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><p class="first last"><a class="reference external" href="https://docs.python.org/2.7/library/exceptions.html#exceptions.AttributeError" title="(in Python v2.7)"><code class="xref any docutils literal notranslate"><span class="pre">exceptions.AttributeError</span></code></a> – Please define either <code class="docutils literal notranslate"><span class="pre">input_path</span></code> or <code class="docutils literal notranslate"><span class="pre">base_path</span></code> and <code class="docutils literal notranslate"><span class="pre">partition</span></code></p>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">Currently only single-line JSON files stored as SequenceFiles or TextFiles are supported!</p>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p>The init method checks which input parameters are provided and derives the final input_path
+from them accordingly.</p>
+<dl class="last docutils">
+<dt>If <code class="docutils literal notranslate"><span class="pre">input_path</span></code> is not <a class="reference external" href="https://docs.python.org/2.7/library/constants.html#None" title="(in Python v2.7)"><code class="xref any docutils literal notranslate"><span class="pre">None</span></code></a>:</dt>
+<dd>Cleans <code class="docutils literal notranslate"><span class="pre">input_path</span></code> and returns it as the final <code class="docutils literal notranslate"><span class="pre">input_path</span></code></dd>
+<dt>Elif <code class="docutils literal notranslate"><span class="pre">base_path</span></code> and <code class="docutils literal notranslate"><span class="pre">partition</span></code> are not <a class="reference external" href="https://docs.python.org/2.7/library/constants.html#None" title="(in Python v2.7)"><code class="xref any docutils literal notranslate"><span class="pre">None</span></code></a>:</dt>
+<dd>Cleans <code class="docutils literal notranslate"><span class="pre">base_path</span></code>, infers the sub path from the <code class="docutils literal notranslate"><span class="pre">partition</span></code>
+and returns the combined string as the final <code class="docutils literal notranslate"><span class="pre">input_path</span></code></dd>
+<dt>Else:</dt>
+<dd>Raises an <a class="reference external" href="https://docs.python.org/2.7/library/exceptions.html#exceptions.AttributeError" title="(in Python v2.7)"><code class="xref any docutils literal notranslate"><span class="pre">exceptions.AttributeError</span></code></a></dd>
+</dl>
+</div>
+<dl class="method">
+<dt id="spooq2.extractor.json_files.JSONExtractor.extract">
+<code class="descname">extract</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/spooq2/extractor/json_files.html#JSONExtractor.extract"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spooq2.extractor.json_files.JSONExtractor.extract" title="Permalink to this definition">¶</a></dt>
+<dd><p>This is the Public API Method to be called for all classes of Extractors</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">Complex PySpark DataFrame deserialized from the input JSON Files</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference external" href="https://spark.apache.org/docs/2.4.3/api/python/pyspark.sql.html#pyspark.sql.DataFrame" title="(in PySpark vmaster)"><code class="xref py py-class docutils literal notranslate"><span class="pre">pyspark.sql.DataFrame</span></code></a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+        </div>
+        <div class="sidebar">
+          <h3>Table of Contents</h3>
+          <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation / Deployment</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../examples.html">Examples</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="overview.html">Extractors</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">JSON Files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="jdbc.html">JDBC Source</a></li>
+<li class="toctree-l2"><a class="reference internal" href="overview.html#class-diagram-of-extractor-subpackage">Class Diagram of Extractor Subpackage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="overview.html#create-your-own-extractor">Create your own Extractor</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../transformer/overview.html">Transformers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../loader/overview.html">Loaders</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../pipeline/overview.html">Pipeline</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../base_classes/overview.html">Spooq Base</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../setup_development_testing.html">Setup for Development, Testing, Documenting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../architecture.html">Architecture Overview</a></li>
+</ul>
+
+          <div role="search">
+            <h3 style="margin-top: 1.5em;">Search</h3>
+            <form class="search" action="../search.html" method="get">
+                <input type="text" name="q" />
+                <input type="submit" value="Go" />
+                <input type="hidden" name="check_keywords" value="yes" />
+                <input type="hidden" name="area" value="default" />
+            </form>
+          </div>
+        </div>
+        <div class="clearer"></div>
+      </div>
+    </div>
+
+    <div class="footer-wrapper">
+      <div class="footer">
+        <div class="left">
+          <div role="navigation" aria-label="related navigaton">
+            <a href="overview.html" title="Extractors"
+              >previous</a> |
+            <a href="jdbc.html" title="JDBC Source"
+              >next</a> |
+            <a href="../py-modindex.html" title="Python Module Index"
+              >modules</a> |
+            <a href="../genindex.html" title="General Index"
+              >index</a>
+          </div>
+          <div role="note" aria-label="source link">
+              <br/>
+              <a href="../_sources/extractor/json.rst.txt"
+                rel="nofollow">Show Source</a>
+          </div>
+        </div>
+
+        <div class="right">
+          
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2020, David Eigenstuhler.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.5.
+    </div>
+        </div>
+        <div class="clearer"></div>
+      </div>
+    </div>
+
+  </body>
+</html>

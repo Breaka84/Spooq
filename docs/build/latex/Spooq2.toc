@@ -1,0 +1,87 @@
+\babel@toc {english}{}
+\contentsline {chapter}{\numberline {1}Table of Content}{3}{chapter.1}% 
+\contentsline {section}{\numberline {1.1}Installation / Deployment}{3}{section.1.1}% 
+\contentsline {subsection}{\numberline {1.1.1}Build egg file}{3}{subsection.1.1.1}% 
+\contentsline {subsection}{\numberline {1.1.2}Build zip file}{3}{subsection.1.1.2}% 
+\contentsline {subsection}{\numberline {1.1.3}Include pre-build package (egg or zip) with Spark}{3}{subsection.1.1.3}% 
+\contentsline {subsection}{\numberline {1.1.4}Install local repository as package}{4}{subsection.1.1.4}% 
+\contentsline {subsection}{\numberline {1.1.5}Install Spooq2 directly from git}{4}{subsection.1.1.5}% 
+\contentsline {subsection}{\numberline {1.1.6}Development, Testing, and Documenting}{4}{subsection.1.1.6}% 
+\contentsline {section}{\numberline {1.2}Examples}{4}{section.1.2}% 
+\contentsline {subsection}{\numberline {1.2.1}JSON Files to Partitioned Hive Table}{4}{subsection.1.2.1}% 
+\contentsline {subsubsection}{Sample Input Data:}{4}{subsubsection*.3}% 
+\contentsline {subsubsection}{Sample Output Tables}{5}{subsubsection*.4}% 
+\contentsline {subsubsection}{Application Code for Updating the Users Table}{5}{subsubsection*.5}% 
+\contentsline {subsubsection}{Application Code for Updating the Friends\_Mapping Table}{6}{subsubsection*.6}% 
+\contentsline {subsubsection}{Application Code for Updating Both, the Users and Friends\_Mapping Table, at once}{7}{subsubsection*.7}% 
+\contentsline {section}{\numberline {1.3}Extractors}{8}{section.1.3}% 
+\contentsline {subsection}{\numberline {1.3.1}JSON Files}{8}{subsection.1.3.1}% 
+\contentsline {subsection}{\numberline {1.3.2}JDBC Source}{9}{subsection.1.3.2}% 
+\contentsline {subsection}{\numberline {1.3.3}Class Diagram of Extractor Subpackage}{12}{subsection.1.3.3}% 
+\contentsline {subsection}{\numberline {1.3.4}Create your own Extractor}{12}{subsection.1.3.4}% 
+\contentsline {section}{\numberline {1.4}Transformers}{12}{section.1.4}% 
+\contentsline {subsection}{\numberline {1.4.1}Exploder}{12}{subsection.1.4.1}% 
+\contentsline {subsection}{\numberline {1.4.2}Sieve (Filter)}{13}{subsection.1.4.2}% 
+\contentsline {subsection}{\numberline {1.4.3}Mapper}{14}{subsection.1.4.3}% 
+\contentsline {subsubsection}{Class}{14}{subsubsection*.19}% 
+\contentsline {subsubsection}{Activity Diagram}{16}{subsubsection*.22}% 
+\contentsline {subsubsection}{Custom Mapping Methods}{16}{subsubsection*.23}% 
+\contentsline {subsection}{\numberline {1.4.4}Threshold-based Cleaner}{22}{subsection.1.4.4}% 
+\contentsline {subsection}{\numberline {1.4.5}Newest by Group (Most current record per ID)}{23}{subsection.1.4.5}% 
+\contentsline {subsection}{\numberline {1.4.6}Class Diagram of Transformer Subpackage}{24}{subsection.1.4.6}% 
+\contentsline {subsection}{\numberline {1.4.7}Create your own Transformer}{24}{subsection.1.4.7}% 
+\contentsline {section}{\numberline {1.5}Loaders}{25}{section.1.5}% 
+\contentsline {subsection}{\numberline {1.5.1}Hive Database}{25}{subsection.1.5.1}% 
+\contentsline {subsubsection}{Activity Diagram}{27}{subsubsection*.46}% 
+\contentsline {subsection}{\numberline {1.5.2}Class Diagram of Loader Subpackage}{28}{subsection.1.5.2}% 
+\contentsline {subsection}{\numberline {1.5.3}Create your own Loader}{28}{subsection.1.5.3}% 
+\contentsline {section}{\numberline {1.6}Pipeline}{28}{section.1.6}% 
+\contentsline {subsection}{\numberline {1.6.1}Pipeline}{28}{subsection.1.6.1}% 
+\contentsline {subsection}{\numberline {1.6.2}Pipeline Factory}{31}{subsection.1.6.2}% 
+\contentsline {subsection}{\numberline {1.6.3}Class Diagram of Pipeline Subpackage}{33}{subsection.1.6.3}% 
+\contentsline {section}{\numberline {1.7}Spooq Base}{33}{section.1.7}% 
+\contentsline {subsection}{\numberline {1.7.1}Global Logger}{33}{subsection.1.7.1}% 
+\contentsline {subsection}{\numberline {1.7.2}Extractor Base Class}{34}{subsection.1.7.2}% 
+\contentsline {subsubsection}{Create your own Extractor}{35}{subsubsection*.72}% 
+\contentsline {paragraph}{Exemplary Sample Code}{35}{paragraph*.73}% 
+\contentsline {paragraph}{References to include}{36}{paragraph*.74}% 
+\contentsline {paragraph}{Tests}{36}{paragraph*.75}% 
+\contentsline {paragraph}{Documentation}{37}{paragraph*.76}% 
+\contentsline {subsection}{\numberline {1.7.3}Transformer Base Class}{38}{subsection.1.7.3}% 
+\contentsline {subsubsection}{Create your own Transformer}{38}{subsubsection*.81}% 
+\contentsline {paragraph}{Exemplary Sample Code}{39}{paragraph*.82}% 
+\contentsline {paragraph}{References to include}{39}{paragraph*.83}% 
+\contentsline {paragraph}{Tests}{40}{paragraph*.84}% 
+\contentsline {paragraph}{Documentation}{41}{paragraph*.85}% 
+\contentsline {subsection}{\numberline {1.7.4}Loader Base Class}{41}{subsection.1.7.4}% 
+\contentsline {subsubsection}{Create your own Loader}{42}{subsubsection*.90}% 
+\contentsline {paragraph}{Exemplary Sample Code}{42}{paragraph*.91}% 
+\contentsline {paragraph}{References to include}{44}{paragraph*.92}% 
+\contentsline {paragraph}{Tests}{44}{paragraph*.93}% 
+\contentsline {paragraph}{Documentation}{45}{paragraph*.94}% 
+\contentsline {section}{\numberline {1.8}Setup for Development, Testing, Documenting}{46}{section.1.8}% 
+\contentsline {subsection}{\numberline {1.8.1}Prerequisites}{46}{subsection.1.8.1}% 
+\contentsline {subsection}{\numberline {1.8.2}Setting up the Environment}{46}{subsection.1.8.2}% 
+\contentsline {subsection}{\numberline {1.8.3}Activate the Virtual Environment}{46}{subsection.1.8.3}% 
+\contentsline {subsection}{\numberline {1.8.4}Creating Your Own Components}{47}{subsection.1.8.4}% 
+\contentsline {subsection}{\numberline {1.8.5}Running Tests}{47}{subsection.1.8.5}% 
+\contentsline {subsubsection}{Test Plugins}{47}{subsubsection*.95}% 
+\contentsline {paragraph}{html}{47}{paragraph*.96}% 
+\contentsline {paragraph}{random-order}{47}{paragraph*.97}% 
+\contentsline {paragraph}{cov}{47}{paragraph*.98}% 
+\contentsline {paragraph}{ipdb}{48}{paragraph*.99}% 
+\contentsline {subsection}{\numberline {1.8.6}Generate Documentation}{48}{subsection.1.8.6}% 
+\contentsline {subsubsection}{Diagrams}{48}{subsubsection*.100}% 
+\contentsline {subsubsection}{HTML}{48}{subsubsection*.101}% 
+\contentsline {subsubsection}{PDF}{48}{subsubsection*.102}% 
+\contentsline {subsubsection}{Configuration}{48}{subsubsection*.103}% 
+\contentsline {paragraph}{napoleon}{48}{paragraph*.104}% 
+\contentsline {paragraph}{intersphinx}{49}{paragraph*.105}% 
+\contentsline {paragraph}{recommonmark}{49}{paragraph*.106}% 
+\contentsline {paragraph}{plantuml}{49}{paragraph*.107}% 
+\contentsline {section}{\numberline {1.9}Architecture Overview}{49}{section.1.9}% 
+\contentsline {subsection}{\numberline {1.9.1}Typical Data Flow of a Spooq Data Pipeline}{49}{subsection.1.9.1}% 
+\contentsline {subsection}{\numberline {1.9.2}Simplified Class Diagram}{50}{subsection.1.9.2}% 
+\contentsline {chapter}{\numberline {2}Indices and tables}{51}{chapter.2}% 
+\contentsline {chapter}{Python Module Index}{53}{chapter*.109}% 
+\contentsline {chapter}{Index}{55}{chapter*.111}% 

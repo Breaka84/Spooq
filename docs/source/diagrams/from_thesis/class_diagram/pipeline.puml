@@ -1,0 +1,43 @@
+@startuml
+
+skinparam monochrome true
+skinparam defaultFontname Bitstream Vera Sans Mono
+skinparam defaultFontSize 18
+
+
+' left to right direction
+
+  namespace pipeline {
+
+    class Pipeline {
+      input_df : DataFrame = None
+      bypass_loader : bool = False
+      .. derived ..
+      extractor : Extractor = None
+      bypass_extractor : bool
+      transformers : [Transformer] = []
+      loader : Loader = None
+      name : str
+      logger : logging.logger
+      __
+      execute()
+      extract()
+      transform(input_df : DataFrame)
+      load(input_df : DataFrame)
+      set_extractor(extractor : Extractor)
+      add_transformers(transformers : [Transformer])
+      clear_transformers()
+      set_loader(loader : Loader)
+    }
+
+    class PipelineFactory {
+      url : str = "http://localhost:5000/pipeline/get"
+      __
+      execute(context_variables : dict)
+      get_metadata(context_variables : dict)
+      get_pipeline(context_variables : dict)
+    }
+
+    PipelineFactory ..> Pipeline : "creates"
+
+ @enduml

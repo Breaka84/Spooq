@@ -1,0 +1,45 @@
+{
+  "id": 18,
+  "guid": "b12b59ba-5c78-4057-a998-469497005c1f",
+  "attributes": {
+    "first_name": "Jeannette",
+    "last_name": "O'Loghlen",
+    "gender": "F",
+    "email": "gpirri3j@oracle.com",
+    "ip_address": "64.19.237.154",
+    "university": "",
+    "birthday": "1972-05-16T22:17:41Z",
+    "friends": [
+      {
+        "first_name": "Noémie",
+        "last_name": "Tibbles",
+        "id": 9952
+      },
+      {
+        "first_name": "Bérangère",
+        "last_name": null,
+        "id": 3391
+      },
+      {
+        "first_name": "Danièle",
+        "last_name": null,
+        "id": 9637
+      },
+      {
+        "first_name": null,
+        "last_name": null,
+        "id": 9939
+      },
+      {
+        "first_name": "Anaëlle",
+        "last_name": null,
+        "id": 18994
+      }
+    ]
+  },
+  "meta": {
+    "created_at_sec": 1547371284,
+    "created_at_ms": 1547204429000,
+    "version": 24
+  }
+}

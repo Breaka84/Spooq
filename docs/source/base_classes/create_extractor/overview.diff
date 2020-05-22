@@ -1,0 +1,12 @@
+--- original 
++++ adapted 
+@@ -7,8 +7,9 @@
+ .. toctree::
+ 
+     json
+     jdbc
++    csv
+ 
+ Class Diagram of Extractor Subpackage
+ ------------------------------------------------
+ .. uml:: ../diagrams/from_thesis/class_diagram/extractors.puml

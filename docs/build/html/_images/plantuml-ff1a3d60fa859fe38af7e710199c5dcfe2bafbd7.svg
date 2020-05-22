@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" contentScriptType="application/ecmascript" contentStyleType="text/css" height="573px" preserveAspectRatio="none" style="width:518px;height:573px;" version="1.1" viewBox="0 0 518 573" width="518px" zoomAndPan="magnify"><defs><filter height="300%" id="f13zcs2nc14cla" width="300%" x="-1" y="-1"><feGaussianBlur result="blurOut" stdDeviation="2.0"/><feColorMatrix in="blurOut" result="blurOut2" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .4 0"/><feOffset dx="4.0" dy="4.0" in="blurOut2" result="blurOut3"/><feBlend in="SourceGraphic" in2="blurOut3" mode="normal"/></filter></defs><g><!--MD5=[3059eaac1fd4f9745a2d6cfe842c4363]
+cluster loader--><polygon fill="#FFFFFF" filter="url(#f13zcs2nc14cla)" points="22,24,94,24,101,50.9531,496,50.9531,496,561,22,561,22,24" style="stroke: #000000; stroke-width: 1.5;"/><line style="stroke: #000000; stroke-width: 1.5;" x1="22" x2="101" y1="50.9531" y2="50.9531"/><text fill="#000000" font-family="Bitstream Vera Sans Mono" font-size="18" font-weight="bold" lengthAdjust="spacingAndGlyphs" textLength="66" x="26" y="42.708">loader</text><!--MD5=[04dcba9d06bc851b8e7ac4e0b5468db1]
+class loader.Loader--><rect fill="#F8F8F8" filter="url(#f13zcs2nc14cla)" height="137.8125" id="loader.Loader" style="stroke: #383838; stroke-width: 1.5;" width="298" x="110" y="63"/><ellipse cx="221.5" cy="80" fill="#C2C2C2" rx="12" ry="12" style="stroke: #383838; stroke-width: 1.0;"/><path d="M224.5,86.125 Q223.8906,86.4375 223.2031,86.5938 Q222.5313,86.75 221.7813,86.75 Q219.125,86.75 217.7344,85 Q216.3438,83.25 216.3438,79.9531 Q216.3438,76.6406 217.7344,74.8906 Q219.125,73.1406 221.7813,73.1406 Q222.5313,73.1406 223.2188,73.2969 Q223.9063,73.4531 224.5,73.7656 L224.5,76.6563 Q223.8281,76.0469 223.2031,75.7656 Q222.5781,75.4688 221.9063,75.4688 Q220.4844,75.4688 219.75,76.6094 Q219.0313,77.7344 219.0313,79.9531 Q219.0313,82.1719 219.75,83.2969 Q220.4844,84.4219 221.9063,84.4219 Q222.5781,84.4219 223.2031,84.1406 Q223.8281,83.8594 224.5,83.2344 L224.5,86.125 Z "/><text fill="#000000" font-family="Bitstream Vera Sans Mono" font-size="18" lengthAdjust="spacingAndGlyphs" textLength="66" x="243.5" y="86.2314">Loader</text><line style="stroke: #383838; stroke-width: 1.5;" x1="111" x2="407" y1="97" y2="97"/><text fill="#000000" font-family="Bitstream Vera Sans Mono" font-size="18" lengthAdjust="spacingAndGlyphs" textLength="110" x="116" y="142.6611">name : str</text><text fill="#000000" font-family="Bitstream Vera Sans Mono" font-size="18" lengthAdjust="spacingAndGlyphs" textLength="253" x="116" y="163.6143">logger : logging.logger</text><line style="stroke: #383838; stroke-width: 1.0; stroke-dasharray: 1.0,2.0;" x1="111" x2="220.5" y1="115.4766" y2="115.4766"/><text fill="#000000" font-family="Bitstream Vera Sans Mono" font-size="18" lengthAdjust="spacingAndGlyphs" textLength="77" x="220.5" y="121.208">derived</text><line style="stroke: #383838; stroke-width: 1.0; stroke-dasharray: 1.0,2.0;" x1="297.5" x2="407" y1="115.4766" y2="115.4766"/><line style="stroke: #383838; stroke-width: 1.5;" x1="111" x2="407" y1="171.8594" y2="171.8594"/><text fill="#000000" font-family="Bitstream Vera Sans Mono" font-size="18" lengthAdjust="spacingAndGlyphs" textLength="286" x="116" y="192.5674">load(input_df : DataFrame)</text><!--MD5=[fb9180442ae1871686930600d8861094]
+class loader.HiveLoader--><rect fill="#F8F8F8" filter="url(#f13zcs2nc14cla)" height="284.4844" id="loader.HiveLoader" style="stroke: #383838; stroke-width: 1.5;" width="441" x="38.5" y="261"/><ellipse cx="199.5" cy="278" fill="#C2C2C2" rx="12" ry="12" style="stroke: #383838; stroke-width: 1.0;"/><path d="M202.5,284.125 Q201.8906,284.4375 201.2031,284.5938 Q200.5313,284.75 199.7813,284.75 Q197.125,284.75 195.7344,283 Q194.3438,281.25 194.3438,277.9531 Q194.3438,274.6406 195.7344,272.8906 Q197.125,271.1406 199.7813,271.1406 Q200.5313,271.1406 201.2188,271.2969 Q201.9063,271.4531 202.5,271.7656 L202.5,274.6563 Q201.8281,274.0469 201.2031,273.7656 Q200.5781,273.4688 199.9063,273.4688 Q198.4844,273.4688 197.75,274.6094 Q197.0313,275.7344 197.0313,277.9531 Q197.0313,280.1719 197.75,281.2969 Q198.4844,282.4219 199.9063,282.4219 Q200.5781,282.4219 201.2031,282.1406 Q201.8281,281.8594 202.5,281.2344 L202.5,284.125 Z "/><text fill="#000000" font-family="Bitstream Vera Sans Mono" font-size="18" lengthAdjust="spacingAndGlyphs" textLength="110" x="221.5" y="284.2314">HiveLoader</text><line style="stroke: #383838; stroke-width: 1.5;" x1="39.5" x2="478.5" y1="295" y2="295"/><text fill="#000000" font-family="Bitstream Vera Sans Mono" font-size="18" lengthAdjust="spacingAndGlyphs" textLength="143" x="44.5" y="315.708">db_name : str</text><text fill="#000000" font-family="Bitstream Vera Sans Mono" font-size="18" lengthAdjust="spacingAndGlyphs" textLength="176" x="44.5" y="336.6611">table_name : str</text><text fill="#000000" font-family="Bitstream Vera Sans Mono" font-size="18" lengthAdjust="spacingAndGlyphs" textLength="308" x="44.5" y="357.6143">partition_definitions : list</text><text fill="#000000" font-family="Bitstream Vera Sans Mono" font-size="18" lengthAdjust="spacingAndGlyphs" textLength="319" x="44.5" y="378.5674">clear_partition : bool = True</text><text fill="#000000" font-family="Bitstream Vera Sans Mono" font-size="18" lengthAdjust="spacingAndGlyphs" textLength="297" x="44.5" y="399.5205">repartition_size : int = 40</text><text fill="#000000" font-family="Bitstream Vera Sans Mono" font-size="18" lengthAdjust="spacingAndGlyphs" textLength="341" x="44.5" y="420.4736">auto_create_table : bool = True</text><text fill="#000000" font-family="Bitstream Vera Sans Mono" font-size="18" lengthAdjust="spacingAndGlyphs" textLength="429" x="44.5" y="441.4268">overwrite_partition_value : bool = True</text><text fill="#000000" font-family="Bitstream Vera Sans Mono" font-size="18" lengthAdjust="spacingAndGlyphs" textLength="231" x="44.5" y="487.333">full_table_name : str</text><text fill="#000000" font-family="Bitstream Vera Sans Mono" font-size="18" lengthAdjust="spacingAndGlyphs" textLength="220" x="44.5" y="508.2861">spark : SparkSession</text><line style="stroke: #383838; stroke-width: 1.0; stroke-dasharray: 1.0,2.0;" x1="39.5" x2="220.5" y1="460.1484" y2="460.1484"/><text fill="#000000" font-family="Bitstream Vera Sans Mono" font-size="18" lengthAdjust="spacingAndGlyphs" textLength="77" x="220.5" y="465.8799">derived</text><line style="stroke: #383838; stroke-width: 1.0; stroke-dasharray: 1.0,2.0;" x1="297.5" x2="478.5" y1="460.1484" y2="460.1484"/><line style="stroke: #383838; stroke-width: 1.5;" x1="39.5" x2="478.5" y1="516.5313" y2="516.5313"/><text fill="#000000" font-family="Bitstream Vera Sans Mono" font-size="18" lengthAdjust="spacingAndGlyphs" textLength="286" x="44.5" y="537.2393">load(input_df : DataFrame)</text><!--MD5=[2db57ecf5b3f4e3eb21fcf2c99b8c2a2]
+reverse link loader.Loader to loader.HiveLoader--><path d="M259,221.33 C259,234.08 259,247.46 259,260.93 " fill="none" id="loader.Loader&lt;-loader.HiveLoader" style="stroke: #383838; stroke-width: 1.0;"/><polygon fill="none" points="252,221.23,259,201.23,266,221.23,252,221.23" style="stroke: #383838; stroke-width: 1.0;"/><!--MD5=[3ee0423188f368f41e5a8d19399cc8c9]
+@startuml
+
+skinparam monochrome true
+skinparam defaultFontname Bitstream Vera Sans Mono
+skinparam defaultFontSize 18
+
+
+
+
+  namespace loader {
+    
+    class Loader {
+      .. derived ..
+      name : str
+      logger : logging.logger
+      __
+      load(input_df : DataFrame)
+    }
+    Loader <|- - HiveLoader
+    class HiveLoader {
+      db_name : str
+      table_name : str
+      partition_definitions : list
+      clear_partition : bool = True
+      repartition_size : int = 40
+      auto_create_table : bool = True
+      overwrite_partition_value : bool = True
+      .. derived ..
+      full_table_name : str
+      spark : SparkSession
+      __
+      load(input_df : DataFrame)
+    }
+  }
+ @enduml
+
+PlantUML version 1.2020.07(Sun Apr 19 13:42:40 CEST 2020)
+(GPL source distribution)
+Java Runtime: OpenJDK Runtime Environment
+JVM: OpenJDK 64-Bit Server VM
+Java Version: 1.8.0_242-b08
+Operating System: Linux
+Default Encoding: UTF-8
+Language: en
+Country: US
+--></g></svg>

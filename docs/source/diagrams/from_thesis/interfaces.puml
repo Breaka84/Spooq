@@ -1,0 +1,51 @@
+@startuml
+
+skinparam monochrome true
+skinparam defaultFontname Bitstream Vera Sans Mono
+skinparam defaultFontSize 18
+
+'title Spooq2 - Interfaces / API
+
+' left to right direction
+
+hide empty members
+
+interface Pipeline {
+    execute()
+    --
+    extract()
+    transform()
+    load()
+    set_extractor()
+    add_transformers()
+    clear_transformers()
+    set_loader()
+}
+
+interface Extractor {
+    extract() -> DataFrame
+}
+
+interface Transformer {
+    transform(input_df: DataFrame) -> DataFrame
+}
+
+interface Loader {
+    load(input_df: DataFrame) -> None
+}
+
+Pipeline "*" *-- "1" Extractor : contains
+
+Pipeline "*" *-- "1 - *" Transformer : contains
+
+Pipeline "*" *-- "1" Loader : contains
+
+
+footer
+
+<font color=green>Hint!</font>
+Extractors, Transformers, and Loaders can be used without a pipeline class as well, 
+if special use cases require additional transformation not covered by Spooq!
+endfooter
+
+@enduml

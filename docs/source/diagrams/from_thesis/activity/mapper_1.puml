@@ -1,0 +1,40 @@
+@startuml
+start
+
+skinparam monochrome true
+skinparam defaultFontname Bitstream Vera Sans Mono
+' skinparam defaultFontSize 18
+
+:**""mapping""**:
+- **""source_column""**
+- **""name""**
+- **""data_type""**;
+while (unprocessed definitions in **""mapping""**?) is (yes)
+  if (**""data_type""** is Spark built-in?) then (yes)
+    if (**""source_column""**\n is missing?) then (yes)
+      :Value = **""None""**;
+    else (no)
+      :Value = **""source_column""**;
+    endif
+    :rename to **""name""**;
+    :cast as **""data_type""**;
+  else (no)
+    if (**""source_column""**\n is missing?) then (yes)
+      :Value = **""None""**;
+      :rename to **""name""**;
+    else (no)
+      :Value = **""source_column""**;
+      :_get_select_expression_↩
+       ↪for_custom_type(
+          **""source_column""**, 
+          **""name""**, 
+          **""data_type""**
+      );
+    endif
+  endif
+  :add to global select expression;
+endwhile (no)
+:return global select expression;
+
+stop
+@enduml

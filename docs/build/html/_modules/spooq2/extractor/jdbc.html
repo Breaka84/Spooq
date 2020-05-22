@@ -1,0 +1,551 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>spooq2.extractor.jdbc &#8212; Spooq2 2.0.0b0 documentation</title>
+    <link rel="stylesheet" href="../../../_static/agogo.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/theme_overrides.css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../../_static/language_data.js"></script>
+    <script type="text/javascript" src="../../../_static/copybutton.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+  </head><body>
+    <div class="header-wrapper" role="banner">
+      <div class="header">
+        <div class="headertitle"><a
+          href="../../../index.html">Spooq2 2.0.0b0 documentation</a></div>
+        <div class="rel" role="navigation" aria-label="related navigation">
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a>
+        </div>
+       </div>
+    </div>
+
+    <div class="content-wrapper">
+      <div class="content">
+        <div class="document">
+            
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for spooq2.extractor.jdbc</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">from</span> <span class="nn">copy</span> <span class="kn">import</span> <span class="n">copy</span>
+<span class="kn">from</span> <span class="nn">pyspark.sql</span> <span class="kn">import</span> <span class="n">SparkSession</span>
+<span class="kn">from</span> <span class="nn">pyspark.sql.functions</span> <span class="kn">import</span> <span class="nb">min</span> <span class="k">as</span> <span class="n">sql_min</span>
+<span class="kn">from</span> <span class="nn">pyspark.sql.functions</span> <span class="kn">import</span> <span class="nb">max</span> <span class="k">as</span> <span class="n">sql_max</span>
+<span class="kn">from</span> <span class="nn">pyspark.sql.types</span> <span class="kn">import</span> <span class="n">StructField</span><span class="p">,</span> <span class="n">StructType</span>
+<span class="kn">from</span> <span class="nn">pyspark.sql.types</span> <span class="kn">import</span> <span class="n">IntegerType</span><span class="p">,</span> <span class="n">StringType</span>
+
+
+<span class="kn">from</span> <span class="nn">extractor</span> <span class="kn">import</span> <span class="n">Extractor</span>
+
+
+<div class="viewcode-block" id="JDBCExtractor"><a class="viewcode-back" href="../../../extractor/jdbc.html#spooq2.extractor.jdbc.JDBCExtractor">[docs]</a><span class="k">class</span> <span class="nc">JDBCExtractor</span><span class="p">(</span><span class="n">Extractor</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">jdbc_options</span><span class="p">,</span> <span class="n">cache</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">JDBCExtractor</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_assert_jdbc_options</span><span class="p">(</span><span class="n">jdbc_options</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">jdbc_options</span> <span class="o">=</span> <span class="n">jdbc_options</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cache</span> <span class="o">=</span> <span class="n">cache</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">spark</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">SparkSession</span><span class="o">.</span><span class="n">Builder</span><span class="p">()</span>
+            <span class="o">.</span><span class="n">enableHiveSupport</span><span class="p">()</span>
+            <span class="o">.</span><span class="n">appName</span><span class="p">(</span><span class="s2">&quot;spooq2.extractor: </span><span class="si">{nm}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">nm</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">))</span>
+            <span class="o">.</span><span class="n">getOrCreate</span><span class="p">()</span>
+        <span class="p">)</span>
+
+
+    <span class="k">def</span> <span class="nf">_load_from_jdbc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">query</span><span class="p">,</span> <span class="n">jdbc_options</span><span class="p">,</span> <span class="n">cache</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="n">jdbc_options</span> <span class="o">=</span> <span class="n">copy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">jdbc_options</span><span class="p">)</span>
+        <span class="n">jdbc_options</span><span class="p">[</span><span class="s2">&quot;dbtable&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;(</span><span class="si">{q}</span><span class="s2">) as table_statement&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">q</span><span class="o">=</span><span class="n">query</span><span class="p">)</span>
+        <span class="n">source_df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">spark</span><span class="o">.</span><span class="n">read</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s2">&quot;jdbc&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">options</span><span class="p">(</span><span class="o">**</span><span class="n">jdbc_options</span><span class="p">)</span><span class="o">.</span><span class="n">load</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">cache</span><span class="p">:</span>
+            <span class="n">source_df</span><span class="o">.</span><span class="n">cache</span><span class="p">()</span>
+
+        <span class="k">return</span> <span class="n">source_df</span>
+
+    <span class="k">def</span> <span class="nf">_assert_jdbc_options</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">jdbc_options</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;url&quot;</span><span class="p">,</span> <span class="s2">&quot;driver&quot;</span><span class="p">,</span> <span class="s2">&quot;user&quot;</span><span class="p">,</span> <span class="s2">&quot;password&quot;</span><span class="p">]:</span>
+            <span class="k">assert</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">jdbc_options</span><span class="p">,</span> <span class="n">key</span> <span class="o">+</span> <span class="s2">&quot; is missing from the jdbc_options.&quot;</span>
+            <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">jdbc_options</span><span class="p">[</span><span class="n">key</span><span class="p">],</span> <span class="n">basestring</span><span class="p">),</span> <span class="n">key</span> <span class="o">+</span> <span class="s2">&quot; has to be provided as a string object.&quot;</span></div>
+
+<div class="viewcode-block" id="JDBCExtractorFullLoad"><a class="viewcode-back" href="../../../extractor/jdbc.html#spooq2.extractor.jdbc.JDBCExtractorFullLoad">[docs]</a><span class="k">class</span> <span class="nc">JDBCExtractorFullLoad</span><span class="p">(</span><span class="n">JDBCExtractor</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Connects to a JDBC Source and fetches the data defined by the provided Query.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; import spooq2.extractor as E</span>
+<span class="sd">    &gt;&gt;&gt;</span>
+<span class="sd">    &gt;&gt;&gt; extractor = E.JDBCExtractorFullLoad(</span>
+<span class="sd">    &gt;&gt;&gt;     query=&quot;select id, first_name, last_name, gender, created_at test_db.from users&quot;,</span>
+<span class="sd">    &gt;&gt;&gt;     jdbc_options={</span>
+<span class="sd">    &gt;&gt;&gt;         &quot;url&quot;: &quot;jdbc:postgresql://localhost/test_db&quot;,</span>
+<span class="sd">    &gt;&gt;&gt;         &quot;driver&quot;: &quot;org.postgresql.Driver&quot;,</span>
+<span class="sd">    &gt;&gt;&gt;         &quot;user&quot;: &quot;read_only&quot;,</span>
+<span class="sd">    &gt;&gt;&gt;         &quot;password&quot;: &quot;test123&quot;,</span>
+<span class="sd">    &gt;&gt;&gt;     },</span>
+<span class="sd">    &gt;&gt;&gt; )</span>
+<span class="sd">    &gt;&gt;&gt;</span>
+<span class="sd">    &gt;&gt;&gt; extracted_df = extractor.extract()</span>
+<span class="sd">    &gt;&gt;&gt; type(extracted_df)</span>
+<span class="sd">    pyspark.sql.dataframe.DataFrame</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    query : :any:`str`</span>
+<span class="sd">        Defines the actual query sent to the JDBC Source. This has to be a valid SQL query</span>
+<span class="sd">        with respect to the source system (e.g., T-SQL for Microsoft SQL Server).</span>
+
+<span class="sd">    jdbc_options : :class:`dict`, optional</span>
+<span class="sd">        A set of parameters to configure the connection to the source:</span>
+<span class="sd">            * **url** (:any:`str`) - A JDBC URL of the form jdbc:subprotocol:subname. </span>
+<span class="sd">              e.g., jdbc:postgresql://localhost:5432/dbname</span>
+<span class="sd">            * **driver** (:any:`str`) - The class name of the JDBC driver to use to connect to this URL.</span>
+<span class="sd">            * **user** (:any:`str`) - Username to authenticate with the source database.</span>
+<span class="sd">            * **password** (:any:`str`) - Password to authenticate with the source database.</span>
+
+<span class="sd">        See :meth:`pyspark.sql.DataFrameReader.jdbc` and </span>
+<span class="sd">        https://spark.apache.org/docs/2.4.3/sql-data-sources-jdbc.html for more information.</span>
+
+<span class="sd">    cache : :any:`bool`, defaults to :any:`True`</span>
+<span class="sd">        Defines, weather to :meth:`~pyspark.sql.DataFrame.cache` the dataframe, after it is loaded. </span>
+<span class="sd">        Otherwise the Extractor will reload all data from the source system eachtime an action is </span>
+<span class="sd">        performed on the DataFrame.</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    :any:`exceptions.AssertionError`: </span>
+<span class="sd">        All jdbc_options values need to be present as string variables.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">query</span><span class="p">,</span> <span class="n">jdbc_options</span><span class="p">,</span> <span class="n">cache</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">JDBCExtractorFullLoad</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">jdbc_options</span><span class="o">=</span><span class="n">jdbc_options</span><span class="p">,</span> <span class="n">cache</span><span class="o">=</span><span class="n">cache</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">query</span> <span class="o">=</span> <span class="n">query</span>
+
+<div class="viewcode-block" id="JDBCExtractorFullLoad.extract"><a class="viewcode-back" href="../../../extractor/jdbc.html#spooq2.extractor.jdbc.JDBCExtractorFullLoad.extract">[docs]</a>    <span class="k">def</span> <span class="nf">extract</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This is the Public API Method to be called for all classes of Extractors</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        :py:class:`pyspark.sql.DataFrame`</span>
+<span class="sd">            PySpark dataframe from the input JDBC connection.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_load_from_jdbc</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">query</span><span class="p">,</span> <span class="n">jdbc_options</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">jdbc_options</span><span class="p">,</span> <span class="n">cache</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">cache</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="JDBCExtractorIncremental"><a class="viewcode-back" href="../../../extractor/jdbc.html#spooq2.extractor.jdbc.JDBCExtractorIncremental">[docs]</a><span class="k">class</span> <span class="nc">JDBCExtractorIncremental</span><span class="p">(</span><span class="n">JDBCExtractor</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Connects to a JDBC Source and fetches the data with respect to boundaries. </span>
+<span class="sd">    The boundaries are inferred from the partition to load and logs from previous loads </span>
+<span class="sd">    stored in the ``spooq2_values_table``.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; import spooq2.extractor as E</span>
+<span class="sd">    &gt;&gt;&gt;</span>
+<span class="sd">    &gt;&gt;&gt; # Boundaries derived from previously logged extractions =&gt; (&quot;2020-01-31 03:29:59&quot;, False)</span>
+<span class="sd">    &gt;&gt;&gt;</span>
+<span class="sd">    &gt;&gt;&gt; extractor = E.JDBCExtractorIncremental(</span>
+<span class="sd">    &gt;&gt;&gt;     partition=&quot;20200201&quot;,</span>
+<span class="sd">    &gt;&gt;&gt;     jdbc_options={</span>
+<span class="sd">    &gt;&gt;&gt;         &quot;url&quot;: &quot;jdbc:postgresql://localhost/test_db&quot;,</span>
+<span class="sd">    &gt;&gt;&gt;         &quot;driver&quot;: &quot;org.postgresql.Driver&quot;,</span>
+<span class="sd">    &gt;&gt;&gt;         &quot;user&quot;: &quot;read_only&quot;,</span>
+<span class="sd">    &gt;&gt;&gt;         &quot;password&quot;: &quot;test123&quot;,</span>
+<span class="sd">    &gt;&gt;&gt;     },</span>
+<span class="sd">    &gt;&gt;&gt;     source_table=&quot;users&quot;,</span>
+<span class="sd">    &gt;&gt;&gt;     spooq2_values_table=&quot;spooq2_jdbc_log_users&quot;,</span>
+<span class="sd">    &gt;&gt;&gt; )</span>
+<span class="sd">    &gt;&gt;&gt; </span>
+<span class="sd">    &gt;&gt;&gt; extractor._construct_query_for_partition(extractor.partition)</span>
+<span class="sd">    select * from users where updated_at &gt; &quot;2020-01-31 03:29:59&quot;</span>
+<span class="sd">    &gt;&gt;&gt; </span>
+<span class="sd">    &gt;&gt;&gt; extracted_df = extractor.extract()</span>
+<span class="sd">    &gt;&gt;&gt; type(extracted_df)</span>
+<span class="sd">    pyspark.sql.dataframe.DataFrame</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    partition : :any:`int` or :any:`str`</span>
+<span class="sd">        Partition to extract. Needed for logging the incremental load in </span>
+<span class="sd">        the ``spooq2_values_table``.</span>
+
+<span class="sd">    jdbc_options : :class:`dict`, optional</span>
+<span class="sd">        A set of parameters to configure the connection to the source:</span>
+<span class="sd">            * **url** (:any:`str`) - A JDBC URL of the form jdbc:subprotocol:subname. </span>
+<span class="sd">              e.g., jdbc:postgresql://localhost:5432/dbname</span>
+<span class="sd">            * **driver** (:any:`str`) - The class name of the JDBC driver to use to connect to this URL.</span>
+<span class="sd">            * **user** (:any:`str`) - Username to authenticate with the source database.</span>
+<span class="sd">            * **password** (:any:`str`) - Password to authenticate with the source database.</span>
+
+<span class="sd">        See :meth:`pyspark.sql.DataFrameReader.jdbc` and </span>
+<span class="sd">        https://spark.apache.org/docs/2.4.3/sql-data-sources-jdbc.html for more information.</span>
+
+<span class="sd">    source_table : :any:`str`</span>
+<span class="sd">        Defines the tablename of the source to be loaded from. For example &#39;purchases&#39;.</span>
+<span class="sd">        This is necessary to build the query.</span>
+
+<span class="sd">    spooq2_values_table : :any:`str`</span>
+<span class="sd">        Defines the Hive table where previous and future loads of a specific source table </span>
+<span class="sd">        are logged. This is necessary to derive boundaries for the current partition.</span>
+
+<span class="sd">    spooq2_values_db : :any:`str`, optional</span>
+<span class="sd">        Defines the Database where the ``spooq2_values_table`` is stored.</span>
+<span class="sd">        Defaults to `&#39;spooq2_values&#39;`.</span>
+
+<span class="sd">    spooq2_values_partition_column : :any:`str`, optional</span>
+<span class="sd">        The column name which is used for the boundaries.</span>
+<span class="sd">        Defaults to `&#39;updated_at&#39;`.</span>
+
+<span class="sd">    cache : :any:`bool`, defaults to :any:`True`</span>
+<span class="sd">        Defines, weather to :meth:`~pyspark.sql.DataFrame.cache` the dataframe, after it is loaded. Otherwise the Extractor</span>
+<span class="sd">        will reload all data from the source system again, if a second action upon the dataframe</span>
+<span class="sd">        is performed.</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    :any:`exceptions.AssertionError`: </span>
+<span class="sd">        All jdbc_options values need to be present as string variables.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">partition</span><span class="p">,</span>
+        <span class="n">jdbc_options</span><span class="p">,</span>
+        <span class="n">source_table</span><span class="p">,</span>
+        <span class="n">spooq2_values_table</span><span class="p">,</span>
+        <span class="n">spooq2_values_db</span><span class="o">=</span><span class="s2">&quot;spooq2_values&quot;</span><span class="p">,</span>
+        <span class="n">spooq2_values_partition_column</span><span class="o">=</span><span class="s2">&quot;updated_at&quot;</span><span class="p">,</span>
+        <span class="n">cache</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">JDBCExtractorIncremental</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">jdbc_options</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">partition</span> <span class="o">=</span> <span class="n">partition</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">source_table</span> <span class="o">=</span> <span class="n">source_table</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">spooq2_values_table</span> <span class="o">=</span> <span class="n">spooq2_values_table</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">spooq2_values_db</span> <span class="o">=</span> <span class="n">spooq2_values_db</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">spooq2_values_partition_column</span> <span class="o">=</span> <span class="n">spooq2_values_partition_column</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cache</span> <span class="o">=</span> <span class="n">cache</span>
+
+<div class="viewcode-block" id="JDBCExtractorIncremental.extract"><a class="viewcode-back" href="../../../extractor/jdbc.html#spooq2.extractor.jdbc.JDBCExtractorIncremental.extract">[docs]</a>    <span class="k">def</span> <span class="nf">extract</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">query</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_construct_query_for_partition</span><span class="p">(</span><span class="n">partition</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">partition</span><span class="p">)</span>
+        <span class="n">loaded_df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_load_from_jdbc</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">jdbc_options</span><span class="p">,</span> <span class="n">cache</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">cache</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_update_boundaries_for_current_partition_on_table</span><span class="p">(</span>
+            <span class="n">loaded_df</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">spooq2_values_db</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">spooq2_values_table</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">partition</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">spooq2_values_partition_column</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">loaded_df</span></div>
+
+    <span class="k">def</span> <span class="nf">_construct_query_for_partition</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">partition</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Constructs and returns a predicated Query :any:`str` depending on the `partition`</span>
+
+<span class="sd">        Based on the partition and previous loading logs (`spooq2_values_table`),</span>
+<span class="sd">        boundaries will be calculated and injected in the where clause of the query.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        partition : Integer or :any:`str`</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        :any:`str`</span>
+<span class="sd">            Complete Query :any:`str` to be used for JDBC Connections</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">select_statement</span> <span class="o">=</span> <span class="s2">&quot;select *&quot;</span>
+        <span class="n">where_clause</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="n">lower_bound</span><span class="p">,</span> <span class="n">upper_bound</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_boundaries_for_import</span><span class="p">(</span><span class="n">partition</span><span class="p">)</span>
+
+        <span class="k">def</span> <span class="nf">_fix_boundary_value_syntax</span><span class="p">(</span><span class="n">boundary</span><span class="p">):</span>
+            <span class="sd">&quot;&quot;&quot;If a boundary value is not a number, it has to be quoted for correct syntax.&quot;&quot;&quot;</span>
+
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">boundary</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">boundary</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+                <span class="n">boundary</span> <span class="o">=</span> <span class="s1">&#39;&quot;</span><span class="si">{bnd}</span><span class="s1">&quot;&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">bnd</span><span class="o">=</span><span class="n">boundary</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">boundary</span>
+
+        <span class="k">if</span> <span class="n">lower_bound</span> <span class="ow">and</span> <span class="n">upper_bound</span><span class="p">:</span>
+            <span class="n">where_clause</span> <span class="o">=</span> <span class="s2">&quot;where </span><span class="si">{chk_col}</span><span class="s2"> &gt; </span><span class="si">{low_bnd}</span><span class="s2"> and </span><span class="si">{chk_col}</span><span class="s2"> &lt;= </span><span class="si">{up_bnd}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="n">chk_col</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">spooq2_values_partition_column</span><span class="p">,</span>
+                <span class="n">low_bnd</span><span class="o">=</span><span class="n">_fix_boundary_value_syntax</span><span class="p">(</span><span class="n">lower_bound</span><span class="p">),</span>
+                <span class="n">up_bnd</span><span class="o">=</span><span class="n">_fix_boundary_value_syntax</span><span class="p">(</span><span class="n">upper_bound</span><span class="p">),</span>
+            <span class="p">)</span>
+        <span class="k">elif</span> <span class="n">lower_bound</span><span class="p">:</span>
+            <span class="n">where_clause</span> <span class="o">=</span> <span class="s2">&quot;where </span><span class="si">{chk_col}</span><span class="s2"> &gt; </span><span class="si">{low_bnd}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="n">chk_col</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">spooq2_values_partition_column</span><span class="p">,</span> <span class="n">low_bnd</span><span class="o">=</span><span class="n">_fix_boundary_value_syntax</span><span class="p">(</span><span class="n">lower_bound</span><span class="p">),</span>
+            <span class="p">)</span>
+        <span class="k">elif</span> <span class="n">upper_bound</span><span class="p">:</span>
+            <span class="n">where_clause</span> <span class="o">=</span> <span class="s2">&quot;where </span><span class="si">{chk_col}</span><span class="s2"> &lt;= </span><span class="si">{up_bnd}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="n">chk_col</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">spooq2_values_partition_column</span><span class="p">,</span> <span class="n">up_bnd</span><span class="o">=</span><span class="n">_fix_boundary_value_syntax</span><span class="p">(</span><span class="n">upper_bound</span><span class="p">),</span>
+            <span class="p">)</span>
+
+        <span class="n">query</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">{select}</span><span class="s2"> from </span><span class="si">{tbl}</span><span class="s2"> </span><span class="si">{where}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">select</span><span class="o">=</span><span class="n">select_statement</span><span class="p">,</span> <span class="n">tbl</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">source_table</span><span class="p">,</span> <span class="n">where</span><span class="o">=</span><span class="n">where_clause</span><span class="p">)</span>
+        <span class="k">return</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">query</span><span class="o">.</span><span class="n">split</span><span class="p">())</span>
+
+    <span class="k">def</span> <span class="nf">_get_boundaries_for_import</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">partition</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the lower and upper boundaries to be used in the where clause of the query.</span>
+<span class="sd">        This information is deducted from the ``partition`` parameter and previous loading logs</span>
+<span class="sd">        (persisted in `spooq2_values_table`).</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        partition : :py:class:`int` or :any:`str`</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Tuple of :any:`str`</span>
+<span class="sd">            Values of the tuple can also be `False`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">pd_df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_previous_boundaries_table_as_pd</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">spooq2_values_db</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">spooq2_values_table</span><span class="p">)</span>
+        <span class="n">partition</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">partition</span><span class="p">)</span>
+        <span class="n">table_is_empty</span> <span class="o">=</span> <span class="n">pd_df</span><span class="o">.</span><span class="n">empty</span>
+        <span class="n">partition_exists</span> <span class="o">=</span> <span class="ow">not</span> <span class="n">pd_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">pd_df</span><span class="p">[</span><span class="s2">&quot;dt&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">partition</span><span class="p">]</span><span class="o">.</span><span class="n">empty</span>
+        <span class="n">succeeding_partition_exists</span> <span class="o">=</span> <span class="ow">not</span> <span class="n">pd_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">pd_df</span><span class="p">[</span><span class="s2">&quot;dt&quot;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">partition</span><span class="p">]</span><span class="o">.</span><span class="n">empty</span>
+        <span class="n">preceding_partition_exists</span> <span class="o">=</span> <span class="ow">not</span> <span class="n">pd_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">pd_df</span><span class="p">[</span><span class="s2">&quot;dt&quot;</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">partition</span><span class="p">]</span><span class="o">.</span><span class="n">empty</span>
+
+        <span class="k">if</span> <span class="n">table_is_empty</span><span class="p">:</span>
+            <span class="sd">&quot;&quot;&quot;First import ever, starting from zero&quot;&quot;&quot;</span>
+            <span class="k">return</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">False</span>
+
+        <span class="k">elif</span> <span class="n">partition_exists</span><span class="p">:</span>
+            <span class="sd">&quot;&quot;&quot;Partition to insert already exists (reload / backfill)&quot;&quot;&quot;</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_lower_and_upper_bounds_from_current_partition</span><span class="p">(</span><span class="n">pd_df</span><span class="p">,</span> <span class="n">partition</span><span class="p">)</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="sd">&quot;&quot;&quot;Partition to insert does not yet exist (new day to insert)&quot;&quot;&quot;</span>
+            <span class="k">if</span> <span class="n">preceding_partition_exists</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">succeeding_partition_exists</span><span class="p">:</span>
+                <span class="sd">&quot;&quot;&quot;No equal or newer partitions exist (newest partition will be imported). Default Case&quot;&quot;&quot;</span>
+                <span class="k">return</span> <span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_get_upper_bound_from_preceding_partition</span><span class="p">(</span><span class="n">pd_df</span><span class="p">,</span> <span class="n">partition</span><span class="p">),</span>
+                    <span class="kc">False</span><span class="p">,</span>
+                <span class="p">)</span>
+
+            <span class="k">elif</span> <span class="ow">not</span> <span class="n">preceding_partition_exists</span> <span class="ow">and</span> <span class="n">succeeding_partition_exists</span><span class="p">:</span>
+                <span class="sd">&quot;&quot;&quot;No older or equal partitions exist&quot;&quot;&quot;</span>
+                <span class="k">return</span> <span class="p">(</span>
+                    <span class="kc">False</span><span class="p">,</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_get_lower_bound_from_succeeding_partition</span><span class="p">(</span><span class="n">pd_df</span><span class="p">,</span> <span class="n">partition</span><span class="p">),</span>
+                <span class="p">)</span>
+
+            <span class="k">elif</span> <span class="n">preceding_partition_exists</span> <span class="ow">and</span> <span class="n">succeeding_partition_exists</span><span class="p">:</span>
+                <span class="sd">&quot;&quot;&quot;At least one older, no equal and at least one newer partitions exist&quot;&quot;&quot;</span>
+                <span class="k">return</span> <span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_get_upper_bound_from_preceding_partition</span><span class="p">(</span><span class="n">pd_df</span><span class="p">,</span> <span class="n">partition</span><span class="p">),</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_get_lower_bound_from_succeeding_partition</span><span class="p">(</span><span class="n">pd_df</span><span class="p">,</span> <span class="n">partition</span><span class="p">),</span>
+                <span class="p">)</span>
+
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">StandardError</span><span class="p">(</span>
+                    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">                    ERROR: Something weird happened...</span>
+<span class="sd">                    There was a logical problem getting the correct boundaries</span>
+<span class="sd">                    from the spooq2value table!</span>
+<span class="sd">                    Please debug me ;-)</span>
+<span class="sd">                    &quot;&quot;&quot;</span>
+                <span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_get_previous_boundaries_table_as_pd</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">spooq2_values_db</span><span class="p">,</span> <span class="n">spooq2_values_table</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Converts the previous_boundaries_table and returns a Pandas Dataframe.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        spooq2_values_db : :any:`str`</span>
+<span class="sd">        spooq2_values_table : :any:`str`</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Pandas Dataframe</span>
+<span class="sd">            Content of `spooq2_values_table` from `spooq2_values_db`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_previous_boundaries_table</span><span class="p">(</span><span class="n">spooq2_values_db</span><span class="p">,</span> <span class="n">spooq2_values_table</span><span class="p">)</span><span class="o">.</span><span class="n">toPandas</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">_get_previous_boundaries_table</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">spooq2_values_db</span><span class="p">,</span> <span class="n">spooq2_values_table</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Fetches and returns a DataFrame containing the logs of previous loading</span>
+<span class="sd">        jobs (`spooq2_values_table`) of this entity</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        spooq2_values_db : :any:`str`</span>
+<span class="sd">        spooq2_values_table : :any:`str`</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        PySpark DataFrame</span>
+<span class="sd">            Content of `spooq2_values_table` from `spooq2_values_db`</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">table_name</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">{db}</span><span class="s2">.</span><span class="si">{tbl}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">db</span><span class="o">=</span><span class="n">spooq2_values_db</span><span class="p">,</span> <span class="n">tbl</span><span class="o">=</span><span class="n">spooq2_values_table</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Loading Spooq2Values Table from </span><span class="si">{name}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">table_name</span><span class="p">))</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">spark</span><span class="o">.</span><span class="n">table</span><span class="p">(</span><span class="n">table_name</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">spooq2_values_partition_column</span>
+        <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">spooq2_values_partition_column</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="s2">&quot;partition_column&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">distinct</span><span class="p">()</span><span class="o">.</span><span class="n">collect</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">partition_column</span>
+        <span class="k">return</span> <span class="n">df</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_get_lower_bound_from_succeeding_partition</span><span class="p">(</span><span class="n">pd_df</span><span class="p">,</span> <span class="n">partition</span><span class="p">):</span>
+        <span class="n">succeeding_pd_df</span> <span class="o">=</span> <span class="n">pd_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">pd_df</span><span class="p">[</span><span class="s2">&quot;dt&quot;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">partition</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">succeeding_pd_df</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="s2">&quot;dt&quot;</span><span class="p">,</span> <span class="n">ascending</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">first_value</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_get_upper_bound_from_preceding_partition</span><span class="p">(</span><span class="n">pd_df</span><span class="p">,</span> <span class="n">partition</span><span class="p">):</span>
+        <span class="n">preceding_pd_df</span> <span class="o">=</span> <span class="n">pd_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">pd_df</span><span class="p">[</span><span class="s2">&quot;dt&quot;</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">partition</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">preceding_pd_df</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="s2">&quot;dt&quot;</span><span class="p">,</span> <span class="n">ascending</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">last_value</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_get_lower_and_upper_bounds_from_current_partition</span><span class="p">(</span><span class="n">pd_df</span><span class="p">,</span> <span class="n">partition</span><span class="p">):</span>
+        <span class="n">current_pd_df</span> <span class="o">=</span> <span class="n">pd_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">pd_df</span><span class="p">[</span><span class="s2">&quot;dt&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">partition</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">current_pd_df</span><span class="o">.</span><span class="n">first_value</span><span class="p">,</span> <span class="n">current_pd_df</span><span class="o">.</span><span class="n">last_value</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_get_lowest_boundary_from_df</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">df</span><span class="p">,</span> <span class="n">spooq2_values_partition_column</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">eval</span><span class="p">(</span>
+            <span class="s2">&quot;df.na.drop(how=&#39;any&#39;, subset=[&#39;</span><span class="si">{chk_col}</span><span class="s2">&#39;]).select(sql_min(df.</span><span class="si">{chk_col}</span><span class="s2">).alias(&#39;minimum&#39;)).collect()[0].minimum&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="n">chk_col</span><span class="o">=</span><span class="n">spooq2_values_partition_column</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_get_highest_boundary_from_df</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">df</span><span class="p">,</span> <span class="n">spooq2_values_partition_column</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">eval</span><span class="p">(</span>
+            <span class="s2">&quot;df.na.drop(how=&#39;any&#39;, subset=[&#39;</span><span class="si">{chk_col}</span><span class="s2">&#39;]).select(sql_max(df.</span><span class="si">{chk_col}</span><span class="s2">).alias(&#39;maximum&#39;)).collect()[0].maximum&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="n">chk_col</span><span class="o">=</span><span class="n">spooq2_values_partition_column</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_update_boundaries_for_current_partition_on_table</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">df</span><span class="p">,</span> <span class="n">spooq2_values_db</span><span class="p">,</span> <span class="n">spooq2_values_table</span><span class="p">,</span> <span class="n">partition</span><span class="p">,</span> <span class="n">spooq2_values_partition_column</span>
+    <span class="p">):</span>
+
+        <span class="n">lowest_boundary</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_lowest_boundary_from_df</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">spooq2_values_partition_column</span><span class="p">)</span>
+        <span class="n">highest_boundary</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_highest_boundary_from_df</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">spooq2_values_partition_column</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_write_boundaries_to_hive</span><span class="p">(</span>
+            <span class="n">lowest_boundary</span><span class="p">,</span>
+            <span class="n">highest_boundary</span><span class="p">,</span>
+            <span class="n">spooq2_values_db</span><span class="p">,</span>
+            <span class="n">spooq2_values_table</span><span class="p">,</span>
+            <span class="n">partition</span><span class="p">,</span>
+            <span class="n">spooq2_values_partition_column</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_write_boundaries_to_hive</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">lowest_boundary</span><span class="p">,</span>
+        <span class="n">highest_boundary</span><span class="p">,</span>
+        <span class="n">spooq2_values_db</span><span class="p">,</span>
+        <span class="n">spooq2_values_table</span><span class="p">,</span>
+        <span class="n">partition</span><span class="p">,</span>
+        <span class="n">spooq2_values_partition_column</span><span class="p">,</span>
+    <span class="p">):</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">spark</span><span class="o">.</span><span class="n">conf</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;hive.exec.dynamic.partition&quot;</span><span class="p">,</span> <span class="s2">&quot;true&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">spark</span><span class="o">.</span><span class="n">conf</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;hive.exec.dynamic.partition.mode&quot;</span><span class="p">,</span> <span class="s2">&quot;nonstrict&quot;</span><span class="p">)</span>
+
+        <span class="n">schema</span> <span class="o">=</span> <span class="n">StructType</span><span class="p">(</span>
+            <span class="p">[</span>
+                <span class="n">StructField</span><span class="p">(</span><span class="s2">&quot;partition_column&quot;</span><span class="p">,</span> <span class="n">StringType</span><span class="p">(),</span> <span class="kc">True</span><span class="p">),</span>
+                <span class="n">StructField</span><span class="p">(</span><span class="s2">&quot;dt&quot;</span><span class="p">,</span> <span class="n">IntegerType</span><span class="p">(),</span> <span class="kc">False</span><span class="p">),</span>
+                <span class="n">StructField</span><span class="p">(</span><span class="s2">&quot;first_value&quot;</span><span class="p">,</span> <span class="n">StringType</span><span class="p">(),</span> <span class="kc">False</span><span class="p">),</span>
+                <span class="n">StructField</span><span class="p">(</span><span class="s2">&quot;last_value&quot;</span><span class="p">,</span> <span class="n">StringType</span><span class="p">(),</span> <span class="kc">False</span><span class="p">),</span>
+            <span class="p">]</span>
+        <span class="p">)</span>
+
+        <span class="n">input_data</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="p">[</span>
+                <span class="n">unicode</span><span class="p">(</span><span class="n">spooq2_values_partition_column</span><span class="p">),</span>
+                <span class="nb">int</span><span class="p">(</span><span class="n">partition</span><span class="p">),</span>
+                <span class="n">unicode</span><span class="p">(</span><span class="n">lowest_boundary</span><span class="p">),</span>
+                <span class="n">unicode</span><span class="p">(</span><span class="n">highest_boundary</span><span class="p">),</span>
+            <span class="p">]</span>
+        <span class="p">]</span>
+
+        <span class="n">df_output</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">spark</span><span class="o">.</span><span class="n">createDataFrame</span><span class="p">(</span><span class="n">input_data</span><span class="p">,</span> <span class="n">schema</span><span class="o">=</span><span class="n">schema</span><span class="p">)</span>
+
+        <span class="n">df_output</span><span class="o">.</span><span class="n">repartition</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">write</span><span class="o">.</span><span class="n">mode</span><span class="p">(</span><span class="s2">&quot;overwrite&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">insertInto</span><span class="p">(</span>
+            <span class="s2">&quot;</span><span class="si">{db}</span><span class="s2">.</span><span class="si">{tbl}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">db</span><span class="o">=</span><span class="n">spooq2_values_db</span><span class="p">,</span> <span class="n">tbl</span><span class="o">=</span><span class="n">spooq2_values_table</span><span class="p">,</span> <span class="n">dt</span><span class="o">=</span><span class="n">partition</span><span class="p">)</span>
+        <span class="p">)</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+        </div>
+        <div class="sidebar">
+          <h3>Table of Contents</h3>
+          <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation / Deployment</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../extractor/overview.html">Extractors</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../transformer/overview.html">Transformers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../loader/overview.html">Loaders</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../pipeline/overview.html">Pipeline</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../base_classes/overview.html">Spooq Base</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../setup_development_testing.html">Setup for Development, Testing, Documenting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../architecture.html">Architecture Overview</a></li>
+</ul>
+
+          <div role="search">
+            <h3 style="margin-top: 1.5em;">Search</h3>
+            <form class="search" action="../../../search.html" method="get">
+                <input type="text" name="q" />
+                <input type="submit" value="Go" />
+                <input type="hidden" name="check_keywords" value="yes" />
+                <input type="hidden" name="area" value="default" />
+            </form>
+          </div>
+        </div>
+        <div class="clearer"></div>
+      </div>
+    </div>
+
+    <div class="footer-wrapper">
+      <div class="footer">
+        <div class="left">
+          <div role="navigation" aria-label="related navigaton">
+            <a href="../../../py-modindex.html" title="Python Module Index"
+              >modules</a> |
+            <a href="../../../genindex.html" title="General Index"
+              >index</a>
+          </div>
+          <div role="note" aria-label="source link">
+          </div>
+        </div>
+
+        <div class="right">
+          
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2020, David Eigenstuhler.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.5.
+    </div>
+        </div>
+        <div class="clearer"></div>
+      </div>
+    </div>
+
+  </body>
+</html>
