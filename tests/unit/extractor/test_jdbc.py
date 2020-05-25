@@ -1,3 +1,7 @@
+from __future__ import division
+from builtins import str
+from builtins import object
+from past.utils import old_div
 import pytest
 import sqlite3
 import pandas as pd
@@ -55,7 +59,7 @@ def spooq2_values_pd_df(spark_session, default_params):
 def sqlite_url(spark_session, tmp_path):
     with open("data/schema_v2/create_MOCK_DATA.sql", "r") as sql_script:
         ddl = sql_script.read()
-    db_file = str(tmp_path / "db_file")
+    db_file = str(tmp_path + "/db_file")
     conn = sqlite3.connect(db_file)
     conn.executescript(ddl)
     conn.commit()
@@ -83,7 +87,7 @@ class TestJDBCExtractorIncremental(object):
             assert extractor.name == "JDBCExtractorIncremental"
 
         def test_str_representation_is_correct(self, extractor):
-            assert unicode(extractor) == "Extractor Object of Class JDBCExtractorIncremental"
+            assert str(extractor) == "Extractor Object of Class JDBCExtractorIncremental"
 
 
     class TestBoundaries(object):

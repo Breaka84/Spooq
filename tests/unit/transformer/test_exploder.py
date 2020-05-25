@@ -1,3 +1,5 @@
+from builtins import str
+from builtins import object
 import pytest
 import json
 from pyspark.sql import functions as sql_funcs
@@ -15,7 +17,7 @@ class TestBasicAttributes(object):
         assert Exploder().name == "Exploder"
 
     def test_str_representation_is_correct(self):
-        assert unicode(Exploder()) == "Transformer Object of Class Exploder"
+        assert str(Exploder()) == "Transformer Object of Class Exploder"
 
 
 class TestExploding(object):

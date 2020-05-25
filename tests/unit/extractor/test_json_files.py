@@ -1,3 +1,5 @@
+from builtins import str
+from builtins import object
 import pytest
 from pyspark.sql.dataframe import DataFrame
 
@@ -18,7 +20,7 @@ class TestBasicAttributes(object):
         assert default_extractor.name == "JSONExtractor"
 
     def test_str_representation_is_correct(self, default_extractor):
-        assert unicode(default_extractor) == "Extractor Object of Class JSONExtractor"
+        assert str(default_extractor) == "Extractor Object of Class JSONExtractor"
 
 
 class TestPathManipulation(object):

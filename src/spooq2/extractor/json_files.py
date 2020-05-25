@@ -1,13 +1,14 @@
+from __future__ import absolute_import
 from pyspark.sql import SparkSession
 from py4j.protocol import Py4JJavaError
 
-from extractor import Extractor
-from tools import remove_hdfs_prefix, fix_suffix, infer_input_path_from_partition
+from .extractor import Extractor
+from .tools import remove_hdfs_prefix, fix_suffix, infer_input_path_from_partition
 
 class JSONExtractor(Extractor):
     """
     The JSONExtractor class provides an API to extract data stored as JSON format,
-    deserializes it into a PySpark dataframe and returns it. Currently only 
+    deserializes it into a PySpark dataframe and returns it. Currently only
     single-line JSON files are supported, stored either as textFile or sequenceFile.
 
     Examples
@@ -17,7 +18,7 @@ class JSONExtractor(Extractor):
     >>> extractor = E.JSONExtractor(input_path="tests/data/schema_v1/sequenceFiles")
     >>> extractor.input_path == "tests/data/schema_v1/sequenceFiles" + "/*"
     True
-    
+
     >>> extractor = E.JSONExtractor(
     >>>     base_path="tests/data/schema_v1/sequenceFiles",
     >>>     partition="20200201"
@@ -30,10 +31,10 @@ class JSONExtractor(Extractor):
     input_path : :any:`str`
         The path from which the JSON files should be loaded ("/\\*" will be added if omitted)
     base_path : :any:`str`
-        Spooq tries to infer the ``input_path`` from the ``base_path`` and the ``partition`` if the 
+        Spooq tries to infer the ``input_path`` from the ``base_path`` and the ``partition`` if the
         ``input_path`` is missing.
     partition : :any:`str` or :any:`int`
-        Spooq tries to infer the ``input_path`` from the ``base_path`` and the ``partition`` if the 
+        Spooq tries to infer the ``input_path`` from the ``base_path`` and the ``partition`` if the
         ``input_path`` is missing.
         Only daily partitions in the form of "YYYYMMDD" are supported. e.g., "20200201" => <base_path> + "/20/02/01/\\*"
 
@@ -53,19 +54,19 @@ class JSONExtractor(Extractor):
 
     Note
     ----
-    The init method checks which input parameters are provided and derives the final input_path 
+    The init method checks which input parameters are provided and derives the final input_path
     from them accordingly.
 
     If ``input_path`` is not :any:`None`:
         Cleans ``input_path`` and returns it as the final ``input_path``
 
     Elif ``base_path`` and ``partition`` are not :any:`None`:
-        Cleans ``base_path``, infers the sub path from the ``partition`` 
+        Cleans ``base_path``, infers the sub path from the ``partition``
         and returns the combined string as the final ``input_path``
 
     Else:
         Raises an :any:`exceptions.AttributeError`
-    
+
     """
 
     def __init__(self, input_path=None, base_path=None, partition=None):
@@ -183,7 +184,7 @@ class JSONExtractor(Extractor):
 
     def _get_raw_sequence_rdd(self, input_path):
         self.logger.debug('Fetching SequenceFile containing JSON')
-        return self.spark.sparkContext.sequenceFile(input_path).map(lambda (k, v): v.decode("utf-8"))
+        return self.spark.sparkContext.sequenceFile(input_path).map(lambda k_v: k_v[1].decode("utf-8"))
 
 
     def _convert_rdd_to_df(self, rdd_strings):

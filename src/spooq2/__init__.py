@@ -1,6 +1,6 @@
 # from __future__ import absolute_import
 
-import spooq2_logger
+from . import spooq2_logger
 from spooq2.pipeline import PipelineFactory
 
 if not spooq2_logger.initialized:

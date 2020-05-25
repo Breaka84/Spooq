@@ -1,3 +1,6 @@
+from __future__ import absolute_import
+from builtins import str
+from past.builtins import basestring
 import pandas as pd
 from copy import copy
 from pyspark.sql import SparkSession
@@ -7,7 +10,7 @@ from pyspark.sql.types import StructField, StructType
 from pyspark.sql.types import IntegerType, StringType
 
 
-from extractor import Extractor
+from .extractor import Extractor
 
 
 class JDBCExtractor(Extractor):
@@ -69,23 +72,23 @@ class JDBCExtractorFullLoad(JDBCExtractor):
 
     jdbc_options : :class:`dict`, optional
         A set of parameters to configure the connection to the source:
-            * **url** (:any:`str`) - A JDBC URL of the form jdbc:subprotocol:subname. 
+            * **url** (:any:`str`) - A JDBC URL of the form jdbc:subprotocol:subname.
               e.g., jdbc:postgresql://localhost:5432/dbname
             * **driver** (:any:`str`) - The class name of the JDBC driver to use to connect to this URL.
             * **user** (:any:`str`) - Username to authenticate with the source database.
             * **password** (:any:`str`) - Password to authenticate with the source database.
 
-        See :meth:`pyspark.sql.DataFrameReader.jdbc` and 
+        See :meth:`pyspark.sql.DataFrameReader.jdbc` and
         https://spark.apache.org/docs/2.4.3/sql-data-sources-jdbc.html for more information.
 
     cache : :any:`bool`, defaults to :any:`True`
-        Defines, weather to :meth:`~pyspark.sql.DataFrame.cache` the dataframe, after it is loaded. 
-        Otherwise the Extractor will reload all data from the source system eachtime an action is 
+        Defines, weather to :meth:`~pyspark.sql.DataFrame.cache` the dataframe, after it is loaded.
+        Otherwise the Extractor will reload all data from the source system eachtime an action is
         performed on the DataFrame.
 
     Raises
     ------
-    :any:`exceptions.AssertionError`: 
+    :any:`exceptions.AssertionError`:
         All jdbc_options values need to be present as string variables.
     """
 
@@ -111,8 +114,8 @@ class JDBCExtractorFullLoad(JDBCExtractor):
 
 class JDBCExtractorIncremental(JDBCExtractor):
     """
-    Connects to a JDBC Source and fetches the data with respect to boundaries. 
-    The boundaries are inferred from the partition to load and logs from previous loads 
+    Connects to a JDBC Source and fetches the data with respect to boundaries.
+    The boundaries are inferred from the partition to load and logs from previous loads
     stored in the ``spooq2_values_table``.
 
     Examples
@@ -132,10 +135,10 @@ class JDBCExtractorIncremental(JDBCExtractor):
     >>>     source_table="users",
     >>>     spooq2_values_table="spooq2_jdbc_log_users",
     >>> )
-    >>> 
+    >>>
     >>> extractor._construct_query_for_partition(extractor.partition)
     select * from users where updated_at > "2020-01-31 03:29:59"
-    >>> 
+    >>>
     >>> extracted_df = extractor.extract()
     >>> type(extracted_df)
     pyspark.sql.dataframe.DataFrame
@@ -143,18 +146,18 @@ class JDBCExtractorIncremental(JDBCExtractor):
     Parameters
     ----------
     partition : :any:`int` or :any:`str`
-        Partition to extract. Needed for logging the incremental load in 
+        Partition to extract. Needed for logging the incremental load in
         the ``spooq2_values_table``.
 
     jdbc_options : :class:`dict`, optional
         A set of parameters to configure the connection to the source:
-            * **url** (:any:`str`) - A JDBC URL of the form jdbc:subprotocol:subname. 
+            * **url** (:any:`str`) - A JDBC URL of the form jdbc:subprotocol:subname.
               e.g., jdbc:postgresql://localhost:5432/dbname
             * **driver** (:any:`str`) - The class name of the JDBC driver to use to connect to this URL.
             * **user** (:any:`str`) - Username to authenticate with the source database.
             * **password** (:any:`str`) - Password to authenticate with the source database.
 
-        See :meth:`pyspark.sql.DataFrameReader.jdbc` and 
+        See :meth:`pyspark.sql.DataFrameReader.jdbc` and
         https://spark.apache.org/docs/2.4.3/sql-data-sources-jdbc.html for more information.
 
     source_table : :any:`str`
@@ -162,7 +165,7 @@ class JDBCExtractorIncremental(JDBCExtractor):
         This is necessary to build the query.
 
     spooq2_values_table : :any:`str`
-        Defines the Hive table where previous and future loads of a specific source table 
+        Defines the Hive table where previous and future loads of a specific source table
         are logged. This is necessary to derive boundaries for the current partition.
 
     spooq2_values_db : :any:`str`, optional
@@ -180,7 +183,7 @@ class JDBCExtractorIncremental(JDBCExtractor):
 
     Raises
     ------
-    :any:`exceptions.AssertionError`: 
+    :any:`exceptions.AssertionError`:
         All jdbc_options values need to be present as string variables.
     """
 
@@ -316,7 +319,7 @@ class JDBCExtractorIncremental(JDBCExtractor):
                 )
 
             else:
-                raise StandardError(
+                raise Exception(
                     """
                     ERROR: Something weird happened...
                     There was a logical problem getting the correct boundaries
@@ -434,10 +437,10 @@ class JDBCExtractorIncremental(JDBCExtractor):
 
         input_data = [
             [
-                unicode(spooq2_values_partition_column),
+                str(spooq2_values_partition_column),
                 int(partition),
-                unicode(lowest_boundary),
-                unicode(highest_boundary),
+                str(lowest_boundary),
+                str(highest_boundary),
             ]
         ]
 

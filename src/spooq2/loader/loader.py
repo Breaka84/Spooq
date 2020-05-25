@@ -7,6 +7,7 @@ Possible Loader sinks can be **Hive Tables**, **Kudu Tables**, **HBase Tables**,
 Sinks** or **ParquetFiles**.
 """
 
+from builtins import object
 import logging
 
 

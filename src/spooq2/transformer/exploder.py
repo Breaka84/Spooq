@@ -1,6 +1,7 @@
+from __future__ import absolute_import
 from pyspark.sql import functions as f
 
-from transformer import Transformer
+from .transformer import Transformer
 
 
 class Exploder(Transformer):

@@ -1,3 +1,5 @@
+from builtins import str
+from builtins import object
 import pytest
 from pyspark.sql import types as sql_types
 
@@ -14,7 +16,7 @@ class TestBasicAttributes(object):
         assert ThresholdCleaner().name == "ThresholdCleaner"
 
     def test_str_representation(self):
-        assert unicode(ThresholdCleaner()) == "Transformer Object of Class ThresholdCleaner"
+        assert str(ThresholdCleaner()) == "Transformer Object of Class ThresholdCleaner"
 
 
 class TestCleaning(object):
@@ -60,7 +62,7 @@ class TestCleaning(object):
     @pytest.mark.parametrize("column_name", ["integers", "floats"])
     def test_numbers(self, column_name, input_df, thresholds, expected_result):
 
-        thresholds_to_test = dict(filter(lambda (k, v): k == column_name, thresholds.items()))
+        thresholds_to_test = dict([k_v for k_v in list(thresholds.items()) if k_v[0] == column_name])
         transformer = ThresholdCleaner(thresholds_to_test)
         df_cleaned = transformer.transform(input_df)
         result = [x[column_name] for x in df_cleaned.collect()]
@@ -72,7 +74,7 @@ class TestCleaning(object):
     def test_non_numbers(self, input_df, thresholds):
 
         column_name = "strings"
-        thresholds_to_test = dict(filter(lambda (k, v): k == column_name, thresholds.items()))
+        thresholds_to_test = dict([k_v1 for k_v1 in list(thresholds.items()) if k_v1[0] == column_name])
         transformer = ThresholdCleaner(thresholds_to_test)
         
         with pytest.raises(ValueError):

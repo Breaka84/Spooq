@@ -63,7 +63,7 @@
     
 
 \title{Spooq2 Documentation}
-\date{May 22, 2020}
+\date{May 25, 2020}
 \release{2.0.0b0}
 \author{David Eigenstuhler}
 \newcommand{\sphinxlogo}{\vbox{}}
@@ -605,14 +605,14 @@ single-line JSON files are supported, stored either as textFile or sequenceFile.
 \begin{quote}\begin{description}
 \item[{Parameters}] \leavevmode\begin{itemize}
 \item {} 
-\sphinxstyleliteralstrong{\sphinxupquote{input\_path}} (\sphinxhref{https://docs.python.org/2.7/library/functions.html\#str}{\sphinxcode{\sphinxupquote{str}}}) \textendash{} The path from which the JSON files should be loaded (“/*” will be added if omitted)
+\sphinxstyleliteralstrong{\sphinxupquote{input\_path}} (\sphinxhref{https://docs.python.org/3.7/library/stdtypes.html\#str}{\sphinxcode{\sphinxupquote{str}}}) \textendash{} The path from which the JSON files should be loaded (“/*” will be added if omitted)
 
 \item {} 
-\sphinxstyleliteralstrong{\sphinxupquote{base\_path}} (\sphinxhref{https://docs.python.org/2.7/library/functions.html\#str}{\sphinxcode{\sphinxupquote{str}}}) \textendash{} Spooq tries to infer the \sphinxcode{\sphinxupquote{input\_path}} from the \sphinxcode{\sphinxupquote{base\_path}} and the \sphinxcode{\sphinxupquote{partition}} if the
+\sphinxstyleliteralstrong{\sphinxupquote{base\_path}} (\sphinxhref{https://docs.python.org/3.7/library/stdtypes.html\#str}{\sphinxcode{\sphinxupquote{str}}}) \textendash{} Spooq tries to infer the \sphinxcode{\sphinxupquote{input\_path}} from the \sphinxcode{\sphinxupquote{base\_path}} and the \sphinxcode{\sphinxupquote{partition}} if the
 \sphinxcode{\sphinxupquote{input\_path}} is missing.
 
 \item {} 
-\sphinxstyleliteralstrong{\sphinxupquote{partition}} (\sphinxhref{https://docs.python.org/2.7/library/functions.html\#str}{\sphinxcode{\sphinxupquote{str}}} or \sphinxhref{https://docs.python.org/2.7/library/functions.html\#int}{\sphinxcode{\sphinxupquote{int}}}) \textendash{} Spooq tries to infer the \sphinxcode{\sphinxupquote{input\_path}} from the \sphinxcode{\sphinxupquote{base\_path}} and the \sphinxcode{\sphinxupquote{partition}} if the
+\sphinxstyleliteralstrong{\sphinxupquote{partition}} (\sphinxhref{https://docs.python.org/3.7/library/stdtypes.html\#str}{\sphinxcode{\sphinxupquote{str}}} or \sphinxhref{https://docs.python.org/3.7/library/functions.html\#int}{\sphinxcode{\sphinxupquote{int}}}) \textendash{} Spooq tries to infer the \sphinxcode{\sphinxupquote{input\_path}} from the \sphinxcode{\sphinxupquote{base\_path}} and the \sphinxcode{\sphinxupquote{partition}} if the
 \sphinxcode{\sphinxupquote{input\_path}} is missing.
 Only daily partitions in the form of “YYYYMMDD” are supported. e.g., “20200201” =\textgreater{} \textless{}base\_path\textgreater{} + “/20/02/01/*”
 
@@ -625,7 +625,7 @@ The extracted data set as a PySpark DataFrame
 \sphinxhref{https://spark.apache.org/docs/2.4.3/api/python/pyspark.sql.html\#pyspark.sql.DataFrame}{\sphinxcode{\sphinxupquote{pyspark.sql.DataFrame}}}
 
 \item[{Raises}] \leavevmode
-\sphinxhref{https://docs.python.org/2.7/library/exceptions.html\#exceptions.AttributeError}{\sphinxcode{\sphinxupquote{exceptions.AttributeError}}} \textendash{} Please define either \sphinxcode{\sphinxupquote{input\_path}} or \sphinxcode{\sphinxupquote{base\_path}} and \sphinxcode{\sphinxupquote{partition}}
+\sphinxcode{\sphinxupquote{exceptions.AttributeError}} \textendash{} Please define either \sphinxcode{\sphinxupquote{input\_path}} or \sphinxcode{\sphinxupquote{base\_path}} and \sphinxcode{\sphinxupquote{partition}}
 
 \end{description}\end{quote}
 
@@ -637,15 +637,15 @@ Currently only single-line JSON files stored as SequenceFiles or TextFiles are s
 The init method checks which input parameters are provided and derives the final input\_path
 from them accordingly.
 \begin{description}
-\item[{If \sphinxcode{\sphinxupquote{input\_path}} is not \sphinxhref{https://docs.python.org/2.7/library/constants.html\#None}{\sphinxcode{\sphinxupquote{None}}}:}] \leavevmode
+\item[{If \sphinxcode{\sphinxupquote{input\_path}} is not \sphinxhref{https://docs.python.org/3.7/library/constants.html\#None}{\sphinxcode{\sphinxupquote{None}}}:}] \leavevmode
 Cleans \sphinxcode{\sphinxupquote{input\_path}} and returns it as the final \sphinxcode{\sphinxupquote{input\_path}}
 
-\item[{Elif \sphinxcode{\sphinxupquote{base\_path}} and \sphinxcode{\sphinxupquote{partition}} are not \sphinxhref{https://docs.python.org/2.7/library/constants.html\#None}{\sphinxcode{\sphinxupquote{None}}}:}] \leavevmode
+\item[{Elif \sphinxcode{\sphinxupquote{base\_path}} and \sphinxcode{\sphinxupquote{partition}} are not \sphinxhref{https://docs.python.org/3.7/library/constants.html\#None}{\sphinxcode{\sphinxupquote{None}}}:}] \leavevmode
 Cleans \sphinxcode{\sphinxupquote{base\_path}}, infers the sub path from the \sphinxcode{\sphinxupquote{partition}}
 and returns the combined string as the final \sphinxcode{\sphinxupquote{input\_path}}
 
 \item[{Else:}] \leavevmode
-Raises an \sphinxhref{https://docs.python.org/2.7/library/exceptions.html\#exceptions.AttributeError}{\sphinxcode{\sphinxupquote{exceptions.AttributeError}}}
+Raises an \sphinxcode{\sphinxupquote{exceptions.AttributeError}}
 
 \end{description}
 \end{sphinxadmonition}
@@ -708,24 +708,24 @@ Connects to a JDBC Source and fetches the data defined by the provided Query.
 \begin{quote}\begin{description}
 \item[{Parameters}] \leavevmode\begin{itemize}
 \item {} 
-\sphinxstyleliteralstrong{\sphinxupquote{query}} (\sphinxhref{https://docs.python.org/2.7/library/functions.html\#str}{\sphinxcode{\sphinxupquote{str}}}) \textendash{} Defines the actual query sent to the JDBC Source. This has to be a valid SQL query
+\sphinxstyleliteralstrong{\sphinxupquote{query}} (\sphinxhref{https://docs.python.org/3.7/library/stdtypes.html\#str}{\sphinxcode{\sphinxupquote{str}}}) \textendash{} Defines the actual query sent to the JDBC Source. This has to be a valid SQL query
 with respect to the source system (e.g., T-SQL for Microsoft SQL Server).
 
 \item {} 
-\sphinxstyleliteralstrong{\sphinxupquote{jdbc\_options}} (\sphinxhref{https://docs.python.org/2.7/library/stdtypes.html\#dict}{\sphinxcode{\sphinxupquote{dict}}}, optional) \textendash{} \begin{description}
+\sphinxstyleliteralstrong{\sphinxupquote{jdbc\_options}} (\sphinxhref{https://docs.python.org/3.7/library/stdtypes.html\#dict}{\sphinxcode{\sphinxupquote{dict}}}, optional) \textendash{} \begin{description}
 \item[{A set of parameters to configure the connection to the source:}] \leavevmode\begin{itemize}
 \item {} 
-\sphinxstylestrong{url} (\sphinxhref{https://docs.python.org/2.7/library/functions.html\#str}{\sphinxcode{\sphinxupquote{str}}}) - A JDBC URL of the form \sphinxurl{jdbc:subprotocol:subname}.
+\sphinxstylestrong{url} (\sphinxhref{https://docs.python.org/3.7/library/stdtypes.html\#str}{\sphinxcode{\sphinxupquote{str}}}) - A JDBC URL of the form \sphinxurl{jdbc:subprotocol:subname}.
 e.g., \sphinxurl{jdbc:postgresql://localhost:5432/dbname}
 
 \item {} 
-\sphinxstylestrong{driver} (\sphinxhref{https://docs.python.org/2.7/library/functions.html\#str}{\sphinxcode{\sphinxupquote{str}}}) - The class name of the JDBC driver to use to connect to this URL.
+\sphinxstylestrong{driver} (\sphinxhref{https://docs.python.org/3.7/library/stdtypes.html\#str}{\sphinxcode{\sphinxupquote{str}}}) - The class name of the JDBC driver to use to connect to this URL.
 
 \item {} 
-\sphinxstylestrong{user} (\sphinxhref{https://docs.python.org/2.7/library/functions.html\#str}{\sphinxcode{\sphinxupquote{str}}}) - Username to authenticate with the source database.
+\sphinxstylestrong{user} (\sphinxhref{https://docs.python.org/3.7/library/stdtypes.html\#str}{\sphinxcode{\sphinxupquote{str}}}) - Username to authenticate with the source database.
 
 \item {} 
-\sphinxstylestrong{password} (\sphinxhref{https://docs.python.org/2.7/library/functions.html\#str}{\sphinxcode{\sphinxupquote{str}}}) - Password to authenticate with the source database.
+\sphinxstylestrong{password} (\sphinxhref{https://docs.python.org/3.7/library/stdtypes.html\#str}{\sphinxcode{\sphinxupquote{str}}}) - Password to authenticate with the source database.
 
 \end{itemize}
 
@@ -736,14 +736,14 @@ See \sphinxhref{https://spark.apache.org/docs/2.4.3/api/python/pyspark.sql.html\
 
 
 \item {} 
-\sphinxstyleliteralstrong{\sphinxupquote{cache}} (\sphinxhref{https://docs.python.org/2.7/library/functions.html\#bool}{\sphinxcode{\sphinxupquote{bool}}}, defaults to \sphinxhref{https://docs.python.org/2.7/library/constants.html\#True}{\sphinxcode{\sphinxupquote{True}}}) \textendash{} Defines, weather to \sphinxhref{https://spark.apache.org/docs/2.4.3/api/python/pyspark.sql.html\#pyspark.sql.DataFrame.cache}{\sphinxcode{\sphinxupquote{cache()}}} the dataframe, after it is loaded.
+\sphinxstyleliteralstrong{\sphinxupquote{cache}} (\sphinxhref{https://docs.python.org/3.7/library/functions.html\#bool}{\sphinxcode{\sphinxupquote{bool}}}, defaults to \sphinxhref{https://docs.python.org/3.7/library/constants.html\#True}{\sphinxcode{\sphinxupquote{True}}}) \textendash{} Defines, weather to \sphinxhref{https://spark.apache.org/docs/2.4.3/api/python/pyspark.sql.html\#pyspark.sql.DataFrame.cache}{\sphinxcode{\sphinxupquote{cache()}}} the dataframe, after it is loaded.
 Otherwise the Extractor will reload all data from the source system eachtime an action is
 performed on the DataFrame.
 
 \end{itemize}
 
 \item[{Raises}] \leavevmode
-\sphinxhref{https://docs.python.org/2.7/library/exceptions.html\#exceptions.AssertionError}{\sphinxcode{\sphinxupquote{exceptions.AssertionError}}}: \textendash{} All jdbc\_options values need to be present as string variables.
+\sphinxcode{\sphinxupquote{exceptions.AssertionError}}: \textendash{} All jdbc\_options values need to be present as string variables.
 
 \end{description}\end{quote}
 \index{extract() (JDBCExtractorFullLoad method)@\spxentry{extract()}\spxextra{JDBCExtractorFullLoad method}}
@@ -803,24 +803,24 @@ stored in the \sphinxcode{\sphinxupquote{spooq2\_values\_table}}.
 \begin{quote}\begin{description}
 \item[{Parameters}] \leavevmode\begin{itemize}
 \item {} 
-\sphinxstyleliteralstrong{\sphinxupquote{partition}} (\sphinxhref{https://docs.python.org/2.7/library/functions.html\#int}{\sphinxcode{\sphinxupquote{int}}} or \sphinxhref{https://docs.python.org/2.7/library/functions.html\#str}{\sphinxcode{\sphinxupquote{str}}}) \textendash{} Partition to extract. Needed for logging the incremental load in
+\sphinxstyleliteralstrong{\sphinxupquote{partition}} (\sphinxhref{https://docs.python.org/3.7/library/functions.html\#int}{\sphinxcode{\sphinxupquote{int}}} or \sphinxhref{https://docs.python.org/3.7/library/stdtypes.html\#str}{\sphinxcode{\sphinxupquote{str}}}) \textendash{} Partition to extract. Needed for logging the incremental load in
 the \sphinxcode{\sphinxupquote{spooq2\_values\_table}}.
 
 \item {} 
-\sphinxstyleliteralstrong{\sphinxupquote{jdbc\_options}} (\sphinxhref{https://docs.python.org/2.7/library/stdtypes.html\#dict}{\sphinxcode{\sphinxupquote{dict}}}, optional) \textendash{} \begin{description}
+\sphinxstyleliteralstrong{\sphinxupquote{jdbc\_options}} (\sphinxhref{https://docs.python.org/3.7/library/stdtypes.html\#dict}{\sphinxcode{\sphinxupquote{dict}}}, optional) \textendash{} \begin{description}
 \item[{A set of parameters to configure the connection to the source:}] \leavevmode\begin{itemize}
 \item {} 
-\sphinxstylestrong{url} (\sphinxhref{https://docs.python.org/2.7/library/functions.html\#str}{\sphinxcode{\sphinxupquote{str}}}) - A JDBC URL of the form \sphinxurl{jdbc:subprotocol:subname}.
+\sphinxstylestrong{url} (\sphinxhref{https://docs.python.org/3.7/library/stdtypes.html\#str}{\sphinxcode{\sphinxupquote{str}}}) - A JDBC URL of the form \sphinxurl{jdbc:subprotocol:subname}.
 e.g., \sphinxurl{jdbc:postgresql://localhost:5432/dbname}
 
 \item {} 
-\sphinxstylestrong{driver} (\sphinxhref{https://docs.python.org/2.7/library/functions.html\#str}{\sphinxcode{\sphinxupquote{str}}}) - The class name of the JDBC driver to use to connect to this URL.
+\sphinxstylestrong{driver} (\sphinxhref{https://docs.python.org/3.7/library/stdtypes.html\#str}{\sphinxcode{\sphinxupquote{str}}}) - The class name of the JDBC driver to use to connect to this URL.
 
 \item {} 
-\sphinxstylestrong{user} (\sphinxhref{https://docs.python.org/2.7/library/functions.html\#str}{\sphinxcode{\sphinxupquote{str}}}) - Username to authenticate with the source database.
+\sphinxstylestrong{user} (\sphinxhref{https://docs.python.org/3.7/library/stdtypes.html\#str}{\sphinxcode{\sphinxupquote{str}}}) - Username to authenticate with the source database.
 
 \item {} 
-\sphinxstylestrong{password} (\sphinxhref{https://docs.python.org/2.7/library/functions.html\#str}{\sphinxcode{\sphinxupquote{str}}}) - Password to authenticate with the source database.
+\sphinxstylestrong{password} (\sphinxhref{https://docs.python.org/3.7/library/stdtypes.html\#str}{\sphinxcode{\sphinxupquote{str}}}) - Password to authenticate with the source database.
 
 \end{itemize}
 
@@ -831,30 +831,30 @@ See \sphinxhref{https://spark.apache.org/docs/2.4.3/api/python/pyspark.sql.html\
 
 
 \item {} 
-\sphinxstyleliteralstrong{\sphinxupquote{source\_table}} (\sphinxhref{https://docs.python.org/2.7/library/functions.html\#str}{\sphinxcode{\sphinxupquote{str}}}) \textendash{} Defines the tablename of the source to be loaded from. For example ‘purchases’.
+\sphinxstyleliteralstrong{\sphinxupquote{source\_table}} (\sphinxhref{https://docs.python.org/3.7/library/stdtypes.html\#str}{\sphinxcode{\sphinxupquote{str}}}) \textendash{} Defines the tablename of the source to be loaded from. For example ‘purchases’.
 This is necessary to build the query.
 
 \item {} 
-\sphinxstyleliteralstrong{\sphinxupquote{spooq2\_values\_table}} (\sphinxhref{https://docs.python.org/2.7/library/functions.html\#str}{\sphinxcode{\sphinxupquote{str}}}) \textendash{} Defines the Hive table where previous and future loads of a specific source table
+\sphinxstyleliteralstrong{\sphinxupquote{spooq2\_values\_table}} (\sphinxhref{https://docs.python.org/3.7/library/stdtypes.html\#str}{\sphinxcode{\sphinxupquote{str}}}) \textendash{} Defines the Hive table where previous and future loads of a specific source table
 are logged. This is necessary to derive boundaries for the current partition.
 
 \item {} 
-\sphinxstyleliteralstrong{\sphinxupquote{spooq2\_values\_db}} (\sphinxhref{https://docs.python.org/2.7/library/functions.html\#str}{\sphinxcode{\sphinxupquote{str}}}, optional) \textendash{} Defines the Database where the \sphinxcode{\sphinxupquote{spooq2\_values\_table}} is stored.
+\sphinxstyleliteralstrong{\sphinxupquote{spooq2\_values\_db}} (\sphinxhref{https://docs.python.org/3.7/library/stdtypes.html\#str}{\sphinxcode{\sphinxupquote{str}}}, optional) \textendash{} Defines the Database where the \sphinxcode{\sphinxupquote{spooq2\_values\_table}} is stored.
 Defaults to \sphinxtitleref{‘spooq2\_values’}.
 
 \item {} 
-\sphinxstyleliteralstrong{\sphinxupquote{spooq2\_values\_partition\_column}} (\sphinxhref{https://docs.python.org/2.7/library/functions.html\#str}{\sphinxcode{\sphinxupquote{str}}}, optional) \textendash{} The column name which is used for the boundaries.
+\sphinxstyleliteralstrong{\sphinxupquote{spooq2\_values\_partition\_column}} (\sphinxhref{https://docs.python.org/3.7/library/stdtypes.html\#str}{\sphinxcode{\sphinxupquote{str}}}, optional) \textendash{} The column name which is used for the boundaries.
 Defaults to \sphinxtitleref{‘updated\_at’}.
 
 \item {} 
-\sphinxstyleliteralstrong{\sphinxupquote{cache}} (\sphinxhref{https://docs.python.org/2.7/library/functions.html\#bool}{\sphinxcode{\sphinxupquote{bool}}}, defaults to \sphinxhref{https://docs.python.org/2.7/library/constants.html\#True}{\sphinxcode{\sphinxupquote{True}}}) \textendash{} Defines, weather to \sphinxhref{https://spark.apache.org/docs/2.4.3/api/python/pyspark.sql.html\#pyspark.sql.DataFrame.cache}{\sphinxcode{\sphinxupquote{cache()}}} the dataframe, after it is loaded. Otherwise the Extractor
+\sphinxstyleliteralstrong{\sphinxupquote{cache}} (\sphinxhref{https://docs.python.org/3.7/library/functions.html\#bool}{\sphinxcode{\sphinxupquote{bool}}}, defaults to \sphinxhref{https://docs.python.org/3.7/library/constants.html\#True}{\sphinxcode{\sphinxupquote{True}}}) \textendash{} Defines, weather to \sphinxhref{https://spark.apache.org/docs/2.4.3/api/python/pyspark.sql.html\#pyspark.sql.DataFrame.cache}{\sphinxcode{\sphinxupquote{cache()}}} the dataframe, after it is loaded. Otherwise the Extractor
 will reload all data from the source system again, if a second action upon the dataframe
 is performed.
 
 \end{itemize}
 
 \item[{Raises}] \leavevmode
-\sphinxhref{https://docs.python.org/2.7/library/exceptions.html\#exceptions.AssertionError}{\sphinxcode{\sphinxupquote{exceptions.AssertionError}}}: \textendash{} All jdbc\_options values need to be present as string variables.
+\sphinxcode{\sphinxupquote{exceptions.AssertionError}}: \textendash{} All jdbc\_options values need to be present as string variables.
 
 \end{description}\end{quote}
 \index{extract() (JDBCExtractorIncremental method)@\spxentry{extract()}\spxextra{JDBCExtractorIncremental method}}
@@ -926,12 +926,12 @@ drops the column containing the source array.
 \begin{quote}\begin{description}
 \item[{Parameters}] \leavevmode\begin{itemize}
 \item {} 
-\sphinxstyleliteralstrong{\sphinxupquote{path\_to\_array}} (\sphinxhref{https://docs.python.org/2.7/library/functions.html\#str}{\sphinxcode{\sphinxupquote{str}}}, (Defaults to ‘included’)) \textendash{} Defines the Column Name / Path to the Array.
+\sphinxstyleliteralstrong{\sphinxupquote{path\_to\_array}} (\sphinxhref{https://docs.python.org/3.7/library/stdtypes.html\#str}{\sphinxcode{\sphinxupquote{str}}}, (Defaults to ‘included’)) \textendash{} Defines the Column Name / Path to the Array.
 Dropping nested columns is not supported.
 Although, you can still explode them.
 
 \item {} 
-\sphinxstyleliteralstrong{\sphinxupquote{exploded\_elem\_name}} (\sphinxhref{https://docs.python.org/2.7/library/functions.html\#str}{\sphinxcode{\sphinxupquote{str}}}, (Defaults to ‘elem’)) \textendash{} Defines the column name the exploded column will get.
+\sphinxstyleliteralstrong{\sphinxupquote{exploded\_elem\_name}} (\sphinxhref{https://docs.python.org/3.7/library/stdtypes.html\#str}{\sphinxcode{\sphinxupquote{str}}}, (Defaults to ‘elem’)) \textendash{} Defines the column name the exploded column will get.
 This is important to know how to access the Field afterwards.
 Writing nested columns is not supported.
 The output column has to be first level.
@@ -1012,10 +1012,10 @@ Only records complying with filter condition are kept.
 \end{sphinxVerbatim}
 \begin{quote}\begin{description}
 \item[{Parameters}] \leavevmode
-\sphinxstyleliteralstrong{\sphinxupquote{filter\_expression}} (\sphinxhref{https://docs.python.org/2.7/library/functions.html\#str}{\sphinxcode{\sphinxupquote{str}}}) \textendash{} A valid PySpark SQL expression which returns a boolean
+\sphinxstyleliteralstrong{\sphinxupquote{filter\_expression}} (\sphinxhref{https://docs.python.org/3.7/library/stdtypes.html\#str}{\sphinxcode{\sphinxupquote{str}}}) \textendash{} A valid PySpark SQL expression which returns a boolean
 
 \item[{Raises}] \leavevmode
-\sphinxhref{https://docs.python.org/2.7/library/exceptions.html\#exceptions.ValueError}{\sphinxcode{\sphinxupquote{exceptions.ValueError}}} \textendash{} filter\_expression has to be a valid (Spark)SQL expression provided as a string
+\sphinxcode{\sphinxupquote{exceptions.ValueError}} \textendash{} filter\_expression has to be a valid (Spark)SQL expression provided as a string
 
 \end{description}\end{quote}
 
@@ -1092,7 +1092,7 @@ Constructs and applies a PySpark SQL expression, based on the provided mapping.
 \end{sphinxVerbatim}
 \begin{quote}\begin{description}
 \item[{Parameters}] \leavevmode
-\sphinxstyleliteralstrong{\sphinxupquote{mapping}} (\sphinxcode{\sphinxupquote{list}} of \sphinxhref{https://docs.python.org/2.7/library/functions.html\#tuple}{\sphinxcode{\sphinxupquote{tuple}}} containing three \sphinxhref{https://docs.python.org/2.7/library/functions.html\#str}{\sphinxcode{\sphinxupquote{str}}}) \textendash{} This is the main parameter for this transformation. It essentially gives information
+\sphinxstyleliteralstrong{\sphinxupquote{mapping}} (\sphinxhref{https://docs.python.org/3.7/library/stdtypes.html\#list}{\sphinxcode{\sphinxupquote{list}}} of \sphinxhref{https://docs.python.org/3.7/library/stdtypes.html\#tuple}{\sphinxcode{\sphinxupquote{tuple}}} containing three \sphinxhref{https://docs.python.org/3.7/library/stdtypes.html\#str}{\sphinxcode{\sphinxupquote{str}}}) \textendash{} This is the main parameter for this transformation. It essentially gives information
 about the column names for the output DataFrame, the column names (paths)
 from the input DataFrame, and their data types. Custom data types are also supported, which can
 clean, pivot, anonymize, … the data itself. Please have a look at the
@@ -1106,13 +1106,13 @@ Let’s talk about Mappings:
 The mapping should be a list of tuples which are containing all information per column.
 \begin{itemize}
 \item {} \begin{description}
-\item[{Column Name}] \leavevmode{[}\sphinxhref{https://docs.python.org/2.7/library/functions.html\#str}{\sphinxcode{\sphinxupquote{str}}}{]}
+\item[{Column Name}] \leavevmode{[}\sphinxhref{https://docs.python.org/3.7/library/stdtypes.html\#str}{\sphinxcode{\sphinxupquote{str}}}{]}
 Sets the name of the column in the resulting output DataFrame.
 
 \end{description}
 
 \item {} \begin{description}
-\item[{Source Path / Name}] \leavevmode{[}\sphinxhref{https://docs.python.org/2.7/library/functions.html\#str}{\sphinxcode{\sphinxupquote{str}}}{]}
+\item[{Source Path / Name}] \leavevmode{[}\sphinxhref{https://docs.python.org/3.7/library/stdtypes.html\#str}{\sphinxcode{\sphinxupquote{str}}}{]}
 Points to the name of the column in the input DataFrame. If the input
 is a flat DataFrame, it will essentially be the column name. If it is of complex
 type, it will point to the path of the actual value. For example:
@@ -1121,7 +1121,7 @@ type, it will point to the path of the actual value. For example:
 \end{description}
 
 \item {} \begin{description}
-\item[{DataType}] \leavevmode{[}\sphinxhref{https://docs.python.org/2.7/library/functions.html\#str}{\sphinxcode{\sphinxupquote{str}}}{]}
+\item[{DataType}] \leavevmode{[}\sphinxhref{https://docs.python.org/3.7/library/stdtypes.html\#str}{\sphinxcode{\sphinxupquote{str}}}{]}
 DataTypes can be types from \sphinxhref{https://spark.apache.org/docs/2.4.3/api/python/pyspark.sql.html\#module-pyspark.sql.types}{\sphinxcode{\sphinxupquote{pyspark.sql.types}}}, selected custom datatypes or
 injected, ad-hoc custom datatypes.
 The datatype will be interpreted as a PySpark built-in if it is a member of \sphinxcode{\sphinxupquote{pyspark.sql.types}}.
@@ -1246,7 +1246,7 @@ Registers a custom data type in runtime to be used with the {\hyperref[\detokeni
 \begin{quote}\begin{description}
 \item[{Parameters}] \leavevmode\begin{itemize}
 \item {} 
-\sphinxstyleliteralstrong{\sphinxupquote{function\_name}} (\sphinxhref{https://docs.python.org/2.7/library/functions.html\#str}{\sphinxcode{\sphinxupquote{str}}}) \textendash{} The name of your custom data type
+\sphinxstyleliteralstrong{\sphinxupquote{function\_name}} (\sphinxhref{https://docs.python.org/3.7/library/stdtypes.html\#str}{\sphinxcode{\sphinxupquote{str}}}) \textendash{} The name of your custom data type
 
 \item {} 
 \sphinxstyleliteralstrong{\sphinxupquote{func}} (\sphinxstyleliteralemphasis{\sphinxupquote{compatible function}}) \textendash{} The PySpark dataframe function which will be called on a column, defined in the mapping
@@ -1265,7 +1265,7 @@ Required input parameter of custom data types:
 The mapper transformer takes care of calling this method with the right column so you can just
 handle it like an object which you would get from \sphinxcode{\sphinxupquote{df{[}"some\_attribute"{]}}}.
 
-\item[{\sphinxstylestrong{name} (\sphinxhref{https://docs.python.org/2.7/library/functions.html\#str}{\sphinxcode{\sphinxupquote{str}}}) - The name how the resulting column will be named. Nested attributes are not}] \leavevmode
+\item[{\sphinxstylestrong{name} (\sphinxhref{https://docs.python.org/3.7/library/stdtypes.html\#str}{\sphinxcode{\sphinxupquote{str}}}) - The name how the resulting column will be named. Nested attributes are not}] \leavevmode
 supported. The Mapper transformer takes care of calling this method with the right column name.
 
 \end{description}
@@ -1670,7 +1670,7 @@ Takes a dictionary with valid value ranges for each column to be cleaned.
 \end{sphinxVerbatim}
 \begin{quote}\begin{description}
 \item[{Parameters}] \leavevmode
-\sphinxstyleliteralstrong{\sphinxupquote{thresholds}} (\sphinxhref{https://docs.python.org/2.7/library/stdtypes.html\#dict}{\sphinxcode{\sphinxupquote{dict}}}) \textendash{} Dictionary containing column names and respective valid ranges
+\sphinxstyleliteralstrong{\sphinxupquote{thresholds}} (\sphinxhref{https://docs.python.org/3.7/library/stdtypes.html\#dict}{\sphinxcode{\sphinxupquote{dict}}}) \textendash{} Dictionary containing column names and respective valid ranges
 
 \item[{Returns}] \leavevmode
 The transformed DataFrame
@@ -1679,7 +1679,7 @@ The transformed DataFrame
 \sphinxhref{https://spark.apache.org/docs/2.4.3/api/python/pyspark.sql.html\#pyspark.sql.DataFrame}{\sphinxcode{\sphinxupquote{pyspark.sql.DataFrame}}}
 
 \item[{Raises}] \leavevmode
-\sphinxhref{https://docs.python.org/2.7/library/exceptions.html\#exceptions.ValueError}{\sphinxcode{\sphinxupquote{exceptions.ValueError}}} \textendash{} Threshold-based cleaning only supports Numeric Types!
+\sphinxcode{\sphinxupquote{exceptions.ValueError}} \textendash{} Threshold-based cleaning only supports Numeric Types!
 Column of name: \{col\_name\} and type of: \{col\_type\} was provided
 
 \end{description}\end{quote}
@@ -1735,16 +1735,16 @@ Groups, orders and selects first element per group.
 \begin{quote}\begin{description}
 \item[{Parameters}] \leavevmode\begin{itemize}
 \item {} 
-\sphinxstyleliteralstrong{\sphinxupquote{group\_by}} (\sphinxhref{https://docs.python.org/2.7/library/functions.html\#str}{\sphinxcode{\sphinxupquote{str}}} or \sphinxhref{https://docs.python.org/2.7/glossary.html\#term-list}{\sphinxcode{\sphinxupquote{list}}} of \sphinxhref{https://docs.python.org/2.7/library/functions.html\#str}{\sphinxcode{\sphinxupquote{str}}}, (Defaults to {[}‘id’{]})) \textendash{} List of attributes to be used within the Window Function as Grouping Arguments.
+\sphinxstyleliteralstrong{\sphinxupquote{group\_by}} (\sphinxhref{https://docs.python.org/3.7/library/stdtypes.html\#str}{\sphinxcode{\sphinxupquote{str}}} or \sphinxhref{https://docs.python.org/3.7/library/stdtypes.html\#list}{\sphinxcode{\sphinxupquote{list}}} of \sphinxhref{https://docs.python.org/3.7/library/stdtypes.html\#str}{\sphinxcode{\sphinxupquote{str}}}, (Defaults to {[}‘id’{]})) \textendash{} List of attributes to be used within the Window Function as Grouping Arguments.
 
 \item {} 
-\sphinxstyleliteralstrong{\sphinxupquote{order\_by}} (\sphinxhref{https://docs.python.org/2.7/library/functions.html\#str}{\sphinxcode{\sphinxupquote{str}}} or \sphinxhref{https://docs.python.org/2.7/glossary.html\#term-list}{\sphinxcode{\sphinxupquote{list}}} of \sphinxhref{https://docs.python.org/2.7/library/functions.html\#str}{\sphinxcode{\sphinxupquote{str}}}, (Defaults to {[}‘updated\_at’, ‘deleted\_at’{]})) \textendash{} List of attributes to be used within the Window Function as Ordering Arguments.
+\sphinxstyleliteralstrong{\sphinxupquote{order\_by}} (\sphinxhref{https://docs.python.org/3.7/library/stdtypes.html\#str}{\sphinxcode{\sphinxupquote{str}}} or \sphinxhref{https://docs.python.org/3.7/library/stdtypes.html\#list}{\sphinxcode{\sphinxupquote{list}}} of \sphinxhref{https://docs.python.org/3.7/library/stdtypes.html\#str}{\sphinxcode{\sphinxupquote{str}}}, (Defaults to {[}‘updated\_at’, ‘deleted\_at’{]})) \textendash{} List of attributes to be used within the Window Function as Ordering Arguments.
 All columns will be sorted in \sphinxstylestrong{descending} order.
 
 \end{itemize}
 
 \item[{Raises}] \leavevmode
-\sphinxhref{https://docs.python.org/2.7/library/exceptions.html\#exceptions.AttributeError}{\sphinxcode{\sphinxupquote{exceptions.AttributeError}}} \textendash{} If any Attribute in \sphinxcode{\sphinxupquote{group\_by}} or \sphinxcode{\sphinxupquote{order\_by}} is not contained in the
+\sphinxcode{\sphinxupquote{exceptions.AttributeError}} \textendash{} If any Attribute in \sphinxcode{\sphinxupquote{group\_by}} or \sphinxcode{\sphinxupquote{order\_by}} is not contained in the
 input DataFrame.
 
 \end{description}\end{quote}
@@ -1806,7 +1806,7 @@ Sinks} or \sphinxstylestrong{ParquetFiles}.
 \label{\detokenize{loader/hive_loader:module-spooq2.loader.hive_loader}}\label{\detokenize{loader/hive_loader:hive-database}}\label{\detokenize{loader/hive_loader::doc}}\index{spooq2.loader.hive\_loader (module)@\spxentry{spooq2.loader.hive\_loader}\spxextra{module}}\index{HiveLoader (class in spooq2.loader.hive\_loader)@\spxentry{HiveLoader}\spxextra{class in spooq2.loader.hive\_loader}}
 
 \begin{fulllineitems}
-\phantomsection\label{\detokenize{loader/hive_loader:spooq2.loader.hive_loader.HiveLoader}}\pysiglinewithargsret{\sphinxbfcode{\sphinxupquote{class }}\sphinxbfcode{\sphinxupquote{HiveLoader}}}{\emph{db\_name, table\_name, partition\_definitions={[}\{'default\_value': None, 'column\_type': 'IntegerType', 'column\_name': 'dt'\}{]}, clear\_partition=True, repartition\_size=40, auto\_create\_table=True, overwrite\_partition\_value=True}}{}
+\phantomsection\label{\detokenize{loader/hive_loader:spooq2.loader.hive_loader.HiveLoader}}\pysiglinewithargsret{\sphinxbfcode{\sphinxupquote{class }}\sphinxbfcode{\sphinxupquote{HiveLoader}}}{\emph{db\_name, table\_name, partition\_definitions={[}\{'column\_name': 'dt', 'column\_type': 'IntegerType', 'default\_value': None\}{]}, clear\_partition=True, repartition\_size=40, auto\_create\_table=True, overwrite\_partition\_value=True}}{}
 Bases: {\hyperref[\detokenize{base_classes/loader:spooq2.loader.loader.Loader}]{\sphinxcrossref{\sphinxcode{\sphinxupquote{spooq2.loader.loader.Loader}}}}}
 
 Persists a PySpark DataFrame into a Hive Table.
@@ -1839,25 +1839,25 @@ Persists a PySpark DataFrame into a Hive Table.
 \begin{quote}\begin{description}
 \item[{Parameters}] \leavevmode\begin{itemize}
 \item {} 
-\sphinxstyleliteralstrong{\sphinxupquote{db\_name}} (\sphinxhref{https://docs.python.org/2.7/library/functions.html\#str}{\sphinxcode{\sphinxupquote{str}}}) \textendash{} The database name to load the data into.
+\sphinxstyleliteralstrong{\sphinxupquote{db\_name}} (\sphinxhref{https://docs.python.org/3.7/library/stdtypes.html\#str}{\sphinxcode{\sphinxupquote{str}}}) \textendash{} The database name to load the data into.
 
 \item {} 
-\sphinxstyleliteralstrong{\sphinxupquote{table\_name}} (\sphinxhref{https://docs.python.org/2.7/library/functions.html\#str}{\sphinxcode{\sphinxupquote{str}}}) \textendash{} The table name to load the data into. The database name must not be included in this
+\sphinxstyleliteralstrong{\sphinxupquote{table\_name}} (\sphinxhref{https://docs.python.org/3.7/library/stdtypes.html\#str}{\sphinxcode{\sphinxupquote{str}}}) \textendash{} The table name to load the data into. The database name must not be included in this
 parameter as it is already defined in the \sphinxtitleref{db\_name} parameter.
 
 \item {} 
-\sphinxstyleliteralstrong{\sphinxupquote{partition\_definitions}} (\sphinxhref{https://docs.python.org/2.7/glossary.html\#term-list}{\sphinxcode{\sphinxupquote{list}}} of \sphinxhref{https://docs.python.org/2.7/library/stdtypes.html\#dict}{\sphinxcode{\sphinxupquote{dict}}}) \textendash{} 
+\sphinxstyleliteralstrong{\sphinxupquote{partition\_definitions}} (\sphinxhref{https://docs.python.org/3.7/library/stdtypes.html\#list}{\sphinxcode{\sphinxupquote{list}}} of \sphinxhref{https://docs.python.org/3.7/library/stdtypes.html\#dict}{\sphinxcode{\sphinxupquote{dict}}}) \textendash{} 
 (Defaults to \sphinxtitleref{{[}\{“column\_name”: “dt”, “column\_type”: “IntegerType”, “default\_value”: None\}{]}}).
 \begin{itemize}
 \item {} 
-\sphinxstylestrong{column\_name} (\sphinxhref{https://docs.python.org/2.7/library/functions.html\#str}{\sphinxcode{\sphinxupquote{str}}}) - The Column’s Name to partition by.
+\sphinxstylestrong{column\_name} (\sphinxhref{https://docs.python.org/3.7/library/stdtypes.html\#str}{\sphinxcode{\sphinxupquote{str}}}) - The Column’s Name to partition by.
 
 \item {} 
-\sphinxstylestrong{column\_type} (\sphinxhref{https://docs.python.org/2.7/library/functions.html\#str}{\sphinxcode{\sphinxupquote{str}}}) - The PySpark SQL DataType for the Partition Value as
+\sphinxstylestrong{column\_type} (\sphinxhref{https://docs.python.org/3.7/library/stdtypes.html\#str}{\sphinxcode{\sphinxupquote{str}}}) - The PySpark SQL DataType for the Partition Value as
 a String. This should normally either be ‘IntegerType()’ or ‘StringType()’
 
 \item {} 
-\sphinxstylestrong{default\_value} (\sphinxhref{https://docs.python.org/2.7/library/functions.html\#str}{\sphinxcode{\sphinxupquote{str}}} or \sphinxhref{https://docs.python.org/2.7/library/functions.html\#int}{\sphinxcode{\sphinxupquote{int}}}) - If \sphinxtitleref{column\_name} does not contain
+\sphinxstylestrong{default\_value} (\sphinxhref{https://docs.python.org/3.7/library/stdtypes.html\#str}{\sphinxcode{\sphinxupquote{str}}} or \sphinxhref{https://docs.python.org/3.7/library/functions.html\#int}{\sphinxcode{\sphinxupquote{int}}}) - If \sphinxtitleref{column\_name} does not contain
 a value or \sphinxtitleref{overwrite\_partition\_value} is set, this value will be used for the
 partitioning
 
@@ -1865,39 +1865,39 @@ partitioning
 
 
 \item {} 
-\sphinxstyleliteralstrong{\sphinxupquote{clear\_partition}} (\sphinxhref{https://docs.python.org/2.7/library/functions.html\#bool}{\sphinxcode{\sphinxupquote{bool}}}, (Defaults to True)) \textendash{} This flag tells the Loader to delete the defined partitions before
+\sphinxstyleliteralstrong{\sphinxupquote{clear\_partition}} (\sphinxhref{https://docs.python.org/3.7/library/functions.html\#bool}{\sphinxcode{\sphinxupquote{bool}}}, (Defaults to True)) \textendash{} This flag tells the Loader to delete the defined partitions before
 inserting the input DataFrame into the target table. Has no effect if no partitions are
 defined.
 
 \item {} 
-\sphinxstyleliteralstrong{\sphinxupquote{repartition\_size}} (\sphinxhref{https://docs.python.org/2.7/library/functions.html\#int}{\sphinxcode{\sphinxupquote{int}}}, (Defaults to 40)) \textendash{} The DataFrame will be repartitioned on Spark level before inserting into the table.
+\sphinxstyleliteralstrong{\sphinxupquote{repartition\_size}} (\sphinxhref{https://docs.python.org/3.7/library/functions.html\#int}{\sphinxcode{\sphinxupquote{int}}}, (Defaults to 40)) \textendash{} The DataFrame will be repartitioned on Spark level before inserting into the table.
 This effects the number of output files on which the Hive table is based.
 
 \item {} 
-\sphinxstyleliteralstrong{\sphinxupquote{auto\_create\_table}} (\sphinxhref{https://docs.python.org/2.7/library/functions.html\#bool}{\sphinxcode{\sphinxupquote{bool}}}, (Defaults to True)) \textendash{} Whether the target table will be created if it does not yet exist.
+\sphinxstyleliteralstrong{\sphinxupquote{auto\_create\_table}} (\sphinxhref{https://docs.python.org/3.7/library/functions.html\#bool}{\sphinxcode{\sphinxupquote{bool}}}, (Defaults to True)) \textendash{} Whether the target table will be created if it does not yet exist.
 
 \item {} 
-\sphinxstyleliteralstrong{\sphinxupquote{overwrite\_partition\_value}} (\sphinxhref{https://docs.python.org/2.7/library/functions.html\#bool}{\sphinxcode{\sphinxupquote{bool}}}, (Defaults to True)) \textendash{} Defines whether the values of columns defined in \sphinxtitleref{partition\_definitions} should
+\sphinxstyleliteralstrong{\sphinxupquote{overwrite\_partition\_value}} (\sphinxhref{https://docs.python.org/3.7/library/functions.html\#bool}{\sphinxcode{\sphinxupquote{bool}}}, (Defaults to True)) \textendash{} Defines whether the values of columns defined in \sphinxtitleref{partition\_definitions} should
 explicitly set by default\_values.
 
 \end{itemize}
 
 \item[{Raises}] \leavevmode\begin{itemize}
 \item {} 
-\sphinxhref{https://docs.python.org/2.7/library/exceptions.html\#exceptions.AssertionError}{\sphinxcode{\sphinxupquote{exceptions.AssertionError}}}: \textendash{} partition\_definitions has to be a list containing dicts. Expected dict content:
+\sphinxcode{\sphinxupquote{exceptions.AssertionError}}: \textendash{} partition\_definitions has to be a list containing dicts. Expected dict content:
 ‘column\_name’, ‘column\_type’, ‘default\_value’ per partition\_definitions item.
 
 \item {} 
-\sphinxhref{https://docs.python.org/2.7/library/exceptions.html\#exceptions.AssertionError}{\sphinxcode{\sphinxupquote{exceptions.AssertionError}}}: \textendash{} Items of partition\_definitions have to be dictionaries.
+\sphinxcode{\sphinxupquote{exceptions.AssertionError}}: \textendash{} Items of partition\_definitions have to be dictionaries.
 
 \item {} 
-\sphinxhref{https://docs.python.org/2.7/library/exceptions.html\#exceptions.AssertionError}{\sphinxcode{\sphinxupquote{exceptions.AssertionError}}}: \textendash{} No column name set!
+\sphinxcode{\sphinxupquote{exceptions.AssertionError}}: \textendash{} No column name set!
 
 \item {} 
-\sphinxhref{https://docs.python.org/2.7/library/exceptions.html\#exceptions.AssertionError}{\sphinxcode{\sphinxupquote{exceptions.AssertionError}}}: \textendash{} Not a valid (PySpark) datatype for the partition column \{name\} \textbar{} \{type\}.
+\sphinxcode{\sphinxupquote{exceptions.AssertionError}}: \textendash{} Not a valid (PySpark) datatype for the partition column \{name\} \textbar{} \{type\}.
 
 \item {} 
-\sphinxhref{https://docs.python.org/2.7/library/exceptions.html\#exceptions.AssertionError}{\sphinxcode{\sphinxupquote{exceptions.AssertionError}}}: \textendash{} \sphinxtitleref{clear\_partition} is only supported if \sphinxtitleref{overwrite\_partition\_value} is also enabled.
+\sphinxcode{\sphinxupquote{exceptions.AssertionError}}: \textendash{} \sphinxtitleref{clear\_partition} is only supported if \sphinxtitleref{overwrite\_partition\_value} is also enabled.
 This would otherwise result in clearing partitions on basis of dynamically values
 (from DataFrame) instead of explicitly defining the partition(s) to clear.
 
@@ -1953,7 +1953,7 @@ This type of object glues the aforementioned processes together and  extracts, t
 
 \begin{fulllineitems}
 \phantomsection\label{\detokenize{pipeline/pipeline:spooq2.pipeline.pipeline.Pipeline}}\pysiglinewithargsret{\sphinxbfcode{\sphinxupquote{class }}\sphinxbfcode{\sphinxupquote{Pipeline}}}{\emph{input\_df=None}, \emph{bypass\_loader=False}}{}
-Bases: \sphinxhref{https://docs.python.org/2.7/library/functions.html\#object}{\sphinxcode{\sphinxupquote{object}}}
+Bases: \sphinxhref{https://docs.python.org/3.7/library/functions.html\#object}{\sphinxcode{\sphinxupquote{object}}}
 
 Represents a Pipeline of an Extractor, (multiple) Transformers and a Loader Object.
 \index{extractor (Pipeline attribute)@\spxentry{extractor}\spxextra{Pipeline attribute}}
@@ -2003,7 +2003,7 @@ Subclass of \sphinxcode{\sphinxupquote{spooq2.loader.Loader}}
 Sets the \sphinxtitleref{\_\_name\_\_} of the class’ type as \sphinxtitleref{name}, which is essentially the Class’ Name.
 \begin{quote}\begin{description}
 \item[{Type}] \leavevmode
-\sphinxhref{https://docs.python.org/2.7/library/functions.html\#str}{\sphinxcode{\sphinxupquote{str}}}
+\sphinxhref{https://docs.python.org/3.7/library/stdtypes.html\#str}{\sphinxcode{\sphinxupquote{str}}}
 
 \end{description}\end{quote}
 
@@ -2016,7 +2016,7 @@ Sets the \sphinxtitleref{\_\_name\_\_} of the class’ type as \sphinxtitleref{n
 Shared, class level logger for all instances.
 \begin{quote}\begin{description}
 \item[{Type}] \leavevmode
-\sphinxhref{https://docs.python.org/2.7/library/logging.html\#logging.Logger}{\sphinxcode{\sphinxupquote{logging.Logger}}}
+\sphinxhref{https://docs.python.org/3.7/library/logging.html\#logging.Logger}{\sphinxcode{\sphinxupquote{logging.Logger}}}
 
 \end{description}\end{quote}
 
@@ -2164,7 +2164,7 @@ Sets an Extractor Object to be used within the Pipeline.
 \sphinxstyleliteralstrong{\sphinxupquote{extractor}} (Subclass of \sphinxcode{\sphinxupquote{spooq2.extractor.Extractor}}) \textendash{} An already initialized Object of any Subclass of spooq2.extractor.Extractor.
 
 \item[{Raises}] \leavevmode
-\sphinxhref{https://docs.python.org/2.7/library/exceptions.html\#exceptions.AssertionError}{\sphinxcode{\sphinxupquote{exceptions.AssertionError}}}: \textendash{} An input\_df was already provided which bypasses the extraction action
+\sphinxcode{\sphinxupquote{exceptions.AssertionError}}: \textendash{} An input\_df was already provided which bypasses the extraction action
 
 \end{description}\end{quote}
 
@@ -2177,7 +2177,7 @@ Sets an Extractor Object to be used within the Pipeline.
 Adds a list of Transformer Objects to be used within the Pipeline.
 \begin{quote}\begin{description}
 \item[{Parameters}] \leavevmode
-\sphinxstyleliteralstrong{\sphinxupquote{transformer}} (\sphinxhref{https://docs.python.org/2.7/glossary.html\#term-list}{\sphinxcode{\sphinxupquote{list}}} of Subclass of \sphinxcode{\sphinxupquote{spooq2.transformer.Transformer}}) \textendash{} Already initialized Object of any Subclass of spooq2.transformer.Transformer.
+\sphinxstyleliteralstrong{\sphinxupquote{transformer}} (\sphinxhref{https://docs.python.org/3.7/library/stdtypes.html\#list}{\sphinxcode{\sphinxupquote{list}}} of Subclass of \sphinxcode{\sphinxupquote{spooq2.transformer.Transformer}}) \textendash{} Already initialized Object of any Subclass of spooq2.transformer.Transformer.
 
 \end{description}\end{quote}
 
@@ -2201,7 +2201,7 @@ Sets an Loader Object to be used within the Pipeline.
 \sphinxstyleliteralstrong{\sphinxupquote{loader}} (Subclass of \sphinxcode{\sphinxupquote{spooq2.loader.Loader}}) \textendash{} An already initialized Object of any Subclass of spooq2.loader.Loader.
 
 \item[{Raises}] \leavevmode
-\sphinxhref{https://docs.python.org/2.7/library/exceptions.html\#exceptions.AssertionError}{\sphinxcode{\sphinxupquote{exceptions.AssertionError}}}: \textendash{} You can not set a loader if the \sphinxtitleref{bypass\_loader} parameter is set.
+\sphinxcode{\sphinxupquote{exceptions.AssertionError}}: \textendash{} You can not set a loader if the \sphinxtitleref{bypass\_loader} parameter is set.
 
 \end{description}\end{quote}
 
@@ -2221,7 +2221,7 @@ context variables, groomed metadata, and relevant rules.
 
 \begin{fulllineitems}
 \phantomsection\label{\detokenize{pipeline/pipeline_factory:spooq2.pipeline.factory.PipelineFactory}}\pysiglinewithargsret{\sphinxbfcode{\sphinxupquote{class }}\sphinxbfcode{\sphinxupquote{PipelineFactory}}}{\emph{url='http://localhost:5000/pipeline/get'}}{}
-Bases: \sphinxhref{https://docs.python.org/2.7/library/functions.html\#object}{\sphinxcode{\sphinxupquote{object}}}
+Bases: \sphinxhref{https://docs.python.org/3.7/library/functions.html\#object}{\sphinxcode{\sphinxupquote{object}}}
 
 Provides an interface to automatically construct pipelines for Spooq.
 \subsubsection*{Example}
@@ -2250,7 +2250,7 @@ Provides an interface to automatically construct pipelines for Spooq.
 The end point of an expert system which will be called to infer names and parameters.
 \begin{quote}\begin{description}
 \item[{Type}] \leavevmode
-\sphinxhref{https://docs.python.org/2.7/library/functions.html\#str}{\sphinxcode{\sphinxupquote{str}}}, (Defaults to “\sphinxurl{http://localhost:5000/pipeline/get}”)
+\sphinxhref{https://docs.python.org/3.7/library/stdtypes.html\#str}{\sphinxcode{\sphinxupquote{str}}}, (Defaults to “\sphinxurl{http://localhost:5000/pipeline/get}”)
 
 \end{description}\end{quote}
 
@@ -2289,7 +2289,7 @@ Fetches a ready-to-go pipeline instance via {\hyperref[\detokenize{pipeline/pipe
 and executes it.
 \begin{quote}\begin{description}
 \item[{Parameters}] \leavevmode
-\sphinxstyleliteralstrong{\sphinxupquote{context\_variables}} (\sphinxhref{https://docs.python.org/2.7/library/stdtypes.html\#dict}{\sphinxcode{\sphinxupquote{dict}}}) \textendash{} These collection of parameters should describe the current context about the use case
+\sphinxstyleliteralstrong{\sphinxupquote{context\_variables}} (\sphinxhref{https://docs.python.org/3.7/library/stdtypes.html\#dict}{\sphinxcode{\sphinxupquote{dict}}}) \textendash{} These collection of parameters should describe the current context about the use case
 of the pipeline. Please see the examples of the PipelineFactory class’
 documentation.
 
@@ -2299,7 +2299,7 @@ documentation.
 \sphinxhref{https://spark.apache.org/docs/2.4.3/api/python/pyspark.sql.html\#pyspark.sql.DataFrame}{\sphinxcode{\sphinxupquote{pyspark.sql.DataFrame}}} \textendash{} If the loader component is by-passed (in the case of ad\_hoc use cases).
 
 \item {} 
-\sphinxhref{https://docs.python.org/2.7/library/constants.html\#None}{\sphinxcode{\sphinxupquote{None}}} \textendash{} If the loader component does not return a value (in the case of persisting data).
+\sphinxhref{https://docs.python.org/3.7/library/constants.html\#None}{\sphinxcode{\sphinxupquote{None}}} \textendash{} If the loader component does not return a value (in the case of persisting data).
 
 \end{itemize}
 
@@ -2316,7 +2316,7 @@ Sends a POST request to the defined endpoint (\sphinxtitleref{url}) containing t
 supplied context variables.
 \begin{quote}\begin{description}
 \item[{Parameters}] \leavevmode
-\sphinxstyleliteralstrong{\sphinxupquote{context\_variables}} (\sphinxhref{https://docs.python.org/2.7/library/stdtypes.html\#dict}{\sphinxcode{\sphinxupquote{dict}}}) \textendash{} These collection of parameters should describe the current context about the use case
+\sphinxstyleliteralstrong{\sphinxupquote{context\_variables}} (\sphinxhref{https://docs.python.org/3.7/library/stdtypes.html\#dict}{\sphinxcode{\sphinxupquote{dict}}}) \textendash{} These collection of parameters should describe the current context about the use case
 of the pipeline. Please see the examples of the PipelineFactory class’
 documentation.
 
@@ -2324,7 +2324,7 @@ documentation.
 Names and parameters of each ETL component to construct a Spooq pipeline
 
 \item[{Return type}] \leavevmode
-\sphinxhref{https://docs.python.org/2.7/library/stdtypes.html\#dict}{\sphinxcode{\sphinxupquote{dict}}}
+\sphinxhref{https://docs.python.org/3.7/library/stdtypes.html\#dict}{\sphinxcode{\sphinxupquote{dict}}}
 
 \end{description}\end{quote}
 
@@ -2338,7 +2338,7 @@ Fetches the necessary metadata via {\hyperref[\detokenize{pipeline/pipeline_fact
 returns a ready-to-go pipeline instance.
 \begin{quote}\begin{description}
 \item[{Parameters}] \leavevmode
-\sphinxstyleliteralstrong{\sphinxupquote{context\_variables}} (\sphinxhref{https://docs.python.org/2.7/library/stdtypes.html\#dict}{\sphinxcode{\sphinxupquote{dict}}}) \textendash{} These collection of parameters should describe the current context about the use case
+\sphinxstyleliteralstrong{\sphinxupquote{context\_variables}} (\sphinxhref{https://docs.python.org/3.7/library/stdtypes.html\#dict}{\sphinxcode{\sphinxupquote{dict}}}) \textendash{} These collection of parameters should describe the current context about the use case
 of the pipeline. Please see the examples of the PipelineFactory class’
 documentation.
 
@@ -2428,7 +2428,7 @@ something else -\textgreater{} “INFO”
 Logging level
 
 \item[{Return type}] \leavevmode
-\sphinxhref{https://docs.python.org/2.7/library/functions.html\#str}{\sphinxcode{\sphinxupquote{str}}}
+\sphinxhref{https://docs.python.org/3.7/library/stdtypes.html\#str}{\sphinxcode{\sphinxupquote{str}}}
 
 \end{description}\end{quote}
 
@@ -2445,7 +2445,7 @@ and relational database systems via \sphinxstylestrong{JDBC}.
 
 \begin{fulllineitems}
 \phantomsection\label{\detokenize{base_classes/extractor:spooq2.extractor.extractor.Extractor}}\pysigline{\sphinxbfcode{\sphinxupquote{class }}\sphinxbfcode{\sphinxupquote{Extractor}}}
-Bases: \sphinxhref{https://docs.python.org/2.7/library/functions.html\#object}{\sphinxcode{\sphinxupquote{object}}}
+Bases: \sphinxhref{https://docs.python.org/3.7/library/functions.html\#object}{\sphinxcode{\sphinxupquote{object}}}
 
 Base Class of Extractor Classes.
 \index{name (Extractor attribute)@\spxentry{name}\spxextra{Extractor attribute}}
@@ -2455,7 +2455,7 @@ Base Class of Extractor Classes.
 Sets the \sphinxtitleref{\_\_name\_\_} of the class’ type as \sphinxtitleref{name}, which is essentially the Class’ Name.
 \begin{quote}\begin{description}
 \item[{Type}] \leavevmode
-\sphinxhref{https://docs.python.org/2.7/library/functions.html\#str}{\sphinxcode{\sphinxupquote{str}}}
+\sphinxhref{https://docs.python.org/3.7/library/stdtypes.html\#str}{\sphinxcode{\sphinxupquote{str}}}
 
 \end{description}\end{quote}
 
@@ -2468,7 +2468,7 @@ Sets the \sphinxtitleref{\_\_name\_\_} of the class’ type as \sphinxtitleref{n
 Shared, class level logger for all instances.
 \begin{quote}\begin{description}
 \item[{Type}] \leavevmode
-\sphinxhref{https://docs.python.org/2.7/library/logging.html\#logging.Logger}{\sphinxcode{\sphinxupquote{logging.Logger}}}
+\sphinxhref{https://docs.python.org/3.7/library/logging.html\#logging.Logger}{\sphinxcode{\sphinxupquote{logging.Logger}}}
 
 \end{description}\end{quote}
 
@@ -2691,7 +2691,7 @@ Possible transformation methods can be \sphinxstylestrong{Selecting the most up 
 
 \begin{fulllineitems}
 \phantomsection\label{\detokenize{base_classes/transformer:spooq2.transformer.transformer.Transformer}}\pysigline{\sphinxbfcode{\sphinxupquote{class }}\sphinxbfcode{\sphinxupquote{Transformer}}}
-Bases: \sphinxhref{https://docs.python.org/2.7/library/functions.html\#object}{\sphinxcode{\sphinxupquote{object}}}
+Bases: \sphinxhref{https://docs.python.org/3.7/library/functions.html\#object}{\sphinxcode{\sphinxupquote{object}}}
 
 Base Class of Transformer Classes.
 \index{name (Transformer attribute)@\spxentry{name}\spxextra{Transformer attribute}}
@@ -2701,7 +2701,7 @@ Base Class of Transformer Classes.
 Sets the \sphinxtitleref{\_\_name\_\_} of the class’ type as \sphinxtitleref{name}, which is essentially the Class’ Name.
 \begin{quote}\begin{description}
 \item[{Type}] \leavevmode
-\sphinxhref{https://docs.python.org/2.7/library/functions.html\#str}{\sphinxcode{\sphinxupquote{str}}}
+\sphinxhref{https://docs.python.org/3.7/library/stdtypes.html\#str}{\sphinxcode{\sphinxupquote{str}}}
 
 \end{description}\end{quote}
 
@@ -2714,7 +2714,7 @@ Sets the \sphinxtitleref{\_\_name\_\_} of the class’ type as \sphinxtitleref{n
 Shared, class level logger for all instances.
 \begin{quote}\begin{description}
 \item[{Type}] \leavevmode
-\sphinxhref{https://docs.python.org/2.7/library/logging.html\#logging.Logger}{\sphinxcode{\sphinxupquote{logging.Logger}}}
+\sphinxhref{https://docs.python.org/3.7/library/logging.html\#logging.Logger}{\sphinxcode{\sphinxupquote{logging.Logger}}}
 
 \end{description}\end{quote}
 
@@ -2957,7 +2957,7 @@ Sinks} or \sphinxstylestrong{ParquetFiles}.
 
 \begin{fulllineitems}
 \phantomsection\label{\detokenize{base_classes/loader:spooq2.loader.loader.Loader}}\pysigline{\sphinxbfcode{\sphinxupquote{class }}\sphinxbfcode{\sphinxupquote{Loader}}}
-Bases: \sphinxhref{https://docs.python.org/2.7/library/functions.html\#object}{\sphinxcode{\sphinxupquote{object}}}
+Bases: \sphinxhref{https://docs.python.org/3.7/library/functions.html\#object}{\sphinxcode{\sphinxupquote{object}}}
 
 Base Class of Loader Objects.
 \index{name (Loader attribute)@\spxentry{name}\spxextra{Loader attribute}}
@@ -2967,7 +2967,7 @@ Base Class of Loader Objects.
 Sets the \sphinxtitleref{\_\_name\_\_} of the class’ type as \sphinxtitleref{name}, which is essentially the Class’ Name.
 \begin{quote}\begin{description}
 \item[{Type}] \leavevmode
-\sphinxhref{https://docs.python.org/2.7/library/functions.html\#str}{\sphinxcode{\sphinxupquote{str}}}
+\sphinxhref{https://docs.python.org/3.7/library/stdtypes.html\#str}{\sphinxcode{\sphinxupquote{str}}}
 
 \end{description}\end{quote}
 
@@ -2980,7 +2980,7 @@ Sets the \sphinxtitleref{\_\_name\_\_} of the class’ type as \sphinxtitleref{n
 Shared, class level logger for all instances.
 \begin{quote}\begin{description}
 \item[{Type}] \leavevmode
-\sphinxhref{https://docs.python.org/2.7/library/logging.html\#logging.Logger}{\sphinxcode{\sphinxupquote{logging.Logger}}}
+\sphinxhref{https://docs.python.org/3.7/library/logging.html\#logging.Logger}{\sphinxcode{\sphinxupquote{logging.Logger}}}
 
 \end{description}\end{quote}
 

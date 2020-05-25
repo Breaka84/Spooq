@@ -1,3 +1,4 @@
+from builtins import object
 import json
 import pytest
 import datetime
@@ -88,7 +89,7 @@ def test_generate_select_expression_without_casting(input_value, value,
     ("only some text", 
     "only some text"),
     (None, 
-        None),
+     None),
     ({"key": "value"}, 
      '{"key": "value"}'),
     ({"key": {"other_key": "value"}}, 

@@ -1,3 +1,5 @@
+from builtins import str
+from builtins import object
 import pytest
 from pyspark.sql import functions as F
 
@@ -80,7 +82,7 @@ class TestBasicAttributes(object):
         assert transformer.name == 'Mapper'
 
     def test_str_representation(self, transformer):
-        assert unicode(transformer) == 'Transformer Object of Class Mapper'
+        assert str(transformer) == 'Transformer Object of Class Mapper'
 
 
 class TestShapeOfMappedDataFrame(object):

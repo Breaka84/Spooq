@@ -1,3 +1,5 @@
+from builtins import str
+from builtins import object
 import pytest
 from pyspark.sql import functions as F
 
@@ -18,7 +20,7 @@ class TestBasicAttributes(object):
         assert transformer.name == 'Sieve'
 
     def test_str_representation_is_correct(self, transformer):
-        assert unicode(transformer) == 'Transformer Object of Class Sieve'
+        assert str(transformer) == 'Transformer Object of Class Sieve'
 
 
 class TestFiltering(object):

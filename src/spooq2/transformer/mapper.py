@@ -1,9 +1,11 @@
+from __future__ import absolute_import
+from builtins import str
 from pyspark.sql.utils import AnalysisException
 from pyspark.sql.functions import lit
 from pyspark.sql import types as sql_types
 
-from transformer import Transformer
-from mapper_custom_data_types import _get_select_expression_for_custom_type
+from .transformer import Transformer
+from .mapper_custom_data_types import _get_select_expression_for_custom_type
 
 
 class Mapper(Transformer):
@@ -73,10 +75,10 @@ class Mapper(Transformer):
     def __init__(self, mapping):
         super(Mapper, self).__init__()
         self.mapping = mapping
-        self.logger.debug("Mapping: {mp}".format(mp=unicode(self.mapping)))
+        self.logger.debug("Mapping: {mp}".format(mp=str(self.mapping)))
 
     def transform(self, input_df):
-        self.logger.info("Schema: " + unicode(self.mapping))
+        self.logger.info("Schema: " + str(self.mapping))
 
         select_expressions = []
 
@@ -126,7 +128,7 @@ class Mapper(Transformer):
 
 
         self.logger.info(
-            "SQL Select-Expression for mapping: " + unicode(select_expressions)
+            "SQL Select-Expression for mapping: " + str(select_expressions)
         )
         spark_sql_query = input_df.select(select_expressions)
 
