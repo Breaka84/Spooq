@@ -67,10 +67,12 @@ class ThresholdCleaner(Transformer):
         for column_name, value_range in list(self.thresholds.items()):
 
             data_type = input_df.schema[str(column_name)].dataType
-            if not isinstance(data_type, sql_types.NumericType):
+            if not isinstance(data_type, (sql_types.NumericType,
+                                          sql_types.DateType,
+                                          sql_types.TimestampType)):
                 raise ValueError(
-                    "Threshold-based cleaning only supports Numeric Types!\n",
-                    "Column of name: {col_name} and type of: {col_type} was provided".format(
+                    "Threshold-based cleaning only supports Numeric, Date and Timestamp Types!\n",
+                    "Column with name: {col_name} and type of: {col_type} was provided".format(
                         col_name=column_name, col_type=data_type
                     ),
                 )
