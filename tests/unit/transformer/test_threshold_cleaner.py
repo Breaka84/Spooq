@@ -8,15 +8,15 @@ from spooq2.transformer import ThresholdCleaner
 
 
 class TestBasicAttributes(object):
-    """Cleaner based on ranges for numerical data"""
+    """ Basic attributes of the transformer instance """
 
-    def test_logger(self):
+    def test_has_logger(self):
         assert hasattr(ThresholdCleaner(), "logger")
 
-    def test_name(self):
+    def test_has_name(self):
         assert ThresholdCleaner().name == "ThresholdCleaner"
 
-    def test_str_representation(self):
+    def test_has_str_representation(self):
         assert str(ThresholdCleaner()) == "Transformer Object of Class ThresholdCleaner"
 
 
@@ -68,10 +68,9 @@ class TestCleaning(object):
     # fmt: on
 
     @pytest.mark.parametrize("column_name", ["integers", "floats", "timestamps", "datetimes"])
-    def test_supported_formats(self, column_name, input_df, thresholds, expected_result):
-
-        thresholds_to_test = dict([k_v for k_v in list(thresholds.items()) if k_v[0] == column_name])
-        transformer = ThresholdCleaner(thresholds_to_test)
+    def test_clean_supported_format(self, column_name, input_df, thresholds, expected_result):
+        thresholds_to_test = {column_name: thresholds[column_name]}
+        transformer = ThresholdCleaner(thresholds=thresholds_to_test)
         df_cleaned = transformer.transform(input_df)
         result = [x[column_name] for x in df_cleaned.collect()]
         expected = expected_result[column_name]
@@ -80,7 +79,7 @@ class TestCleaning(object):
         assert input_df.columns == df_cleaned.columns
 
     @pytest.mark.parametrize("column_name", ["strings"])
-    def test_unsupported_formats(self, column_name, input_df, thresholds):
+    def test_raise_exception_for_unsupported_format(self, column_name, input_df, thresholds):
         thresholds_to_test = dict([k_v1 for k_v1 in list(thresholds.items()) if k_v1[0] == column_name])
         transformer = ThresholdCleaner(thresholds_to_test)
 
