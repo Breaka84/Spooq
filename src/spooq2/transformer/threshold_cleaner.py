@@ -47,12 +47,12 @@ class ThresholdCleaner(Transformer):
     Raises
     ------
     :any:`exceptions.ValueError`
-        Threshold-based cleaning only supports Numeric Types!
-        Column of name: {col_name} and type of: {col_type} was provided
+        Threshold-based cleaning only supports Numeric, Date and Timestamp Types!
+        Column with name: {col_name} and type of: {col_type} was provided
 
     Warning
     -------
-    Only numeric data types are supported!
+    Only Numeric, TimestampType, and DateType data types are supported!
     """
 
     def __init__(self, thresholds={}):
