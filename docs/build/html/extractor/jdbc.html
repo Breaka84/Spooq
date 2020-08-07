@@ -1,50 +1,171 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
-<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
-  <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>JDBC Source &#8212; Spooq2 2.0.0b0 documentation</title>
-    <link rel="stylesheet" href="../_static/agogo.css" type="text/css" />
-    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-    <link rel="stylesheet" type="text/css" href="../_static/theme_overrides.css" />
-    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
-    <script type="text/javascript" src="../_static/jquery.js"></script>
-    <script type="text/javascript" src="../_static/underscore.js"></script>
-    <script type="text/javascript" src="../_static/doctools.js"></script>
-    <script type="text/javascript" src="../_static/language_data.js"></script>
-    <script type="text/javascript" src="../_static/copybutton.js"></script>
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>JDBC Source &mdash; Spooq2 2.0.0b0 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../_static/jquery.js"></script>
+        <script type="text/javascript" src="../_static/underscore.js"></script>
+        <script type="text/javascript" src="../_static/doctools.js"></script>
+        <script type="text/javascript" src="../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/theme_overrides.css" type="text/css" />
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="Transformers" href="../transformer/overview.html" />
     <link rel="prev" title="JSON Files" href="json.html" /> 
-  </head><body>
-    <div class="header-wrapper" role="banner">
-      <div class="header">
-        <div class="headertitle"><a
-          href="../index.html">Spooq2 2.0.0b0 documentation</a></div>
-        <div class="rel" role="navigation" aria-label="related navigation">
-          <a href="json.html" title="JSON Files"
-             accesskey="P">previous</a> |
-          <a href="../transformer/overview.html" title="Transformers"
-             accesskey="N">next</a> |
-          <a href="../py-modindex.html" title="Python Module Index"
-             >modules</a> |
-          <a href="../genindex.html" title="General Index"
-             accesskey="I">index</a>
-        </div>
-       </div>
-    </div>
+</head>
 
-    <div class="content-wrapper">
-      <div class="content">
-        <div class="document">
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> Spooq2
+          
+
+          
+          </a>
+
+          
             
-      <div class="documentwrapper">
-        <div class="bodywrapper">
-          <div class="body" role="main">
+            
+              <div class="version">
+                2
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation / Deployment</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../examples.html">Examples</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="overview.html">Extractors</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="json.html">JSON Files</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">JDBC Source</a></li>
+<li class="toctree-l2"><a class="reference internal" href="overview.html#class-diagram-of-extractor-subpackage">Class Diagram of Extractor Subpackage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="overview.html#create-your-own-extractor">Create your own Extractor</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../transformer/overview.html">Transformers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../loader/overview.html">Loaders</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../pipeline/overview.html">Pipeline</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../base_classes/overview.html">Spooq Base</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../setup_development_testing.html">Setup for Development, Testing, Documenting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../architecture.html">Architecture Overview</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Spooq2</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="overview.html">Extractors</a> &raquo;</li>
+        
+      <li>JDBC Source</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/extractor/jdbc.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
             
   <div class="section" id="module-spooq2.extractor.jdbc">
 <span id="jdbc-source"></span><h1>JDBC Source<a class="headerlink" href="#module-spooq2.extractor.jdbc" title="Permalink to this headline">¶</a></h1>
@@ -82,29 +203,29 @@
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>query</strong> (<a class="reference external" href="https://docs.python.org/2.7/library/functions.html#str" title="(in Python v2.7)"><code class="xref any docutils literal notranslate"><span class="pre">str</span></code></a>) – Defines the actual query sent to the JDBC Source. This has to be a valid SQL query
+<li><strong>query</strong> (<a class="reference external" href="https://docs.python.org/3.7/library/stdtypes.html#str" title="(in Python v3.7)"><code class="xref any docutils literal notranslate"><span class="pre">str</span></code></a>) – Defines the actual query sent to the JDBC Source. This has to be a valid SQL query
 with respect to the source system (e.g., T-SQL for Microsoft SQL Server).</li>
-<li><strong>jdbc_options</strong> (<a class="reference external" href="https://docs.python.org/2.7/library/stdtypes.html#dict" title="(in Python v2.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a>, optional) – <dl class="docutils">
+<li><strong>jdbc_options</strong> (<a class="reference external" href="https://docs.python.org/3.7/library/stdtypes.html#dict" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a>, optional) – <dl class="docutils">
 <dt>A set of parameters to configure the connection to the source:</dt>
 <dd><ul class="first last">
-<li><strong>url</strong> (<a class="reference external" href="https://docs.python.org/2.7/library/functions.html#str" title="(in Python v2.7)"><code class="xref any docutils literal notranslate"><span class="pre">str</span></code></a>) - A JDBC URL of the form <a class="reference external" href="jdbc:subprotocol:subname">jdbc:subprotocol:subname</a>.
+<li><strong>url</strong> (<a class="reference external" href="https://docs.python.org/3.7/library/stdtypes.html#str" title="(in Python v3.7)"><code class="xref any docutils literal notranslate"><span class="pre">str</span></code></a>) - A JDBC URL of the form <a class="reference external" href="jdbc:subprotocol:subname">jdbc:subprotocol:subname</a>.
 e.g., <a class="reference external" href="jdbc:postgresql://localhost:5432/dbname">jdbc:postgresql://localhost:5432/dbname</a></li>
-<li><strong>driver</strong> (<a class="reference external" href="https://docs.python.org/2.7/library/functions.html#str" title="(in Python v2.7)"><code class="xref any docutils literal notranslate"><span class="pre">str</span></code></a>) - The class name of the JDBC driver to use to connect to this URL.</li>
-<li><strong>user</strong> (<a class="reference external" href="https://docs.python.org/2.7/library/functions.html#str" title="(in Python v2.7)"><code class="xref any docutils literal notranslate"><span class="pre">str</span></code></a>) - Username to authenticate with the source database.</li>
-<li><strong>password</strong> (<a class="reference external" href="https://docs.python.org/2.7/library/functions.html#str" title="(in Python v2.7)"><code class="xref any docutils literal notranslate"><span class="pre">str</span></code></a>) - Password to authenticate with the source database.</li>
+<li><strong>driver</strong> (<a class="reference external" href="https://docs.python.org/3.7/library/stdtypes.html#str" title="(in Python v3.7)"><code class="xref any docutils literal notranslate"><span class="pre">str</span></code></a>) - The class name of the JDBC driver to use to connect to this URL.</li>
+<li><strong>user</strong> (<a class="reference external" href="https://docs.python.org/3.7/library/stdtypes.html#str" title="(in Python v3.7)"><code class="xref any docutils literal notranslate"><span class="pre">str</span></code></a>) - Username to authenticate with the source database.</li>
+<li><strong>password</strong> (<a class="reference external" href="https://docs.python.org/3.7/library/stdtypes.html#str" title="(in Python v3.7)"><code class="xref any docutils literal notranslate"><span class="pre">str</span></code></a>) - Password to authenticate with the source database.</li>
 </ul>
 </dd>
 </dl>
 <p>See <a class="reference external" href="https://spark.apache.org/docs/2.4.3/api/python/pyspark.sql.html#pyspark.sql.DataFrameReader.jdbc" title="(in PySpark vmaster)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">pyspark.sql.DataFrameReader.jdbc()</span></code></a> and
 <a class="reference external" href="https://spark.apache.org/docs/2.4.3/sql-data-sources-jdbc.html">https://spark.apache.org/docs/2.4.3/sql-data-sources-jdbc.html</a> for more information.</p>
 </li>
-<li><strong>cache</strong> (<a class="reference external" href="https://docs.python.org/2.7/library/functions.html#bool" title="(in Python v2.7)"><code class="xref any docutils literal notranslate"><span class="pre">bool</span></code></a>, defaults to <a class="reference external" href="https://docs.python.org/2.7/library/constants.html#True" title="(in Python v2.7)"><code class="xref any docutils literal notranslate"><span class="pre">True</span></code></a>) – Defines, weather to <a class="reference external" href="https://spark.apache.org/docs/2.4.3/api/python/pyspark.sql.html#pyspark.sql.DataFrame.cache" title="(in PySpark vmaster)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">cache()</span></code></a> the dataframe, after it is loaded.
+<li><strong>cache</strong> (<a class="reference external" href="https://docs.python.org/3.7/library/functions.html#bool" title="(in Python v3.7)"><code class="xref any docutils literal notranslate"><span class="pre">bool</span></code></a>, defaults to <a class="reference external" href="https://docs.python.org/3.7/library/constants.html#True" title="(in Python v3.7)"><code class="xref any docutils literal notranslate"><span class="pre">True</span></code></a>) – Defines, weather to <a class="reference external" href="https://spark.apache.org/docs/2.4.3/api/python/pyspark.sql.html#pyspark.sql.DataFrame.cache" title="(in PySpark vmaster)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">cache()</span></code></a> the dataframe, after it is loaded.
 Otherwise the Extractor will reload all data from the source system eachtime an action is
 performed on the DataFrame.</li>
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><p class="first last"><a class="reference external" href="https://docs.python.org/2.7/library/exceptions.html#exceptions.AssertionError" title="(in Python v2.7)"><code class="xref any docutils literal notranslate"><span class="pre">exceptions.AssertionError</span></code></a>: – All jdbc_options values need to be present as string variables.</p>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><p class="first last"><code class="xref any docutils literal notranslate"><span class="pre">exceptions.AssertionError</span></code>: – All jdbc_options values need to be present as string variables.</p>
 </td>
 </tr>
 </tbody>
@@ -164,37 +285,37 @@ stored in the <code class="docutils literal notranslate"><span class="pre">spooq
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>partition</strong> (<a class="reference external" href="https://docs.python.org/2.7/library/functions.html#int" title="(in Python v2.7)"><code class="xref any docutils literal notranslate"><span class="pre">int</span></code></a> or <a class="reference external" href="https://docs.python.org/2.7/library/functions.html#str" title="(in Python v2.7)"><code class="xref any docutils literal notranslate"><span class="pre">str</span></code></a>) – Partition to extract. Needed for logging the incremental load in
+<li><strong>partition</strong> (<a class="reference external" href="https://docs.python.org/3.7/library/functions.html#int" title="(in Python v3.7)"><code class="xref any docutils literal notranslate"><span class="pre">int</span></code></a> or <a class="reference external" href="https://docs.python.org/3.7/library/stdtypes.html#str" title="(in Python v3.7)"><code class="xref any docutils literal notranslate"><span class="pre">str</span></code></a>) – Partition to extract. Needed for logging the incremental load in
 the <code class="docutils literal notranslate"><span class="pre">spooq2_values_table</span></code>.</li>
-<li><strong>jdbc_options</strong> (<a class="reference external" href="https://docs.python.org/2.7/library/stdtypes.html#dict" title="(in Python v2.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a>, optional) – <dl class="docutils">
+<li><strong>jdbc_options</strong> (<a class="reference external" href="https://docs.python.org/3.7/library/stdtypes.html#dict" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a>, optional) – <dl class="docutils">
 <dt>A set of parameters to configure the connection to the source:</dt>
 <dd><ul class="first last">
-<li><strong>url</strong> (<a class="reference external" href="https://docs.python.org/2.7/library/functions.html#str" title="(in Python v2.7)"><code class="xref any docutils literal notranslate"><span class="pre">str</span></code></a>) - A JDBC URL of the form <a class="reference external" href="jdbc:subprotocol:subname">jdbc:subprotocol:subname</a>.
+<li><strong>url</strong> (<a class="reference external" href="https://docs.python.org/3.7/library/stdtypes.html#str" title="(in Python v3.7)"><code class="xref any docutils literal notranslate"><span class="pre">str</span></code></a>) - A JDBC URL of the form <a class="reference external" href="jdbc:subprotocol:subname">jdbc:subprotocol:subname</a>.
 e.g., <a class="reference external" href="jdbc:postgresql://localhost:5432/dbname">jdbc:postgresql://localhost:5432/dbname</a></li>
-<li><strong>driver</strong> (<a class="reference external" href="https://docs.python.org/2.7/library/functions.html#str" title="(in Python v2.7)"><code class="xref any docutils literal notranslate"><span class="pre">str</span></code></a>) - The class name of the JDBC driver to use to connect to this URL.</li>
-<li><strong>user</strong> (<a class="reference external" href="https://docs.python.org/2.7/library/functions.html#str" title="(in Python v2.7)"><code class="xref any docutils literal notranslate"><span class="pre">str</span></code></a>) - Username to authenticate with the source database.</li>
-<li><strong>password</strong> (<a class="reference external" href="https://docs.python.org/2.7/library/functions.html#str" title="(in Python v2.7)"><code class="xref any docutils literal notranslate"><span class="pre">str</span></code></a>) - Password to authenticate with the source database.</li>
+<li><strong>driver</strong> (<a class="reference external" href="https://docs.python.org/3.7/library/stdtypes.html#str" title="(in Python v3.7)"><code class="xref any docutils literal notranslate"><span class="pre">str</span></code></a>) - The class name of the JDBC driver to use to connect to this URL.</li>
+<li><strong>user</strong> (<a class="reference external" href="https://docs.python.org/3.7/library/stdtypes.html#str" title="(in Python v3.7)"><code class="xref any docutils literal notranslate"><span class="pre">str</span></code></a>) - Username to authenticate with the source database.</li>
+<li><strong>password</strong> (<a class="reference external" href="https://docs.python.org/3.7/library/stdtypes.html#str" title="(in Python v3.7)"><code class="xref any docutils literal notranslate"><span class="pre">str</span></code></a>) - Password to authenticate with the source database.</li>
 </ul>
 </dd>
 </dl>
 <p>See <a class="reference external" href="https://spark.apache.org/docs/2.4.3/api/python/pyspark.sql.html#pyspark.sql.DataFrameReader.jdbc" title="(in PySpark vmaster)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">pyspark.sql.DataFrameReader.jdbc()</span></code></a> and
 <a class="reference external" href="https://spark.apache.org/docs/2.4.3/sql-data-sources-jdbc.html">https://spark.apache.org/docs/2.4.3/sql-data-sources-jdbc.html</a> for more information.</p>
 </li>
-<li><strong>source_table</strong> (<a class="reference external" href="https://docs.python.org/2.7/library/functions.html#str" title="(in Python v2.7)"><code class="xref any docutils literal notranslate"><span class="pre">str</span></code></a>) – Defines the tablename of the source to be loaded from. For example ‘purchases’.
+<li><strong>source_table</strong> (<a class="reference external" href="https://docs.python.org/3.7/library/stdtypes.html#str" title="(in Python v3.7)"><code class="xref any docutils literal notranslate"><span class="pre">str</span></code></a>) – Defines the tablename of the source to be loaded from. For example ‘purchases’.
 This is necessary to build the query.</li>
-<li><strong>spooq2_values_table</strong> (<a class="reference external" href="https://docs.python.org/2.7/library/functions.html#str" title="(in Python v2.7)"><code class="xref any docutils literal notranslate"><span class="pre">str</span></code></a>) – Defines the Hive table where previous and future loads of a specific source table
+<li><strong>spooq2_values_table</strong> (<a class="reference external" href="https://docs.python.org/3.7/library/stdtypes.html#str" title="(in Python v3.7)"><code class="xref any docutils literal notranslate"><span class="pre">str</span></code></a>) – Defines the Hive table where previous and future loads of a specific source table
 are logged. This is necessary to derive boundaries for the current partition.</li>
-<li><strong>spooq2_values_db</strong> (<a class="reference external" href="https://docs.python.org/2.7/library/functions.html#str" title="(in Python v2.7)"><code class="xref any docutils literal notranslate"><span class="pre">str</span></code></a>, optional) – Defines the Database where the <code class="docutils literal notranslate"><span class="pre">spooq2_values_table</span></code> is stored.
+<li><strong>spooq2_values_db</strong> (<a class="reference external" href="https://docs.python.org/3.7/library/stdtypes.html#str" title="(in Python v3.7)"><code class="xref any docutils literal notranslate"><span class="pre">str</span></code></a>, optional) – Defines the Database where the <code class="docutils literal notranslate"><span class="pre">spooq2_values_table</span></code> is stored.
 Defaults to <cite>‘spooq2_values’</cite>.</li>
-<li><strong>spooq2_values_partition_column</strong> (<a class="reference external" href="https://docs.python.org/2.7/library/functions.html#str" title="(in Python v2.7)"><code class="xref any docutils literal notranslate"><span class="pre">str</span></code></a>, optional) – The column name which is used for the boundaries.
+<li><strong>spooq2_values_partition_column</strong> (<a class="reference external" href="https://docs.python.org/3.7/library/stdtypes.html#str" title="(in Python v3.7)"><code class="xref any docutils literal notranslate"><span class="pre">str</span></code></a>, optional) – The column name which is used for the boundaries.
 Defaults to <cite>‘updated_at’</cite>.</li>
-<li><strong>cache</strong> (<a class="reference external" href="https://docs.python.org/2.7/library/functions.html#bool" title="(in Python v2.7)"><code class="xref any docutils literal notranslate"><span class="pre">bool</span></code></a>, defaults to <a class="reference external" href="https://docs.python.org/2.7/library/constants.html#True" title="(in Python v2.7)"><code class="xref any docutils literal notranslate"><span class="pre">True</span></code></a>) – Defines, weather to <a class="reference external" href="https://spark.apache.org/docs/2.4.3/api/python/pyspark.sql.html#pyspark.sql.DataFrame.cache" title="(in PySpark vmaster)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">cache()</span></code></a> the dataframe, after it is loaded. Otherwise the Extractor
+<li><strong>cache</strong> (<a class="reference external" href="https://docs.python.org/3.7/library/functions.html#bool" title="(in Python v3.7)"><code class="xref any docutils literal notranslate"><span class="pre">bool</span></code></a>, defaults to <a class="reference external" href="https://docs.python.org/3.7/library/constants.html#True" title="(in Python v3.7)"><code class="xref any docutils literal notranslate"><span class="pre">True</span></code></a>) – Defines, weather to <a class="reference external" href="https://spark.apache.org/docs/2.4.3/api/python/pyspark.sql.html#pyspark.sql.DataFrame.cache" title="(in PySpark vmaster)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">cache()</span></code></a> the dataframe, after it is loaded. Otherwise the Extractor
 will reload all data from the source system again, if a second action upon the dataframe
 is performed.</li>
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><p class="first last"><a class="reference external" href="https://docs.python.org/2.7/library/exceptions.html#exceptions.AssertionError" title="(in Python v2.7)"><code class="xref any docutils literal notranslate"><span class="pre">exceptions.AssertionError</span></code></a>: – All jdbc_options values need to be present as string variables.</p>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><p class="first last"><code class="xref any docutils literal notranslate"><span class="pre">exceptions.AssertionError</span></code>: – All jdbc_options values need to be present as string variables.</p>
 </td>
 </tr>
 </tbody>
@@ -225,74 +346,52 @@ in the initialization of the Extractor Object.</p>
 </div>
 
 
+           </div>
+           
           </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="../transformer/overview.html" class="btn btn-neutral float-right" title="Transformers" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="json.html" class="btn btn-neutral float-left" title="JSON Files" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2020, David Eigenstuhler
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
         </div>
       </div>
-        </div>
-        <div class="sidebar">
-          <h3>Table of Contents</h3>
-          <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation / Deployment</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../examples.html">Examples</a></li>
-<li class="toctree-l1 current"><a class="reference internal" href="overview.html">Extractors</a><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="json.html">JSON Files</a></li>
-<li class="toctree-l2 current"><a class="current reference internal" href="#">JDBC Source</a></li>
-<li class="toctree-l2"><a class="reference internal" href="overview.html#class-diagram-of-extractor-subpackage">Class Diagram of Extractor Subpackage</a></li>
-<li class="toctree-l2"><a class="reference internal" href="overview.html#create-your-own-extractor">Create your own Extractor</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="../transformer/overview.html">Transformers</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../loader/overview.html">Loaders</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../pipeline/overview.html">Pipeline</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../base_classes/overview.html">Spooq Base</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../setup_development_testing.html">Setup for Development, Testing, Documenting</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../architecture.html">Architecture Overview</a></li>
-</ul>
 
-          <div role="search">
-            <h3 style="margin-top: 1.5em;">Search</h3>
-            <form class="search" action="../search.html" method="get">
-                <input type="text" name="q" />
-                <input type="submit" value="Go" />
-                <input type="hidden" name="check_keywords" value="yes" />
-                <input type="hidden" name="area" value="default" />
-            </form>
-          </div>
-        </div>
-        <div class="clearer"></div>
-      </div>
-    </div>
+    </section>
 
-    <div class="footer-wrapper">
-      <div class="footer">
-        <div class="left">
-          <div role="navigation" aria-label="related navigaton">
-            <a href="json.html" title="JSON Files"
-              >previous</a> |
-            <a href="../transformer/overview.html" title="Transformers"
-              >next</a> |
-            <a href="../py-modindex.html" title="Python Module Index"
-              >modules</a> |
-            <a href="../genindex.html" title="General Index"
-              >index</a>
-          </div>
-          <div role="note" aria-label="source link">
-              <br/>
-              <a href="../_sources/extractor/jdbc.rst.txt"
-                rel="nofollow">Show Source</a>
-          </div>
-        </div>
+  </div>
+  
 
-        <div class="right">
-          
-    <div class="footer" role="contentinfo">
-        &#169; Copyright 2020, David Eigenstuhler.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.5.
-    </div>
-        </div>
-        <div class="clearer"></div>
-      </div>
-    </div>
 
-  </body>
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
 </html>

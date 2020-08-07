@@ -1,7 +1,9 @@
+from __future__ import absolute_import
+from builtins import str
 from pyspark.sql.window import Window  # noqa: F401
 from pyspark.sql.functions import row_number, when
 
-from transformer import Transformer
+from .transformer import Transformer
 
 
 class NewestByGroup(Transformer):
@@ -50,8 +52,8 @@ class NewestByGroup(Transformer):
         else:
             self.order_by.extend([order_by])
 
-        self.logger.debug("group by columns: " + unicode(self.group_by))
-        self.logger.debug("order by columns: " + unicode(self.order_by))
+        self.logger.debug("group by columns: " + str(self.group_by))
+        self.logger.debug("order by columns: " + str(self.order_by))
 
     def transform(self, input_df):
         self.logger.debug(

@@ -242,7 +242,7 @@ add_module_names = False
 todo_include_todos = True
 
 intersphinx_mapping = {
-    'python':         ('https://docs.python.org/2.7', None),
+    'python':         ('https://docs.python.org/3.7', None),
 	'pyExceptions':   ('https://pyexceptions.readthedocs.io/en/stable/', None),
 	'pyMetaClasses':  ('https://pymetaclasses.readthedocs.io/en/latest/', None),
     'pyspark':        ('https://spark.apache.org/docs/2.4.3/api/python/', None)

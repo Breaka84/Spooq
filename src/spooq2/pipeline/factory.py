@@ -1,9 +1,11 @@
 """
-To decrease the complexity of building data pipelines for data engineers, an expert system or 
-business rules engine can be used to automatically build and configure a data pipeline based on 
+To decrease the complexity of building data pipelines for data engineers, an expert system or
+business rules engine can be used to automatically build and configure a data pipeline based on
 context variables, groomed metadata, and relevant rules.
 """
+from __future__ import print_function
 
+from builtins import object
 import requests
 import json
 from spooq2.pipeline import Pipeline
@@ -19,15 +21,15 @@ class PipelineFactory(object):
     Example
     -------
     >>> pipeline_factory = PipelineFactory()
-    >>> 
-    >>> #  Fetch user data set with applied mapping, filtering, 
+    >>>
+    >>> #  Fetch user data set with applied mapping, filtering,
     >>> #  and cleaning transformers
     >>> df = pipeline_factory.execute({
     >>>      "entity_type": "user",
     >>>      "date": "2018-10-20",
     >>>      "time_range": "last_day"})
-    >>> 
-    >>> #  Load user data partition with applied mapping, filtering, 
+    >>>
+    >>> #  Load user data partition with applied mapping, filtering,
     >>> #  and cleaning transformers to a hive database
     >>> pipeline_factory.execute({
     >>>      "entity_type": "user",
@@ -38,15 +40,15 @@ class PipelineFactory(object):
     ----------
     url : :any:`str`, (Defaults to "http://localhost:5000/pipeline/get")
         The end point of an expert system which will be called to infer names and parameters.
-            
+
     Note
     ----
     PipelineFactory is only responsible for querying an expert system with provided parameters
     and constructing a Spooq pipeline out of the response. It does not have any reasoning capabilities
     itself! It requires therefore a HTTP service responding with a JSON object containing following structure:
-    
+
     ::
-        
+
         {
             "extractor": {"name": "Type1Extractor", "params": {"key 1": "val 1", "key N": "val N"}},
             "transformers": [
@@ -58,7 +60,7 @@ class PipelineFactory(object):
             ],
             "loader": {"name": "Type1Loader", "params": {"key 1": "val 1", "key N": "val N"}}
         }
-        
+
     Hint
     ----
     There is an experimental implementation of an expert system which complies with the requirements
@@ -79,12 +81,12 @@ class PipelineFactory(object):
                 These collection of parameters should describe the current context about the use case
                 of the pipeline. Please see the examples of the PipelineFactory class'
                 documentation.
-        
+
         Returns
         -------
         :py:class:`pyspark.sql.DataFrame`
             If the loader component is by-passed (in the case of ad_hoc use cases).
-            
+
         :any:`None`
             If the loader component does not return a value (in the case of persisting data).
         """
@@ -102,7 +104,7 @@ class PipelineFactory(object):
             These collection of parameters should describe the current context about the use case
             of the pipeline. Please see the examples of the PipelineFactory class'
             documentation.
-        
+
         Returns
         -------
         :py:class:`dict`
@@ -121,7 +123,7 @@ class PipelineFactory(object):
             These collection of parameters should describe the current context about the use case
             of the pipeline. Please see the examples of the PipelineFactory class'
             documentation.
-        
+
         Returns
         -------
         :py:class:`~spooq2.Pipeline`
@@ -150,7 +152,7 @@ class PipelineFactory(object):
         transformers = []
         for transformer in magic_data["transformers"]:
             transformer_class = getattr(T, transformer["name"])
-            print transformer_class
+            print(transformer_class)
             transformers.append(transformer_class(**transformer["params"]))
         return transformers
 

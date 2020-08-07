@@ -3,6 +3,8 @@ This type of object glues the aforementioned processes together and  extracts, t
 (Transformer chain possible) and loads the data from start to end.
 """
 
+from builtins import str
+from builtins import object
 import logging
 
 
@@ -91,8 +93,8 @@ class Pipeline(object):
         self.name = type(self).__name__
         self.logger = logging.getLogger("spooq2")
         self.logger.info(
-            "New {cls_name} Instance created\n".format(cls_name=unicode(self.name))
-            + unicode(self)
+            "New {cls_name} Instance created\n".format(cls_name=str(self.name))
+            + str(self)
         )
 
     def execute(self):
@@ -232,7 +234,7 @@ class Pipeline(object):
                 Used Transformers: {trans}
                 Used Loader:       {ldr}
                 """.format(
-            extr=unicode(self.extractor),
-            trans=unicode(["{e}\n".format(e=extr) for extr in self.transformers]),
-            ldr=unicode(self.loader),
+            extr=str(self.extractor),
+            trans=str(["{e}\n".format(e=extr) for extr in self.transformers]),
+            ldr=str(self.loader),
         )

@@ -1,3 +1,4 @@
+from builtins import str
 import os
 import logging
 spooq_logger = logging.getLogger("spooq2")
@@ -53,7 +54,7 @@ def infer_input_path_from_partition(base_path=None, partition=None):
     _clean_path
     """
     base_path = remove_hdfs_prefix(base_path)
-    partition = unicode(partition)
+    partition = str(partition)
     inferred_path = '{base_path}/{yy}/{mm}/{dd}/*'.format(base_path=base_path,
                                                           yy=partition[2:4],
                                                           mm=partition[4:6],
@@ -62,4 +63,3 @@ def infer_input_path_from_partition(base_path=None, partition=None):
         .format(inp=base_path, outp=inferred_path)
     )
     return inferred_path
-    

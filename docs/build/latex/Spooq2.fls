@@ -1,4 +1,4 @@
-PWD /home/dae/projects/spooq2/docs/build/latex
+PWD /home/dae/projects/Spooq/docs/build/latex
 INPUT /usr/share/texmf-dist/web2c/texmf.cnf
 INPUT /var/lib/texmf/web2c/pdftex/pdflatex.fmt
 INPUT Spooq2.tex

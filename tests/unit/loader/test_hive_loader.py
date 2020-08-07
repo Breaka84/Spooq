@@ -1,3 +1,6 @@
+from builtins import chr
+from builtins import str
+from builtins import object
 import pytest
 from copy import deepcopy
 from doubles import expect
@@ -56,7 +59,7 @@ class TestBasicAttributes(object):
         assert default_loader.name == "HiveLoader"
 
     def test_str_representation_is_correct(self, default_loader):
-        assert unicode(default_loader) == "Loader Object of Class HiveLoader"
+        assert str(default_loader) == "Loader Object of Class HiveLoader"
 
 
 class TestSinglePartitionColumn(object):
@@ -270,7 +273,7 @@ class TestSinglePartitionColumn(object):
 
             try:
                 assert spark_session.sql("show partitions " + full_table_name).count() > 0
-            except Py4JJavaError, e:
+            except Py4JJavaError as e:
                 raise AssertionError("Created table is not partitioned. " + str(e))
 
         def test_add_new_static_partition_with_overwritten_partition_value(
@@ -524,7 +527,7 @@ class TestMultiplePartitionColumn(object):
 
             try:
                 assert spark_session.sql("show partitions " + full_table_name).count() > 0
-            except Py4JJavaError, e:
+            except Py4JJavaError as e:
                 raise AssertionError("Created table is not partitioned. " + str(e))
 
         def test_add_new_static_partition_with_overwritten_partition_value(

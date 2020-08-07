@@ -8,7 +8,15 @@ Please see that particular class on how to apply custom data types.
 For injecting your **own custom data types**, please have a visit to the 
 :py:meth:`add_custom_data_type` method!
 """
+from __future__ import division
+import sys
+if sys.version_info.major > 2:
+    # This is needed for python 2 as otherwise pyspark raises an exception for following method:
+    # _to_json
+    # ToDo: Check if Python3 works without this import / overwrite
+    from builtins import str
 
+from past.utils import old_div
 import sys
 import json
 from pyspark.sql import functions as F
@@ -20,7 +28,7 @@ MIN_TIMESTAMP_MS = 0  # 01.01.1970 00:00:00
 MAX_TIMESTAMP_MS = 4102358400000  # 31.12.2099 00:00:00
 
 MIN_TIMESTAMP_SEC = 0
-MAX_TIMESTAMP_SEC = MAX_TIMESTAMP_MS / 1000
+MAX_TIMESTAMP_SEC = old_div(MAX_TIMESTAMP_MS, 1000)
 
 
 def add_custom_data_type(function_name, func):
@@ -193,7 +201,7 @@ def _generate_select_expression_for_json_string(source_column, name):
             else:
                 return json.dumps(col.asDict(recursive=True))
         except (AttributeError, TypeError):
-            return unicode(col)
+            return str(col)
 
     udf_to_json = F.udf(_to_json, sql_types.StringType())
     return udf_to_json(source_column).alias(name)

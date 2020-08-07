@@ -1,9 +1,10 @@
 """
 Extractors are used to fetch, extract and convert a source data set into a PySpark DataFrame.
-Exemplary extraction sources are **JSON Files** on file systems like HDFS, DBFS or EXT4 
+Exemplary extraction sources are **JSON Files** on file systems like HDFS, DBFS or EXT4
 and relational database systems via **JDBC**.
 """
 
+from builtins import object
 import logging
 
 

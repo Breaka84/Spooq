@@ -1,3 +1,5 @@
+from builtins import str
+from builtins import object
 import pytest
 import pandas as pd
 from pyspark.sql import types as sql_types
@@ -50,7 +52,7 @@ class TestBasicAttributes(object):
         assert NewestByGroup().name == "NewestByGroup"
 
     def test_str_representation_is_correct(self):
-        assert unicode(NewestByGroup()) == "Transformer Object of Class NewestByGroup"
+        assert str(NewestByGroup()) == "Transformer Object of Class NewestByGroup"
 
 
 class TestTransformMethod(object):

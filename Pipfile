@@ -30,14 +30,6 @@ easydev = "==0.9.38"
 groundwork-sphinx-theme = "==1.1.1"
 mozilla-sphinx-theme = "==0.2"
 foundation-sphinx-theme = {editable = true,git = "https://github.com/episodeyang/foundation-sphinx-theme.git",ref = "4ea6a6e2d7708b873d69436eeae766993b178183"}
-# Code Inspection / Linter
-flake8 = "*"
-flake8-colors = "*"
-flake8-blind-except = "*"
-flake8-html = "*"
-flake8-pep3101 = "*"
-flake8-string-format = "*"
-flake8-tuple = "*"
 mccabe = "*"
 pytest-mock = "*"
 ipdb = "*"
@@ -48,7 +40,8 @@ pyarrow = "*"
 
 [packages]
 pandas = "==0.24.2"
+future = "*"
 spooq2 = {path = ".",editable = true}
 
 [requires]
-python_version = "2.7"
+python_version = "3.7"

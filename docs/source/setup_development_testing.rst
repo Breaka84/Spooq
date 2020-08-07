@@ -3,12 +3,12 @@
 Setup for Development, Testing, Documenting
 ===========================================
 
-**Attention: The current version of Spooq is designed (and tested) only for Python 2.7 on ubuntu, manjaro linux and WSL2 (Windows Subsystem Linux).**
+**Attention: The current version of Spooq is designed (and tested) for Python 2.7/3.7/3.8 on ubuntu, manjaro linux and WSL2 (Windows Subsystem Linux).**
 
 Prerequisites
 -------------
 
-* python 2.7
+* python 2.7 or python 3.7/3.8
 * Java 8 (jdk8-openjdk)
 * pipenv
 * Latex (for PDF documentation)

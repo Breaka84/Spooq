@@ -10,6 +10,7 @@ Possible transformation methods can be **Selecting the most up to date record by
 **Map the incoming DataFrame to at provided structure**.
 """
 
+from builtins import object
 import logging
 
 

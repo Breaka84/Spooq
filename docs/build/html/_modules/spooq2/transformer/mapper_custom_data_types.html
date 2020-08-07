@@ -1,44 +1,159 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
-<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
-  <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>spooq2.transformer.mapper_custom_data_types &#8212; Spooq2 2.0.0b0 documentation</title>
-    <link rel="stylesheet" href="../../../_static/agogo.css" type="text/css" />
-    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
-    <link rel="stylesheet" type="text/css" href="../../../_static/theme_overrides.css" />
-    <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
-    <script type="text/javascript" src="../../../_static/jquery.js"></script>
-    <script type="text/javascript" src="../../../_static/underscore.js"></script>
-    <script type="text/javascript" src="../../../_static/doctools.js"></script>
-    <script type="text/javascript" src="../../../_static/language_data.js"></script>
-    <script type="text/javascript" src="../../../_static/copybutton.js"></script>
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>spooq2.transformer.mapper_custom_data_types &mdash; Spooq2 2.0.0b0 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../../_static/doctools.js"></script>
+        <script type="text/javascript" src="../../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/theme_overrides.css" type="text/css" />
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" /> 
-  </head><body>
-    <div class="header-wrapper" role="banner">
-      <div class="header">
-        <div class="headertitle"><a
-          href="../../../index.html">Spooq2 2.0.0b0 documentation</a></div>
-        <div class="rel" role="navigation" aria-label="related navigation">
-          <a href="../../../py-modindex.html" title="Python Module Index"
-             >modules</a> |
-          <a href="../../../genindex.html" title="General Index"
-             accesskey="I">index</a>
-        </div>
-       </div>
-    </div>
+</head>
 
-    <div class="content-wrapper">
-      <div class="content">
-        <div class="document">
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> Spooq2
+          
+
+          
+          </a>
+
+          
             
-      <div class="documentwrapper">
-        <div class="bodywrapper">
-          <div class="body" role="main">
+            
+              <div class="version">
+                2
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation / Deployment</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../extractor/overview.html">Extractors</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../transformer/overview.html">Transformers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../loader/overview.html">Loaders</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../pipeline/overview.html">Pipeline</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../base_classes/overview.html">Spooq Base</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../setup_development_testing.html">Setup for Development, Testing, Documenting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../architecture.html">Architecture Overview</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">Spooq2</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>spooq2.transformer.mapper_custom_data_types</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
             
   <h1>Source code for spooq2.transformer.mapper_custom_data_types</h1><div class="highlight"><pre>
 <span></span><span class="sd">&quot;&quot;&quot;This is a collection of module level methods to construct a specific</span>
@@ -51,7 +166,15 @@
 <span class="sd">For injecting your **own custom data types**, please have a visit to the </span>
 <span class="sd">:py:meth:`add_custom_data_type` method!</span>
 <span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">division</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="k">if</span> <span class="n">sys</span><span class="o">.</span><span class="n">version_info</span><span class="o">.</span><span class="n">major</span> <span class="o">&gt;</span> <span class="mi">2</span><span class="p">:</span>
+    <span class="c1"># This is needed for python 2 as otherwise pyspark raises an exception for following method:</span>
+    <span class="c1"># _to_json</span>
+    <span class="c1"># ToDo: Check if Python3 works without this import / overwrite</span>
+    <span class="kn">from</span> <span class="nn">builtins</span> <span class="kn">import</span> <span class="nb">str</span>
 
+<span class="kn">from</span> <span class="nn">past.utils</span> <span class="kn">import</span> <span class="n">old_div</span>
 <span class="kn">import</span> <span class="nn">sys</span>
 <span class="kn">import</span> <span class="nn">json</span>
 <span class="kn">from</span> <span class="nn">pyspark.sql</span> <span class="kn">import</span> <span class="n">functions</span> <span class="k">as</span> <span class="n">F</span>
@@ -63,7 +186,7 @@
 <span class="n">MAX_TIMESTAMP_MS</span> <span class="o">=</span> <span class="mi">4102358400000</span>  <span class="c1"># 31.12.2099 00:00:00</span>
 
 <span class="n">MIN_TIMESTAMP_SEC</span> <span class="o">=</span> <span class="mi">0</span>
-<span class="n">MAX_TIMESTAMP_SEC</span> <span class="o">=</span> <span class="n">MAX_TIMESTAMP_MS</span> <span class="o">/</span> <span class="mi">1000</span>
+<span class="n">MAX_TIMESTAMP_SEC</span> <span class="o">=</span> <span class="n">old_div</span><span class="p">(</span><span class="n">MAX_TIMESTAMP_MS</span><span class="p">,</span> <span class="mi">1000</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="add_custom_data_type"><a class="viewcode-back" href="../../../transformer/mapper.html#spooq2.transformer.mapper_custom_data_types.add_custom_data_type">[docs]</a><span class="k">def</span> <span class="nf">add_custom_data_type</span><span class="p">(</span><span class="n">function_name</span><span class="p">,</span> <span class="n">func</span><span class="p">):</span>
@@ -236,7 +359,7 @@
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">return</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">col</span><span class="o">.</span><span class="n">asDict</span><span class="p">(</span><span class="n">recursive</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
         <span class="k">except</span> <span class="p">(</span><span class="ne">AttributeError</span><span class="p">,</span> <span class="ne">TypeError</span><span class="p">):</span>
-            <span class="k">return</span> <span class="n">unicode</span><span class="p">(</span><span class="n">col</span><span class="p">)</span>
+            <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">col</span><span class="p">)</span>
 
     <span class="n">udf_to_json</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">udf</span><span class="p">(</span><span class="n">_to_json</span><span class="p">,</span> <span class="n">sql_types</span><span class="o">.</span><span class="n">StringType</span><span class="p">())</span>
     <span class="k">return</span> <span class="n">udf_to_json</span><span class="p">(</span><span class="n">source_column</span><span class="p">)</span><span class="o">.</span><span class="n">alias</span><span class="p">(</span><span class="n">name</span><span class="p">)</span></div>
@@ -545,61 +668,43 @@
     <span class="k">return</span> <span class="n">F</span><span class="o">.</span><span class="n">trunc</span><span class="p">(</span><span class="n">source_column</span><span class="p">,</span> <span class="s2">&quot;month&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">sql_types</span><span class="o">.</span><span class="n">TimestampType</span><span class="p">())</span><span class="o">.</span><span class="n">alias</span><span class="p">(</span><span class="n">name</span><span class="p">)</span></div>
 </pre></div>
 
+           </div>
+           
           </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2020, David Eigenstuhler
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
         </div>
       </div>
-        </div>
-        <div class="sidebar">
-          <h3>Table of Contents</h3>
-          <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation / Deployment</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../examples.html">Examples</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../extractor/overview.html">Extractors</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../transformer/overview.html">Transformers</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../loader/overview.html">Loaders</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../pipeline/overview.html">Pipeline</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../base_classes/overview.html">Spooq Base</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../setup_development_testing.html">Setup for Development, Testing, Documenting</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../architecture.html">Architecture Overview</a></li>
-</ul>
 
-          <div role="search">
-            <h3 style="margin-top: 1.5em;">Search</h3>
-            <form class="search" action="../../../search.html" method="get">
-                <input type="text" name="q" />
-                <input type="submit" value="Go" />
-                <input type="hidden" name="check_keywords" value="yes" />
-                <input type="hidden" name="area" value="default" />
-            </form>
-          </div>
-        </div>
-        <div class="clearer"></div>
-      </div>
-    </div>
+    </section>
 
-    <div class="footer-wrapper">
-      <div class="footer">
-        <div class="left">
-          <div role="navigation" aria-label="related navigaton">
-            <a href="../../../py-modindex.html" title="Python Module Index"
-              >modules</a> |
-            <a href="../../../genindex.html" title="General Index"
-              >index</a>
-          </div>
-          <div role="note" aria-label="source link">
-          </div>
-        </div>
+  </div>
+  
 
-        <div class="right">
-          
-    <div class="footer" role="contentinfo">
-        &#169; Copyright 2020, David Eigenstuhler.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.5.
-    </div>
-        </div>
-        <div class="clearer"></div>
-      </div>
-    </div>
 
-  </body>
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
 </html>
