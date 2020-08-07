@@ -41,6 +41,10 @@ class Mapper(Transformer):
         from the input DataFrame, and their data types. Custom data types are also supported, which can
         clean, pivot, anonymize, ... the data itself. Please have a look at the
         :py:mod:`spooq2.transformer.mapper_custom_data_types` module for more information.
+        
+    ignore_missing_columns : :any:`bool`, Defaults to True
+        Specifies if the mapping transformation should raise an exception if a referenced input
+        column is missing in the provided DataFrame.
 
     Note
     ----
@@ -61,6 +65,14 @@ class Mapper(Transformer):
         The datatype will be interpreted as a PySpark built-in if it is a member of ``pyspark.sql.types``.
         If it is not an importable PySpark data type, a method to construct the statement will be
         called by the data type's name.
+
+    Note
+    ----
+    The available input columns can vary from batch to batch if you use schema inference
+    (f.e. on json data) for the extraction. Ignoring missing columns on the input DataFrame is
+    highly encouraged in this case. Although, if you have tight control over the structure
+    of the extracted DataFrame, setting `ignore_missing_columns` to True is advised
+    as it can uncover typos and bugs.
 
     Note
     ----
