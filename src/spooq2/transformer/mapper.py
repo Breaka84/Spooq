@@ -41,11 +41,15 @@ class Mapper(Transformer):
         from the input DataFrame, and their data types. Custom data types are also supported, which can
         clean, pivot, anonymize, ... the data itself. Please have a look at the
         :py:mod:`spooq2.transformer.mapper_custom_data_types` module for more information.
+        
+    ignore_missing_columns : :any:`bool`, Defaults to True
+        Specifies if the mapping transformation should raise an exception if a referenced input
+        column is missing in the provided DataFrame.
 
     Note
     ----
     Let's talk about Mappings:
-    
+
     The mapping should be a list of tuples which are containing all information per column.
 
     * Column Name : :any:`str`
@@ -58,9 +62,17 @@ class Mapper(Transformer):
     * DataType : :any:`str`
         DataTypes can be types from :any:`pyspark.sql.types`, selected custom datatypes or
         injected, ad-hoc custom datatypes.
-        The datatype will be interpreted as a PySpark built-in if it is a member of ``pyspark.sql.types``. 
+        The datatype will be interpreted as a PySpark built-in if it is a member of ``pyspark.sql.types``.
         If it is not an importable PySpark data type, a method to construct the statement will be
         called by the data type's name.
+
+    Note
+    ----
+    The available input columns can vary from batch to batch if you use schema inference
+    (f.e. on json data) for the extraction. Ignoring missing columns on the input DataFrame is
+    highly encouraged in this case. Although, if you have tight control over the structure
+    of the extracted DataFrame, setting `ignore_missing_columns` to True is advised
+    as it can uncover typos and bugs.
 
     Note
     ----
@@ -72,9 +84,10 @@ class Mapper(Transformer):
     Attention: Decimal is NOT SUPPORTED by Hive! Please use Double instead!
     """
 
-    def __init__(self, mapping):
+    def __init__(self, mapping, ignore_missing_columns=True):
         super(Mapper, self).__init__()
         self.mapping = mapping
+        self.ignore_missing_columns = ignore_missing_columns
         self.logger.debug("Mapping: {mp}".format(mp=str(self.mapping)))
 
     def transform(self, input_df):
@@ -98,10 +111,16 @@ class Mapper(Transformer):
                     source_column = source_column[path_segment]
                     input_df.select(source_column)
                 except AnalysisException:
-                    source_column = None
-                    source_column_is_missing = True
-                    break
-            
+                    if self.ignore_missing_columns:
+                        source_column = None
+                        source_column_is_missing = True
+                        break
+                    else:
+                        raise ValueError(
+                            "Column: \"{}\" is missing in the input DataFrame ".format(path) +
+                            "but is referenced in the mapping by column: \"{}\"".format(name)
+                        )
+
             del path_segment, path_segments
 
             if data_type_is_spark_builtin:
@@ -125,7 +144,6 @@ class Mapper(Transformer):
                     )
 
                 select_expressions.append(select_expression)
-
 
         self.logger.info(
             "SQL Select-Expression for mapping: " + str(select_expressions)
