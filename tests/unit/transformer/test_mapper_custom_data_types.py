@@ -3,10 +3,12 @@ import json
 import pytest
 import datetime
 from pyspark.sql import functions as F  # noqa: N812
+from pyspark.sql import types as T  # noqa: N812
 from pyspark.sql import Row
 
 import spooq2.transformer.mapper_custom_data_types as custom_types
 from spooq2.transformer import Mapper
+
 
 def get_input_df(spark_session, spark_context, source_key, input_value):
     input_json = json.dumps(
@@ -54,21 +56,21 @@ class TestDynamicallyCallMethodsByDataTypeName(object):
 
 # fmt: off
 @pytest.mark.parametrize(("input_value", "value"), [
-    ("only some text", 
+    ("only some text",
      "only some text"),
-    (None, 
+    (None,
      None),
-    ({"key": "value"}, 
+    ({"key": "value"},
      Row(key="value")),
-    ({"key": {"other_key": "value"}}, 
+    ({"key": {"other_key": "value"}},
      Row(key=Row(other_key="value"))),
-    ({"age": 18,"weight": 75}, 
+    ({"age": 18,"weight": 75},
      Row(age=18, weight=75)),
-    ({"list_of_friend_ids": [12, 75, 44, 76]}, 
+    ({"list_of_friend_ids": [12, 75, 44, 76]},
      Row(list_of_friend_ids=[12, 75, 44, 76])),
-    ([{"weight": "75"}, {"weight": "76"}, {"weight": "73"}], 
+    ([{"weight": "75"}, {"weight": "76"}, {"weight": "73"}],
      [Row(weight="75"), Row(weight="76"), Row(weight="73")]),
-    ({"list_of_friend_ids": [{"id": 12}, {"id": 75}, {"id": 44}, {"id": 76}]}, 
+    ({"list_of_friend_ids": [{"id": 12}, {"id": 75}, {"id": 44}, {"id": 76}]},
      Row(list_of_friend_ids=[Row(id=12), Row(id=75), Row(id=44), Row(id=76)])),
 ])
 # fmt: on
@@ -86,19 +88,19 @@ def test_generate_select_expression_without_casting(input_value, value,
 
 # fmt: off
 @pytest.mark.parametrize(("input_value", "value"), [
-    ("only some text", 
+    ("only some text",
     "only some text"),
-    (None, 
+    (None,
      None),
-    ({"key": "value"}, 
+    ({"key": "value"},
      '{"key": "value"}'),
-    ({"key": {"other_key": "value"}}, 
+    ({"key": {"other_key": "value"}},
      '{"key": {"other_key": "value"}}'),
-    ({"age": 18, "weight": 75}, 
+    ({"age": 18, "weight": 75},
      '{"age": 18, "weight": 75}'),
-    ({"list_of_friend_ids": [12, 75, 44, 76]}, 
+    ({"list_of_friend_ids": [12, 75, 44, 76]},
      '{"list_of_friend_ids": [12, 75, 44, 76]}'),
-    ([{"weight": "75"}, {"weight": "76"}, {"weight": "73"}], 
+    ([{"weight": "75"}, {"weight": "76"}, {"weight": "73"}],
      '[{"weight": "75"}, {"weight": "76"}, {"weight": "73"}]'),
     ({"list_of_friend_ids": [{"id": 12}, {"id": 75}, {"id": 44}, {"id": 76}]},
      '{"list_of_friend_ids": [{"id": 12}, {"id": 75}, {"id": 44}, {"id": 76}]}')
@@ -118,14 +120,35 @@ def test_generate_select_expression_for_json_string(input_value, value,
     ) == "string", "Casting of column"
     assert output_df.first()[name] == value, "Processing of column value"
 
+# fmt: off
+@pytest.mark.parametrize(
+    argnames=("input_value", "expected_value"),
+    argvalues=[
+        (1.80,  180),
+        (2.,    200),
+        (-1.0, -100),
+        (0.0,     0),
+    ])
+# fmt: on
+def test_generate_select_expression_for_meters_to_cm(input_value, expected_value, spark_session):
+    input_df = spark_session.createDataFrame(
+        [Row(input_column=input_value)],
+        schema=T.StructType([T.StructField("input_column", T.DoubleType(), True)])
+    )
+    output_df = Mapper(mapping=[("output_column", "input_column", "meters_to_cm")]).transform(input_df)
+    assert output_df.first().output_column == expected_value, "Processing of column value"
+    assert output_df.schema.fieldNames() == ["output_column"], "Renaming of column"
+    assert output_df.schema["output_column"].dataType.typeName() == "integer", "Casting of column"
+
+
 class TestAnonymizingMethods(object):
-    # fmt: off    
+    # fmt: off
     @pytest.mark.parametrize(("input_value", "value"), [
-        ("my_first_mail@myspace.com", "1"), 
-        ("",                          None), 
+        ("my_first_mail@myspace.com", "1"),
+        ("",                          None),
         (None,                        None),
-        (" ",                         "1"), 
-        (100,                         "1"), 
+        (" ",                         "1"),
+        (100,                         "1"),
         (0,                           "1")],
     )
     # fmt: on
@@ -144,13 +167,13 @@ class TestAnonymizingMethods(object):
         ) == "string", "Casting of column"
         assert output_df.first()[name] == value, "Processing of column value"
 
-    # fmt: off    
+    # fmt: off
     @pytest.mark.parametrize(("input_value", "value"), [
-        ("my_first_mail@myspace.com", None), 
-        ("",                          None), 
+        ("my_first_mail@myspace.com", None),
+        ("",                          None),
         (None,                        None),
-        (" ",                         None), 
-        (100,                         None), 
+        (" ",                         None),
+        (100,                         None),
         (0,                           None)],
     )
     # fmt: on
@@ -170,7 +193,7 @@ class TestAnonymizingMethods(object):
         ) == "string", "Casting of column"
         assert output_df.first()[name] == value, "Processing of column value"
 
-    # fmt: off    
+    # fmt: off
     @pytest.mark.parametrize(("input_value", "value"), [
         (12345,             1),
         ("",                1),
@@ -200,7 +223,7 @@ class TestAnonymizingMethods(object):
         ) == "integer", "Casting of column"
         assert output_df.first()[name] == value, "Processing of column value"
 
-    # fmt: off    
+    # fmt: off
     @pytest.mark.parametrize(("input_value", "value"), [
         (12345,             None),
         ("",                None),
@@ -230,7 +253,7 @@ class TestAnonymizingMethods(object):
         ) == "integer", "Casting of column"
         assert output_df.first()[name] == value, "Processing of column value"
 
-    # fmt: off    
+    # fmt: off
     @pytest.mark.parametrize(("input_value", "value"), [
         (None,         None),
         ("1955-09-41", None),
@@ -269,7 +292,7 @@ class TestAnonymizingMethods(object):
 
 
 class TestTimestampMethods(object):
-    # fmt: off    
+    # fmt: off
     @pytest.mark.parametrize(("input_value", "value"), [
         (0,              0),              # minimum valid timestamp
         (-1,             None),           # minimum valid timestamp - 1 ms
@@ -389,6 +412,23 @@ class TestTimestampMethods(object):
         ) == "long", "Casting of column"
         assert output_df.first()[name] == value, "Processing of column value"
 
+    # fmt: off
+    @pytest.mark.parametrize(
+        argnames="input_value",
+        argvalues=[1591627696951, 0, -1, 1]
+    )
+    # fmt: on
+    def test_generate_select_expression_for_unix_timestamp_ms_to_spark_timestamp(self, input_value, spark_session):
+        input_df = spark_session.createDataFrame(
+            [Row(input_column=input_value)],
+            schema=T.StructType([T.StructField("input_column", T.LongType(), True)])
+        )
+        output_df = Mapper(mapping=[("output_column", "input_column", "unix_timestamp_ms_to_spark_timestamp")]).transform(input_df)
+        expected_value = datetime.datetime.fromtimestamp(input_value / 1000.0)
+        assert output_df.first().output_column == expected_value, "Processing of column value"
+        assert output_df.schema.fieldNames() == ["output_column"], "Renaming of column"
+        assert output_df.schema["output_column"].dataType.typeName() == "timestamp", "Casting of column"
+
 
 class TestAddCustomDataTypeInRuntime(object):
 
@@ -422,11 +462,11 @@ class TestAddCustomDataTypeInRuntime(object):
 
     # fmt: off
     @pytest.mark.parametrize(("input_value", "value"), [
-        ("Some other string", "Hello World"), 
-        ("",                  None), 
+        ("Some other string", "Hello World"),
+        ("",                  None),
         (None,                None),
-        (" ",                 "Hello World"), 
-        (100,                 "Hello World"), 
+        (" ",                 "Hello World"),
+        (100,                 "Hello World"),
         (0,                   None)
     ])
     # fmt: on
@@ -459,16 +499,16 @@ class TestAddCustomDataTypeInRuntime(object):
         ])
         input_values = input_df.rdd.map(lambda x: x.asDict()).collect()
         expected_values = [d["first_name"] + "_" + d["last_name"] for d in input_values]
-        
+
         def _first_and_last_name(source_column, name):
             return F.concat_ws("_", source_column, F.col("last_name")).alias(name)
-                
+
         custom_types.add_custom_data_type(function_name="fullname", func=_first_and_last_name)
 
         output_df = Mapper([("full_name", "first_name", "fullname")]).transform(input_df)
-        
+
         output_values = output_df.rdd.map(lambda x: x.asDict()["full_name"]).collect()
-                
+
         assert expected_values == output_values
 
     def test_function_name_is_shortened(self, spark_session):
@@ -479,13 +519,13 @@ class TestAddCustomDataTypeInRuntime(object):
         ])
         input_values = input_df.rdd.map(lambda x: x.asDict()["first_name"]).collect()
         expected_values = [fn.lower() for fn in input_values]
-        
+
         def _lowercase(source_column, name):
             return F.lower(source_column).alias(name)
-        
+
         custom_types.add_custom_data_type(function_name="lowercase", func=_lowercase)
 
         output_df = Mapper([("first_name", "first_name", "lowercase")]).transform(input_df)
         output_values = output_df.rdd.map(lambda x: x.asDict()["first_name"]).collect()
-                
+
         assert expected_values == output_values
