@@ -2,7 +2,8 @@ from builtins import str
 from builtins import object
 import pytest
 from pyspark.sql import functions as F
-
+from pyspark.sql import types as T
+from pyspark.sql import Row
 from spooq2.transformer import Mapper
 
 
@@ -134,3 +135,126 @@ class TestDataTypesOfMappedDataFrame(object):
                                         mapped_df):
         assert mapped_df.schema[column].dataType.typeName(
         ) == expected_data_type
+
+
+class TestImplicitSparkDataTypeConversionsFromString(object):
+
+    # fmt:off
+    @pytest.mark.parametrize(
+        argnames=("input_value", "expected_value"),
+        argvalues=[
+            (   "123456",   123456),
+            (  "-123456",  -123456),
+            (       "-1",       -1),
+            (        "0",        0),
+            (     "NULL",     None),
+            (     "null",     None),
+            (     "None",     None),
+            (       None,     None),
+            (  "1234.56",     1234),
+            ( "-1234.56",    -1234),
+            (  "123,456",   123456),
+            ( "-123,456",  -123456),
+            (  "123_456",   123456),
+            ( "-123_456",  -123456),
+            ("   123456",   123456),
+            ("123456   ",   123456),
+            (" 123456  ",   123456),
+        ])
+    # fmt:on
+    def test_string_to_int(self, spark_session, input_value, expected_value):
+        input_df = spark_session.createDataFrame(
+            [Row(input_key=input_value)],
+            schema=T.StructType([T.StructField("input_key", T.StringType(), True)]))
+        output_df = Mapper(mapping=[("output_key", "input_key", "IntegerType")]).transform(input_df)
+        assert output_df.first().output_key == expected_value
+
+    # fmt:off
+    @pytest.mark.parametrize(
+        argnames=("input_value", "expected_value"),
+        argvalues=[
+            (     "21474836470",   21474836470),
+            (    "-21474836470",  -21474836470),
+            (              "-1",            -1),
+            (               "0",             0),
+            (            "NULL",          None),
+            (            "null",          None),
+            (            "None",          None),
+            (              None,          None),
+            (    "214748364.70",     214748364),
+            (   "-214748364.70",    -214748364),
+            (  "21,474,836,470",   21474836470),
+            ( "-21,474,836,470",  -21474836470),
+            (  "21_474_836_470",   21474836470),
+            ( "-21_474_836_470",  -21474836470),
+            (  "   21474836470",   21474836470),
+            (  "21474836470   ",   21474836470),
+            (  " 21474836470  ",   21474836470),
+        ])
+    # fmt:on
+    def test_string_to_long(self, spark_session, input_value, expected_value):
+        input_df = spark_session.createDataFrame(
+            [Row(input_key=input_value)],
+            schema=T.StructType([T.StructField("input_key", T.StringType(), True)]))
+        output_df = Mapper(mapping=[("output_key", "input_key", "LongType")]).transform(input_df)
+        assert output_df.first().output_key == expected_value
+
+    # fmt:off
+    @pytest.mark.parametrize(
+        argnames=("input_value", "expected_value"),
+        argvalues=[
+            (   "123456.0",   123456.0),
+            (  "-123456.0",  -123456.0),
+            (       "-1.0",       -1.0),
+            (        "0.0",        0.0),
+            (       "NULL",       None),
+            (       "null",       None),
+            (       "None",       None),
+            (         None,       None),
+            (    "1234.56",    1234.56),
+            (   "-1234.56",   -1234.56),
+            (  "123,456.7",   123456.7),
+            ( "-123,456.7",  -123456.7),
+            (  "123_456.7",   123456.7),
+            ( "-123_456.7",  -123456.7),
+            ("   123456.7",   123456.7),
+            ("123456.7   ",   123456.7),
+            (" 123456.7  ",   123456.7),
+        ])
+    # fmt:on
+    def test_string_to_float(self, spark_session, input_value, expected_value):
+        input_df = spark_session.createDataFrame(
+            [Row(input_key=input_value)],
+            schema=T.StructType([T.StructField("input_key", T.StringType(), True)]))
+        output_df = Mapper(mapping=[("output_key", "input_key", "FloatType")]).transform(input_df)
+        assert output_df.first().output_key == expected_value
+
+    # fmt:off
+    @pytest.mark.parametrize(
+        argnames=("input_value", "expected_value"),
+        argvalues=[
+            (      "214748364.70",    214748364.70),
+            (     "-214748364.70",   -214748364.70),
+            (              "-1.0",            -1.0),
+            (               "0.0",             0.0),
+            (              "NULL",            None),
+            (              "null",            None),
+            (              "None",            None),
+            (                None,            None),
+            (       "21474836470",   21474836470.0),
+            (      "-21474836470",  -21474836470.0),
+            (  "21,474,836,470.7",   21474836470.7),
+            ( "-21,474,836,470.7",  -21474836470.7),
+            (  "21_474_836_470.7",   21474836470.7),
+            ( "-21_474_836_470.7",  -21474836470.7),
+            (  "   21474836470.7",   21474836470.7),
+            (  "21474836470.7   ",   21474836470.7),
+            (  " 21474836470.7  ",   21474836470.7),
+        ])
+    # fmt:on
+    def test_string_to_double(self, spark_session, input_value, expected_value):
+        input_df = spark_session.createDataFrame(
+            [Row(input_key=input_value)],
+            schema=T.StructType([T.StructField("input_key", T.StringType(), True)]))
+        output_df = Mapper(mapping=[("output_key", "input_key", "DoubleType")]).transform(input_df)
+        assert output_df.first().output_key == expected_value
