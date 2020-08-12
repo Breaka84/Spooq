@@ -5,7 +5,7 @@ These methods are not meant to be called directly but via the
 the :py:class:`~spooq2.transformer.mapper.Mapper` transformer.
 Please see that particular class on how to apply custom data types.
 
-For injecting your **own custom data types**, please have a visit to the 
+For injecting your **own custom data types**, please have a visit to the
 :py:meth:`add_custom_data_type` method!
 """
 from __future__ import division
@@ -34,7 +34,7 @@ MAX_TIMESTAMP_SEC = old_div(MAX_TIMESTAMP_MS, 1000)
 def add_custom_data_type(function_name, func):
     """
     Registers a custom data type in runtime to be used with the :py:class:`~spooq2.transformer.mapper.Mapper` transformer.
-    
+
     Example
     -------
     >>> import spooq2.transformer.mapper_custom_data_types as custom_types
@@ -69,13 +69,13 @@ def add_custom_data_type(function_name, func):
     |       null|
     |Hello World|
     +-----------+
-    
+
     >>> def first_and_last_name(source_column, name):
     >>>     "A PySpark SQL expression referencing multiple columns"
     >>>     return F.concat_ws("_", source_column, F.col("attributes.last_name")).alias(name)
-    >>> 
+    >>>
     >>> custom_types.add_custom_data_type(function_name="full_name", func=first_and_last_name)
-    >>> 
+    >>>
     >>> transformer = T.Mapper(mapping=[
     >>>     ("first_name", "attributes.first_name", "StringType"),
     >>>     ("last_name",  "attributes.last_name",  "StringType"),
@@ -86,25 +86,25 @@ def add_custom_data_type(function_name, func):
     ----------
     function_name: :any:`str`
         The name of your custom data type
-    
+
     func: compatible function
         The PySpark dataframe function which will be called on a column, defined in the mapping
         of the Mapper class.
         Required input parameters are ``source_column`` and ``name``.
         Please see the note about required input parameter of custom data types for more information!
-       
+
     Note
     ----
     Required input parameter of custom data types:
-    
-    **source_column** (:py:class:`pyspark.sql.Column`) - This is where your logic will be applied. 
+
+    **source_column** (:py:class:`pyspark.sql.Column`) - This is where your logic will be applied.
       The mapper transformer takes care of calling this method with the right column so you can just
       handle it like an object which you would get from ``df["some_attribute"]``.
-      
+
     **name** (:any:`str`) - The name how the resulting column will be named. Nested attributes are not
       supported. The Mapper transformer takes care of calling this method with the right column name.
     """
-    
+
     if not function_name.startswith("_generate_select_expression_for_"):
         function_name = "_generate_select_expression_for_" + function_name
     current_module = sys.modules[__name__]
@@ -151,9 +151,9 @@ def _generate_select_expression_without_casting(source_column, name):
     """
     Returns a column without casting. This is especially useful if you need to
     keep a complex data type, like an array, list or a struct.
-    
+
     >>> from spooq2.transformer import Mapper
-    >>> 
+    >>>
     >>> input_df.head(3)
     [Row(friends=[Row(first_name=None, id=3993, last_name=None), Row(first_name=u'Ru\xf2', id=17484, last_name=u'Trank')]),
      Row(friends=[]),
@@ -175,11 +175,11 @@ def _generate_select_expression_for_json_string(source_column, name):
     Returns a column as json compatible string.
     Nested hierarchies are supported.
     The unicode representation of a column will be returned if an error occurs.
-    
+
     Example
     -------
     >>> from spooq2.transformer import Mapper
-    >>> 
+    >>>
     >>> input_df.head(3)
     [Row(friends=[Row(first_name=None, id=3993, last_name=None), Row(first_name=u'Ru\xf2', id=17484, last_name=u'Trank')]),
      Row(friends=[]),
@@ -219,13 +219,13 @@ def _generate_select_expression_for_timestamp_ms_to_ms(source_column, name):
     -------
     >>> from pyspark.sql import Row
     >>> from spooq2.transformer import Mapper
-    >>> 
+    >>>
     >>> input_df = spark.createDataFrame([
     >>>     Row(time_sec=1581540839000),  # 02/12/2020 @ 8:53pm (UTC)
     >>>     Row(time_sec=-4887839000),    # Invalid!
     >>>     Row(time_sec=4737139200000)   # 02/12/2120 @ 12:00am (UTC)
     >>> ])
-    >>> 
+    >>>
     >>> mapping = [("unix_ts", "time_sec", "timestamp_ms_to_ms")]
     >>> output_df = Mapper(mapping).transform(input_df)
     >>> output_df.head(3)
@@ -257,13 +257,13 @@ def _generate_select_expression_for_timestamp_ms_to_s(source_column, name):
     -------
     >>> from pyspark.sql import Row
     >>> from spooq2.transformer import Mapper
-    >>> 
+    >>>
     >>> input_df = spark.createDataFrame([
     >>>     Row(time_sec=1581540839000),  # 02/12/2020 @ 8:53pm (UTC)
     >>>     Row(time_sec=-4887839000),    # Invalid!
     >>>     Row(time_sec=4737139200000)   # 02/12/2120 @ 12:00am (UTC)
     >>> ])
-    >>> 
+    >>>
     >>> mapping = [("unix_ts", "time_sec", "timestamp_ms_to_s")]
     >>> output_df = Mapper(mapping).transform(input_df)
     >>> output_df.head(3)
@@ -298,13 +298,13 @@ def _generate_select_expression_for_timestamp_s_to_ms(source_column, name):
     -------
     >>> from pyspark.sql import Row
     >>> from spooq2.transformer import Mapper
-    >>> 
+    >>>
     >>> input_df = spark.createDataFrame([
     >>>     Row(time_sec=1581540839),  # 02/12/2020 @ 8:53pm (UTC)
     >>>     Row(time_sec=-4887839),    # Invalid!
     >>>     Row(time_sec=4737139200)   # 02/12/2120 @ 12:00am (UTC)
     >>> ])
-    >>> 
+    >>>
     >>> mapping = [("unix_ts", "time_sec", "timestamp_s_to_ms")]
     >>> output_df = Mapper(mapping).transform(input_df)
     >>> output_df.head(3)
@@ -339,13 +339,13 @@ def _generate_select_expression_for_timestamp_s_to_s(source_column, name):
     -------
     >>> from pyspark.sql import Row
     >>> from spooq2.transformer import Mapper
-    >>> 
+    >>>
     >>> input_df = spark.createDataFrame([
     >>>     Row(time_sec=1581540839),  # 02/12/2020 @ 8:53pm (UTC)
     >>>     Row(time_sec=-4887839),    # Invalid!
     >>>     Row(time_sec=4737139200)   # 02/12/2120 @ 12:00am (UTC)
     >>> ])
-    >>> 
+    >>>
     >>> mapping = [("unix_ts", "time_sec", "timestamp_s_to_ms")]
     >>> output_df = Mapper(mapping).transform(input_df)
     >>> output_df.head(3)
@@ -369,7 +369,7 @@ def _generate_select_expression_for_StringNull(source_column, name):  # noqa: N8
     Used for Anonymizing.
     Input values will be ignored and replaced by NULL,
     Cast to :any:`pyspark.sql.types.StringType`
-    
+
     Example
     -------
     >>> from pyspark.sql import Row
@@ -380,7 +380,7 @@ def _generate_select_expression_for_StringNull(source_column, name):  # noqa: N8
     >>>      Row(email=u''),
     >>>      Row(email=u'gisaksen4@skype.com')]
     >>> )
-    >>> 
+    >>>
     >>> mapping = [("email", "email", "StringNull")]
     >>> output_df = Mapper(mapping).transform(input_df)
     >>> output_df.head(3)
@@ -395,7 +395,7 @@ def _generate_select_expression_for_IntNull(source_column, name):  # noqa: N802
     Used for Anonymizing.
     Input values will be ignored and replaced by NULL,
     Cast to :any:`pyspark.sql.types.IntegerType`
-    
+
     Example
     -------
     >>> from pyspark.sql import Row
@@ -406,7 +406,7 @@ def _generate_select_expression_for_IntNull(source_column, name):  # noqa: N802
     >>>      Row(facebook_id=0),
     >>>      Row(facebook_id=57815)]
     >>> )
-    >>> 
+    >>>
     >>> mapping = [("facebook_id", "facebook_id", "IntNull")]
     >>> output_df = Mapper(mapping).transform(input_df)
     >>> output_df.head(3)
@@ -420,10 +420,10 @@ def _generate_select_expression_for_StringBoolean(source_column, name):  # noqa:
     """
     Used for Anonymizing.
     The column's value will be replaced by `"1"` if it is:
-        
-        * not NULL and 
+
+        * not NULL and
         * not an empty string
-    
+
     Example
     -------
     >>> from pyspark.sql import Row
@@ -434,7 +434,7 @@ def _generate_select_expression_for_StringBoolean(source_column, name):  # noqa:
     >>>      Row(email=u''),
     >>>      Row(email=u'gisaksen4@skype.com')]
     >>> )
-    >>> 
+    >>>
     >>> mapping = [("email", "email", "StringBoolean")]
     >>> output_df = Mapper(mapping).transform(input_df)
     >>> output_df.head(3)
@@ -453,7 +453,7 @@ def _generate_select_expression_for_IntBoolean(source_column, name):  # noqa: N8
     """
     Used for Anonymizing.
     The column's value will be replaced by `1` if it contains a non-NULL value.
-    
+
     Example
     -------
     >>> from pyspark.sql import Row
@@ -464,12 +464,12 @@ def _generate_select_expression_for_IntBoolean(source_column, name):  # noqa: N8
     >>>      Row(facebook_id=0),
     >>>      Row(facebook_id=None)]
     >>> )
-    >>> 
+    >>>
     >>> mapping = [("facebook_id", "facebook_id", "IntBoolean")]
     >>> output_df = Mapper(mapping).transform(input_df)
     >>> output_df.head(3)
     [Row(facebook_id=1), Row(facebook_id=1), Row(facebook_id=None)]
-    
+
     Note
     ----
     `0` (zero) or negative numbers are still considered as valid values and therefore converted to `1`.
@@ -487,7 +487,7 @@ def _generate_select_expression_for_TimestampMonth(source_column, name):  # noqa
     Used for Anonymizing. Can be used to keep the age but obscure the explicit birthday.
     This custom datatype requires a :any:`pyspark.sql.types.TimestampType` column as input.
     The datetime value will be set to the first day of the month.
-    
+
     Example
     -------
     >>> from pyspark.sql import Row
@@ -499,7 +499,7 @@ def _generate_select_expression_for_TimestampMonth(source_column, name):  # noqa
     >>>      Row(birthday=None),
     >>>      Row(birthday=datetime(1988, 1, 31, 8))]
     >>> )
-    >>> 
+    >>>
     >>> mapping = [("birthday", "birthday", "TimestampMonth")]
     >>> output_df = Mapper(mapping).transform(input_df)
     >>> output_df.head(3)
@@ -508,3 +508,15 @@ def _generate_select_expression_for_TimestampMonth(source_column, name):  # noqa
      Row(birthday=datetime.datetime(1988, 1, 1, 0, 0))]
     """
     return F.trunc(source_column, "month").cast(sql_types.TimestampType()).alias(name)
+
+
+def _generate_select_expression_for_extended_string_to_timestamp(source_column, name):
+    """
+    ToDo: Write proper docstring
+    """
+    return (
+        F.when(
+            F.trim(source_column).cast(sql_types.LongType()).isNotNull(),
+            F.trim(source_column).cast(sql_types.LongType()).cast(sql_types.TimestampType())
+        ).otherwise(F.trim(source_column).cast(sql_types.TimestampType())).alias(name)
+    )
