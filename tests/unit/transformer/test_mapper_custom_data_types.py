@@ -54,6 +54,7 @@ class TestDynamicallyCallMethodsByDataTypeName(object):
             custom_types._get_select_expression_for_custom_type(
                 source_column, name, data_type)
 
+
 # fmt: off
 @pytest.mark.parametrize(("input_value", "value"), [
     ("only some text",
@@ -85,6 +86,7 @@ def test_generate_select_expression_without_casting(input_value, value,
     output_df = input_df.select(result_column)
     assert output_df.schema.fieldNames() == [name], "Renaming of column"
     assert output_df.first()[name] == value, "Processing of column value"
+
 
 # fmt: off
 @pytest.mark.parametrize(("input_value", "value"), [
@@ -119,6 +121,7 @@ def test_generate_select_expression_for_json_string(input_value, value,
     assert output_df.schema[name].dataType.typeName(
     ) == "string", "Casting of column"
     assert output_df.first()[name] == value, "Processing of column value"
+
 
 # fmt: off
 @pytest.mark.parametrize(
@@ -166,6 +169,7 @@ class TestAnonymizingMethods(object):
         assert output_df.schema[name].dataType.typeName(
         ) == "string", "Casting of column"
         assert output_df.first()[name] == value, "Processing of column value"
+
 
     # fmt: off
     @pytest.mark.parametrize(("input_value", "value"), [
