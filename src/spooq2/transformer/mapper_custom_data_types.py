@@ -512,35 +512,164 @@ def _generate_select_expression_for_TimestampMonth(source_column, name):  # noqa
 
 def _generate_select_expression_for_extended_string_to_int(source_column, name):
     """
-    ToDo: Write proper docstring
+    More robust conversion from StringType to IntegerType.
+    Is able to additionally handle (compared to implicit Spark conversion):
+
+        * Preceding whitespace
+        * Trailing whitespace
+        * Preceeding and trailing whitespace
+        * underscores as thousand separators
+
+    Hint
+    ---
+    Please have a look at the tests to get a better feeling how it behaves under
+    tests/unit/transformer/test_mapper_custom_data_types.py
+
+    Example
+    -------
+    >>> from spooq2.transformer import Mapper
+    >>>
+    >>> input_df.head(3)
+    [Row(input_string="  123456 "),
+     Row(input_string="Hello"),
+     Row(input_string="123_456")]
+    >>> mapping = [("output_value", "input_string", "extended_string_to_int")]
+    >>> output_df = Mapper(mapping).transform(input_df)
+    >>> output_df.head(3)
+    [Row(input_string=123456),
+     Row(input_string=None),
+     Row(input_string=123456)]
     """
     return _generate_select_expression_for_extended_string_to_long(source_column, name).cast(sql_types.IntegerType())
 
 
 def _generate_select_expression_for_extended_string_to_long(source_column, name):
     """
-    ToDo: Write proper docstring
+    More robust conversion from StringType to LongType.
+    Is able to additionally handle (compared to implicit Spark conversion):
+
+    * Preceding whitespace
+    * Trailing whitespace
+    * Preceeding and trailing whitespace
+    * underscores as thousand separators
+
+    Hint
+    ---
+    Please have a look at the tests to get a better feeling how it behaves under
+    tests/unit/transformer/test_mapper_custom_data_types.py
+
+    Example
+    -------
+    >>> from spooq2.transformer import Mapper
+    >>>
+    >>> input_df.head(3)
+    [Row(input_string="  21474836470 "),
+     Row(input_string="Hello"),
+     Row(input_string="21_474_836_470")]
+    >>> mapping = [("output_value", "input_string", "extended_string_to_long")]
+    >>> output_df = Mapper(mapping).transform(input_df)
+    >>> output_df.head(3)
+    [Row(input_string=21474836470),
+     Row(input_string=None),
+     Row(input_string=21474836470)]
     """
     return F.regexp_replace(F.trim(source_column), "_", "").cast(sql_types.LongType()).alias(name)
 
 
 def _generate_select_expression_for_extended_string_to_float(source_column, name):
     """
-    ToDo: Write proper docstring
+    More robust conversion from StringType to FloatType.
+    Is able to additionally handle (compared to implicit Spark conversion):
+
+    * Preceding whitespace
+    * Trailing whitespace
+    * Preceeding and trailing whitespace
+    * underscores as thousand separators
+
+    Hint
+    ---
+    Please have a look at the tests to get a better feeling how it behaves under
+    tests/unit/transformer/test_mapper_custom_data_types.py
+
+    Example
+    -------
+    >>> from spooq2.transformer import Mapper
+    >>>
+    >>> input_df.head(3)
+    [Row(input_string="  836470.819 "),
+     Row(input_string="Hello"),
+     Row(input_string="836_470.819")]
+    >>> mapping = [("output_value", "input_string", "extended_string_to_float")]
+    >>> output_df = Mapper(mapping).transform(input_df)
+    >>> output_df.head(3)
+    [Row(input_string=836470.819),
+     Row(input_string=None),
+     Row(input_string=836470.819)]
     """
     return _generate_select_expression_for_extended_string_to_double(source_column, name).cast(sql_types.FloatType())
 
 
 def _generate_select_expression_for_extended_string_to_double(source_column, name):
     """
-    ToDo: Write proper docstring
+    More robust conversion from StringType to DoubleType.
+    Is able to additionally handle (compared to implicit Spark conversion):
+
+    * Preceding whitespace
+    * Trailing whitespace
+    * Preceeding and trailing whitespace
+    * underscores as thousand separators
+
+    Hint
+    ---
+    Please have a look at the tests to get a better feeling how it behaves under
+    tests/unit/transformer/test_mapper_custom_data_types.py
+
+    Example
+    -------
+    >>> from spooq2.transformer import Mapper
+    >>>
+    >>> input_df.head(3)
+    [Row(input_string="  21474838464.70 "),
+     Row(input_string="Hello"),
+     Row(input_string="21_474_838_464.70")]
+    >>> mapping = [("output_value", "input_string", "extended_string_to_double")]
+    >>> output_df = Mapper(mapping).transform(input_df)
+    >>> output_df.head(3)
+    [Row(input_string=21474838464.7),
+     Row(input_string=None),
+     Row(input_string=21474838464.70)]
     """
     return F.regexp_replace(F.trim(source_column), "_", "").cast(sql_types.DoubleType()).alias(name)
 
 
 def _generate_select_expression_for_extended_string_to_boolean(source_column, name):
     """
-    ToDo: Write proper docstring
+    More robust conversion from StringType to BooleanType.
+    Is able to additionally handle (compared to implicit Spark conversion):
+
+    * Preceding whitespace
+    * Trailing whitespace
+    * Preceeding and trailing whitespace
+
+    Hint
+    ---
+    Please have a look at the tests to get a better feeling how it behaves under
+    tests/unit/transformer/test_mapper_custom_data_types.py
+
+    Example
+    -------
+    >>> from spooq2.transformer import Mapper
+    >>>
+    >>> input_df.head(3)
+    [Row(input_string="  true "),
+     Row(input_string="0"),
+     Row(input_string="y")]
+    >>> mapping = [("output_value", "input_string", "extended_string_to_boolean")]
+    >>> output_df = Mapper(mapping).transform(input_df)
+    >>> output_df.head(3)
+    [Row(input_string=True),
+     Row(input_string=False),
+     Row(input_string=True)]
     """
     return F.trim(source_column).cast(sql_types.BooleanType()).alias(name)
 

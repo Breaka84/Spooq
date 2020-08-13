@@ -41,6 +41,11 @@ class TestDynamicallyCallMethodsByDataTypeName(object):
         ("_generate_select_expression_for_IntBoolean",                   "IntBoolean"),
         ("_generate_select_expression_for_StringBoolean",                "StringBoolean"),
         ("_generate_select_expression_for_TimestampMonth",               "TimestampMonth"),
+        ("_generate_select_expression_for_extended_string_to_int",       "extended_string_to_int"),
+        ("_generate_select_expression_for_extended_string_to_long",      "extended_string_to_long"),
+        ("_generate_select_expression_for_extended_string_to_float",     "extended_string_to_float"),
+        ("_generate_select_expression_for_extended_string_to_double",    "extended_string_to_double"),
+        ("_generate_select_expression_for_extended_string_to_boolean",   "extended_string_to_boolean"),
         ("_generate_select_expression_for_extended_string_to_timestamp", "extended_string_to_timestamp"),
     ])
     # fmt: on
