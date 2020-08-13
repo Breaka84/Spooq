@@ -510,6 +510,42 @@ def _generate_select_expression_for_TimestampMonth(source_column, name):  # noqa
     return F.trunc(source_column, "month").cast(sql_types.TimestampType()).alias(name)
 
 
+def _generate_select_expression_for_extended_string_to_int(source_column, name):
+    """
+    ToDo: Write proper docstring
+    """
+    return _generate_select_expression_for_extended_string_to_long(source_column, name).cast(sql_types.IntegerType())
+
+
+def _generate_select_expression_for_extended_string_to_long(source_column, name):
+    """
+    ToDo: Write proper docstring
+    """
+    return F.regexp_replace(F.trim(source_column), "_", "").cast(sql_types.LongType()).alias(name)
+
+
+def _generate_select_expression_for_extended_string_to_float(source_column, name):
+    """
+    ToDo: Write proper docstring
+    """
+    return _generate_select_expression_for_extended_string_to_double(source_column, name).cast(sql_types.FloatType())
+
+
+def _generate_select_expression_for_extended_string_to_double(source_column, name):
+    """
+    ToDo: Write proper docstring
+    """
+    return F.regexp_replace(F.trim(source_column), "_", "").cast(sql_types.DoubleType()).alias(name)
+
+
+def _generate_select_expression_for_extended_string_to_boolean(source_column, name):
+    """
+    ToDo: Write proper docstring
+    """
+    return F.trim(source_column).cast(sql_types.BooleanType()).alias(name)
+
+
+
 def _generate_select_expression_for_extended_string_to_timestamp(source_column, name):
     """
     ToDo: Write proper docstring
