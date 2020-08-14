@@ -3,7 +3,6 @@ from builtins import object
 import pytest
 from pyspark.sql import functions as F
 from pyspark.sql import types as T
-from pyspark.sql import Row
 from spooq2.transformer import Mapper
 
 
@@ -97,17 +96,41 @@ class TestShapeOfMappedDataFrame(object):
 
     def test_columns_are_renamed(self, input_df, mapped_df, mapping):
         """Mapped DF has renamed the Columns according to the Mapping"""
-        assert mapped_df.columns == [x[0] for x in mapping]
+        assert mapped_df.columns == [name for (name, path, data_type) in mapping]
 
     def test_base_column_is_missing_in_input(self, input_df, transformer, mapping):
         input_df = input_df.drop("attributes")
         mapped_df = transformer.transform(input_df)
-        assert mapped_df.columns == [x[0] for x in mapping]
+        assert mapped_df.columns == [name for (name, path, data_type) in mapping]
 
     def test_struct_column_is_empty_in_input(self, input_df, transformer, mapping):
         input_df = input_df.withColumn("attributes", F.lit(None))
         mapped_df = transformer.transform(input_df)
-        assert mapped_df.columns == [x[0] for x in mapping]
+        assert mapped_df.columns == [name for (name, path, data_type) in mapping]
+
+    def test_input_dataframe_is_empty(self, spark_session, transformer, mapping):
+        input_df = spark_session.createDataFrame([], schema=T.StructType())
+        mapped_df = transformer.transform(input_df)
+        assert mapped_df.columns == [name for (name, path, data_type) in mapping]
+
+
+class TestExceptionForMissingInputColumns(object):
+    """
+    Raise a ValueError if a referenced input column is missing
+    """
+    @pytest.fixture(scope="class")
+    def transformer(self, mapping):
+        return Mapper(mapping=mapping, ignore_missing_columns=False)
+
+    def test_missing_column_raises_exception(self, input_df, transformer):
+        input_df = input_df.drop("attributes")
+        with pytest.raises(ValueError):
+            transformer.transform(input_df)
+
+    def test_empty_input_dataframe_raises_exception(self, spark_session, transformer):
+        input_df = spark_session.createDataFrame([], schema=T.StructType())
+        with pytest.raises(ValueError):
+            transformer.transform(input_df)
 
 
 class TestDataTypesOfMappedDataFrame(object):
