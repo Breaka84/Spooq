@@ -677,7 +677,33 @@ def _generate_select_expression_for_extended_string_to_boolean(source_column, na
 
 def _generate_select_expression_for_extended_string_to_timestamp(source_column, name):
     """
-    ToDo: Write proper docstring
+    More robust conversion from StringType to TimestampsType.
+    Is able to additionally handle (compared to implicit Spark conversion):
+
+    * Unix timestamps in seconds
+    * Preceding whitespace
+    * Trailing whitespace
+    * Preceeding and trailing whitespace
+
+    Hint
+    ---
+    Please have a look at the tests to get a better feeling how it behaves under
+    tests/unit/transformer/test_mapper_custom_data_types.py
+
+    Example
+    -------
+    >>> from spooq2.transformer import Mapper
+    >>>
+    >>> input_df.head(3)
+    [Row(input_string="  true "),
+     Row(input_string="0"),
+     Row(input_string="y")]
+    >>> mapping = [("output_value", "input_string", "extended_string_to_boolean")]
+    >>> output_df = Mapper(mapping).transform(input_df)
+    >>> output_df.head(3)
+    [Row(input_string=True),
+     Row(input_string=False),
+     Row(input_string=True)]
     """
     return (
         F.when(
