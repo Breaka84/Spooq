@@ -48,11 +48,11 @@ class TestCleaning(object):
     @pytest.fixture(scope="module")
     def thresholds(self):
         return {
-            "integers":   {"min":  1,                    "max":  300},
-            "floats":     {"min":  1.0,                  "max":  300.0},
-            "strings":    {"min": "1",                   "max": "300"},
-            "timestamps": {"min": "2020-06-01 12:00:00", "max": dt.datetime(2020,6,1,16,0,0)},
-            "datetimes":  {"min": dt.date(2020,6,1),     "max": "2020-7-1"},
+            "integers":   {"min":  1,                           "max":  300},
+            "floats":     {"min":  1.0,                         "max":  300.0},
+            "strings":    {"min": "1",                          "max": "300"},
+            "timestamps": {"min": dt.datetime(2020,6,1,12,0,0), "max": dt.datetime(2020,6,1,16,0,0)},
+            "datetimes":  {"min": dt.date(2020,6,1),            "max": "2020-7-1"},
         }
 
     @pytest.fixture(scope="module")
