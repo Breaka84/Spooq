@@ -523,7 +523,7 @@ def _generate_select_expression_for_extended_string_to_int(source_column, name):
     Hint
     ---
     Please have a look at the tests to get a better feeling how it behaves under
-    tests/unit/transformer/test_mapper_custom_data_types.py
+    tests/unit/transformer/test_mapper_custom_data_types.py::TestConversionsFromString
 
     Example
     -------
@@ -556,7 +556,7 @@ def _generate_select_expression_for_extended_string_to_long(source_column, name)
     Hint
     ---
     Please have a look at the tests to get a better feeling how it behaves under
-    tests/unit/transformer/test_mapper_custom_data_types.py
+    tests/unit/transformer/test_mapper_custom_data_types.py::TestConversionsFromString
 
     Example
     -------
@@ -589,7 +589,7 @@ def _generate_select_expression_for_extended_string_to_float(source_column, name
     Hint
     ---
     Please have a look at the tests to get a better feeling how it behaves under
-    tests/unit/transformer/test_mapper_custom_data_types.py
+    tests/unit/transformer/test_mapper_custom_data_types.py::TestConversionsFromString
 
     Example
     -------
@@ -622,7 +622,7 @@ def _generate_select_expression_for_extended_string_to_double(source_column, nam
     Hint
     ---
     Please have a look at the tests to get a better feeling how it behaves under
-    tests/unit/transformer/test_mapper_custom_data_types.py
+    tests/unit/transformer/test_mapper_custom_data_types.py::TestConversionsFromString
 
     Example
     -------
@@ -654,7 +654,7 @@ def _generate_select_expression_for_extended_string_to_boolean(source_column, na
     Hint
     ---
     Please have a look at the tests to get a better feeling how it behaves under
-    tests/unit/transformer/test_mapper_custom_data_types.py
+    tests/unit/transformer/test_mapper_custom_data_types.py::TestConversionsFromString
 
     Example
     -------
@@ -688,7 +688,7 @@ def _generate_select_expression_for_extended_string_to_timestamp(source_column, 
     Hint
     ---
     Please have a look at the tests to get a better feeling how it behaves under
-    tests/unit/transformer/test_mapper_custom_data_types.py
+    tests/unit/transformer/test_mapper_custom_data_types.py::TestConversionsFromString
 
     Example
     -------
