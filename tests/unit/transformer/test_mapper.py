@@ -3,7 +3,6 @@ from builtins import object
 import pytest
 from pyspark.sql import functions as F
 from pyspark.sql import types as T
-
 from spooq2.transformer import Mapper
 
 
@@ -159,3 +158,5 @@ class TestDataTypesOfMappedDataFrame(object):
                                         mapped_df):
         assert mapped_df.schema[column].dataType.typeName(
         ) == expected_data_type
+
+
