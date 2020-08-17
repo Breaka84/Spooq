@@ -1,8 +1,23 @@
 =======
 History
 =======
+2.1.0 (2020-08-17)
+------------------
+* [ADD] Python 3 support
+* [ADD] `ignore_missing_columns` flag to fail on missing input columns with Mapper transformer (https://github.com/Breaka84/Spooq/pull/6)
+* [ADD] timestamp support for threshold cleaner
+* [ADD] new custom mapper transformations:
+    - meters_to_cm
+    - unix_timestamp_ms_to_spark_timestamp
+    - extended_string_to_int
+    - extended_string_to_long
+    - extended_string_to_float
+    - extended_string_to_double
+    - extended_string_to_boolean
+    - extended_string_to_timestamp
 
 2.0.0 (2020-05-22)
+------------------
 * [UPDATE] Upgrade to use Spark 2 (tested for 2.4.3) -> will no longer work for spark 1
 * Breaking changes (severe refactoring)
 

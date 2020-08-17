@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>spooq2.transformer.threshold_cleaner &mdash; Spooq2 2.0.0b0 documentation</title>
+  <title>spooq2.transformer.threshold_cleaner &mdash; Spooq2 2.1.0 documentation</title>
   
 
   
@@ -205,12 +205,12 @@
 <span class="sd">    Raises</span>
 <span class="sd">    ------</span>
 <span class="sd">    :any:`exceptions.ValueError`</span>
-<span class="sd">        Threshold-based cleaning only supports Numeric Types!</span>
-<span class="sd">        Column of name: {col_name} and type of: {col_type} was provided</span>
+<span class="sd">        Threshold-based cleaning only supports Numeric, Date and Timestamp Types!</span>
+<span class="sd">        Column with name: {col_name} and type of: {col_type} was provided</span>
 
 <span class="sd">    Warning</span>
 <span class="sd">    -------</span>
-<span class="sd">    Only numeric data types are supported!</span>
+<span class="sd">    Only Numeric, TimestampType, and DateType data types are supported!</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">thresholds</span><span class="o">=</span><span class="p">{}):</span>
@@ -225,10 +225,12 @@
         <span class="k">for</span> <span class="n">column_name</span><span class="p">,</span> <span class="n">value_range</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">thresholds</span><span class="o">.</span><span class="n">items</span><span class="p">()):</span>
 
             <span class="n">data_type</span> <span class="o">=</span> <span class="n">input_df</span><span class="o">.</span><span class="n">schema</span><span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">column_name</span><span class="p">)]</span><span class="o">.</span><span class="n">dataType</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data_type</span><span class="p">,</span> <span class="n">sql_types</span><span class="o">.</span><span class="n">NumericType</span><span class="p">):</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data_type</span><span class="p">,</span> <span class="p">(</span><span class="n">sql_types</span><span class="o">.</span><span class="n">NumericType</span><span class="p">,</span>
+                                          <span class="n">sql_types</span><span class="o">.</span><span class="n">DateType</span><span class="p">,</span>
+                                          <span class="n">sql_types</span><span class="o">.</span><span class="n">TimestampType</span><span class="p">)):</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                    <span class="s2">&quot;Threshold-based cleaning only supports Numeric Types!</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;Column of name: </span><span class="si">{col_name}</span><span class="s2"> and type of: </span><span class="si">{col_type}</span><span class="s2"> was provided&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                    <span class="s2">&quot;Threshold-based cleaning only supports Numeric, Date and Timestamp Types!</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;Column with name: </span><span class="si">{col_name}</span><span class="s2"> and type of: </span><span class="si">{col_type}</span><span class="s2"> was provided&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
                         <span class="n">col_name</span><span class="o">=</span><span class="n">column_name</span><span class="p">,</span> <span class="n">col_type</span><span class="o">=</span><span class="n">data_type</span>
                     <span class="p">),</span>
                 <span class="p">)</span>

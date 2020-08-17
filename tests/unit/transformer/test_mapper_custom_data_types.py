@@ -3,6 +3,7 @@ import json
 import pytest
 import datetime
 from pyspark.sql import functions as F  # noqa: N812
+from pyspark.sql import types as T  # noqa: N812
 from pyspark.sql import Row
 from pyspark.sql import types as T
 
@@ -64,6 +65,7 @@ class TestDynamicallyCallMethodsByDataTypeName(object):
             custom_types._get_select_expression_for_custom_type(
                 source_column, name, data_type)
 
+
 # fmt: off
 @pytest.mark.parametrize(("input_value", "value"), [
     ("only some text",
@@ -95,6 +97,7 @@ def test_generate_select_expression_without_casting(input_value, value,
     output_df = input_df.select(result_column)
     assert output_df.schema.fieldNames() == [name], "Renaming of column"
     assert output_df.first()[name] == value, "Processing of column value"
+
 
 # fmt: off
 @pytest.mark.parametrize(("input_value", "value"), [
@@ -129,6 +132,27 @@ def test_generate_select_expression_for_json_string(input_value, value,
     assert output_df.schema[name].dataType.typeName(
     ) == "string", "Casting of column"
     assert output_df.first()[name] == value, "Processing of column value"
+
+
+# fmt: off
+@pytest.mark.parametrize(
+    argnames=("input_value", "expected_value"),
+    argvalues=[
+        (1.80,  180),
+        (2.,    200),
+        (-1.0, -100),
+        (0.0,     0),
+    ])
+# fmt: on
+def test_generate_select_expression_for_meters_to_cm(input_value, expected_value, spark_session):
+    input_df = spark_session.createDataFrame(
+        [Row(input_column=input_value)],
+        schema=T.StructType([T.StructField("input_column", T.DoubleType(), True)])
+    )
+    output_df = Mapper(mapping=[("output_column", "input_column", "meters_to_cm")]).transform(input_df)
+    assert output_df.first().output_column == expected_value, "Processing of column value"
+    assert output_df.schema.fieldNames() == ["output_column"], "Renaming of column"
+    assert output_df.schema["output_column"].dataType.typeName() == "integer", "Casting of column"
 
 
 class TestConversionsFromString(object):
@@ -386,6 +410,7 @@ class TestAnonymizingMethods(object):
         ) == "string", "Casting of column"
         assert output_df.first()[name] == value, "Processing of column value"
 
+
     # fmt: off
     @pytest.mark.parametrize(("input_value", "value"), [
         ("my_first_mail@myspace.com", None),
@@ -630,6 +655,23 @@ class TestTimestampMethods(object):
         assert output_df.schema[name].dataType.typeName(
         ) == "long", "Casting of column"
         assert output_df.first()[name] == value, "Processing of column value"
+
+    # fmt: off
+    @pytest.mark.parametrize(
+        argnames="input_value",
+        argvalues=[1591627696951, 0, -1, 1]
+    )
+    # fmt: on
+    def test_generate_select_expression_for_unix_timestamp_ms_to_spark_timestamp(self, input_value, spark_session):
+        input_df = spark_session.createDataFrame(
+            [Row(input_column=input_value)],
+            schema=T.StructType([T.StructField("input_column", T.LongType(), True)])
+        )
+        output_df = Mapper(mapping=[("output_column", "input_column", "unix_timestamp_ms_to_spark_timestamp")]).transform(input_df)
+        expected_value = datetime.datetime.fromtimestamp(input_value / 1000.0)
+        assert output_df.first().output_column == expected_value, "Processing of column value"
+        assert output_df.schema.fieldNames() == ["output_column"], "Renaming of column"
+        assert output_df.schema["output_column"].dataType.typeName() == "timestamp", "Casting of column"
 
 
 class TestAddCustomDataTypeInRuntime(object):

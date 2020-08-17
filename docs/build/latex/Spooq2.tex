@@ -63,8 +63,8 @@
     
 
 \title{Spooq2 Documentation}
-\date{May 25, 2020}
-\release{2.0.0b0}
+\date{Aug 17, 2020}
+\release{2.1.0}
 \author{David Eigenstuhler}
 \newcommand{\sphinxlogo}{\vbox{}}
 \renewcommand{\releasename}{Release}
@@ -1062,7 +1062,7 @@ are defined in the initialization of the Transformator Object.
 \label{\detokenize{transformer/mapper:module-spooq2.transformer.mapper}}\label{\detokenize{transformer/mapper:class}}\index{spooq2.transformer.mapper (module)@\spxentry{spooq2.transformer.mapper}\spxextra{module}}\index{Mapper (class in spooq2.transformer.mapper)@\spxentry{Mapper}\spxextra{class in spooq2.transformer.mapper}}
 
 \begin{fulllineitems}
-\phantomsection\label{\detokenize{transformer/mapper:spooq2.transformer.mapper.Mapper}}\pysiglinewithargsret{\sphinxbfcode{\sphinxupquote{class }}\sphinxbfcode{\sphinxupquote{Mapper}}}{\emph{mapping}}{}
+\phantomsection\label{\detokenize{transformer/mapper:spooq2.transformer.mapper.Mapper}}\pysiglinewithargsret{\sphinxbfcode{\sphinxupquote{class }}\sphinxbfcode{\sphinxupquote{Mapper}}}{\emph{mapping}, \emph{ignore\_missing\_columns=True}}{}
 Bases: {\hyperref[\detokenize{base_classes/transformer:spooq2.transformer.transformer.Transformer}]{\sphinxcrossref{\sphinxcode{\sphinxupquote{spooq2.transformer.transformer.Transformer}}}}}
 
 Constructs and applies a PySpark SQL expression, based on the provided mapping.
@@ -1091,12 +1091,19 @@ Constructs and applies a PySpark SQL expression, based on the provided mapping.
 \PYG{g+gp}{\PYGZgt{}\PYGZgt{}\PYGZgt{} }\PYG{n}{transformer} \PYG{o}{=} \PYG{n}{Mapper}\PYG{p}{(}\PYG{n}{mapping}\PYG{o}{=}\PYG{n}{mapping}\PYG{p}{)}
 \end{sphinxVerbatim}
 \begin{quote}\begin{description}
-\item[{Parameters}] \leavevmode
+\item[{Parameters}] \leavevmode\begin{itemize}
+\item {} 
 \sphinxstyleliteralstrong{\sphinxupquote{mapping}} (\sphinxhref{https://docs.python.org/3.7/library/stdtypes.html\#list}{\sphinxcode{\sphinxupquote{list}}} of \sphinxhref{https://docs.python.org/3.7/library/stdtypes.html\#tuple}{\sphinxcode{\sphinxupquote{tuple}}} containing three \sphinxhref{https://docs.python.org/3.7/library/stdtypes.html\#str}{\sphinxcode{\sphinxupquote{str}}}) \textendash{} This is the main parameter for this transformation. It essentially gives information
 about the column names for the output DataFrame, the column names (paths)
 from the input DataFrame, and their data types. Custom data types are also supported, which can
 clean, pivot, anonymize, … the data itself. Please have a look at the
 {\hyperref[\detokenize{transformer/mapper:module-spooq2.transformer.mapper_custom_data_types}]{\sphinxcrossref{\sphinxcode{\sphinxupquote{spooq2.transformer.mapper\_custom\_data\_types}}}}} module for more information.
+
+\item {} 
+\sphinxstyleliteralstrong{\sphinxupquote{ignore\_missing\_columns}} (\sphinxhref{https://docs.python.org/3.7/library/functions.html\#bool}{\sphinxcode{\sphinxupquote{bool}}}, Defaults to True) \textendash{} Specifies if the mapping transformation should raise an exception if a referenced input
+column is missing in the provided DataFrame.
+
+\end{itemize}
 
 \end{description}\end{quote}
 
@@ -1131,6 +1138,14 @@ called by the data type’s name.
 \end{description}
 
 \end{itemize}
+\end{sphinxadmonition}
+
+\begin{sphinxadmonition}{note}{Note:}
+The available input columns can vary from batch to batch if you use schema inference
+(f.e. on json data) for the extraction. Ignoring missing columns on the input DataFrame is
+highly encouraged in this case. Although, if you have tight control over the structure
+of the extracted DataFrame, setting \sphinxtitleref{ignore\_missing\_columns} to True is advised
+as it can uncover typos and bugs.
 \end{sphinxadmonition}
 
 \begin{sphinxadmonition}{note}{Note:}
@@ -1639,6 +1654,323 @@ The datetime value will be set to the first day of the month.
 
 \end{fulllineitems}
 
+\index{\_generate\_select\_expression\_for\_meters\_to\_cm() (in module spooq2.transformer.mapper\_custom\_data\_types)@\spxentry{\_generate\_select\_expression\_for\_meters\_to\_cm()}\spxextra{in module spooq2.transformer.mapper\_custom\_data\_types}}
+
+\begin{fulllineitems}
+\phantomsection\label{\detokenize{transformer/mapper:spooq2.transformer.mapper_custom_data_types._generate_select_expression_for_meters_to_cm}}\pysiglinewithargsret{\sphinxbfcode{\sphinxupquote{\_generate\_select\_expression\_for\_meters\_to\_cm}}}{\emph{source\_column}, \emph{name}}{}
+Convert meters to cm and cast the result to an IntegerType.
+\subsubsection*{Example}
+
+\begin{sphinxVerbatim}[commandchars=\\\{\}]
+\PYG{g+gp}{\PYGZgt{}\PYGZgt{}\PYGZgt{} }\PYG{k+kn}{from} \PYG{n+nn}{pyspark}\PYG{n+nn}{.}\PYG{n+nn}{sql} \PYG{k+kn}{import} \PYG{n}{Row}
+\PYG{g+gp}{\PYGZgt{}\PYGZgt{}\PYGZgt{} }\PYG{k+kn}{from} \PYG{n+nn}{spooq2}\PYG{n+nn}{.}\PYG{n+nn}{transformer} \PYG{k+kn}{import} \PYG{n}{Mapper}
+\PYG{g+go}{\PYGZgt{}\PYGZgt{}\PYGZgt{}}
+\PYG{g+gp}{\PYGZgt{}\PYGZgt{}\PYGZgt{} }\PYG{n}{input\PYGZus{}df} \PYG{o}{=} \PYG{n}{spark}\PYG{o}{.}\PYG{n}{createDataFrame}\PYG{p}{(}
+\PYG{g+gp}{\PYGZgt{}\PYGZgt{}\PYGZgt{} }    \PYG{p}{[}\PYG{n}{Row}\PYG{p}{(}\PYG{n}{size\PYGZus{}in\PYGZus{}m}\PYG{o}{=}\PYG{l+m+mf}{1.80}\PYG{p}{)}\PYG{p}{,}
+\PYG{g+gp}{\PYGZgt{}\PYGZgt{}\PYGZgt{} }     \PYG{n}{Row}\PYG{p}{(}\PYG{n}{size\PYGZus{}in\PYGZus{}m}\PYG{o}{=}\PYG{l+m+mf}{1.65}\PYG{p}{)}\PYG{p}{,}
+\PYG{g+gp}{\PYGZgt{}\PYGZgt{}\PYGZgt{} }     \PYG{n}{Row}\PYG{p}{(}\PYG{n}{size\PYGZus{}in\PYGZus{}m}\PYG{o}{=}\PYG{l+m+mf}{2.05}\PYG{p}{)}\PYG{p}{]}
+\PYG{g+gp}{\PYGZgt{}\PYGZgt{}\PYGZgt{} }\PYG{p}{)}
+\PYG{g+go}{\PYGZgt{}\PYGZgt{}\PYGZgt{}}
+\PYG{g+gp}{\PYGZgt{}\PYGZgt{}\PYGZgt{} }\PYG{n}{mapping} \PYG{o}{=} \PYG{p}{[}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}}\PYG{l+s+s2}{size\PYGZus{}in\PYGZus{}cm}\PYG{l+s+s2}{\PYGZdq{}}\PYG{p}{,} \PYG{l+s+s2}{\PYGZdq{}}\PYG{l+s+s2}{size\PYGZus{}in\PYGZus{}m}\PYG{l+s+s2}{\PYGZdq{}}\PYG{p}{,} \PYG{l+s+s2}{\PYGZdq{}}\PYG{l+s+s2}{meters\PYGZus{}to\PYGZus{}cm}\PYG{l+s+s2}{\PYGZdq{}}\PYG{p}{)}\PYG{p}{]}
+\PYG{g+gp}{\PYGZgt{}\PYGZgt{}\PYGZgt{} }\PYG{n}{output\PYGZus{}df} \PYG{o}{=} \PYG{n}{Mapper}\PYG{p}{(}\PYG{n}{mapping}\PYG{p}{)}\PYG{o}{.}\PYG{n}{transform}\PYG{p}{(}\PYG{n}{input\PYGZus{}df}\PYG{p}{)}
+\PYG{g+gp}{\PYGZgt{}\PYGZgt{}\PYGZgt{} }\PYG{n}{output\PYGZus{}df}\PYG{o}{.}\PYG{n}{head}\PYG{p}{(}\PYG{l+m+mi}{3}\PYG{p}{)}
+\PYG{g+go}{[Row(size\PYGZus{}in\PYGZus{}cm=180),}
+\PYG{g+go}{ Row(size\PYGZus{}in\PYGZus{}cm=165),}
+\PYG{g+go}{ Row(size\PYGZus{}in\PYGZus{}cm=205)]}
+\end{sphinxVerbatim}
+
+\end{fulllineitems}
+
+\index{\_generate\_select\_expression\_for\_unix\_timestamp\_ms\_to\_spark\_timestamp() (in module spooq2.transformer.mapper\_custom\_data\_types)@\spxentry{\_generate\_select\_expression\_for\_unix\_timestamp\_ms\_to\_spark\_timestamp()}\spxextra{in module spooq2.transformer.mapper\_custom\_data\_types}}
+
+\begin{fulllineitems}
+\phantomsection\label{\detokenize{transformer/mapper:spooq2.transformer.mapper_custom_data_types._generate_select_expression_for_unix_timestamp_ms_to_spark_timestamp}}\pysiglinewithargsret{\sphinxbfcode{\sphinxupquote{\_generate\_select\_expression\_for\_unix\_timestamp\_ms\_to\_spark\_timestamp}}}{\emph{source\_column}, \emph{name}}{}
+Convert unix timestamps in milliseconds to a Spark TimeStampType. It is assumed that the
+timezone is already set to UTC in spark / java to avoid implicit timezone conversions.
+\subsubsection*{Example}
+
+\begin{sphinxVerbatim}[commandchars=\\\{\}]
+\PYG{g+gp}{\PYGZgt{}\PYGZgt{}\PYGZgt{} }\PYG{k+kn}{from} \PYG{n+nn}{pyspark}\PYG{n+nn}{.}\PYG{n+nn}{sql} \PYG{k+kn}{import} \PYG{n}{Row}
+\PYG{g+gp}{\PYGZgt{}\PYGZgt{}\PYGZgt{} }\PYG{k+kn}{from} \PYG{n+nn}{spooq2}\PYG{n+nn}{.}\PYG{n+nn}{transformer} \PYG{k+kn}{import} \PYG{n}{Mapper}
+\PYG{g+go}{\PYGZgt{}\PYGZgt{}\PYGZgt{}}
+\PYG{g+gp}{\PYGZgt{}\PYGZgt{}\PYGZgt{} }\PYG{n}{input\PYGZus{}df} \PYG{o}{=} \PYG{n}{spark}\PYG{o}{.}\PYG{n}{createDataFrame}\PYG{p}{(}
+\PYG{g+gp}{\PYGZgt{}\PYGZgt{}\PYGZgt{} }    \PYG{p}{[}\PYG{n}{Row}\PYG{p}{(}\PYG{n}{unix\PYGZus{}timestamp\PYGZus{}in\PYGZus{}ms}\PYG{o}{=}\PYG{l+m+mi}{1591627696951}\PYG{p}{)}\PYG{p}{,}
+\PYG{g+gp}{\PYGZgt{}\PYGZgt{}\PYGZgt{} }     \PYG{n}{Row}\PYG{p}{(}\PYG{n}{unix\PYGZus{}timestamp\PYGZus{}in\PYGZus{}ms}\PYG{o}{=}\PYG{l+m+mi}{1596812952000}\PYG{p}{)}\PYG{p}{,}
+\PYG{g+gp}{\PYGZgt{}\PYGZgt{}\PYGZgt{} }     \PYG{n}{Row}\PYG{p}{(}\PYG{n}{unix\PYGZus{}timestamp\PYGZus{}in\PYGZus{}ms}\PYG{o}{=}\PYG{l+m+mi}{946672200000}\PYG{p}{)}\PYG{p}{]}
+\PYG{g+gp}{\PYGZgt{}\PYGZgt{}\PYGZgt{} }\PYG{p}{)}
+\PYG{g+go}{\PYGZgt{}\PYGZgt{}\PYGZgt{}}
+\PYG{g+gp}{\PYGZgt{}\PYGZgt{}\PYGZgt{} }\PYG{n}{mapping} \PYG{o}{=} \PYG{p}{[}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}}\PYG{l+s+s2}{spark\PYGZus{}timestamp}\PYG{l+s+s2}{\PYGZdq{}}\PYG{p}{,} \PYG{l+s+s2}{\PYGZdq{}}\PYG{l+s+s2}{unix\PYGZus{}timestamp\PYGZus{}in\PYGZus{}ms}\PYG{l+s+s2}{\PYGZdq{}}\PYG{p}{,} \PYG{l+s+s2}{\PYGZdq{}}\PYG{l+s+s2}{unix\PYGZus{}timestamp\PYGZus{}ms\PYGZus{}to\PYGZus{}spark\PYGZus{}timestamp}\PYG{l+s+s2}{\PYGZdq{}}\PYG{p}{)}\PYG{p}{]}
+\PYG{g+gp}{\PYGZgt{}\PYGZgt{}\PYGZgt{} }\PYG{n}{output\PYGZus{}df} \PYG{o}{=} \PYG{n}{Mapper}\PYG{p}{(}\PYG{n}{mapping}\PYG{p}{)}\PYG{o}{.}\PYG{n}{transform}\PYG{p}{(}\PYG{n}{input\PYGZus{}df}\PYG{p}{)}
+\PYG{g+gp}{\PYGZgt{}\PYGZgt{}\PYGZgt{} }\PYG{n}{output\PYGZus{}df}\PYG{o}{.}\PYG{n}{head}\PYG{p}{(}\PYG{l+m+mi}{3}\PYG{p}{)}
+\PYG{g+go}{[Row(spark\PYGZus{}timestamp=datetime.datetime(2020, 6, 8, 16, 48, 16, 951000)),}
+\PYG{g+go}{ Row(spark\PYGZus{}timestamp=datetime.datetime(2020, 8, 7, 17, 9, 12)),}
+\PYG{g+go}{ Row(spark\PYGZus{}timestamp=datetime.datetime(1999, 12, 31, 21, 30))]}
+\end{sphinxVerbatim}
+
+\end{fulllineitems}
+
+\index{\_generate\_select\_expression\_for\_extended\_string\_to\_int() (in module spooq2.transformer.mapper\_custom\_data\_types)@\spxentry{\_generate\_select\_expression\_for\_extended\_string\_to\_int()}\spxextra{in module spooq2.transformer.mapper\_custom\_data\_types}}
+
+\begin{fulllineitems}
+\phantomsection\label{\detokenize{transformer/mapper:spooq2.transformer.mapper_custom_data_types._generate_select_expression_for_extended_string_to_int}}\pysiglinewithargsret{\sphinxbfcode{\sphinxupquote{\_generate\_select\_expression\_for\_extended\_string\_to\_int}}}{\emph{source\_column}, \emph{name}}{}
+More robust conversion from StringType to IntegerType.
+Is able to additionally handle (compared to implicit Spark conversion):
+\begin{itemize}
+\item {} 
+Preceding whitespace
+
+\item {} 
+Trailing whitespace
+
+\item {} 
+Preceeding and trailing whitespace
+
+\item {} 
+underscores as thousand separators
+
+\end{itemize}
+
+\begin{sphinxadmonition}{hint}{Hint:}
+Please have a look at the tests to get a better feeling how it behaves under
+tests/unit/transformer/test\_mapper\_custom\_data\_types.py::TestConversionsFromString
+\end{sphinxadmonition}
+\subsubsection*{Example}
+
+\begin{sphinxVerbatim}[commandchars=\\\{\}]
+\PYG{g+gp}{\PYGZgt{}\PYGZgt{}\PYGZgt{} }\PYG{k+kn}{from} \PYG{n+nn}{spooq2}\PYG{n+nn}{.}\PYG{n+nn}{transformer} \PYG{k+kn}{import} \PYG{n}{Mapper}
+\PYG{g+go}{\PYGZgt{}\PYGZgt{}\PYGZgt{}}
+\PYG{g+gp}{\PYGZgt{}\PYGZgt{}\PYGZgt{} }\PYG{n}{input\PYGZus{}df}\PYG{o}{.}\PYG{n}{head}\PYG{p}{(}\PYG{l+m+mi}{3}\PYG{p}{)}
+\PYG{g+go}{[Row(input\PYGZus{}string=\PYGZdq{}  123456 \PYGZdq{}),}
+\PYG{g+go}{ Row(input\PYGZus{}string=\PYGZdq{}Hello\PYGZdq{}),}
+\PYG{g+go}{ Row(input\PYGZus{}string=\PYGZdq{}123\PYGZus{}456\PYGZdq{})]}
+\PYG{g+gp}{\PYGZgt{}\PYGZgt{}\PYGZgt{} }\PYG{n}{mapping} \PYG{o}{=} \PYG{p}{[}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}}\PYG{l+s+s2}{output\PYGZus{}value}\PYG{l+s+s2}{\PYGZdq{}}\PYG{p}{,} \PYG{l+s+s2}{\PYGZdq{}}\PYG{l+s+s2}{input\PYGZus{}string}\PYG{l+s+s2}{\PYGZdq{}}\PYG{p}{,} \PYG{l+s+s2}{\PYGZdq{}}\PYG{l+s+s2}{extended\PYGZus{}string\PYGZus{}to\PYGZus{}int}\PYG{l+s+s2}{\PYGZdq{}}\PYG{p}{)}\PYG{p}{]}
+\PYG{g+gp}{\PYGZgt{}\PYGZgt{}\PYGZgt{} }\PYG{n}{output\PYGZus{}df} \PYG{o}{=} \PYG{n}{Mapper}\PYG{p}{(}\PYG{n}{mapping}\PYG{p}{)}\PYG{o}{.}\PYG{n}{transform}\PYG{p}{(}\PYG{n}{input\PYGZus{}df}\PYG{p}{)}
+\PYG{g+gp}{\PYGZgt{}\PYGZgt{}\PYGZgt{} }\PYG{n}{output\PYGZus{}df}\PYG{o}{.}\PYG{n}{head}\PYG{p}{(}\PYG{l+m+mi}{3}\PYG{p}{)}
+\PYG{g+go}{[Row(input\PYGZus{}string=123456),}
+\PYG{g+go}{ Row(input\PYGZus{}string=None),}
+\PYG{g+go}{ Row(input\PYGZus{}string=123456)]}
+\end{sphinxVerbatim}
+
+\end{fulllineitems}
+
+\index{\_generate\_select\_expression\_for\_extended\_string\_to\_long() (in module spooq2.transformer.mapper\_custom\_data\_types)@\spxentry{\_generate\_select\_expression\_for\_extended\_string\_to\_long()}\spxextra{in module spooq2.transformer.mapper\_custom\_data\_types}}
+
+\begin{fulllineitems}
+\phantomsection\label{\detokenize{transformer/mapper:spooq2.transformer.mapper_custom_data_types._generate_select_expression_for_extended_string_to_long}}\pysiglinewithargsret{\sphinxbfcode{\sphinxupquote{\_generate\_select\_expression\_for\_extended\_string\_to\_long}}}{\emph{source\_column}, \emph{name}}{}
+More robust conversion from StringType to LongType.
+Is able to additionally handle (compared to implicit Spark conversion):
+\begin{itemize}
+\item {} 
+Preceding whitespace
+
+\item {} 
+Trailing whitespace
+
+\item {} 
+Preceeding and trailing whitespace
+
+\item {} 
+underscores as thousand separators
+
+\end{itemize}
+
+\begin{sphinxadmonition}{hint}{Hint:}
+Please have a look at the tests to get a better feeling how it behaves under
+tests/unit/transformer/test\_mapper\_custom\_data\_types.py::TestConversionsFromString
+\end{sphinxadmonition}
+\subsubsection*{Example}
+
+\begin{sphinxVerbatim}[commandchars=\\\{\}]
+\PYG{g+gp}{\PYGZgt{}\PYGZgt{}\PYGZgt{} }\PYG{k+kn}{from} \PYG{n+nn}{spooq2}\PYG{n+nn}{.}\PYG{n+nn}{transformer} \PYG{k+kn}{import} \PYG{n}{Mapper}
+\PYG{g+go}{\PYGZgt{}\PYGZgt{}\PYGZgt{}}
+\PYG{g+gp}{\PYGZgt{}\PYGZgt{}\PYGZgt{} }\PYG{n}{input\PYGZus{}df}\PYG{o}{.}\PYG{n}{head}\PYG{p}{(}\PYG{l+m+mi}{3}\PYG{p}{)}
+\PYG{g+go}{[Row(input\PYGZus{}string=\PYGZdq{}  21474836470 \PYGZdq{}),}
+\PYG{g+go}{ Row(input\PYGZus{}string=\PYGZdq{}Hello\PYGZdq{}),}
+\PYG{g+go}{ Row(input\PYGZus{}string=\PYGZdq{}21\PYGZus{}474\PYGZus{}836\PYGZus{}470\PYGZdq{})]}
+\PYG{g+gp}{\PYGZgt{}\PYGZgt{}\PYGZgt{} }\PYG{n}{mapping} \PYG{o}{=} \PYG{p}{[}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}}\PYG{l+s+s2}{output\PYGZus{}value}\PYG{l+s+s2}{\PYGZdq{}}\PYG{p}{,} \PYG{l+s+s2}{\PYGZdq{}}\PYG{l+s+s2}{input\PYGZus{}string}\PYG{l+s+s2}{\PYGZdq{}}\PYG{p}{,} \PYG{l+s+s2}{\PYGZdq{}}\PYG{l+s+s2}{extended\PYGZus{}string\PYGZus{}to\PYGZus{}long}\PYG{l+s+s2}{\PYGZdq{}}\PYG{p}{)}\PYG{p}{]}
+\PYG{g+gp}{\PYGZgt{}\PYGZgt{}\PYGZgt{} }\PYG{n}{output\PYGZus{}df} \PYG{o}{=} \PYG{n}{Mapper}\PYG{p}{(}\PYG{n}{mapping}\PYG{p}{)}\PYG{o}{.}\PYG{n}{transform}\PYG{p}{(}\PYG{n}{input\PYGZus{}df}\PYG{p}{)}
+\PYG{g+gp}{\PYGZgt{}\PYGZgt{}\PYGZgt{} }\PYG{n}{output\PYGZus{}df}\PYG{o}{.}\PYG{n}{head}\PYG{p}{(}\PYG{l+m+mi}{3}\PYG{p}{)}
+\PYG{g+go}{[Row(input\PYGZus{}string=21474836470),}
+\PYG{g+go}{ Row(input\PYGZus{}string=None),}
+\PYG{g+go}{ Row(input\PYGZus{}string=21474836470)]}
+\end{sphinxVerbatim}
+
+\end{fulllineitems}
+
+\index{\_generate\_select\_expression\_for\_extended\_string\_to\_float() (in module spooq2.transformer.mapper\_custom\_data\_types)@\spxentry{\_generate\_select\_expression\_for\_extended\_string\_to\_float()}\spxextra{in module spooq2.transformer.mapper\_custom\_data\_types}}
+
+\begin{fulllineitems}
+\phantomsection\label{\detokenize{transformer/mapper:spooq2.transformer.mapper_custom_data_types._generate_select_expression_for_extended_string_to_float}}\pysiglinewithargsret{\sphinxbfcode{\sphinxupquote{\_generate\_select\_expression\_for\_extended\_string\_to\_float}}}{\emph{source\_column}, \emph{name}}{}
+More robust conversion from StringType to FloatType.
+Is able to additionally handle (compared to implicit Spark conversion):
+\begin{itemize}
+\item {} 
+Preceding whitespace
+
+\item {} 
+Trailing whitespace
+
+\item {} 
+Preceeding and trailing whitespace
+
+\item {} 
+underscores as thousand separators
+
+\end{itemize}
+
+\begin{sphinxadmonition}{hint}{Hint:}
+Please have a look at the tests to get a better feeling how it behaves under
+tests/unit/transformer/test\_mapper\_custom\_data\_types.py::TestConversionsFromString
+\end{sphinxadmonition}
+\subsubsection*{Example}
+
+\begin{sphinxVerbatim}[commandchars=\\\{\}]
+\PYG{g+gp}{\PYGZgt{}\PYGZgt{}\PYGZgt{} }\PYG{k+kn}{from} \PYG{n+nn}{spooq2}\PYG{n+nn}{.}\PYG{n+nn}{transformer} \PYG{k+kn}{import} \PYG{n}{Mapper}
+\PYG{g+go}{\PYGZgt{}\PYGZgt{}\PYGZgt{}}
+\PYG{g+gp}{\PYGZgt{}\PYGZgt{}\PYGZgt{} }\PYG{n}{input\PYGZus{}df}\PYG{o}{.}\PYG{n}{head}\PYG{p}{(}\PYG{l+m+mi}{3}\PYG{p}{)}
+\PYG{g+go}{[Row(input\PYGZus{}string=\PYGZdq{}  836470.819 \PYGZdq{}),}
+\PYG{g+go}{ Row(input\PYGZus{}string=\PYGZdq{}Hello\PYGZdq{}),}
+\PYG{g+go}{ Row(input\PYGZus{}string=\PYGZdq{}836\PYGZus{}470.819\PYGZdq{})]}
+\PYG{g+gp}{\PYGZgt{}\PYGZgt{}\PYGZgt{} }\PYG{n}{mapping} \PYG{o}{=} \PYG{p}{[}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}}\PYG{l+s+s2}{output\PYGZus{}value}\PYG{l+s+s2}{\PYGZdq{}}\PYG{p}{,} \PYG{l+s+s2}{\PYGZdq{}}\PYG{l+s+s2}{input\PYGZus{}string}\PYG{l+s+s2}{\PYGZdq{}}\PYG{p}{,} \PYG{l+s+s2}{\PYGZdq{}}\PYG{l+s+s2}{extended\PYGZus{}string\PYGZus{}to\PYGZus{}float}\PYG{l+s+s2}{\PYGZdq{}}\PYG{p}{)}\PYG{p}{]}
+\PYG{g+gp}{\PYGZgt{}\PYGZgt{}\PYGZgt{} }\PYG{n}{output\PYGZus{}df} \PYG{o}{=} \PYG{n}{Mapper}\PYG{p}{(}\PYG{n}{mapping}\PYG{p}{)}\PYG{o}{.}\PYG{n}{transform}\PYG{p}{(}\PYG{n}{input\PYGZus{}df}\PYG{p}{)}
+\PYG{g+gp}{\PYGZgt{}\PYGZgt{}\PYGZgt{} }\PYG{n}{output\PYGZus{}df}\PYG{o}{.}\PYG{n}{head}\PYG{p}{(}\PYG{l+m+mi}{3}\PYG{p}{)}
+\PYG{g+go}{[Row(input\PYGZus{}string=836470.819),}
+\PYG{g+go}{ Row(input\PYGZus{}string=None),}
+\PYG{g+go}{ Row(input\PYGZus{}string=836470.819)]}
+\end{sphinxVerbatim}
+
+\end{fulllineitems}
+
+\index{\_generate\_select\_expression\_for\_extended\_string\_to\_double() (in module spooq2.transformer.mapper\_custom\_data\_types)@\spxentry{\_generate\_select\_expression\_for\_extended\_string\_to\_double()}\spxextra{in module spooq2.transformer.mapper\_custom\_data\_types}}
+
+\begin{fulllineitems}
+\phantomsection\label{\detokenize{transformer/mapper:spooq2.transformer.mapper_custom_data_types._generate_select_expression_for_extended_string_to_double}}\pysiglinewithargsret{\sphinxbfcode{\sphinxupquote{\_generate\_select\_expression\_for\_extended\_string\_to\_double}}}{\emph{source\_column}, \emph{name}}{}
+More robust conversion from StringType to DoubleType.
+Is able to additionally handle (compared to implicit Spark conversion):
+\begin{itemize}
+\item {} 
+Preceding whitespace
+
+\item {} 
+Trailing whitespace
+
+\item {} 
+Preceeding and trailing whitespace
+
+\item {} 
+underscores as thousand separators
+
+\end{itemize}
+
+\begin{sphinxadmonition}{hint}{Hint:}
+Please have a look at the tests to get a better feeling how it behaves under
+tests/unit/transformer/test\_mapper\_custom\_data\_types.py::TestConversionsFromString
+\end{sphinxadmonition}
+\subsubsection*{Example}
+
+\begin{sphinxVerbatim}[commandchars=\\\{\}]
+\PYG{g+gp}{\PYGZgt{}\PYGZgt{}\PYGZgt{} }\PYG{k+kn}{from} \PYG{n+nn}{spooq2}\PYG{n+nn}{.}\PYG{n+nn}{transformer} \PYG{k+kn}{import} \PYG{n}{Mapper}
+\PYG{g+go}{\PYGZgt{}\PYGZgt{}\PYGZgt{}}
+\PYG{g+gp}{\PYGZgt{}\PYGZgt{}\PYGZgt{} }\PYG{n}{input\PYGZus{}df}\PYG{o}{.}\PYG{n}{head}\PYG{p}{(}\PYG{l+m+mi}{3}\PYG{p}{)}
+\PYG{g+go}{[Row(input\PYGZus{}string=\PYGZdq{}  21474838464.70 \PYGZdq{}),}
+\PYG{g+go}{ Row(input\PYGZus{}string=\PYGZdq{}Hello\PYGZdq{}),}
+\PYG{g+go}{ Row(input\PYGZus{}string=\PYGZdq{}21\PYGZus{}474\PYGZus{}838\PYGZus{}464.70\PYGZdq{})]}
+\PYG{g+gp}{\PYGZgt{}\PYGZgt{}\PYGZgt{} }\PYG{n}{mapping} \PYG{o}{=} \PYG{p}{[}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}}\PYG{l+s+s2}{output\PYGZus{}value}\PYG{l+s+s2}{\PYGZdq{}}\PYG{p}{,} \PYG{l+s+s2}{\PYGZdq{}}\PYG{l+s+s2}{input\PYGZus{}string}\PYG{l+s+s2}{\PYGZdq{}}\PYG{p}{,} \PYG{l+s+s2}{\PYGZdq{}}\PYG{l+s+s2}{extended\PYGZus{}string\PYGZus{}to\PYGZus{}double}\PYG{l+s+s2}{\PYGZdq{}}\PYG{p}{)}\PYG{p}{]}
+\PYG{g+gp}{\PYGZgt{}\PYGZgt{}\PYGZgt{} }\PYG{n}{output\PYGZus{}df} \PYG{o}{=} \PYG{n}{Mapper}\PYG{p}{(}\PYG{n}{mapping}\PYG{p}{)}\PYG{o}{.}\PYG{n}{transform}\PYG{p}{(}\PYG{n}{input\PYGZus{}df}\PYG{p}{)}
+\PYG{g+gp}{\PYGZgt{}\PYGZgt{}\PYGZgt{} }\PYG{n}{output\PYGZus{}df}\PYG{o}{.}\PYG{n}{head}\PYG{p}{(}\PYG{l+m+mi}{3}\PYG{p}{)}
+\PYG{g+go}{[Row(input\PYGZus{}string=21474838464.7),}
+\PYG{g+go}{ Row(input\PYGZus{}string=None),}
+\PYG{g+go}{ Row(input\PYGZus{}string=21474838464.70)]}
+\end{sphinxVerbatim}
+
+\end{fulllineitems}
+
+\index{\_generate\_select\_expression\_for\_extended\_string\_to\_boolean() (in module spooq2.transformer.mapper\_custom\_data\_types)@\spxentry{\_generate\_select\_expression\_for\_extended\_string\_to\_boolean()}\spxextra{in module spooq2.transformer.mapper\_custom\_data\_types}}
+
+\begin{fulllineitems}
+\phantomsection\label{\detokenize{transformer/mapper:spooq2.transformer.mapper_custom_data_types._generate_select_expression_for_extended_string_to_boolean}}\pysiglinewithargsret{\sphinxbfcode{\sphinxupquote{\_generate\_select\_expression\_for\_extended\_string\_to\_boolean}}}{\emph{source\_column}, \emph{name}}{}
+More robust conversion from StringType to BooleanType.
+Is able to additionally handle (compared to implicit Spark conversion):
+\begin{itemize}
+\item {} 
+Preceding whitespace
+
+\item {} 
+Trailing whitespace
+
+\item {} 
+Preceeding and trailing whitespace
+
+\end{itemize}
+
+\begin{sphinxadmonition}{hint}{Hint:}
+Please have a look at the tests to get a better feeling how it behaves under
+tests/unit/transformer/test\_mapper\_custom\_data\_types.py::TestConversionsFromString
+\end{sphinxadmonition}
+\subsubsection*{Example}
+
+\begin{sphinxVerbatim}[commandchars=\\\{\}]
+\PYG{g+gp}{\PYGZgt{}\PYGZgt{}\PYGZgt{} }\PYG{k+kn}{from} \PYG{n+nn}{spooq2}\PYG{n+nn}{.}\PYG{n+nn}{transformer} \PYG{k+kn}{import} \PYG{n}{Mapper}
+\PYG{g+go}{\PYGZgt{}\PYGZgt{}\PYGZgt{}}
+\PYG{g+gp}{\PYGZgt{}\PYGZgt{}\PYGZgt{} }\PYG{n}{input\PYGZus{}df}\PYG{o}{.}\PYG{n}{head}\PYG{p}{(}\PYG{l+m+mi}{3}\PYG{p}{)}
+\PYG{g+go}{[Row(input\PYGZus{}string=\PYGZdq{}  true \PYGZdq{}),}
+\PYG{g+go}{ Row(input\PYGZus{}string=\PYGZdq{}0\PYGZdq{}),}
+\PYG{g+go}{ Row(input\PYGZus{}string=\PYGZdq{}y\PYGZdq{})]}
+\PYG{g+gp}{\PYGZgt{}\PYGZgt{}\PYGZgt{} }\PYG{n}{mapping} \PYG{o}{=} \PYG{p}{[}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}}\PYG{l+s+s2}{output\PYGZus{}value}\PYG{l+s+s2}{\PYGZdq{}}\PYG{p}{,} \PYG{l+s+s2}{\PYGZdq{}}\PYG{l+s+s2}{input\PYGZus{}string}\PYG{l+s+s2}{\PYGZdq{}}\PYG{p}{,} \PYG{l+s+s2}{\PYGZdq{}}\PYG{l+s+s2}{extended\PYGZus{}string\PYGZus{}to\PYGZus{}boolean}\PYG{l+s+s2}{\PYGZdq{}}\PYG{p}{)}\PYG{p}{]}
+\PYG{g+gp}{\PYGZgt{}\PYGZgt{}\PYGZgt{} }\PYG{n}{output\PYGZus{}df} \PYG{o}{=} \PYG{n}{Mapper}\PYG{p}{(}\PYG{n}{mapping}\PYG{p}{)}\PYG{o}{.}\PYG{n}{transform}\PYG{p}{(}\PYG{n}{input\PYGZus{}df}\PYG{p}{)}
+\PYG{g+gp}{\PYGZgt{}\PYGZgt{}\PYGZgt{} }\PYG{n}{output\PYGZus{}df}\PYG{o}{.}\PYG{n}{head}\PYG{p}{(}\PYG{l+m+mi}{3}\PYG{p}{)}
+\PYG{g+go}{[Row(input\PYGZus{}string=True),}
+\PYG{g+go}{ Row(input\PYGZus{}string=False),}
+\PYG{g+go}{ Row(input\PYGZus{}string=True)]}
+\end{sphinxVerbatim}
+
+\end{fulllineitems}
+
+\index{\_generate\_select\_expression\_for\_extended\_string\_to\_timestamp() (in module spooq2.transformer.mapper\_custom\_data\_types)@\spxentry{\_generate\_select\_expression\_for\_extended\_string\_to\_timestamp()}\spxextra{in module spooq2.transformer.mapper\_custom\_data\_types}}
+
+\begin{fulllineitems}
+\phantomsection\label{\detokenize{transformer/mapper:spooq2.transformer.mapper_custom_data_types._generate_select_expression_for_extended_string_to_timestamp}}\pysiglinewithargsret{\sphinxbfcode{\sphinxupquote{\_generate\_select\_expression\_for\_extended\_string\_to\_timestamp}}}{\emph{source\_column}, \emph{name}}{}
+More robust conversion from StringType to TimestampsType. It is assumed that the
+timezone is already set to UTC in spark / java to avoid implicit timezone conversions.
+Is able to additionally handle (compared to implicit Spark conversion):
+\begin{itemize}
+\item {} 
+Unix timestamps in seconds
+
+\item {} 
+Preceding whitespace
+
+\item {} 
+Trailing whitespace
+
+\item {} 
+Preceeding and trailing whitespace
+
+\end{itemize}
+
+\begin{sphinxadmonition}{hint}{Hint:}
+Please have a look at the tests to get a better feeling how it behaves under
+tests/unit/transformer/test\_mapper\_custom\_data\_types.py::TestConversionsFromString
+\end{sphinxadmonition}
+\subsubsection*{Example}
+
+\begin{sphinxVerbatim}[commandchars=\\\{\}]
+\PYG{g+gp}{\PYGZgt{}\PYGZgt{}\PYGZgt{} }\PYG{k+kn}{from} \PYG{n+nn}{spooq2}\PYG{n+nn}{.}\PYG{n+nn}{transformer} \PYG{k+kn}{import} \PYG{n}{Mapper}
+\PYG{g+go}{\PYGZgt{}\PYGZgt{}\PYGZgt{}}
+\PYG{g+gp}{\PYGZgt{}\PYGZgt{}\PYGZgt{} }\PYG{n}{input\PYGZus{}df}\PYG{o}{.}\PYG{n}{head}\PYG{p}{(}\PYG{l+m+mi}{3}\PYG{p}{)}
+\PYG{g+go}{[Row(input\PYGZus{}string=\PYGZdq{}2020\PYGZhy{}08\PYGZhy{}12T12:43:14+0000\PYGZdq{}),}
+\PYG{g+go}{ Row(input\PYGZus{}string=\PYGZdq{}1597069446\PYGZdq{}),}
+\PYG{g+go}{ Row(input\PYGZus{}string=\PYGZdq{}2020\PYGZhy{}08\PYGZhy{}12\PYGZdq{})]}
+\PYG{g+gp}{\PYGZgt{}\PYGZgt{}\PYGZgt{} }\PYG{n}{mapping} \PYG{o}{=} \PYG{p}{[}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}}\PYG{l+s+s2}{output\PYGZus{}value}\PYG{l+s+s2}{\PYGZdq{}}\PYG{p}{,} \PYG{l+s+s2}{\PYGZdq{}}\PYG{l+s+s2}{input\PYGZus{}string}\PYG{l+s+s2}{\PYGZdq{}}\PYG{p}{,} \PYG{l+s+s2}{\PYGZdq{}}\PYG{l+s+s2}{extended\PYGZus{}string\PYGZus{}to\PYGZus{}timestamp}\PYG{l+s+s2}{\PYGZdq{}}\PYG{p}{)}\PYG{p}{]}
+\PYG{g+gp}{\PYGZgt{}\PYGZgt{}\PYGZgt{} }\PYG{n}{output\PYGZus{}df} \PYG{o}{=} \PYG{n}{Mapper}\PYG{p}{(}\PYG{n}{mapping}\PYG{p}{)}\PYG{o}{.}\PYG{n}{transform}\PYG{p}{(}\PYG{n}{input\PYGZus{}df}\PYG{p}{)}
+\PYG{g+gp}{\PYGZgt{}\PYGZgt{}\PYGZgt{} }\PYG{n}{output\PYGZus{}df}\PYG{o}{.}\PYG{n}{head}\PYG{p}{(}\PYG{l+m+mi}{3}\PYG{p}{)}
+\PYG{g+go}{[Row(input\PYGZus{}string=datetime.datetime(2020, 8, 12, 12, 43, 14)),}
+\PYG{g+go}{ Row(input\PYGZus{}string=datetime.datetime(2020, 8, 10, 14, 24, 6)),}
+\PYG{g+go}{ Row(input\PYGZus{}string=datetime.datetime(2020, 8, 12, 0, 0, 0))]}
+\end{sphinxVerbatim}
+
+\end{fulllineitems}
+
 
 
 \subsection{Threshold-based Cleaner}
@@ -1679,13 +2011,13 @@ The transformed DataFrame
 \sphinxhref{https://spark.apache.org/docs/2.4.3/api/python/pyspark.sql.html\#pyspark.sql.DataFrame}{\sphinxcode{\sphinxupquote{pyspark.sql.DataFrame}}}
 
 \item[{Raises}] \leavevmode
-\sphinxcode{\sphinxupquote{exceptions.ValueError}} \textendash{} Threshold-based cleaning only supports Numeric Types!
-Column of name: \{col\_name\} and type of: \{col\_type\} was provided
+\sphinxcode{\sphinxupquote{exceptions.ValueError}} \textendash{} Threshold-based cleaning only supports Numeric, Date and Timestamp Types!
+Column with name: \{col\_name\} and type of: \{col\_type\} was provided
 
 \end{description}\end{quote}
 
 \begin{sphinxadmonition}{warning}{Warning:}
-Only numeric data types are supported!
+Only Numeric, TimestampType, and DateType data types are supported!
 \end{sphinxadmonition}
 \index{transform() (ThresholdCleaner method)@\spxentry{transform()}\spxextra{ThresholdCleaner method}}
 
@@ -3241,13 +3573,13 @@ That should be it!
 
 \section{Setup for Development, Testing, Documenting}
 \label{\detokenize{setup_development_testing:setup-for-development-testing-documenting}}\label{\detokenize{setup_development_testing:dev-setup}}\label{\detokenize{setup_development_testing::doc}}
-\sphinxstylestrong{Attention: The current version of Spooq is designed (and tested) only for Python 2.7 on ubuntu, manjaro linux and WSL2 (Windows Subsystem Linux).}
+\sphinxstylestrong{Attention: The current version of Spooq is designed (and tested) for Python 2.7/3.7/3.8 on ubuntu, manjaro linux and WSL2 (Windows Subsystem Linux).}
 
 
 \subsection{Prerequisites}
 \label{\detokenize{setup_development_testing:prerequisites}}\begin{itemize}
 \item {} 
-python 2.7
+python 2.7 or python 3.7/3.8
 
 \item {} 
 Java 8 (jdk8-openjdk)

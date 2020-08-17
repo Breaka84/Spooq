@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>spooq2.transformer.mapper &mdash; Spooq2 2.0.0b0 documentation</title>
+  <title>spooq2.transformer.mapper &mdash; Spooq2 2.1.0 documentation</title>
   
 
   
@@ -200,10 +200,14 @@
 <span class="sd">        clean, pivot, anonymize, ... the data itself. Please have a look at the</span>
 <span class="sd">        :py:mod:`spooq2.transformer.mapper_custom_data_types` module for more information.</span>
 
+<span class="sd">    ignore_missing_columns : :any:`bool`, Defaults to True</span>
+<span class="sd">        Specifies if the mapping transformation should raise an exception if a referenced input</span>
+<span class="sd">        column is missing in the provided DataFrame.</span>
+
 <span class="sd">    Note</span>
 <span class="sd">    ----</span>
 <span class="sd">    Let&#39;s talk about Mappings:</span>
-<span class="sd">    </span>
+
 <span class="sd">    The mapping should be a list of tuples which are containing all information per column.</span>
 
 <span class="sd">    * Column Name : :any:`str`</span>
@@ -216,9 +220,17 @@
 <span class="sd">    * DataType : :any:`str`</span>
 <span class="sd">        DataTypes can be types from :any:`pyspark.sql.types`, selected custom datatypes or</span>
 <span class="sd">        injected, ad-hoc custom datatypes.</span>
-<span class="sd">        The datatype will be interpreted as a PySpark built-in if it is a member of ``pyspark.sql.types``. </span>
+<span class="sd">        The datatype will be interpreted as a PySpark built-in if it is a member of ``pyspark.sql.types``.</span>
 <span class="sd">        If it is not an importable PySpark data type, a method to construct the statement will be</span>
 <span class="sd">        called by the data type&#39;s name.</span>
+
+<span class="sd">    Note</span>
+<span class="sd">    ----</span>
+<span class="sd">    The available input columns can vary from batch to batch if you use schema inference</span>
+<span class="sd">    (f.e. on json data) for the extraction. Ignoring missing columns on the input DataFrame is</span>
+<span class="sd">    highly encouraged in this case. Although, if you have tight control over the structure</span>
+<span class="sd">    of the extracted DataFrame, setting `ignore_missing_columns` to True is advised</span>
+<span class="sd">    as it can uncover typos and bugs.</span>
 
 <span class="sd">    Note</span>
 <span class="sd">    ----</span>
@@ -230,9 +242,10 @@
 <span class="sd">    Attention: Decimal is NOT SUPPORTED by Hive! Please use Double instead!</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mapping</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mapping</span><span class="p">,</span> <span class="n">ignore_missing_columns</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">Mapper</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">mapping</span> <span class="o">=</span> <span class="n">mapping</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ignore_missing_columns</span> <span class="o">=</span> <span class="n">ignore_missing_columns</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Mapping: </span><span class="si">{mp}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">mp</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mapping</span><span class="p">)))</span>
 
 <div class="viewcode-block" id="Mapper.transform"><a class="viewcode-back" href="../../../transformer/mapper.html#spooq2.transformer.mapper.Mapper.transform">[docs]</a>    <span class="k">def</span> <span class="nf">transform</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_df</span><span class="p">):</span>
@@ -256,10 +269,16 @@
                     <span class="n">source_column</span> <span class="o">=</span> <span class="n">source_column</span><span class="p">[</span><span class="n">path_segment</span><span class="p">]</span>
                     <span class="n">input_df</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">source_column</span><span class="p">)</span>
                 <span class="k">except</span> <span class="n">AnalysisException</span><span class="p">:</span>
-                    <span class="n">source_column</span> <span class="o">=</span> <span class="kc">None</span>
-                    <span class="n">source_column_is_missing</span> <span class="o">=</span> <span class="kc">True</span>
-                    <span class="k">break</span>
-            
+                    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ignore_missing_columns</span><span class="p">:</span>
+                        <span class="n">source_column</span> <span class="o">=</span> <span class="kc">None</span>
+                        <span class="n">source_column_is_missing</span> <span class="o">=</span> <span class="kc">True</span>
+                        <span class="k">break</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                            <span class="s2">&quot;Column: </span><span class="se">\&quot;</span><span class="si">{}</span><span class="se">\&quot;</span><span class="s2"> is missing in the input DataFrame &quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">path</span><span class="p">)</span> <span class="o">+</span>
+                            <span class="s2">&quot;but is referenced in the mapping by column: </span><span class="se">\&quot;</span><span class="si">{}</span><span class="se">\&quot;</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+                        <span class="p">)</span>
+
             <span class="k">del</span> <span class="n">path_segment</span><span class="p">,</span> <span class="n">path_segments</span>
 
             <span class="k">if</span> <span class="n">data_type_is_spark_builtin</span><span class="p">:</span>
@@ -283,7 +302,6 @@
                     <span class="p">)</span>
 
                 <span class="n">select_expressions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">select_expression</span><span class="p">)</span>
-
 
         <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
             <span class="s2">&quot;SQL Select-Expression for mapping: &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">select_expressions</span><span class="p">)</span>

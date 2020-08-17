@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Mapper &mdash; Spooq2 2.0.0b0 documentation</title>
+  <title>Mapper &mdash; Spooq2 2.1.0 documentation</title>
   
 
   
@@ -181,7 +181,7 @@
 <span id="class"></span><h2>Class<a class="headerlink" href="#module-spooq2.transformer.mapper" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="spooq2.transformer.mapper.Mapper">
-<em class="property">class </em><code class="descname">Mapper</code><span class="sig-paren">(</span><em>mapping</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/spooq2/transformer/mapper.html#Mapper"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spooq2.transformer.mapper.Mapper" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descname">Mapper</code><span class="sig-paren">(</span><em>mapping</em>, <em>ignore_missing_columns=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/spooq2/transformer/mapper.html#Mapper"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spooq2.transformer.mapper.Mapper" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="../base_classes/transformer.html#spooq2.transformer.transformer.Transformer" title="spooq2.transformer.transformer.Transformer"><code class="xref py py-class docutils literal notranslate"><span class="pre">spooq2.transformer.transformer.Transformer</span></code></a></p>
 <p>Constructs and applies a PySpark SQL expression, based on the provided mapping.</p>
 <p class="rubric">Examples</p>
@@ -210,11 +210,16 @@
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>mapping</strong> (<a class="reference external" href="https://docs.python.org/3.7/library/stdtypes.html#list" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a> of <a class="reference external" href="https://docs.python.org/3.7/library/stdtypes.html#tuple" title="(in Python v3.7)"><code class="xref any docutils literal notranslate"><span class="pre">tuple</span></code></a> containing three <a class="reference external" href="https://docs.python.org/3.7/library/stdtypes.html#str" title="(in Python v3.7)"><code class="xref any docutils literal notranslate"><span class="pre">str</span></code></a>) – This is the main parameter for this transformation. It essentially gives information
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>mapping</strong> (<a class="reference external" href="https://docs.python.org/3.7/library/stdtypes.html#list" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a> of <a class="reference external" href="https://docs.python.org/3.7/library/stdtypes.html#tuple" title="(in Python v3.7)"><code class="xref any docutils literal notranslate"><span class="pre">tuple</span></code></a> containing three <a class="reference external" href="https://docs.python.org/3.7/library/stdtypes.html#str" title="(in Python v3.7)"><code class="xref any docutils literal notranslate"><span class="pre">str</span></code></a>) – This is the main parameter for this transformation. It essentially gives information
 about the column names for the output DataFrame, the column names (paths)
 from the input DataFrame, and their data types. Custom data types are also supported, which can
 clean, pivot, anonymize, … the data itself. Please have a look at the
-<a class="reference internal" href="#module-spooq2.transformer.mapper_custom_data_types" title="spooq2.transformer.mapper_custom_data_types"><code class="xref py py-mod docutils literal notranslate"><span class="pre">spooq2.transformer.mapper_custom_data_types</span></code></a> module for more information.</td>
+<a class="reference internal" href="#module-spooq2.transformer.mapper_custom_data_types" title="spooq2.transformer.mapper_custom_data_types"><code class="xref py py-mod docutils literal notranslate"><span class="pre">spooq2.transformer.mapper_custom_data_types</span></code></a> module for more information.</li>
+<li><strong>ignore_missing_columns</strong> (<a class="reference external" href="https://docs.python.org/3.7/library/functions.html#bool" title="(in Python v3.7)"><code class="xref any docutils literal notranslate"><span class="pre">bool</span></code></a>, Defaults to True) – Specifies if the mapping transformation should raise an exception if a referenced input
+column is missing in the provided DataFrame.</li>
+</ul>
+</td>
 </tr>
 </tbody>
 </table>
@@ -249,6 +254,14 @@ called by the data type’s name.</p>
 </dl>
 </li>
 </ul>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">The available input columns can vary from batch to batch if you use schema inference
+(f.e. on json data) for the extraction. Ignoring missing columns on the input DataFrame is
+highly encouraged in this case. Although, if you have tight control over the structure
+of the extracted DataFrame, setting <cite>ignore_missing_columns</cite> to True is advised
+as it can uncover typos and bugs.</p>
 </div>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
@@ -739,6 +752,255 @@ The datetime value will be set to the first day of the month.</p>
 <span class="go">[Row(birthday=datetime.datetime(2019, 2, 1, 0, 0)),</span>
 <span class="go"> Row(birthday=None),</span>
 <span class="go"> Row(birthday=datetime.datetime(1988, 1, 1, 0, 0))]</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="spooq2.transformer.mapper_custom_data_types._generate_select_expression_for_meters_to_cm">
+<code class="descname">_generate_select_expression_for_meters_to_cm</code><span class="sig-paren">(</span><em>source_column</em>, <em>name</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/spooq2/transformer/mapper_custom_data_types.html#_generate_select_expression_for_meters_to_cm"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spooq2.transformer.mapper_custom_data_types._generate_select_expression_for_meters_to_cm" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert meters to cm and cast the result to an IntegerType.</p>
+<p class="rubric">Example</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pyspark.sql</span> <span class="kn">import</span> <span class="n">Row</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">spooq2.transformer</span> <span class="kn">import</span> <span class="n">Mapper</span>
+<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">input_df</span> <span class="o">=</span> <span class="n">spark</span><span class="o">.</span><span class="n">createDataFrame</span><span class="p">(</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="p">[</span><span class="n">Row</span><span class="p">(</span><span class="n">size_in_m</span><span class="o">=</span><span class="mf">1.80</span><span class="p">),</span>
+<span class="gp">&gt;&gt;&gt; </span>     <span class="n">Row</span><span class="p">(</span><span class="n">size_in_m</span><span class="o">=</span><span class="mf">1.65</span><span class="p">),</span>
+<span class="gp">&gt;&gt;&gt; </span>     <span class="n">Row</span><span class="p">(</span><span class="n">size_in_m</span><span class="o">=</span><span class="mf">2.05</span><span class="p">)]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="p">)</span>
+<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">mapping</span> <span class="o">=</span> <span class="p">[(</span><span class="s2">&quot;size_in_cm&quot;</span><span class="p">,</span> <span class="s2">&quot;size_in_m&quot;</span><span class="p">,</span> <span class="s2">&quot;meters_to_cm&quot;</span><span class="p">)]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">output_df</span> <span class="o">=</span> <span class="n">Mapper</span><span class="p">(</span><span class="n">mapping</span><span class="p">)</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">input_df</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">output_df</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="go">[Row(size_in_cm=180),</span>
+<span class="go"> Row(size_in_cm=165),</span>
+<span class="go"> Row(size_in_cm=205)]</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="spooq2.transformer.mapper_custom_data_types._generate_select_expression_for_unix_timestamp_ms_to_spark_timestamp">
+<code class="descname">_generate_select_expression_for_unix_timestamp_ms_to_spark_timestamp</code><span class="sig-paren">(</span><em>source_column</em>, <em>name</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/spooq2/transformer/mapper_custom_data_types.html#_generate_select_expression_for_unix_timestamp_ms_to_spark_timestamp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spooq2.transformer.mapper_custom_data_types._generate_select_expression_for_unix_timestamp_ms_to_spark_timestamp" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert unix timestamps in milliseconds to a Spark TimeStampType. It is assumed that the
+timezone is already set to UTC in spark / java to avoid implicit timezone conversions.</p>
+<p class="rubric">Example</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pyspark.sql</span> <span class="kn">import</span> <span class="n">Row</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">spooq2.transformer</span> <span class="kn">import</span> <span class="n">Mapper</span>
+<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">input_df</span> <span class="o">=</span> <span class="n">spark</span><span class="o">.</span><span class="n">createDataFrame</span><span class="p">(</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="p">[</span><span class="n">Row</span><span class="p">(</span><span class="n">unix_timestamp_in_ms</span><span class="o">=</span><span class="mi">1591627696951</span><span class="p">),</span>
+<span class="gp">&gt;&gt;&gt; </span>     <span class="n">Row</span><span class="p">(</span><span class="n">unix_timestamp_in_ms</span><span class="o">=</span><span class="mi">1596812952000</span><span class="p">),</span>
+<span class="gp">&gt;&gt;&gt; </span>     <span class="n">Row</span><span class="p">(</span><span class="n">unix_timestamp_in_ms</span><span class="o">=</span><span class="mi">946672200000</span><span class="p">)]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="p">)</span>
+<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">mapping</span> <span class="o">=</span> <span class="p">[(</span><span class="s2">&quot;spark_timestamp&quot;</span><span class="p">,</span> <span class="s2">&quot;unix_timestamp_in_ms&quot;</span><span class="p">,</span> <span class="s2">&quot;unix_timestamp_ms_to_spark_timestamp&quot;</span><span class="p">)]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">output_df</span> <span class="o">=</span> <span class="n">Mapper</span><span class="p">(</span><span class="n">mapping</span><span class="p">)</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">input_df</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">output_df</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="go">[Row(spark_timestamp=datetime.datetime(2020, 6, 8, 16, 48, 16, 951000)),</span>
+<span class="go"> Row(spark_timestamp=datetime.datetime(2020, 8, 7, 17, 9, 12)),</span>
+<span class="go"> Row(spark_timestamp=datetime.datetime(1999, 12, 31, 21, 30))]</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="spooq2.transformer.mapper_custom_data_types._generate_select_expression_for_extended_string_to_int">
+<code class="descname">_generate_select_expression_for_extended_string_to_int</code><span class="sig-paren">(</span><em>source_column</em>, <em>name</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/spooq2/transformer/mapper_custom_data_types.html#_generate_select_expression_for_extended_string_to_int"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spooq2.transformer.mapper_custom_data_types._generate_select_expression_for_extended_string_to_int" title="Permalink to this definition">¶</a></dt>
+<dd><p>More robust conversion from StringType to IntegerType.
+Is able to additionally handle (compared to implicit Spark conversion):</p>
+<blockquote>
+<div><ul class="simple">
+<li>Preceding whitespace</li>
+<li>Trailing whitespace</li>
+<li>Preceeding and trailing whitespace</li>
+<li>underscores as thousand separators</li>
+</ul>
+</div></blockquote>
+<div class="admonition hint">
+<p class="first admonition-title">Hint</p>
+<p class="last">Please have a look at the tests to get a better feeling how it behaves under
+tests/unit/transformer/test_mapper_custom_data_types.py::TestConversionsFromString</p>
+</div>
+<p class="rubric">Example</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">spooq2.transformer</span> <span class="kn">import</span> <span class="n">Mapper</span>
+<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">input_df</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="go">[Row(input_string=&quot;  123456 &quot;),</span>
+<span class="go"> Row(input_string=&quot;Hello&quot;),</span>
+<span class="go"> Row(input_string=&quot;123_456&quot;)]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">mapping</span> <span class="o">=</span> <span class="p">[(</span><span class="s2">&quot;output_value&quot;</span><span class="p">,</span> <span class="s2">&quot;input_string&quot;</span><span class="p">,</span> <span class="s2">&quot;extended_string_to_int&quot;</span><span class="p">)]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">output_df</span> <span class="o">=</span> <span class="n">Mapper</span><span class="p">(</span><span class="n">mapping</span><span class="p">)</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">input_df</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">output_df</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="go">[Row(input_string=123456),</span>
+<span class="go"> Row(input_string=None),</span>
+<span class="go"> Row(input_string=123456)]</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="spooq2.transformer.mapper_custom_data_types._generate_select_expression_for_extended_string_to_long">
+<code class="descname">_generate_select_expression_for_extended_string_to_long</code><span class="sig-paren">(</span><em>source_column</em>, <em>name</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/spooq2/transformer/mapper_custom_data_types.html#_generate_select_expression_for_extended_string_to_long"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spooq2.transformer.mapper_custom_data_types._generate_select_expression_for_extended_string_to_long" title="Permalink to this definition">¶</a></dt>
+<dd><p>More robust conversion from StringType to LongType.
+Is able to additionally handle (compared to implicit Spark conversion):</p>
+<ul class="simple">
+<li>Preceding whitespace</li>
+<li>Trailing whitespace</li>
+<li>Preceeding and trailing whitespace</li>
+<li>underscores as thousand separators</li>
+</ul>
+<div class="admonition hint">
+<p class="first admonition-title">Hint</p>
+<p class="last">Please have a look at the tests to get a better feeling how it behaves under
+tests/unit/transformer/test_mapper_custom_data_types.py::TestConversionsFromString</p>
+</div>
+<p class="rubric">Example</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">spooq2.transformer</span> <span class="kn">import</span> <span class="n">Mapper</span>
+<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">input_df</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="go">[Row(input_string=&quot;  21474836470 &quot;),</span>
+<span class="go"> Row(input_string=&quot;Hello&quot;),</span>
+<span class="go"> Row(input_string=&quot;21_474_836_470&quot;)]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">mapping</span> <span class="o">=</span> <span class="p">[(</span><span class="s2">&quot;output_value&quot;</span><span class="p">,</span> <span class="s2">&quot;input_string&quot;</span><span class="p">,</span> <span class="s2">&quot;extended_string_to_long&quot;</span><span class="p">)]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">output_df</span> <span class="o">=</span> <span class="n">Mapper</span><span class="p">(</span><span class="n">mapping</span><span class="p">)</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">input_df</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">output_df</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="go">[Row(input_string=21474836470),</span>
+<span class="go"> Row(input_string=None),</span>
+<span class="go"> Row(input_string=21474836470)]</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="spooq2.transformer.mapper_custom_data_types._generate_select_expression_for_extended_string_to_float">
+<code class="descname">_generate_select_expression_for_extended_string_to_float</code><span class="sig-paren">(</span><em>source_column</em>, <em>name</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/spooq2/transformer/mapper_custom_data_types.html#_generate_select_expression_for_extended_string_to_float"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spooq2.transformer.mapper_custom_data_types._generate_select_expression_for_extended_string_to_float" title="Permalink to this definition">¶</a></dt>
+<dd><p>More robust conversion from StringType to FloatType.
+Is able to additionally handle (compared to implicit Spark conversion):</p>
+<ul class="simple">
+<li>Preceding whitespace</li>
+<li>Trailing whitespace</li>
+<li>Preceeding and trailing whitespace</li>
+<li>underscores as thousand separators</li>
+</ul>
+<div class="admonition hint">
+<p class="first admonition-title">Hint</p>
+<p class="last">Please have a look at the tests to get a better feeling how it behaves under
+tests/unit/transformer/test_mapper_custom_data_types.py::TestConversionsFromString</p>
+</div>
+<p class="rubric">Example</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">spooq2.transformer</span> <span class="kn">import</span> <span class="n">Mapper</span>
+<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">input_df</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="go">[Row(input_string=&quot;  836470.819 &quot;),</span>
+<span class="go"> Row(input_string=&quot;Hello&quot;),</span>
+<span class="go"> Row(input_string=&quot;836_470.819&quot;)]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">mapping</span> <span class="o">=</span> <span class="p">[(</span><span class="s2">&quot;output_value&quot;</span><span class="p">,</span> <span class="s2">&quot;input_string&quot;</span><span class="p">,</span> <span class="s2">&quot;extended_string_to_float&quot;</span><span class="p">)]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">output_df</span> <span class="o">=</span> <span class="n">Mapper</span><span class="p">(</span><span class="n">mapping</span><span class="p">)</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">input_df</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">output_df</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="go">[Row(input_string=836470.819),</span>
+<span class="go"> Row(input_string=None),</span>
+<span class="go"> Row(input_string=836470.819)]</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="spooq2.transformer.mapper_custom_data_types._generate_select_expression_for_extended_string_to_double">
+<code class="descname">_generate_select_expression_for_extended_string_to_double</code><span class="sig-paren">(</span><em>source_column</em>, <em>name</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/spooq2/transformer/mapper_custom_data_types.html#_generate_select_expression_for_extended_string_to_double"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spooq2.transformer.mapper_custom_data_types._generate_select_expression_for_extended_string_to_double" title="Permalink to this definition">¶</a></dt>
+<dd><p>More robust conversion from StringType to DoubleType.
+Is able to additionally handle (compared to implicit Spark conversion):</p>
+<ul class="simple">
+<li>Preceding whitespace</li>
+<li>Trailing whitespace</li>
+<li>Preceeding and trailing whitespace</li>
+<li>underscores as thousand separators</li>
+</ul>
+<div class="admonition hint">
+<p class="first admonition-title">Hint</p>
+<p class="last">Please have a look at the tests to get a better feeling how it behaves under
+tests/unit/transformer/test_mapper_custom_data_types.py::TestConversionsFromString</p>
+</div>
+<p class="rubric">Example</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">spooq2.transformer</span> <span class="kn">import</span> <span class="n">Mapper</span>
+<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">input_df</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="go">[Row(input_string=&quot;  21474838464.70 &quot;),</span>
+<span class="go"> Row(input_string=&quot;Hello&quot;),</span>
+<span class="go"> Row(input_string=&quot;21_474_838_464.70&quot;)]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">mapping</span> <span class="o">=</span> <span class="p">[(</span><span class="s2">&quot;output_value&quot;</span><span class="p">,</span> <span class="s2">&quot;input_string&quot;</span><span class="p">,</span> <span class="s2">&quot;extended_string_to_double&quot;</span><span class="p">)]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">output_df</span> <span class="o">=</span> <span class="n">Mapper</span><span class="p">(</span><span class="n">mapping</span><span class="p">)</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">input_df</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">output_df</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="go">[Row(input_string=21474838464.7),</span>
+<span class="go"> Row(input_string=None),</span>
+<span class="go"> Row(input_string=21474838464.70)]</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="spooq2.transformer.mapper_custom_data_types._generate_select_expression_for_extended_string_to_boolean">
+<code class="descname">_generate_select_expression_for_extended_string_to_boolean</code><span class="sig-paren">(</span><em>source_column</em>, <em>name</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/spooq2/transformer/mapper_custom_data_types.html#_generate_select_expression_for_extended_string_to_boolean"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spooq2.transformer.mapper_custom_data_types._generate_select_expression_for_extended_string_to_boolean" title="Permalink to this definition">¶</a></dt>
+<dd><p>More robust conversion from StringType to BooleanType.
+Is able to additionally handle (compared to implicit Spark conversion):</p>
+<ul class="simple">
+<li>Preceding whitespace</li>
+<li>Trailing whitespace</li>
+<li>Preceeding and trailing whitespace</li>
+</ul>
+<div class="admonition hint">
+<p class="first admonition-title">Hint</p>
+<p class="last">Please have a look at the tests to get a better feeling how it behaves under
+tests/unit/transformer/test_mapper_custom_data_types.py::TestConversionsFromString</p>
+</div>
+<p class="rubric">Example</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">spooq2.transformer</span> <span class="kn">import</span> <span class="n">Mapper</span>
+<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">input_df</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="go">[Row(input_string=&quot;  true &quot;),</span>
+<span class="go"> Row(input_string=&quot;0&quot;),</span>
+<span class="go"> Row(input_string=&quot;y&quot;)]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">mapping</span> <span class="o">=</span> <span class="p">[(</span><span class="s2">&quot;output_value&quot;</span><span class="p">,</span> <span class="s2">&quot;input_string&quot;</span><span class="p">,</span> <span class="s2">&quot;extended_string_to_boolean&quot;</span><span class="p">)]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">output_df</span> <span class="o">=</span> <span class="n">Mapper</span><span class="p">(</span><span class="n">mapping</span><span class="p">)</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">input_df</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">output_df</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="go">[Row(input_string=True),</span>
+<span class="go"> Row(input_string=False),</span>
+<span class="go"> Row(input_string=True)]</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="spooq2.transformer.mapper_custom_data_types._generate_select_expression_for_extended_string_to_timestamp">
+<code class="descname">_generate_select_expression_for_extended_string_to_timestamp</code><span class="sig-paren">(</span><em>source_column</em>, <em>name</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/spooq2/transformer/mapper_custom_data_types.html#_generate_select_expression_for_extended_string_to_timestamp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spooq2.transformer.mapper_custom_data_types._generate_select_expression_for_extended_string_to_timestamp" title="Permalink to this definition">¶</a></dt>
+<dd><p>More robust conversion from StringType to TimestampsType. It is assumed that the
+timezone is already set to UTC in spark / java to avoid implicit timezone conversions.
+Is able to additionally handle (compared to implicit Spark conversion):</p>
+<ul class="simple">
+<li>Unix timestamps in seconds</li>
+<li>Preceding whitespace</li>
+<li>Trailing whitespace</li>
+<li>Preceeding and trailing whitespace</li>
+</ul>
+<div class="admonition hint">
+<p class="first admonition-title">Hint</p>
+<p class="last">Please have a look at the tests to get a better feeling how it behaves under
+tests/unit/transformer/test_mapper_custom_data_types.py::TestConversionsFromString</p>
+</div>
+<p class="rubric">Example</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">spooq2.transformer</span> <span class="kn">import</span> <span class="n">Mapper</span>
+<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">input_df</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="go">[Row(input_string=&quot;2020-08-12T12:43:14+0000&quot;),</span>
+<span class="go"> Row(input_string=&quot;1597069446&quot;),</span>
+<span class="go"> Row(input_string=&quot;2020-08-12&quot;)]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">mapping</span> <span class="o">=</span> <span class="p">[(</span><span class="s2">&quot;output_value&quot;</span><span class="p">,</span> <span class="s2">&quot;input_string&quot;</span><span class="p">,</span> <span class="s2">&quot;extended_string_to_timestamp&quot;</span><span class="p">)]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">output_df</span> <span class="o">=</span> <span class="n">Mapper</span><span class="p">(</span><span class="n">mapping</span><span class="p">)</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">input_df</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">output_df</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="go">[Row(input_string=datetime.datetime(2020, 8, 12, 12, 43, 14)),</span>
+<span class="go"> Row(input_string=datetime.datetime(2020, 8, 10, 14, 24, 6)),</span>
+<span class="go"> Row(input_string=datetime.datetime(2020, 8, 12, 0, 0, 0))]</span>
 </pre></div>
 </div>
 </dd></dl>

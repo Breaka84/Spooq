@@ -510,6 +510,57 @@ def _generate_select_expression_for_TimestampMonth(source_column, name):  # noqa
     return F.trunc(source_column, "month").cast(sql_types.TimestampType()).alias(name)
 
 
+def _generate_select_expression_for_meters_to_cm(source_column, name):
+    """
+    Convert meters to cm and cast the result to an IntegerType.
+
+    Example
+    -------
+    >>> from pyspark.sql import Row
+    >>> from spooq2.transformer import Mapper
+    >>>
+    >>> input_df = spark.createDataFrame(
+    >>>     [Row(size_in_m=1.80),
+    >>>      Row(size_in_m=1.65),
+    >>>      Row(size_in_m=2.05)]
+    >>> )
+    >>>
+    >>> mapping = [("size_in_cm", "size_in_m", "meters_to_cm")]
+    >>> output_df = Mapper(mapping).transform(input_df)
+    >>> output_df.head(3)
+    [Row(size_in_cm=180),
+     Row(size_in_cm=165),
+     Row(size_in_cm=205)]
+    """
+    return (source_column * 100).cast(sql_types.IntegerType()).alias(name)
+
+
+def _generate_select_expression_for_unix_timestamp_ms_to_spark_timestamp(source_column, name):
+    """
+    Convert unix timestamps in milliseconds to a Spark TimeStampType. It is assumed that the
+    timezone is already set to UTC in spark / java to avoid implicit timezone conversions.
+
+    Example
+    -------
+    >>> from pyspark.sql import Row
+    >>> from spooq2.transformer import Mapper
+    >>>
+    >>> input_df = spark.createDataFrame(
+    >>>     [Row(unix_timestamp_in_ms=1591627696951),
+    >>>      Row(unix_timestamp_in_ms=1596812952000),
+    >>>      Row(unix_timestamp_in_ms=946672200000)]
+    >>> )
+    >>>
+    >>> mapping = [("spark_timestamp", "unix_timestamp_in_ms", "unix_timestamp_ms_to_spark_timestamp")]
+    >>> output_df = Mapper(mapping).transform(input_df)
+    >>> output_df.head(3)
+    [Row(spark_timestamp=datetime.datetime(2020, 6, 8, 16, 48, 16, 951000)),
+     Row(spark_timestamp=datetime.datetime(2020, 8, 7, 17, 9, 12)),
+     Row(spark_timestamp=datetime.datetime(1999, 12, 31, 21, 30))]
+    """
+    return (source_column / 1000).cast(sql_types.TimestampType()).alias(name)
+
+
 def _generate_select_expression_for_extended_string_to_int(source_column, name):
     """
     More robust conversion from StringType to IntegerType.
@@ -674,10 +725,10 @@ def _generate_select_expression_for_extended_string_to_boolean(source_column, na
     return F.trim(source_column).cast(sql_types.BooleanType()).alias(name)
 
 
-
 def _generate_select_expression_for_extended_string_to_timestamp(source_column, name):
     """
-    More robust conversion from StringType to TimestampsType.
+    More robust conversion from StringType to TimestampsType. It is assumed that the
+    timezone is already set to UTC in spark / java to avoid implicit timezone conversions.
     Is able to additionally handle (compared to implicit Spark conversion):
 
     * Unix timestamps in seconds
@@ -695,15 +746,15 @@ def _generate_select_expression_for_extended_string_to_timestamp(source_column, 
     >>> from spooq2.transformer import Mapper
     >>>
     >>> input_df.head(3)
-    [Row(input_string="  true "),
-     Row(input_string="0"),
-     Row(input_string="y")]
-    >>> mapping = [("output_value", "input_string", "extended_string_to_boolean")]
+    [Row(input_string="2020-08-12T12:43:14+0000"),
+     Row(input_string="1597069446"),
+     Row(input_string="2020-08-12")]
+    >>> mapping = [("output_value", "input_string", "extended_string_to_timestamp")]
     >>> output_df = Mapper(mapping).transform(input_df)
     >>> output_df.head(3)
-    [Row(input_string=True),
-     Row(input_string=False),
-     Row(input_string=True)]
+    [Row(input_string=datetime.datetime(2020, 8, 12, 12, 43, 14)),
+     Row(input_string=datetime.datetime(2020, 8, 10, 14, 24, 6)),
+     Row(input_string=datetime.datetime(2020, 8, 12, 0, 0, 0))]
     """
     return (
         F.when(
@@ -711,3 +762,4 @@ def _generate_select_expression_for_extended_string_to_timestamp(source_column, 
             F.trim(source_column).cast(sql_types.LongType()).cast(sql_types.TimestampType())
         ).otherwise(F.trim(source_column).cast(sql_types.TimestampType())).alias(name)
     )
+

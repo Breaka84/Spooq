@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>spooq2.transformer.mapper_custom_data_types &mdash; Spooq2 2.0.0b0 documentation</title>
+  <title>spooq2.transformer.mapper_custom_data_types &mdash; Spooq2 2.1.0 documentation</title>
   
 
   
@@ -163,7 +163,7 @@
 <span class="sd">the :py:class:`~spooq2.transformer.mapper.Mapper` transformer.</span>
 <span class="sd">Please see that particular class on how to apply custom data types.</span>
 
-<span class="sd">For injecting your **own custom data types**, please have a visit to the </span>
+<span class="sd">For injecting your **own custom data types**, please have a visit to the</span>
 <span class="sd">:py:meth:`add_custom_data_type` method!</span>
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">division</span>
@@ -192,7 +192,7 @@
 <div class="viewcode-block" id="add_custom_data_type"><a class="viewcode-back" href="../../../transformer/mapper.html#spooq2.transformer.mapper_custom_data_types.add_custom_data_type">[docs]</a><span class="k">def</span> <span class="nf">add_custom_data_type</span><span class="p">(</span><span class="n">function_name</span><span class="p">,</span> <span class="n">func</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Registers a custom data type in runtime to be used with the :py:class:`~spooq2.transformer.mapper.Mapper` transformer.</span>
-<span class="sd">    </span>
+
 <span class="sd">    Example</span>
 <span class="sd">    -------</span>
 <span class="sd">    &gt;&gt;&gt; import spooq2.transformer.mapper_custom_data_types as custom_types</span>
@@ -227,13 +227,13 @@
 <span class="sd">    |       null|</span>
 <span class="sd">    |Hello World|</span>
 <span class="sd">    +-----------+</span>
-<span class="sd">    </span>
+
 <span class="sd">    &gt;&gt;&gt; def first_and_last_name(source_column, name):</span>
 <span class="sd">    &gt;&gt;&gt;     &quot;A PySpark SQL expression referencing multiple columns&quot;</span>
 <span class="sd">    &gt;&gt;&gt;     return F.concat_ws(&quot;_&quot;, source_column, F.col(&quot;attributes.last_name&quot;)).alias(name)</span>
-<span class="sd">    &gt;&gt;&gt; </span>
+<span class="sd">    &gt;&gt;&gt;</span>
 <span class="sd">    &gt;&gt;&gt; custom_types.add_custom_data_type(function_name=&quot;full_name&quot;, func=first_and_last_name)</span>
-<span class="sd">    &gt;&gt;&gt; </span>
+<span class="sd">    &gt;&gt;&gt;</span>
 <span class="sd">    &gt;&gt;&gt; transformer = T.Mapper(mapping=[</span>
 <span class="sd">    &gt;&gt;&gt;     (&quot;first_name&quot;, &quot;attributes.first_name&quot;, &quot;StringType&quot;),</span>
 <span class="sd">    &gt;&gt;&gt;     (&quot;last_name&quot;,  &quot;attributes.last_name&quot;,  &quot;StringType&quot;),</span>
@@ -244,25 +244,25 @@
 <span class="sd">    ----------</span>
 <span class="sd">    function_name: :any:`str`</span>
 <span class="sd">        The name of your custom data type</span>
-<span class="sd">    </span>
+
 <span class="sd">    func: compatible function</span>
 <span class="sd">        The PySpark dataframe function which will be called on a column, defined in the mapping</span>
 <span class="sd">        of the Mapper class.</span>
 <span class="sd">        Required input parameters are ``source_column`` and ``name``.</span>
 <span class="sd">        Please see the note about required input parameter of custom data types for more information!</span>
-<span class="sd">       </span>
+
 <span class="sd">    Note</span>
 <span class="sd">    ----</span>
 <span class="sd">    Required input parameter of custom data types:</span>
-<span class="sd">    </span>
-<span class="sd">    **source_column** (:py:class:`pyspark.sql.Column`) - This is where your logic will be applied. </span>
+
+<span class="sd">    **source_column** (:py:class:`pyspark.sql.Column`) - This is where your logic will be applied.</span>
 <span class="sd">      The mapper transformer takes care of calling this method with the right column so you can just</span>
 <span class="sd">      handle it like an object which you would get from ``df[&quot;some_attribute&quot;]``.</span>
-<span class="sd">      </span>
+
 <span class="sd">    **name** (:any:`str`) - The name how the resulting column will be named. Nested attributes are not</span>
 <span class="sd">      supported. The Mapper transformer takes care of calling this method with the right column name.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    
+
     <span class="k">if</span> <span class="ow">not</span> <span class="n">function_name</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;_generate_select_expression_for_&quot;</span><span class="p">):</span>
         <span class="n">function_name</span> <span class="o">=</span> <span class="s2">&quot;_generate_select_expression_for_&quot;</span> <span class="o">+</span> <span class="n">function_name</span>
     <span class="n">current_module</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">modules</span><span class="p">[</span><span class="vm">__name__</span><span class="p">]</span>
@@ -309,9 +309,9 @@
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Returns a column without casting. This is especially useful if you need to</span>
 <span class="sd">    keep a complex data type, like an array, list or a struct.</span>
-<span class="sd">    </span>
+
 <span class="sd">    &gt;&gt;&gt; from spooq2.transformer import Mapper</span>
-<span class="sd">    &gt;&gt;&gt; </span>
+<span class="sd">    &gt;&gt;&gt;</span>
 <span class="sd">    &gt;&gt;&gt; input_df.head(3)</span>
 <span class="sd">    [Row(friends=[Row(first_name=None, id=3993, last_name=None), Row(first_name=u&#39;Ru\xf2&#39;, id=17484, last_name=u&#39;Trank&#39;)]),</span>
 <span class="sd">     Row(friends=[]),</span>
@@ -333,11 +333,11 @@
 <span class="sd">    Returns a column as json compatible string.</span>
 <span class="sd">    Nested hierarchies are supported.</span>
 <span class="sd">    The unicode representation of a column will be returned if an error occurs.</span>
-<span class="sd">    </span>
+
 <span class="sd">    Example</span>
 <span class="sd">    -------</span>
 <span class="sd">    &gt;&gt;&gt; from spooq2.transformer import Mapper</span>
-<span class="sd">    &gt;&gt;&gt; </span>
+<span class="sd">    &gt;&gt;&gt;</span>
 <span class="sd">    &gt;&gt;&gt; input_df.head(3)</span>
 <span class="sd">    [Row(friends=[Row(first_name=None, id=3993, last_name=None), Row(first_name=u&#39;Ru\xf2&#39;, id=17484, last_name=u&#39;Trank&#39;)]),</span>
 <span class="sd">     Row(friends=[]),</span>
@@ -377,13 +377,13 @@
 <span class="sd">    -------</span>
 <span class="sd">    &gt;&gt;&gt; from pyspark.sql import Row</span>
 <span class="sd">    &gt;&gt;&gt; from spooq2.transformer import Mapper</span>
-<span class="sd">    &gt;&gt;&gt; </span>
+<span class="sd">    &gt;&gt;&gt;</span>
 <span class="sd">    &gt;&gt;&gt; input_df = spark.createDataFrame([</span>
 <span class="sd">    &gt;&gt;&gt;     Row(time_sec=1581540839000),  # 02/12/2020 @ 8:53pm (UTC)</span>
 <span class="sd">    &gt;&gt;&gt;     Row(time_sec=-4887839000),    # Invalid!</span>
 <span class="sd">    &gt;&gt;&gt;     Row(time_sec=4737139200000)   # 02/12/2120 @ 12:00am (UTC)</span>
 <span class="sd">    &gt;&gt;&gt; ])</span>
-<span class="sd">    &gt;&gt;&gt; </span>
+<span class="sd">    &gt;&gt;&gt;</span>
 <span class="sd">    &gt;&gt;&gt; mapping = [(&quot;unix_ts&quot;, &quot;time_sec&quot;, &quot;timestamp_ms_to_ms&quot;)]</span>
 <span class="sd">    &gt;&gt;&gt; output_df = Mapper(mapping).transform(input_df)</span>
 <span class="sd">    &gt;&gt;&gt; output_df.head(3)</span>
@@ -415,13 +415,13 @@
 <span class="sd">    -------</span>
 <span class="sd">    &gt;&gt;&gt; from pyspark.sql import Row</span>
 <span class="sd">    &gt;&gt;&gt; from spooq2.transformer import Mapper</span>
-<span class="sd">    &gt;&gt;&gt; </span>
+<span class="sd">    &gt;&gt;&gt;</span>
 <span class="sd">    &gt;&gt;&gt; input_df = spark.createDataFrame([</span>
 <span class="sd">    &gt;&gt;&gt;     Row(time_sec=1581540839000),  # 02/12/2020 @ 8:53pm (UTC)</span>
 <span class="sd">    &gt;&gt;&gt;     Row(time_sec=-4887839000),    # Invalid!</span>
 <span class="sd">    &gt;&gt;&gt;     Row(time_sec=4737139200000)   # 02/12/2120 @ 12:00am (UTC)</span>
 <span class="sd">    &gt;&gt;&gt; ])</span>
-<span class="sd">    &gt;&gt;&gt; </span>
+<span class="sd">    &gt;&gt;&gt;</span>
 <span class="sd">    &gt;&gt;&gt; mapping = [(&quot;unix_ts&quot;, &quot;time_sec&quot;, &quot;timestamp_ms_to_s&quot;)]</span>
 <span class="sd">    &gt;&gt;&gt; output_df = Mapper(mapping).transform(input_df)</span>
 <span class="sd">    &gt;&gt;&gt; output_df.head(3)</span>
@@ -456,13 +456,13 @@
 <span class="sd">    -------</span>
 <span class="sd">    &gt;&gt;&gt; from pyspark.sql import Row</span>
 <span class="sd">    &gt;&gt;&gt; from spooq2.transformer import Mapper</span>
-<span class="sd">    &gt;&gt;&gt; </span>
+<span class="sd">    &gt;&gt;&gt;</span>
 <span class="sd">    &gt;&gt;&gt; input_df = spark.createDataFrame([</span>
 <span class="sd">    &gt;&gt;&gt;     Row(time_sec=1581540839),  # 02/12/2020 @ 8:53pm (UTC)</span>
 <span class="sd">    &gt;&gt;&gt;     Row(time_sec=-4887839),    # Invalid!</span>
 <span class="sd">    &gt;&gt;&gt;     Row(time_sec=4737139200)   # 02/12/2120 @ 12:00am (UTC)</span>
 <span class="sd">    &gt;&gt;&gt; ])</span>
-<span class="sd">    &gt;&gt;&gt; </span>
+<span class="sd">    &gt;&gt;&gt;</span>
 <span class="sd">    &gt;&gt;&gt; mapping = [(&quot;unix_ts&quot;, &quot;time_sec&quot;, &quot;timestamp_s_to_ms&quot;)]</span>
 <span class="sd">    &gt;&gt;&gt; output_df = Mapper(mapping).transform(input_df)</span>
 <span class="sd">    &gt;&gt;&gt; output_df.head(3)</span>
@@ -497,13 +497,13 @@
 <span class="sd">    -------</span>
 <span class="sd">    &gt;&gt;&gt; from pyspark.sql import Row</span>
 <span class="sd">    &gt;&gt;&gt; from spooq2.transformer import Mapper</span>
-<span class="sd">    &gt;&gt;&gt; </span>
+<span class="sd">    &gt;&gt;&gt;</span>
 <span class="sd">    &gt;&gt;&gt; input_df = spark.createDataFrame([</span>
 <span class="sd">    &gt;&gt;&gt;     Row(time_sec=1581540839),  # 02/12/2020 @ 8:53pm (UTC)</span>
 <span class="sd">    &gt;&gt;&gt;     Row(time_sec=-4887839),    # Invalid!</span>
 <span class="sd">    &gt;&gt;&gt;     Row(time_sec=4737139200)   # 02/12/2120 @ 12:00am (UTC)</span>
 <span class="sd">    &gt;&gt;&gt; ])</span>
-<span class="sd">    &gt;&gt;&gt; </span>
+<span class="sd">    &gt;&gt;&gt;</span>
 <span class="sd">    &gt;&gt;&gt; mapping = [(&quot;unix_ts&quot;, &quot;time_sec&quot;, &quot;timestamp_s_to_ms&quot;)]</span>
 <span class="sd">    &gt;&gt;&gt; output_df = Mapper(mapping).transform(input_df)</span>
 <span class="sd">    &gt;&gt;&gt; output_df.head(3)</span>
@@ -527,7 +527,7 @@
 <span class="sd">    Used for Anonymizing.</span>
 <span class="sd">    Input values will be ignored and replaced by NULL,</span>
 <span class="sd">    Cast to :any:`pyspark.sql.types.StringType`</span>
-<span class="sd">    </span>
+
 <span class="sd">    Example</span>
 <span class="sd">    -------</span>
 <span class="sd">    &gt;&gt;&gt; from pyspark.sql import Row</span>
@@ -538,7 +538,7 @@
 <span class="sd">    &gt;&gt;&gt;      Row(email=u&#39;&#39;),</span>
 <span class="sd">    &gt;&gt;&gt;      Row(email=u&#39;gisaksen4@skype.com&#39;)]</span>
 <span class="sd">    &gt;&gt;&gt; )</span>
-<span class="sd">    &gt;&gt;&gt; </span>
+<span class="sd">    &gt;&gt;&gt;</span>
 <span class="sd">    &gt;&gt;&gt; mapping = [(&quot;email&quot;, &quot;email&quot;, &quot;StringNull&quot;)]</span>
 <span class="sd">    &gt;&gt;&gt; output_df = Mapper(mapping).transform(input_df)</span>
 <span class="sd">    &gt;&gt;&gt; output_df.head(3)</span>
@@ -553,7 +553,7 @@
 <span class="sd">    Used for Anonymizing.</span>
 <span class="sd">    Input values will be ignored and replaced by NULL,</span>
 <span class="sd">    Cast to :any:`pyspark.sql.types.IntegerType`</span>
-<span class="sd">    </span>
+
 <span class="sd">    Example</span>
 <span class="sd">    -------</span>
 <span class="sd">    &gt;&gt;&gt; from pyspark.sql import Row</span>
@@ -564,7 +564,7 @@
 <span class="sd">    &gt;&gt;&gt;      Row(facebook_id=0),</span>
 <span class="sd">    &gt;&gt;&gt;      Row(facebook_id=57815)]</span>
 <span class="sd">    &gt;&gt;&gt; )</span>
-<span class="sd">    &gt;&gt;&gt; </span>
+<span class="sd">    &gt;&gt;&gt;</span>
 <span class="sd">    &gt;&gt;&gt; mapping = [(&quot;facebook_id&quot;, &quot;facebook_id&quot;, &quot;IntNull&quot;)]</span>
 <span class="sd">    &gt;&gt;&gt; output_df = Mapper(mapping).transform(input_df)</span>
 <span class="sd">    &gt;&gt;&gt; output_df.head(3)</span>
@@ -578,10 +578,10 @@
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Used for Anonymizing.</span>
 <span class="sd">    The column&#39;s value will be replaced by `&quot;1&quot;` if it is:</span>
-<span class="sd">        </span>
-<span class="sd">        * not NULL and </span>
+
+<span class="sd">        * not NULL and</span>
 <span class="sd">        * not an empty string</span>
-<span class="sd">    </span>
+
 <span class="sd">    Example</span>
 <span class="sd">    -------</span>
 <span class="sd">    &gt;&gt;&gt; from pyspark.sql import Row</span>
@@ -592,7 +592,7 @@
 <span class="sd">    &gt;&gt;&gt;      Row(email=u&#39;&#39;),</span>
 <span class="sd">    &gt;&gt;&gt;      Row(email=u&#39;gisaksen4@skype.com&#39;)]</span>
 <span class="sd">    &gt;&gt;&gt; )</span>
-<span class="sd">    &gt;&gt;&gt; </span>
+<span class="sd">    &gt;&gt;&gt;</span>
 <span class="sd">    &gt;&gt;&gt; mapping = [(&quot;email&quot;, &quot;email&quot;, &quot;StringBoolean&quot;)]</span>
 <span class="sd">    &gt;&gt;&gt; output_df = Mapper(mapping).transform(input_df)</span>
 <span class="sd">    &gt;&gt;&gt; output_df.head(3)</span>
@@ -611,7 +611,7 @@
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Used for Anonymizing.</span>
 <span class="sd">    The column&#39;s value will be replaced by `1` if it contains a non-NULL value.</span>
-<span class="sd">    </span>
+
 <span class="sd">    Example</span>
 <span class="sd">    -------</span>
 <span class="sd">    &gt;&gt;&gt; from pyspark.sql import Row</span>
@@ -622,12 +622,12 @@
 <span class="sd">    &gt;&gt;&gt;      Row(facebook_id=0),</span>
 <span class="sd">    &gt;&gt;&gt;      Row(facebook_id=None)]</span>
 <span class="sd">    &gt;&gt;&gt; )</span>
-<span class="sd">    &gt;&gt;&gt; </span>
+<span class="sd">    &gt;&gt;&gt;</span>
 <span class="sd">    &gt;&gt;&gt; mapping = [(&quot;facebook_id&quot;, &quot;facebook_id&quot;, &quot;IntBoolean&quot;)]</span>
 <span class="sd">    &gt;&gt;&gt; output_df = Mapper(mapping).transform(input_df)</span>
 <span class="sd">    &gt;&gt;&gt; output_df.head(3)</span>
 <span class="sd">    [Row(facebook_id=1), Row(facebook_id=1), Row(facebook_id=None)]</span>
-<span class="sd">    </span>
+
 <span class="sd">    Note</span>
 <span class="sd">    ----</span>
 <span class="sd">    `0` (zero) or negative numbers are still considered as valid values and therefore converted to `1`.</span>
@@ -645,7 +645,7 @@
 <span class="sd">    Used for Anonymizing. Can be used to keep the age but obscure the explicit birthday.</span>
 <span class="sd">    This custom datatype requires a :any:`pyspark.sql.types.TimestampType` column as input.</span>
 <span class="sd">    The datetime value will be set to the first day of the month.</span>
-<span class="sd">    </span>
+
 <span class="sd">    Example</span>
 <span class="sd">    -------</span>
 <span class="sd">    &gt;&gt;&gt; from pyspark.sql import Row</span>
@@ -657,7 +657,7 @@
 <span class="sd">    &gt;&gt;&gt;      Row(birthday=None),</span>
 <span class="sd">    &gt;&gt;&gt;      Row(birthday=datetime(1988, 1, 31, 8))]</span>
 <span class="sd">    &gt;&gt;&gt; )</span>
-<span class="sd">    &gt;&gt;&gt; </span>
+<span class="sd">    &gt;&gt;&gt;</span>
 <span class="sd">    &gt;&gt;&gt; mapping = [(&quot;birthday&quot;, &quot;birthday&quot;, &quot;TimestampMonth&quot;)]</span>
 <span class="sd">    &gt;&gt;&gt; output_df = Mapper(mapping).transform(input_df)</span>
 <span class="sd">    &gt;&gt;&gt; output_df.head(3)</span>
@@ -666,6 +666,261 @@
 <span class="sd">     Row(birthday=datetime.datetime(1988, 1, 1, 0, 0))]</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">F</span><span class="o">.</span><span class="n">trunc</span><span class="p">(</span><span class="n">source_column</span><span class="p">,</span> <span class="s2">&quot;month&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">sql_types</span><span class="o">.</span><span class="n">TimestampType</span><span class="p">())</span><span class="o">.</span><span class="n">alias</span><span class="p">(</span><span class="n">name</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="_generate_select_expression_for_meters_to_cm"><a class="viewcode-back" href="../../../transformer/mapper.html#spooq2.transformer.mapper_custom_data_types._generate_select_expression_for_meters_to_cm">[docs]</a><span class="k">def</span> <span class="nf">_generate_select_expression_for_meters_to_cm</span><span class="p">(</span><span class="n">source_column</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Convert meters to cm and cast the result to an IntegerType.</span>
+
+<span class="sd">    Example</span>
+<span class="sd">    -------</span>
+<span class="sd">    &gt;&gt;&gt; from pyspark.sql import Row</span>
+<span class="sd">    &gt;&gt;&gt; from spooq2.transformer import Mapper</span>
+<span class="sd">    &gt;&gt;&gt;</span>
+<span class="sd">    &gt;&gt;&gt; input_df = spark.createDataFrame(</span>
+<span class="sd">    &gt;&gt;&gt;     [Row(size_in_m=1.80),</span>
+<span class="sd">    &gt;&gt;&gt;      Row(size_in_m=1.65),</span>
+<span class="sd">    &gt;&gt;&gt;      Row(size_in_m=2.05)]</span>
+<span class="sd">    &gt;&gt;&gt; )</span>
+<span class="sd">    &gt;&gt;&gt;</span>
+<span class="sd">    &gt;&gt;&gt; mapping = [(&quot;size_in_cm&quot;, &quot;size_in_m&quot;, &quot;meters_to_cm&quot;)]</span>
+<span class="sd">    &gt;&gt;&gt; output_df = Mapper(mapping).transform(input_df)</span>
+<span class="sd">    &gt;&gt;&gt; output_df.head(3)</span>
+<span class="sd">    [Row(size_in_cm=180),</span>
+<span class="sd">     Row(size_in_cm=165),</span>
+<span class="sd">     Row(size_in_cm=205)]</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">source_column</span> <span class="o">*</span> <span class="mi">100</span><span class="p">)</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">sql_types</span><span class="o">.</span><span class="n">IntegerType</span><span class="p">())</span><span class="o">.</span><span class="n">alias</span><span class="p">(</span><span class="n">name</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="_generate_select_expression_for_unix_timestamp_ms_to_spark_timestamp"><a class="viewcode-back" href="../../../transformer/mapper.html#spooq2.transformer.mapper_custom_data_types._generate_select_expression_for_unix_timestamp_ms_to_spark_timestamp">[docs]</a><span class="k">def</span> <span class="nf">_generate_select_expression_for_unix_timestamp_ms_to_spark_timestamp</span><span class="p">(</span><span class="n">source_column</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Convert unix timestamps in milliseconds to a Spark TimeStampType. It is assumed that the</span>
+<span class="sd">    timezone is already set to UTC in spark / java to avoid implicit timezone conversions.</span>
+
+<span class="sd">    Example</span>
+<span class="sd">    -------</span>
+<span class="sd">    &gt;&gt;&gt; from pyspark.sql import Row</span>
+<span class="sd">    &gt;&gt;&gt; from spooq2.transformer import Mapper</span>
+<span class="sd">    &gt;&gt;&gt;</span>
+<span class="sd">    &gt;&gt;&gt; input_df = spark.createDataFrame(</span>
+<span class="sd">    &gt;&gt;&gt;     [Row(unix_timestamp_in_ms=1591627696951),</span>
+<span class="sd">    &gt;&gt;&gt;      Row(unix_timestamp_in_ms=1596812952000),</span>
+<span class="sd">    &gt;&gt;&gt;      Row(unix_timestamp_in_ms=946672200000)]</span>
+<span class="sd">    &gt;&gt;&gt; )</span>
+<span class="sd">    &gt;&gt;&gt;</span>
+<span class="sd">    &gt;&gt;&gt; mapping = [(&quot;spark_timestamp&quot;, &quot;unix_timestamp_in_ms&quot;, &quot;unix_timestamp_ms_to_spark_timestamp&quot;)]</span>
+<span class="sd">    &gt;&gt;&gt; output_df = Mapper(mapping).transform(input_df)</span>
+<span class="sd">    &gt;&gt;&gt; output_df.head(3)</span>
+<span class="sd">    [Row(spark_timestamp=datetime.datetime(2020, 6, 8, 16, 48, 16, 951000)),</span>
+<span class="sd">     Row(spark_timestamp=datetime.datetime(2020, 8, 7, 17, 9, 12)),</span>
+<span class="sd">     Row(spark_timestamp=datetime.datetime(1999, 12, 31, 21, 30))]</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">source_column</span> <span class="o">/</span> <span class="mi">1000</span><span class="p">)</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">sql_types</span><span class="o">.</span><span class="n">TimestampType</span><span class="p">())</span><span class="o">.</span><span class="n">alias</span><span class="p">(</span><span class="n">name</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="_generate_select_expression_for_extended_string_to_int"><a class="viewcode-back" href="../../../transformer/mapper.html#spooq2.transformer.mapper_custom_data_types._generate_select_expression_for_extended_string_to_int">[docs]</a><span class="k">def</span> <span class="nf">_generate_select_expression_for_extended_string_to_int</span><span class="p">(</span><span class="n">source_column</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    More robust conversion from StringType to IntegerType.</span>
+<span class="sd">    Is able to additionally handle (compared to implicit Spark conversion):</span>
+
+<span class="sd">        * Preceding whitespace</span>
+<span class="sd">        * Trailing whitespace</span>
+<span class="sd">        * Preceeding and trailing whitespace</span>
+<span class="sd">        * underscores as thousand separators</span>
+
+<span class="sd">    Hint</span>
+<span class="sd">    ---</span>
+<span class="sd">    Please have a look at the tests to get a better feeling how it behaves under</span>
+<span class="sd">    tests/unit/transformer/test_mapper_custom_data_types.py::TestConversionsFromString</span>
+
+<span class="sd">    Example</span>
+<span class="sd">    -------</span>
+<span class="sd">    &gt;&gt;&gt; from spooq2.transformer import Mapper</span>
+<span class="sd">    &gt;&gt;&gt;</span>
+<span class="sd">    &gt;&gt;&gt; input_df.head(3)</span>
+<span class="sd">    [Row(input_string=&quot;  123456 &quot;),</span>
+<span class="sd">     Row(input_string=&quot;Hello&quot;),</span>
+<span class="sd">     Row(input_string=&quot;123_456&quot;)]</span>
+<span class="sd">    &gt;&gt;&gt; mapping = [(&quot;output_value&quot;, &quot;input_string&quot;, &quot;extended_string_to_int&quot;)]</span>
+<span class="sd">    &gt;&gt;&gt; output_df = Mapper(mapping).transform(input_df)</span>
+<span class="sd">    &gt;&gt;&gt; output_df.head(3)</span>
+<span class="sd">    [Row(input_string=123456),</span>
+<span class="sd">     Row(input_string=None),</span>
+<span class="sd">     Row(input_string=123456)]</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">_generate_select_expression_for_extended_string_to_long</span><span class="p">(</span><span class="n">source_column</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">sql_types</span><span class="o">.</span><span class="n">IntegerType</span><span class="p">())</span></div>
+
+
+<div class="viewcode-block" id="_generate_select_expression_for_extended_string_to_long"><a class="viewcode-back" href="../../../transformer/mapper.html#spooq2.transformer.mapper_custom_data_types._generate_select_expression_for_extended_string_to_long">[docs]</a><span class="k">def</span> <span class="nf">_generate_select_expression_for_extended_string_to_long</span><span class="p">(</span><span class="n">source_column</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    More robust conversion from StringType to LongType.</span>
+<span class="sd">    Is able to additionally handle (compared to implicit Spark conversion):</span>
+
+<span class="sd">    * Preceding whitespace</span>
+<span class="sd">    * Trailing whitespace</span>
+<span class="sd">    * Preceeding and trailing whitespace</span>
+<span class="sd">    * underscores as thousand separators</span>
+
+<span class="sd">    Hint</span>
+<span class="sd">    ---</span>
+<span class="sd">    Please have a look at the tests to get a better feeling how it behaves under</span>
+<span class="sd">    tests/unit/transformer/test_mapper_custom_data_types.py::TestConversionsFromString</span>
+
+<span class="sd">    Example</span>
+<span class="sd">    -------</span>
+<span class="sd">    &gt;&gt;&gt; from spooq2.transformer import Mapper</span>
+<span class="sd">    &gt;&gt;&gt;</span>
+<span class="sd">    &gt;&gt;&gt; input_df.head(3)</span>
+<span class="sd">    [Row(input_string=&quot;  21474836470 &quot;),</span>
+<span class="sd">     Row(input_string=&quot;Hello&quot;),</span>
+<span class="sd">     Row(input_string=&quot;21_474_836_470&quot;)]</span>
+<span class="sd">    &gt;&gt;&gt; mapping = [(&quot;output_value&quot;, &quot;input_string&quot;, &quot;extended_string_to_long&quot;)]</span>
+<span class="sd">    &gt;&gt;&gt; output_df = Mapper(mapping).transform(input_df)</span>
+<span class="sd">    &gt;&gt;&gt; output_df.head(3)</span>
+<span class="sd">    [Row(input_string=21474836470),</span>
+<span class="sd">     Row(input_string=None),</span>
+<span class="sd">     Row(input_string=21474836470)]</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">F</span><span class="o">.</span><span class="n">regexp_replace</span><span class="p">(</span><span class="n">F</span><span class="o">.</span><span class="n">trim</span><span class="p">(</span><span class="n">source_column</span><span class="p">),</span> <span class="s2">&quot;_&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">sql_types</span><span class="o">.</span><span class="n">LongType</span><span class="p">())</span><span class="o">.</span><span class="n">alias</span><span class="p">(</span><span class="n">name</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="_generate_select_expression_for_extended_string_to_float"><a class="viewcode-back" href="../../../transformer/mapper.html#spooq2.transformer.mapper_custom_data_types._generate_select_expression_for_extended_string_to_float">[docs]</a><span class="k">def</span> <span class="nf">_generate_select_expression_for_extended_string_to_float</span><span class="p">(</span><span class="n">source_column</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    More robust conversion from StringType to FloatType.</span>
+<span class="sd">    Is able to additionally handle (compared to implicit Spark conversion):</span>
+
+<span class="sd">    * Preceding whitespace</span>
+<span class="sd">    * Trailing whitespace</span>
+<span class="sd">    * Preceeding and trailing whitespace</span>
+<span class="sd">    * underscores as thousand separators</span>
+
+<span class="sd">    Hint</span>
+<span class="sd">    ---</span>
+<span class="sd">    Please have a look at the tests to get a better feeling how it behaves under</span>
+<span class="sd">    tests/unit/transformer/test_mapper_custom_data_types.py::TestConversionsFromString</span>
+
+<span class="sd">    Example</span>
+<span class="sd">    -------</span>
+<span class="sd">    &gt;&gt;&gt; from spooq2.transformer import Mapper</span>
+<span class="sd">    &gt;&gt;&gt;</span>
+<span class="sd">    &gt;&gt;&gt; input_df.head(3)</span>
+<span class="sd">    [Row(input_string=&quot;  836470.819 &quot;),</span>
+<span class="sd">     Row(input_string=&quot;Hello&quot;),</span>
+<span class="sd">     Row(input_string=&quot;836_470.819&quot;)]</span>
+<span class="sd">    &gt;&gt;&gt; mapping = [(&quot;output_value&quot;, &quot;input_string&quot;, &quot;extended_string_to_float&quot;)]</span>
+<span class="sd">    &gt;&gt;&gt; output_df = Mapper(mapping).transform(input_df)</span>
+<span class="sd">    &gt;&gt;&gt; output_df.head(3)</span>
+<span class="sd">    [Row(input_string=836470.819),</span>
+<span class="sd">     Row(input_string=None),</span>
+<span class="sd">     Row(input_string=836470.819)]</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">_generate_select_expression_for_extended_string_to_double</span><span class="p">(</span><span class="n">source_column</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">sql_types</span><span class="o">.</span><span class="n">FloatType</span><span class="p">())</span></div>
+
+
+<div class="viewcode-block" id="_generate_select_expression_for_extended_string_to_double"><a class="viewcode-back" href="../../../transformer/mapper.html#spooq2.transformer.mapper_custom_data_types._generate_select_expression_for_extended_string_to_double">[docs]</a><span class="k">def</span> <span class="nf">_generate_select_expression_for_extended_string_to_double</span><span class="p">(</span><span class="n">source_column</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    More robust conversion from StringType to DoubleType.</span>
+<span class="sd">    Is able to additionally handle (compared to implicit Spark conversion):</span>
+
+<span class="sd">    * Preceding whitespace</span>
+<span class="sd">    * Trailing whitespace</span>
+<span class="sd">    * Preceeding and trailing whitespace</span>
+<span class="sd">    * underscores as thousand separators</span>
+
+<span class="sd">    Hint</span>
+<span class="sd">    ---</span>
+<span class="sd">    Please have a look at the tests to get a better feeling how it behaves under</span>
+<span class="sd">    tests/unit/transformer/test_mapper_custom_data_types.py::TestConversionsFromString</span>
+
+<span class="sd">    Example</span>
+<span class="sd">    -------</span>
+<span class="sd">    &gt;&gt;&gt; from spooq2.transformer import Mapper</span>
+<span class="sd">    &gt;&gt;&gt;</span>
+<span class="sd">    &gt;&gt;&gt; input_df.head(3)</span>
+<span class="sd">    [Row(input_string=&quot;  21474838464.70 &quot;),</span>
+<span class="sd">     Row(input_string=&quot;Hello&quot;),</span>
+<span class="sd">     Row(input_string=&quot;21_474_838_464.70&quot;)]</span>
+<span class="sd">    &gt;&gt;&gt; mapping = [(&quot;output_value&quot;, &quot;input_string&quot;, &quot;extended_string_to_double&quot;)]</span>
+<span class="sd">    &gt;&gt;&gt; output_df = Mapper(mapping).transform(input_df)</span>
+<span class="sd">    &gt;&gt;&gt; output_df.head(3)</span>
+<span class="sd">    [Row(input_string=21474838464.7),</span>
+<span class="sd">     Row(input_string=None),</span>
+<span class="sd">     Row(input_string=21474838464.70)]</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">F</span><span class="o">.</span><span class="n">regexp_replace</span><span class="p">(</span><span class="n">F</span><span class="o">.</span><span class="n">trim</span><span class="p">(</span><span class="n">source_column</span><span class="p">),</span> <span class="s2">&quot;_&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">sql_types</span><span class="o">.</span><span class="n">DoubleType</span><span class="p">())</span><span class="o">.</span><span class="n">alias</span><span class="p">(</span><span class="n">name</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="_generate_select_expression_for_extended_string_to_boolean"><a class="viewcode-back" href="../../../transformer/mapper.html#spooq2.transformer.mapper_custom_data_types._generate_select_expression_for_extended_string_to_boolean">[docs]</a><span class="k">def</span> <span class="nf">_generate_select_expression_for_extended_string_to_boolean</span><span class="p">(</span><span class="n">source_column</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    More robust conversion from StringType to BooleanType.</span>
+<span class="sd">    Is able to additionally handle (compared to implicit Spark conversion):</span>
+
+<span class="sd">    * Preceding whitespace</span>
+<span class="sd">    * Trailing whitespace</span>
+<span class="sd">    * Preceeding and trailing whitespace</span>
+
+<span class="sd">    Hint</span>
+<span class="sd">    ---</span>
+<span class="sd">    Please have a look at the tests to get a better feeling how it behaves under</span>
+<span class="sd">    tests/unit/transformer/test_mapper_custom_data_types.py::TestConversionsFromString</span>
+
+<span class="sd">    Example</span>
+<span class="sd">    -------</span>
+<span class="sd">    &gt;&gt;&gt; from spooq2.transformer import Mapper</span>
+<span class="sd">    &gt;&gt;&gt;</span>
+<span class="sd">    &gt;&gt;&gt; input_df.head(3)</span>
+<span class="sd">    [Row(input_string=&quot;  true &quot;),</span>
+<span class="sd">     Row(input_string=&quot;0&quot;),</span>
+<span class="sd">     Row(input_string=&quot;y&quot;)]</span>
+<span class="sd">    &gt;&gt;&gt; mapping = [(&quot;output_value&quot;, &quot;input_string&quot;, &quot;extended_string_to_boolean&quot;)]</span>
+<span class="sd">    &gt;&gt;&gt; output_df = Mapper(mapping).transform(input_df)</span>
+<span class="sd">    &gt;&gt;&gt; output_df.head(3)</span>
+<span class="sd">    [Row(input_string=True),</span>
+<span class="sd">     Row(input_string=False),</span>
+<span class="sd">     Row(input_string=True)]</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">F</span><span class="o">.</span><span class="n">trim</span><span class="p">(</span><span class="n">source_column</span><span class="p">)</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">sql_types</span><span class="o">.</span><span class="n">BooleanType</span><span class="p">())</span><span class="o">.</span><span class="n">alias</span><span class="p">(</span><span class="n">name</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="_generate_select_expression_for_extended_string_to_timestamp"><a class="viewcode-back" href="../../../transformer/mapper.html#spooq2.transformer.mapper_custom_data_types._generate_select_expression_for_extended_string_to_timestamp">[docs]</a><span class="k">def</span> <span class="nf">_generate_select_expression_for_extended_string_to_timestamp</span><span class="p">(</span><span class="n">source_column</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    More robust conversion from StringType to TimestampsType. It is assumed that the</span>
+<span class="sd">    timezone is already set to UTC in spark / java to avoid implicit timezone conversions.</span>
+<span class="sd">    Is able to additionally handle (compared to implicit Spark conversion):</span>
+
+<span class="sd">    * Unix timestamps in seconds</span>
+<span class="sd">    * Preceding whitespace</span>
+<span class="sd">    * Trailing whitespace</span>
+<span class="sd">    * Preceeding and trailing whitespace</span>
+
+<span class="sd">    Hint</span>
+<span class="sd">    ---</span>
+<span class="sd">    Please have a look at the tests to get a better feeling how it behaves under</span>
+<span class="sd">    tests/unit/transformer/test_mapper_custom_data_types.py::TestConversionsFromString</span>
+
+<span class="sd">    Example</span>
+<span class="sd">    -------</span>
+<span class="sd">    &gt;&gt;&gt; from spooq2.transformer import Mapper</span>
+<span class="sd">    &gt;&gt;&gt;</span>
+<span class="sd">    &gt;&gt;&gt; input_df.head(3)</span>
+<span class="sd">    [Row(input_string=&quot;2020-08-12T12:43:14+0000&quot;),</span>
+<span class="sd">     Row(input_string=&quot;1597069446&quot;),</span>
+<span class="sd">     Row(input_string=&quot;2020-08-12&quot;)]</span>
+<span class="sd">    &gt;&gt;&gt; mapping = [(&quot;output_value&quot;, &quot;input_string&quot;, &quot;extended_string_to_timestamp&quot;)]</span>
+<span class="sd">    &gt;&gt;&gt; output_df = Mapper(mapping).transform(input_df)</span>
+<span class="sd">    &gt;&gt;&gt; output_df.head(3)</span>
+<span class="sd">    [Row(input_string=datetime.datetime(2020, 8, 12, 12, 43, 14)),</span>
+<span class="sd">     Row(input_string=datetime.datetime(2020, 8, 10, 14, 24, 6)),</span>
+<span class="sd">     Row(input_string=datetime.datetime(2020, 8, 12, 0, 0, 0))]</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="p">(</span>
+        <span class="n">F</span><span class="o">.</span><span class="n">when</span><span class="p">(</span>
+            <span class="n">F</span><span class="o">.</span><span class="n">trim</span><span class="p">(</span><span class="n">source_column</span><span class="p">)</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">sql_types</span><span class="o">.</span><span class="n">LongType</span><span class="p">())</span><span class="o">.</span><span class="n">isNotNull</span><span class="p">(),</span>
+            <span class="n">F</span><span class="o">.</span><span class="n">trim</span><span class="p">(</span><span class="n">source_column</span><span class="p">)</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">sql_types</span><span class="o">.</span><span class="n">LongType</span><span class="p">())</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">sql_types</span><span class="o">.</span><span class="n">TimestampType</span><span class="p">())</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">otherwise</span><span class="p">(</span><span class="n">F</span><span class="o">.</span><span class="n">trim</span><span class="p">(</span><span class="n">source_column</span><span class="p">)</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">sql_types</span><span class="o">.</span><span class="n">TimestampType</span><span class="p">()))</span><span class="o">.</span><span class="n">alias</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+    <span class="p">)</span></div>
+
 </pre></div>
 
            </div>
