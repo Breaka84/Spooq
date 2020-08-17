@@ -674,7 +674,6 @@ def _generate_select_expression_for_extended_string_to_boolean(source_column, na
     return F.trim(source_column).cast(sql_types.BooleanType()).alias(name)
 
 
-
 def _generate_select_expression_for_extended_string_to_timestamp(source_column, name):
     """
     More robust conversion from StringType to TimestampsType.
@@ -695,15 +694,15 @@ def _generate_select_expression_for_extended_string_to_timestamp(source_column, 
     >>> from spooq2.transformer import Mapper
     >>>
     >>> input_df.head(3)
-    [Row(input_string="  true "),
-     Row(input_string="0"),
-     Row(input_string="y")]
-    >>> mapping = [("output_value", "input_string", "extended_string_to_boolean")]
+    [Row(input_string="2020-08-12T12:43:14+0000"),
+     Row(input_string="1597069446"),
+     Row(input_string="2020-08-12")]
+    >>> mapping = [("output_value", "input_string", "extended_string_to_timestamp")]
     >>> output_df = Mapper(mapping).transform(input_df)
     >>> output_df.head(3)
-    [Row(input_string=True),
-     Row(input_string=False),
-     Row(input_string=True)]
+    [Row(input_string=datetime.datetime(2020, 8, 12, 12, 43, 14)),
+     Row(input_string=datetime.datetime(2020, 8, 10, 14, 24, 6)),
+     Row(input_string=datetime.datetime(2020, 8, 12, 0, 0, 0))]
     """
     return (
         F.when(
