@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>spooq2.transformer.mapper_custom_data_types &mdash; Spooq2 2.0.0b2 documentation</title>
+  <title>spooq2.transformer.mapper_custom_data_types &mdash; Spooq2 2.1.0 documentation</title>
   
 
   
@@ -668,6 +668,57 @@
     <span class="k">return</span> <span class="n">F</span><span class="o">.</span><span class="n">trunc</span><span class="p">(</span><span class="n">source_column</span><span class="p">,</span> <span class="s2">&quot;month&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">sql_types</span><span class="o">.</span><span class="n">TimestampType</span><span class="p">())</span><span class="o">.</span><span class="n">alias</span><span class="p">(</span><span class="n">name</span><span class="p">)</span></div>
 
 
+<div class="viewcode-block" id="_generate_select_expression_for_meters_to_cm"><a class="viewcode-back" href="../../../transformer/mapper.html#spooq2.transformer.mapper_custom_data_types._generate_select_expression_for_meters_to_cm">[docs]</a><span class="k">def</span> <span class="nf">_generate_select_expression_for_meters_to_cm</span><span class="p">(</span><span class="n">source_column</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Convert meters to cm and cast the result to an IntegerType.</span>
+
+<span class="sd">    Example</span>
+<span class="sd">    -------</span>
+<span class="sd">    &gt;&gt;&gt; from pyspark.sql import Row</span>
+<span class="sd">    &gt;&gt;&gt; from spooq2.transformer import Mapper</span>
+<span class="sd">    &gt;&gt;&gt;</span>
+<span class="sd">    &gt;&gt;&gt; input_df = spark.createDataFrame(</span>
+<span class="sd">    &gt;&gt;&gt;     [Row(size_in_m=1.80),</span>
+<span class="sd">    &gt;&gt;&gt;      Row(size_in_m=1.65),</span>
+<span class="sd">    &gt;&gt;&gt;      Row(size_in_m=2.05)]</span>
+<span class="sd">    &gt;&gt;&gt; )</span>
+<span class="sd">    &gt;&gt;&gt;</span>
+<span class="sd">    &gt;&gt;&gt; mapping = [(&quot;size_in_cm&quot;, &quot;size_in_m&quot;, &quot;meters_to_cm&quot;)]</span>
+<span class="sd">    &gt;&gt;&gt; output_df = Mapper(mapping).transform(input_df)</span>
+<span class="sd">    &gt;&gt;&gt; output_df.head(3)</span>
+<span class="sd">    [Row(size_in_cm=180),</span>
+<span class="sd">     Row(size_in_cm=165),</span>
+<span class="sd">     Row(size_in_cm=205)]</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">source_column</span> <span class="o">*</span> <span class="mi">100</span><span class="p">)</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">sql_types</span><span class="o">.</span><span class="n">IntegerType</span><span class="p">())</span><span class="o">.</span><span class="n">alias</span><span class="p">(</span><span class="n">name</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="_generate_select_expression_for_unix_timestamp_ms_to_spark_timestamp"><a class="viewcode-back" href="../../../transformer/mapper.html#spooq2.transformer.mapper_custom_data_types._generate_select_expression_for_unix_timestamp_ms_to_spark_timestamp">[docs]</a><span class="k">def</span> <span class="nf">_generate_select_expression_for_unix_timestamp_ms_to_spark_timestamp</span><span class="p">(</span><span class="n">source_column</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Convert unix timestamps in milliseconds to a Spark TimeStampType. It is assumed that the</span>
+<span class="sd">    timezone is already set to UTC in spark / java to avoid implicit timezone conversions.</span>
+
+<span class="sd">    Example</span>
+<span class="sd">    -------</span>
+<span class="sd">    &gt;&gt;&gt; from pyspark.sql import Row</span>
+<span class="sd">    &gt;&gt;&gt; from spooq2.transformer import Mapper</span>
+<span class="sd">    &gt;&gt;&gt;</span>
+<span class="sd">    &gt;&gt;&gt; input_df = spark.createDataFrame(</span>
+<span class="sd">    &gt;&gt;&gt;     [Row(unix_timestamp_in_ms=1591627696951),</span>
+<span class="sd">    &gt;&gt;&gt;      Row(unix_timestamp_in_ms=1596812952000),</span>
+<span class="sd">    &gt;&gt;&gt;      Row(unix_timestamp_in_ms=946672200000)]</span>
+<span class="sd">    &gt;&gt;&gt; )</span>
+<span class="sd">    &gt;&gt;&gt;</span>
+<span class="sd">    &gt;&gt;&gt; mapping = [(&quot;spark_timestamp&quot;, &quot;unix_timestamp_in_ms&quot;, &quot;unix_timestamp_ms_to_spark_timestamp&quot;)]</span>
+<span class="sd">    &gt;&gt;&gt; output_df = Mapper(mapping).transform(input_df)</span>
+<span class="sd">    &gt;&gt;&gt; output_df.head(3)</span>
+<span class="sd">    [Row(spark_timestamp=datetime.datetime(2020, 6, 8, 16, 48, 16, 951000)),</span>
+<span class="sd">     Row(spark_timestamp=datetime.datetime(2020, 8, 7, 17, 9, 12)),</span>
+<span class="sd">     Row(spark_timestamp=datetime.datetime(1999, 12, 31, 21, 30))]</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">source_column</span> <span class="o">/</span> <span class="mi">1000</span><span class="p">)</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">sql_types</span><span class="o">.</span><span class="n">TimestampType</span><span class="p">())</span><span class="o">.</span><span class="n">alias</span><span class="p">(</span><span class="n">name</span><span class="p">)</span></div>
+
+
 <div class="viewcode-block" id="_generate_select_expression_for_extended_string_to_int"><a class="viewcode-back" href="../../../transformer/mapper.html#spooq2.transformer.mapper_custom_data_types._generate_select_expression_for_extended_string_to_int">[docs]</a><span class="k">def</span> <span class="nf">_generate_select_expression_for_extended_string_to_int</span><span class="p">(</span><span class="n">source_column</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    More robust conversion from StringType to IntegerType.</span>
@@ -834,7 +885,8 @@
 
 <div class="viewcode-block" id="_generate_select_expression_for_extended_string_to_timestamp"><a class="viewcode-back" href="../../../transformer/mapper.html#spooq2.transformer.mapper_custom_data_types._generate_select_expression_for_extended_string_to_timestamp">[docs]</a><span class="k">def</span> <span class="nf">_generate_select_expression_for_extended_string_to_timestamp</span><span class="p">(</span><span class="n">source_column</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    More robust conversion from StringType to TimestampsType.</span>
+<span class="sd">    More robust conversion from StringType to TimestampsType. It is assumed that the</span>
+<span class="sd">    timezone is already set to UTC in spark / java to avoid implicit timezone conversions.</span>
 <span class="sd">    Is able to additionally handle (compared to implicit Spark conversion):</span>
 
 <span class="sd">    * Unix timestamps in seconds</span>
@@ -868,6 +920,7 @@
             <span class="n">F</span><span class="o">.</span><span class="n">trim</span><span class="p">(</span><span class="n">source_column</span><span class="p">)</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">sql_types</span><span class="o">.</span><span class="n">LongType</span><span class="p">())</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">sql_types</span><span class="o">.</span><span class="n">TimestampType</span><span class="p">())</span>
         <span class="p">)</span><span class="o">.</span><span class="n">otherwise</span><span class="p">(</span><span class="n">F</span><span class="o">.</span><span class="n">trim</span><span class="p">(</span><span class="n">source_column</span><span class="p">)</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">sql_types</span><span class="o">.</span><span class="n">TimestampType</span><span class="p">()))</span><span class="o">.</span><span class="n">alias</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
     <span class="p">)</span></div>
+
 </pre></div>
 
            </div>

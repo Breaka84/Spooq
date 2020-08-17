@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Mapper &mdash; Spooq2 2.0.0b2 documentation</title>
+  <title>Mapper &mdash; Spooq2 2.1.0 documentation</title>
   
 
   
@@ -757,6 +757,55 @@ The datetime value will be set to the first day of the month.</p>
 </dd></dl>
 
 <dl class="function">
+<dt id="spooq2.transformer.mapper_custom_data_types._generate_select_expression_for_meters_to_cm">
+<code class="descname">_generate_select_expression_for_meters_to_cm</code><span class="sig-paren">(</span><em>source_column</em>, <em>name</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/spooq2/transformer/mapper_custom_data_types.html#_generate_select_expression_for_meters_to_cm"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spooq2.transformer.mapper_custom_data_types._generate_select_expression_for_meters_to_cm" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert meters to cm and cast the result to an IntegerType.</p>
+<p class="rubric">Example</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pyspark.sql</span> <span class="kn">import</span> <span class="n">Row</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">spooq2.transformer</span> <span class="kn">import</span> <span class="n">Mapper</span>
+<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">input_df</span> <span class="o">=</span> <span class="n">spark</span><span class="o">.</span><span class="n">createDataFrame</span><span class="p">(</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="p">[</span><span class="n">Row</span><span class="p">(</span><span class="n">size_in_m</span><span class="o">=</span><span class="mf">1.80</span><span class="p">),</span>
+<span class="gp">&gt;&gt;&gt; </span>     <span class="n">Row</span><span class="p">(</span><span class="n">size_in_m</span><span class="o">=</span><span class="mf">1.65</span><span class="p">),</span>
+<span class="gp">&gt;&gt;&gt; </span>     <span class="n">Row</span><span class="p">(</span><span class="n">size_in_m</span><span class="o">=</span><span class="mf">2.05</span><span class="p">)]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="p">)</span>
+<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">mapping</span> <span class="o">=</span> <span class="p">[(</span><span class="s2">&quot;size_in_cm&quot;</span><span class="p">,</span> <span class="s2">&quot;size_in_m&quot;</span><span class="p">,</span> <span class="s2">&quot;meters_to_cm&quot;</span><span class="p">)]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">output_df</span> <span class="o">=</span> <span class="n">Mapper</span><span class="p">(</span><span class="n">mapping</span><span class="p">)</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">input_df</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">output_df</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="go">[Row(size_in_cm=180),</span>
+<span class="go"> Row(size_in_cm=165),</span>
+<span class="go"> Row(size_in_cm=205)]</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="spooq2.transformer.mapper_custom_data_types._generate_select_expression_for_unix_timestamp_ms_to_spark_timestamp">
+<code class="descname">_generate_select_expression_for_unix_timestamp_ms_to_spark_timestamp</code><span class="sig-paren">(</span><em>source_column</em>, <em>name</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/spooq2/transformer/mapper_custom_data_types.html#_generate_select_expression_for_unix_timestamp_ms_to_spark_timestamp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spooq2.transformer.mapper_custom_data_types._generate_select_expression_for_unix_timestamp_ms_to_spark_timestamp" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert unix timestamps in milliseconds to a Spark TimeStampType. It is assumed that the
+timezone is already set to UTC in spark / java to avoid implicit timezone conversions.</p>
+<p class="rubric">Example</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pyspark.sql</span> <span class="kn">import</span> <span class="n">Row</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">spooq2.transformer</span> <span class="kn">import</span> <span class="n">Mapper</span>
+<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">input_df</span> <span class="o">=</span> <span class="n">spark</span><span class="o">.</span><span class="n">createDataFrame</span><span class="p">(</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="p">[</span><span class="n">Row</span><span class="p">(</span><span class="n">unix_timestamp_in_ms</span><span class="o">=</span><span class="mi">1591627696951</span><span class="p">),</span>
+<span class="gp">&gt;&gt;&gt; </span>     <span class="n">Row</span><span class="p">(</span><span class="n">unix_timestamp_in_ms</span><span class="o">=</span><span class="mi">1596812952000</span><span class="p">),</span>
+<span class="gp">&gt;&gt;&gt; </span>     <span class="n">Row</span><span class="p">(</span><span class="n">unix_timestamp_in_ms</span><span class="o">=</span><span class="mi">946672200000</span><span class="p">)]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="p">)</span>
+<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">mapping</span> <span class="o">=</span> <span class="p">[(</span><span class="s2">&quot;spark_timestamp&quot;</span><span class="p">,</span> <span class="s2">&quot;unix_timestamp_in_ms&quot;</span><span class="p">,</span> <span class="s2">&quot;unix_timestamp_ms_to_spark_timestamp&quot;</span><span class="p">)]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">output_df</span> <span class="o">=</span> <span class="n">Mapper</span><span class="p">(</span><span class="n">mapping</span><span class="p">)</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">input_df</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">output_df</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="go">[Row(spark_timestamp=datetime.datetime(2020, 6, 8, 16, 48, 16, 951000)),</span>
+<span class="go"> Row(spark_timestamp=datetime.datetime(2020, 8, 7, 17, 9, 12)),</span>
+<span class="go"> Row(spark_timestamp=datetime.datetime(1999, 12, 31, 21, 30))]</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="function">
 <dt id="spooq2.transformer.mapper_custom_data_types._generate_select_expression_for_extended_string_to_int">
 <code class="descname">_generate_select_expression_for_extended_string_to_int</code><span class="sig-paren">(</span><em>source_column</em>, <em>name</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/spooq2/transformer/mapper_custom_data_types.html#_generate_select_expression_for_extended_string_to_int"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spooq2.transformer.mapper_custom_data_types._generate_select_expression_for_extended_string_to_int" title="Permalink to this definition">¶</a></dt>
 <dd><p>More robust conversion from StringType to IntegerType.
@@ -925,7 +974,8 @@ tests/unit/transformer/test_mapper_custom_data_types.py::TestConversionsFromStri
 <dl class="function">
 <dt id="spooq2.transformer.mapper_custom_data_types._generate_select_expression_for_extended_string_to_timestamp">
 <code class="descname">_generate_select_expression_for_extended_string_to_timestamp</code><span class="sig-paren">(</span><em>source_column</em>, <em>name</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/spooq2/transformer/mapper_custom_data_types.html#_generate_select_expression_for_extended_string_to_timestamp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spooq2.transformer.mapper_custom_data_types._generate_select_expression_for_extended_string_to_timestamp" title="Permalink to this definition">¶</a></dt>
-<dd><p>More robust conversion from StringType to TimestampsType.
+<dd><p>More robust conversion from StringType to TimestampsType. It is assumed that the
+timezone is already set to UTC in spark / java to avoid implicit timezone conversions.
 Is able to additionally handle (compared to implicit Spark conversion):</p>
 <ul class="simple">
 <li>Unix timestamps in seconds</li>

@@ -26,7 +26,7 @@
 \indexentry{\_generate\_select\_expression\_for\_no\_change() (in module spooq2.transformer.mapper\_custom\_data\_types)@\spxentry{\_generate\_select\_expression\_for\_no\_change()}\spxextra{in module spooq2.transformer.mapper\_custom\_data\_types}|hyperpage}{18}
 \indexentry{\_generate\_select\_expression\_without\_casting() (in module spooq2.transformer.mapper\_custom\_data\_types)@\spxentry{\_generate\_select\_expression\_without\_casting()}\spxextra{in module spooq2.transformer.mapper\_custom\_data\_types}|hyperpage}{18}
 \indexentry{\_generate\_select\_expression\_for\_json\_string() (in module spooq2.transformer.mapper\_custom\_data\_types)@\spxentry{\_generate\_select\_expression\_for\_json\_string()}\spxextra{in module spooq2.transformer.mapper\_custom\_data\_types}|hyperpage}{18}
-\indexentry{\_generate\_select\_expression\_for\_timestamp\_ms\_to\_ms() (in module spooq2.transformer.mapper\_custom\_data\_types)@\spxentry{\_generate\_select\_expression\_for\_timestamp\_ms\_to\_ms()}\spxextra{in module spooq2.transformer.mapper\_custom\_data\_types}|hyperpage}{18}
+\indexentry{\_generate\_select\_expression\_for\_timestamp\_ms\_to\_ms() (in module spooq2.transformer.mapper\_custom\_data\_types)@\spxentry{\_generate\_select\_expression\_for\_timestamp\_ms\_to\_ms()}\spxextra{in module spooq2.transformer.mapper\_custom\_data\_types}|hyperpage}{19}
 \indexentry{\_generate\_select\_expression\_for\_timestamp\_ms\_to\_s() (in module spooq2.transformer.mapper\_custom\_data\_types)@\spxentry{\_generate\_select\_expression\_for\_timestamp\_ms\_to\_s()}\spxextra{in module spooq2.transformer.mapper\_custom\_data\_types}|hyperpage}{19}
 \indexentry{\_generate\_select\_expression\_for\_timestamp\_s\_to\_ms() (in module spooq2.transformer.mapper\_custom\_data\_types)@\spxentry{\_generate\_select\_expression\_for\_timestamp\_s\_to\_ms()}\spxextra{in module spooq2.transformer.mapper\_custom\_data\_types}|hyperpage}{19}
 \indexentry{\_generate\_select\_expression\_for\_timestamp\_s\_to\_s() (in module spooq2.transformer.mapper\_custom\_data\_types)@\spxentry{\_generate\_select\_expression\_for\_timestamp\_s\_to\_s()}\spxextra{in module spooq2.transformer.mapper\_custom\_data\_types}|hyperpage}{20}
@@ -35,52 +35,60 @@
 \indexentry{\_generate\_select\_expression\_for\_StringBoolean() (in module spooq2.transformer.mapper\_custom\_data\_types)@\spxentry{\_generate\_select\_expression\_for\_StringBoolean()}\spxextra{in module spooq2.transformer.mapper\_custom\_data\_types}|hyperpage}{21}
 \indexentry{\_generate\_select\_expression\_for\_IntBoolean() (in module spooq2.transformer.mapper\_custom\_data\_types)@\spxentry{\_generate\_select\_expression\_for\_IntBoolean()}\spxextra{in module spooq2.transformer.mapper\_custom\_data\_types}|hyperpage}{21}
 \indexentry{\_generate\_select\_expression\_for\_TimestampMonth() (in module spooq2.transformer.mapper\_custom\_data\_types)@\spxentry{\_generate\_select\_expression\_for\_TimestampMonth()}\spxextra{in module spooq2.transformer.mapper\_custom\_data\_types}|hyperpage}{22}
-\indexentry{spooq2.transformer.threshold\_cleaner (module)@\spxentry{spooq2.transformer.threshold\_cleaner}\spxextra{module}|hyperpage}{22}
-\indexentry{ThresholdCleaner (class in spooq2.transformer.threshold\_cleaner)@\spxentry{ThresholdCleaner}\spxextra{class in spooq2.transformer.threshold\_cleaner}|hyperpage}{22}
-\indexentry{transform() (ThresholdCleaner method)@\spxentry{transform()}\spxextra{ThresholdCleaner method}|hyperpage}{23}
-\indexentry{spooq2.transformer.newest\_by\_group (module)@\spxentry{spooq2.transformer.newest\_by\_group}\spxextra{module}|hyperpage}{23}
-\indexentry{NewestByGroup (class in spooq2.transformer.newest\_by\_group)@\spxentry{NewestByGroup}\spxextra{class in spooq2.transformer.newest\_by\_group}|hyperpage}{23}
-\indexentry{transform() (NewestByGroup method)@\spxentry{transform()}\spxextra{NewestByGroup method}|hyperpage}{24}
-\indexentry{spooq2.loader.loader (module)@\spxentry{spooq2.loader.loader}\spxextra{module}|hyperpage}{25}
-\indexentry{spooq2.loader.hive\_loader (module)@\spxentry{spooq2.loader.hive\_loader}\spxextra{module}|hyperpage}{25}
-\indexentry{HiveLoader (class in spooq2.loader.hive\_loader)@\spxentry{HiveLoader}\spxextra{class in spooq2.loader.hive\_loader}|hyperpage}{25}
-\indexentry{load() (HiveLoader method)@\spxentry{load()}\spxextra{HiveLoader method}|hyperpage}{26}
-\indexentry{spooq2.pipeline.pipeline (module)@\spxentry{spooq2.pipeline.pipeline}\spxextra{module}|hyperpage}{28}
-\indexentry{Pipeline (class in spooq2.pipeline.pipeline)@\spxentry{Pipeline}\spxextra{class in spooq2.pipeline.pipeline}|hyperpage}{28}
-\indexentry{extractor (Pipeline attribute)@\spxentry{extractor}\spxextra{Pipeline attribute}|hyperpage}{29}
-\indexentry{transformers (Pipeline attribute)@\spxentry{transformers}\spxextra{Pipeline attribute}|hyperpage}{29}
-\indexentry{loader (Pipeline attribute)@\spxentry{loader}\spxextra{Pipeline attribute}|hyperpage}{29}
-\indexentry{name (Pipeline attribute)@\spxentry{name}\spxextra{Pipeline attribute}|hyperpage}{29}
-\indexentry{logger (Pipeline attribute)@\spxentry{logger}\spxextra{Pipeline attribute}|hyperpage}{29}
-\indexentry{execute() (Pipeline method)@\spxentry{execute()}\spxextra{Pipeline method}|hyperpage}{30}
-\indexentry{extract() (Pipeline method)@\spxentry{extract()}\spxextra{Pipeline method}|hyperpage}{30}
-\indexentry{transform() (Pipeline method)@\spxentry{transform()}\spxextra{Pipeline method}|hyperpage}{30}
-\indexentry{load() (Pipeline method)@\spxentry{load()}\spxextra{Pipeline method}|hyperpage}{30}
-\indexentry{set\_extractor() (Pipeline method)@\spxentry{set\_extractor()}\spxextra{Pipeline method}|hyperpage}{30}
-\indexentry{add\_transformers() (Pipeline method)@\spxentry{add\_transformers()}\spxextra{Pipeline method}|hyperpage}{31}
-\indexentry{clear\_transformers() (Pipeline method)@\spxentry{clear\_transformers()}\spxextra{Pipeline method}|hyperpage}{31}
-\indexentry{set\_loader() (Pipeline method)@\spxentry{set\_loader()}\spxextra{Pipeline method}|hyperpage}{31}
-\indexentry{spooq2.pipeline.factory (module)@\spxentry{spooq2.pipeline.factory}\spxextra{module}|hyperpage}{31}
-\indexentry{PipelineFactory (class in spooq2.pipeline.factory)@\spxentry{PipelineFactory}\spxextra{class in spooq2.pipeline.factory}|hyperpage}{31}
-\indexentry{url (PipelineFactory attribute)@\spxentry{url}\spxextra{PipelineFactory attribute}|hyperpage}{31}
-\indexentry{execute() (PipelineFactory method)@\spxentry{execute()}\spxextra{PipelineFactory method}|hyperpage}{32}
-\indexentry{get\_metadata() (PipelineFactory method)@\spxentry{get\_metadata()}\spxextra{PipelineFactory method}|hyperpage}{32}
-\indexentry{get\_pipeline() (PipelineFactory method)@\spxentry{get\_pipeline()}\spxextra{PipelineFactory method}|hyperpage}{32}
-\indexentry{spooq2.spooq2\_logger (module)@\spxentry{spooq2.spooq2\_logger}\spxextra{module}|hyperpage}{33}
-\indexentry{initialize() (in module spooq2.spooq2\_logger)@\spxentry{initialize()}\spxextra{in module spooq2.spooq2\_logger}|hyperpage}{34}
-\indexentry{get\_logging\_level() (in module spooq2.spooq2\_logger)@\spxentry{get\_logging\_level()}\spxextra{in module spooq2.spooq2\_logger}|hyperpage}{34}
-\indexentry{spooq2.extractor.extractor (module)@\spxentry{spooq2.extractor.extractor}\spxextra{module}|hyperpage}{34}
-\indexentry{Extractor (class in spooq2.extractor.extractor)@\spxentry{Extractor}\spxextra{class in spooq2.extractor.extractor}|hyperpage}{34}
-\indexentry{name (Extractor attribute)@\spxentry{name}\spxextra{Extractor attribute}|hyperpage}{34}
-\indexentry{logger (Extractor attribute)@\spxentry{logger}\spxextra{Extractor attribute}|hyperpage}{34}
-\indexentry{extract() (Extractor method)@\spxentry{extract()}\spxextra{Extractor method}|hyperpage}{34}
-\indexentry{spooq2.transformer.transformer (module)@\spxentry{spooq2.transformer.transformer}\spxextra{module}|hyperpage}{38}
-\indexentry{Transformer (class in spooq2.transformer.transformer)@\spxentry{Transformer}\spxextra{class in spooq2.transformer.transformer}|hyperpage}{38}
-\indexentry{name (Transformer attribute)@\spxentry{name}\spxextra{Transformer attribute}|hyperpage}{38}
-\indexentry{logger (Transformer attribute)@\spxentry{logger}\spxextra{Transformer attribute}|hyperpage}{38}
-\indexentry{transform() (Transformer method)@\spxentry{transform()}\spxextra{Transformer method}|hyperpage}{38}
-\indexentry{spooq2.loader.loader (module)@\spxentry{spooq2.loader.loader}\spxextra{module}|hyperpage}{41}
-\indexentry{Loader (class in spooq2.loader.loader)@\spxentry{Loader}\spxextra{class in spooq2.loader.loader}|hyperpage}{41}
-\indexentry{name (Loader attribute)@\spxentry{name}\spxextra{Loader attribute}|hyperpage}{42}
-\indexentry{logger (Loader attribute)@\spxentry{logger}\spxextra{Loader attribute}|hyperpage}{42}
-\indexentry{load() (Loader method)@\spxentry{load()}\spxextra{Loader method}|hyperpage}{42}
+\indexentry{\_generate\_select\_expression\_for\_meters\_to\_cm() (in module spooq2.transformer.mapper\_custom\_data\_types)@\spxentry{\_generate\_select\_expression\_for\_meters\_to\_cm()}\spxextra{in module spooq2.transformer.mapper\_custom\_data\_types}|hyperpage}{22}
+\indexentry{\_generate\_select\_expression\_for\_unix\_timestamp\_ms\_to\_spark\_timestamp() (in module spooq2.transformer.mapper\_custom\_data\_types)@\spxentry{\_generate\_select\_expression\_for\_unix\_timestamp\_ms\_to\_spark\_timestamp()}\spxextra{in module spooq2.transformer.mapper\_custom\_data\_types}|hyperpage}{23}
+\indexentry{\_generate\_select\_expression\_for\_extended\_string\_to\_int() (in module spooq2.transformer.mapper\_custom\_data\_types)@\spxentry{\_generate\_select\_expression\_for\_extended\_string\_to\_int()}\spxextra{in module spooq2.transformer.mapper\_custom\_data\_types}|hyperpage}{23}
+\indexentry{\_generate\_select\_expression\_for\_extended\_string\_to\_long() (in module spooq2.transformer.mapper\_custom\_data\_types)@\spxentry{\_generate\_select\_expression\_for\_extended\_string\_to\_long()}\spxextra{in module spooq2.transformer.mapper\_custom\_data\_types}|hyperpage}{23}
+\indexentry{\_generate\_select\_expression\_for\_extended\_string\_to\_float() (in module spooq2.transformer.mapper\_custom\_data\_types)@\spxentry{\_generate\_select\_expression\_for\_extended\_string\_to\_float()}\spxextra{in module spooq2.transformer.mapper\_custom\_data\_types}|hyperpage}{24}
+\indexentry{\_generate\_select\_expression\_for\_extended\_string\_to\_double() (in module spooq2.transformer.mapper\_custom\_data\_types)@\spxentry{\_generate\_select\_expression\_for\_extended\_string\_to\_double()}\spxextra{in module spooq2.transformer.mapper\_custom\_data\_types}|hyperpage}{25}
+\indexentry{\_generate\_select\_expression\_for\_extended\_string\_to\_boolean() (in module spooq2.transformer.mapper\_custom\_data\_types)@\spxentry{\_generate\_select\_expression\_for\_extended\_string\_to\_boolean()}\spxextra{in module spooq2.transformer.mapper\_custom\_data\_types}|hyperpage}{25}
+\indexentry{\_generate\_select\_expression\_for\_extended\_string\_to\_timestamp() (in module spooq2.transformer.mapper\_custom\_data\_types)@\spxentry{\_generate\_select\_expression\_for\_extended\_string\_to\_timestamp()}\spxextra{in module spooq2.transformer.mapper\_custom\_data\_types}|hyperpage}{26}
+\indexentry{spooq2.transformer.threshold\_cleaner (module)@\spxentry{spooq2.transformer.threshold\_cleaner}\spxextra{module}|hyperpage}{26}
+\indexentry{ThresholdCleaner (class in spooq2.transformer.threshold\_cleaner)@\spxentry{ThresholdCleaner}\spxextra{class in spooq2.transformer.threshold\_cleaner}|hyperpage}{26}
+\indexentry{transform() (ThresholdCleaner method)@\spxentry{transform()}\spxextra{ThresholdCleaner method}|hyperpage}{27}
+\indexentry{spooq2.transformer.newest\_by\_group (module)@\spxentry{spooq2.transformer.newest\_by\_group}\spxextra{module}|hyperpage}{27}
+\indexentry{NewestByGroup (class in spooq2.transformer.newest\_by\_group)@\spxentry{NewestByGroup}\spxextra{class in spooq2.transformer.newest\_by\_group}|hyperpage}{27}
+\indexentry{transform() (NewestByGroup method)@\spxentry{transform()}\spxextra{NewestByGroup method}|hyperpage}{28}
+\indexentry{spooq2.loader.loader (module)@\spxentry{spooq2.loader.loader}\spxextra{module}|hyperpage}{29}
+\indexentry{spooq2.loader.hive\_loader (module)@\spxentry{spooq2.loader.hive\_loader}\spxextra{module}|hyperpage}{29}
+\indexentry{HiveLoader (class in spooq2.loader.hive\_loader)@\spxentry{HiveLoader}\spxextra{class in spooq2.loader.hive\_loader}|hyperpage}{29}
+\indexentry{load() (HiveLoader method)@\spxentry{load()}\spxextra{HiveLoader method}|hyperpage}{30}
+\indexentry{spooq2.pipeline.pipeline (module)@\spxentry{spooq2.pipeline.pipeline}\spxextra{module}|hyperpage}{32}
+\indexentry{Pipeline (class in spooq2.pipeline.pipeline)@\spxentry{Pipeline}\spxextra{class in spooq2.pipeline.pipeline}|hyperpage}{32}
+\indexentry{extractor (Pipeline attribute)@\spxentry{extractor}\spxextra{Pipeline attribute}|hyperpage}{33}
+\indexentry{transformers (Pipeline attribute)@\spxentry{transformers}\spxextra{Pipeline attribute}|hyperpage}{33}
+\indexentry{loader (Pipeline attribute)@\spxentry{loader}\spxextra{Pipeline attribute}|hyperpage}{33}
+\indexentry{name (Pipeline attribute)@\spxentry{name}\spxextra{Pipeline attribute}|hyperpage}{33}
+\indexentry{logger (Pipeline attribute)@\spxentry{logger}\spxextra{Pipeline attribute}|hyperpage}{33}
+\indexentry{execute() (Pipeline method)@\spxentry{execute()}\spxextra{Pipeline method}|hyperpage}{34}
+\indexentry{extract() (Pipeline method)@\spxentry{extract()}\spxextra{Pipeline method}|hyperpage}{34}
+\indexentry{transform() (Pipeline method)@\spxentry{transform()}\spxextra{Pipeline method}|hyperpage}{34}
+\indexentry{load() (Pipeline method)@\spxentry{load()}\spxextra{Pipeline method}|hyperpage}{34}
+\indexentry{set\_extractor() (Pipeline method)@\spxentry{set\_extractor()}\spxextra{Pipeline method}|hyperpage}{34}
+\indexentry{add\_transformers() (Pipeline method)@\spxentry{add\_transformers()}\spxextra{Pipeline method}|hyperpage}{35}
+\indexentry{clear\_transformers() (Pipeline method)@\spxentry{clear\_transformers()}\spxextra{Pipeline method}|hyperpage}{35}
+\indexentry{set\_loader() (Pipeline method)@\spxentry{set\_loader()}\spxextra{Pipeline method}|hyperpage}{35}
+\indexentry{spooq2.pipeline.factory (module)@\spxentry{spooq2.pipeline.factory}\spxextra{module}|hyperpage}{35}
+\indexentry{PipelineFactory (class in spooq2.pipeline.factory)@\spxentry{PipelineFactory}\spxextra{class in spooq2.pipeline.factory}|hyperpage}{35}
+\indexentry{url (PipelineFactory attribute)@\spxentry{url}\spxextra{PipelineFactory attribute}|hyperpage}{35}
+\indexentry{execute() (PipelineFactory method)@\spxentry{execute()}\spxextra{PipelineFactory method}|hyperpage}{36}
+\indexentry{get\_metadata() (PipelineFactory method)@\spxentry{get\_metadata()}\spxextra{PipelineFactory method}|hyperpage}{36}
+\indexentry{get\_pipeline() (PipelineFactory method)@\spxentry{get\_pipeline()}\spxextra{PipelineFactory method}|hyperpage}{36}
+\indexentry{spooq2.spooq2\_logger (module)@\spxentry{spooq2.spooq2\_logger}\spxextra{module}|hyperpage}{37}
+\indexentry{initialize() (in module spooq2.spooq2\_logger)@\spxentry{initialize()}\spxextra{in module spooq2.spooq2\_logger}|hyperpage}{38}
+\indexentry{get\_logging\_level() (in module spooq2.spooq2\_logger)@\spxentry{get\_logging\_level()}\spxextra{in module spooq2.spooq2\_logger}|hyperpage}{38}
+\indexentry{spooq2.extractor.extractor (module)@\spxentry{spooq2.extractor.extractor}\spxextra{module}|hyperpage}{38}
+\indexentry{Extractor (class in spooq2.extractor.extractor)@\spxentry{Extractor}\spxextra{class in spooq2.extractor.extractor}|hyperpage}{38}
+\indexentry{name (Extractor attribute)@\spxentry{name}\spxextra{Extractor attribute}|hyperpage}{38}
+\indexentry{logger (Extractor attribute)@\spxentry{logger}\spxextra{Extractor attribute}|hyperpage}{38}
+\indexentry{extract() (Extractor method)@\spxentry{extract()}\spxextra{Extractor method}|hyperpage}{38}
+\indexentry{spooq2.transformer.transformer (module)@\spxentry{spooq2.transformer.transformer}\spxextra{module}|hyperpage}{42}
+\indexentry{Transformer (class in spooq2.transformer.transformer)@\spxentry{Transformer}\spxextra{class in spooq2.transformer.transformer}|hyperpage}{42}
+\indexentry{name (Transformer attribute)@\spxentry{name}\spxextra{Transformer attribute}|hyperpage}{42}
+\indexentry{logger (Transformer attribute)@\spxentry{logger}\spxextra{Transformer attribute}|hyperpage}{42}
+\indexentry{transform() (Transformer method)@\spxentry{transform()}\spxextra{Transformer method}|hyperpage}{42}
+\indexentry{spooq2.loader.loader (module)@\spxentry{spooq2.loader.loader}\spxextra{module}|hyperpage}{45}
+\indexentry{Loader (class in spooq2.loader.loader)@\spxentry{Loader}\spxextra{class in spooq2.loader.loader}|hyperpage}{45}
+\indexentry{name (Loader attribute)@\spxentry{name}\spxextra{Loader attribute}|hyperpage}{46}
+\indexentry{logger (Loader attribute)@\spxentry{logger}\spxextra{Loader attribute}|hyperpage}{46}
+\indexentry{load() (Loader method)@\spxentry{load()}\spxextra{Loader method}|hyperpage}{46}
