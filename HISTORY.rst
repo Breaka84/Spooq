@@ -7,6 +7,8 @@ History
 * [ADD] `ignore_missing_columns` flag to fail on missing input columns with Mapper transformer (https://github.com/Breaka84/Spooq/pull/6)
 * [ADD] timestamp support for threshold cleaner
 * [ADD] new custom mapper transformations:
+    - meters_to_cm
+    - unix_timestamp_ms_to_spark_timestamp
     - extended_string_to_int
     - extended_string_to_long
     - extended_string_to_float
