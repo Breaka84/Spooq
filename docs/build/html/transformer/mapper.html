@@ -942,15 +942,15 @@ tests/unit/transformer/test_mapper_custom_data_types.py::TestConversionsFromStri
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">spooq2.transformer</span> <span class="kn">import</span> <span class="n">Mapper</span>
 <span class="go">&gt;&gt;&gt;</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">input_df</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
-<span class="go">[Row(input_string=&quot;  true &quot;),</span>
-<span class="go"> Row(input_string=&quot;0&quot;),</span>
-<span class="go"> Row(input_string=&quot;y&quot;)]</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">mapping</span> <span class="o">=</span> <span class="p">[(</span><span class="s2">&quot;output_value&quot;</span><span class="p">,</span> <span class="s2">&quot;input_string&quot;</span><span class="p">,</span> <span class="s2">&quot;extended_string_to_boolean&quot;</span><span class="p">)]</span>
+<span class="go">[Row(input_string=&quot;2020-08-12T12:43:14+0000&quot;),</span>
+<span class="go"> Row(input_string=&quot;1597069446&quot;),</span>
+<span class="go"> Row(input_string=&quot;2020-08-12&quot;)]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">mapping</span> <span class="o">=</span> <span class="p">[(</span><span class="s2">&quot;output_value&quot;</span><span class="p">,</span> <span class="s2">&quot;input_string&quot;</span><span class="p">,</span> <span class="s2">&quot;extended_string_to_timestamp&quot;</span><span class="p">)]</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">output_df</span> <span class="o">=</span> <span class="n">Mapper</span><span class="p">(</span><span class="n">mapping</span><span class="p">)</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">input_df</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">output_df</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
-<span class="go">[Row(input_string=True),</span>
-<span class="go"> Row(input_string=False),</span>
-<span class="go"> Row(input_string=True)]</span>
+<span class="go">[Row(input_string=datetime.datetime(2020, 8, 12, 12, 43, 14)),</span>
+<span class="go"> Row(input_string=datetime.datetime(2020, 8, 10, 14, 24, 6)),</span>
+<span class="go"> Row(input_string=datetime.datetime(2020, 8, 12, 0, 0, 0))]</span>
 </pre></div>
 </div>
 </dd></dl>
