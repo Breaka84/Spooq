@@ -187,6 +187,9 @@ class TestConversionsFromString(object):
             ("-123,456",        None),  # commas not allowed due to their ambiguity
             ("123_456",       123456),
             ("-123_456",     -123456),
+            ("   123456",     123456),
+            ("123456   ",     123456),
+            (" 123456  ",     123456),
             (123456,          123456),
             (-123456,        -123456),
             (-1,                  -1),
