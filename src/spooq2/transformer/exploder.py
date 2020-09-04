@@ -48,8 +48,8 @@ class Exploder(Transformer):
 
     Note
     ----
-    The :meth:`~spark.sql.functions.explode` or :meth:`~spark.sql.functions.explode_outer` methods of Spark
-    are used internally, depending on the `drop_rows_with_empty_array` parameter
+    The :meth:`~spark.sql.functions.explode` or :meth:`~spark.sql.functions.explode_outer` methods
+    of Spark are used internally, depending on the `drop_rows_with_empty_array` parameter.
 
     Note
     ----
