@@ -1,6 +1,12 @@
 =======
 History
 =======
+
+2.1.1 (2020-09-04)
+------------------
+* [ADD] `drop_rows_with_empty_array` flag to allow keeping rows with empty array after explosion
+* [ADD] additional test-cases for extended_string mappings (non string inputs)
+
 2.1.0 (2020-08-17)
 ------------------
 * [ADD] Python 3 support

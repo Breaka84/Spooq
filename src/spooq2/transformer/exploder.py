@@ -29,6 +29,10 @@ class Exploder(Transformer):
         Writing nested columns is not supported.
         The output column has to be first level.
 
+    drop_rows_with_empty_array : :any:`bool`, (Defaults to True)
+        By default Spark (and Spooq) drops rows which don't have any elements in the array
+        which is being exploded. To work-around this, set `drop_rows_with_empty_array` to False.
+
     Warning
     -------
     **Support for nested column:**
@@ -41,9 +45,11 @@ class Exploder(Transformer):
         just with a dot its name. To create a struct with the column as a field
         you have to redefine the structure or use a UDF.
 
+
     Note
     ----
-    The :meth:`~spark.sql.functions.explode` method of Spark is used internally.
+    The :meth:`~spark.sql.functions.explode` or :meth:`~spark.sql.functions.explode_outer` methods of Spark
+    are used internally, depending on the `drop_rows_with_empty_array` parameter
 
     Note
     ----
@@ -51,12 +57,18 @@ class Exploder(Transformer):
     equal to the Input DataFrame!
     """
 
-    def __init__(self, path_to_array="included", exploded_elem_name="elem"):
+    def __init__(self, path_to_array="included", exploded_elem_name="elem", drop_rows_with_empty_array=True):
         super(Exploder, self).__init__()
         self.path_to_array = path_to_array
         self.exploded_elem_name = exploded_elem_name
+        self.drop_rows_with_empty_array = drop_rows_with_empty_array
 
     def transform(self, input_df):
+        if self.drop_rows_with_empty_array:
+            explode_function = f.explode
+        else:
+            explode_function = f.explode_outer
+
         return input_df.withColumn(
-            self.exploded_elem_name, f.explode(self.path_to_array)
+            self.exploded_elem_name, explode_function(self.path_to_array)
         ).drop(self.path_to_array)
