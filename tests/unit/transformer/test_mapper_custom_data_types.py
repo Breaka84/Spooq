@@ -157,6 +157,16 @@ def test_generate_select_expression_for_meters_to_cm(input_value, expected_value
 
 class TestConversionsFromString(object):
 
+    @staticmethod
+    def create_input_df(input_value, spark_session):
+        if input_value is not None:
+            return spark_session.createDataFrame([Row(input_key=input_value)])
+        else:
+            # Spark cannot infer the type for None values
+            return spark_session.createDataFrame(
+                [Row(input_key=input_value)],
+                schema=T.StructType([T.StructField("input_key", T.StringType(), True)]))
+
     # fmt:off
     @pytest.mark.parametrize(
         argnames=("input_value", "expected_value"),
@@ -171,7 +181,6 @@ class TestConversionsFromString(object):
             (None,              None),
             ("Hello World",     None),
             ("2020-08-12",      None),
-            (None,              None),
             ("1234.56",         1234),
             ("-1234.56",       -1234),
             ("123,456",         None),  # commas not allowed due to their ambiguity
@@ -181,16 +190,19 @@ class TestConversionsFromString(object):
             ("   123456",     123456),
             ("123456   ",     123456),
             (" 123456  ",     123456),
+            (123456,          123456),
+            (-123456,        -123456),
+            (-1,                  -1),
+            (0,                    0),
+            (1234.56,           1234),
+            (-1234.56,         -1234),
         ])
     # fmt:on
     def test_extended_string_to_int(self, spark_session, input_value, expected_value):
-        input_df = spark_session.createDataFrame(
-            [Row(input_key=input_value)],
-            schema=T.StructType([T.StructField("input_key", T.StringType(), True)]))
+        input_df = self.create_input_df(input_value, spark_session)
         output_df = Mapper(mapping=[("output_key", "input_key", "extended_string_to_int")]).transform(input_df)
         assert output_df.first().output_key == expected_value
         assert isinstance(output_df.schema["output_key"].dataType, T.IntegerType)
-
 
     # fmt:off
     @pytest.mark.parametrize(
@@ -217,12 +229,16 @@ class TestConversionsFromString(object):
             ("   21474836470",             21474836470),
             ("21474836470   ",             21474836470),
             (" 21474836470  ",             21474836470),
+            (2147483.64,                       2147483),
+            (-2147483.64,                     -2147483),
+            (21474836470,                  21474836470),
+            (-21474836470,                -21474836470),
+            (-1,                                    -1),
+            (0,                                      0),
         ])
     # fmt:on
     def test_extended_string_to_long(self, spark_session, input_value, expected_value):
-        input_df = spark_session.createDataFrame(
-            [Row(input_key=input_value)],
-            schema=T.StructType([T.StructField("input_key", T.StringType(), True)]))
+        input_df = self.create_input_df(input_value, spark_session)
         output_df = Mapper(mapping=[("output_key", "input_key", "extended_string_to_long")]).transform(input_df)
         assert output_df.first().output_key == expected_value
         assert isinstance(output_df.schema["output_key"].dataType, T.LongType)
@@ -232,6 +248,7 @@ class TestConversionsFromString(object):
         argnames=("input_value", "expected_value"),
         argvalues=[
             ("123456.0",      123456.0),
+            ("123456",        123456.0),
             ("-123456.0",    -123456.0),
             ("-1.0",              -1.0),
             ("0.0",                0.0),
@@ -250,12 +267,15 @@ class TestConversionsFromString(object):
             ("   123456.7",   123456.7),
             ("123456.7   ",   123456.7),
             (" 123456.7  ",   123456.7),
+            (123456.0,        123456.0),
+            (123456,          123456.0),
+            (-123456.0,      -123456.0),
+            (-1.0,                -1.0),
+            (0.0,                  0.0),
         ])
     # fmt:on
     def test_extended_string_to_float(self, spark_session, input_value, expected_value):
-        input_df = spark_session.createDataFrame(
-            [Row(input_key=input_value)],
-            schema=T.StructType([T.StructField("input_key", T.StringType(), True)]))
+        input_df = self.create_input_df(input_value, spark_session)
         output_df = Mapper(mapping=[("output_key", "input_key", "extended_string_to_float")]).transform(input_df)
         actual_value = output_df.first().output_key
         if actual_value is not None:
@@ -269,6 +289,7 @@ class TestConversionsFromString(object):
         argnames=("input_value", "expected_value"),
         argvalues=[
             ("214748364.70",          214748364.70),
+            ("214748364",              214748364.0),
             ("-214748364.70",        -214748364.70),
             ("-1.0",                          -1.0),
             ("0.0",                            0.0),
@@ -287,12 +308,15 @@ class TestConversionsFromString(object):
             ("   21474836470.7",     21474836470.7),
             ("21474836470.7   ",     21474836470.7),
             (  " 21474836470.7  ",   21474836470.7),
+            (214748364.70,            214748364.70),
+            (214748364,                214748364.0),
+            (-214748364.70,          -214748364.70),
+            (-1.0,                            -1.0),
+            (0.0,                              0.0),
         ])
     # fmt:on
     def test_extended_string_to_double(self, spark_session, input_value, expected_value):
-        input_df = spark_session.createDataFrame(
-            [Row(input_key=input_value)],
-            schema=T.StructType([T.StructField("input_key", T.StringType(), True)]))
+        input_df = self.create_input_df(input_value, spark_session)
         output_df = Mapper(mapping=[("output_key", "input_key", "extended_string_to_double")]).transform(input_df)
         actual_value = output_df.first().output_key
         if actual_value is not None:
@@ -306,13 +330,17 @@ class TestConversionsFromString(object):
         argnames=("input_value", "expected_value"),
         argvalues=[
             ("1",       True),
+            ("1.0",     None),
             ("TRUE",    True),
             ("True",    True),
             ("true",    True),
             ("0",       False),
+            ("0.0",     None),
             ("-1",      None),
+            ("-1.0",    None),
             ("123",     None),
             ("-123",    None),
+            (None,      None),
             ("FALSE",   False),
             ("False",   False),
             ("false",   False),
@@ -323,12 +351,18 @@ class TestConversionsFromString(object):
             ("   true", True),
             ("true   ", True),
             (" true  ", True),
+            (1,         True),
+            (0,         False),
+            (-1,        None),
+            (1.0,       None),
+            (0.0,       None),
+            (-1.0,      None),
+            (True,       True),
+            (False,      False),
         ])
     # fmt:on
     def test_extended_string_to_boolean(self, spark_session, input_value, expected_value):
-        input_df = spark_session.createDataFrame(
-            [Row(input_key=input_value)],
-            schema=T.StructType([T.StructField("input_key", T.StringType(), True)]))
+        input_df = self.create_input_df(input_value, spark_session)
         output_df = Mapper(mapping=[("output_key", "input_key", "extended_string_to_boolean")]).transform(input_df)
         assert output_df.first().output_key == expected_value
         assert isinstance(output_df.schema["output_key"].dataType, T.BooleanType)
@@ -350,8 +384,11 @@ class TestConversionsFromString(object):
             ("2020-08-12T12:43:14",        datetime.datetime(2020, 8, 12, 12, 43, 14)),
             ("2020-08-12 12:43:14",        datetime.datetime(2020, 8, 12, 12, 43, 14)),
             ("2020-08-12",                 datetime.datetime(2020, 8, 12, 0, 0, 0)),
+            (None,                         None),
             ("1597069446",                 datetime.datetime(2020, 8, 10, 14, 24, 6)),
+            (1597069446,                   datetime.datetime(2020, 8, 10, 14, 24, 6)),
             ("-1597069446",                datetime.datetime(1919, 5, 24, 9, 35, 54)),
+            (-1597069446,                  datetime.datetime(1919, 5, 24, 9, 35, 54)),
             ("1597069446000",              "out_of_range_for_python"),  # Spark can handle it but not Python
             ("-1597069446000",             "out_of_range_for_python"),  # Spark can handle it but not Python
             ("null",                       None),
@@ -365,9 +402,7 @@ class TestConversionsFromString(object):
     # fmt:on
     def test_extended_string_to_timestamp(self, spark_session, input_value, expected_value):
         # test uses timezone set to GMT / UTC (pytest.ini)!
-        input_df = spark_session.createDataFrame(
-            [Row(input_key=input_value)],
-            schema=T.StructType([T.StructField("input_key", T.StringType(), True)]))
+        input_df = self.create_input_df(input_value, spark_session)
         output_df = Mapper(mapping=[("output_key", "input_key", "extended_string_to_timestamp")]).transform(input_df)
         # workaround via pandas necessary due to bug with direct conversion
         # to python datetime wrt timezone conversions (https://issues.apache.org/jira/browse/SPARK-32123)

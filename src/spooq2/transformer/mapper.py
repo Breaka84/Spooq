@@ -88,10 +88,10 @@ class Mapper(Transformer):
         super(Mapper, self).__init__()
         self.mapping = mapping
         self.ignore_missing_columns = ignore_missing_columns
-        self.logger.debug("Mapping: {mp}".format(mp=str(self.mapping)))
 
     def transform(self, input_df):
-        self.logger.info("Schema: " + str(self.mapping))
+        self.logger.info("Generating SQL Select-Expression for Mapping...")
+        self.logger.debug("Input Schema/Mapping: {mp}".format(mp=str(self.mapping)))
 
         select_expressions = []
 
@@ -144,10 +144,12 @@ class Mapper(Transformer):
                     )
 
                 select_expressions.append(select_expression)
+                self.logger.debug("Select-Expression for Attribute {nm}: {sql_expr}"
+                                  .format(nm=name, sql_expr=str(select_expression))
+                )
 
-        self.logger.info(
-            "SQL Select-Expression for mapping: " + str(select_expressions)
-        )
+        self.logger.info("SQL Select-Expression for mapping generated!" + str(select_expressions))
+        self.logger.debug("SQL Select-Expression for mapping: " + str(select_expressions))
         spark_sql_query = input_df.select(select_expressions)
 
         return spark_sql_query

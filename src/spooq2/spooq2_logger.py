@@ -31,7 +31,7 @@ def initialize():
 
     Warning
     -------
-    The ``root`` logger of python is also affected as it has to have a level at least as 
+    The ``root`` logger of python is also affected as it has to have a level at least as
     fine grained as the logger of Spooq, to be able to produce an output.
     """
     global initialized
@@ -39,11 +39,11 @@ def initialize():
         return
 
     logging_level = get_logging_level()
-    
-    logging.getLogger("root").setLevel(logging_level)
+
+    # logging.getLogger("root").setLevel(logging_level)
     logger = logging.getLogger("spooq2")
     logger.setLevel(logging_level)
-    
+
     if not len(logger.handlers):
         formatter = logging.Formatter(
             "[%(name)s] %(asctime)s %(levelname)s %(module)s::%(funcName)s::%(lineno)d: %(message)s"
@@ -56,12 +56,13 @@ def initialize():
         logger.addHandler(ch_out)
 
         # STDERR Handler
-        ch_err = logging.StreamHandler(sys.stderr)
-        ch_err.setLevel(logging_level)
-        ch_err.setFormatter(formatter)
-        logger.addHandler(ch_err)
-        
+        # ch_err = logging.StreamHandler(sys.stderr)
+        # ch_err.setLevel(logging_level)
+        # ch_err.setFormatter(formatter)
+        # logger.addHandler(ch_err)
+
         initialized = True
+
 
 def get_logging_level():
     """
@@ -84,5 +85,7 @@ def get_logging_level():
         return "DEBUG"
     elif spooq_env.startswith("test"):
         return "ERROR"
+    elif spooq_env.startswith("pr"):
+        return "WARN"
     else:
         return "INFO"
