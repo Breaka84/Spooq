@@ -7,6 +7,8 @@ History
 * [ADD] `drop_rows_with_empty_array` flag to allow keeping rows with empty array after explosion
 * [ADD] additional test-cases for extended_string mappings (non string inputs)
 * [FIX] remove STDERR logging, don't touch root logging level anymore (needs to be done outside spooq to see some lower log levels)
+* [ADD] new custom mapper transformations:
+    - extended_string_unix_timestamp_ms_to_timestamp
 
 2.1.0 (2020-08-17)
 ------------------
