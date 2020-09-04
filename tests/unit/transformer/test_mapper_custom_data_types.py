@@ -418,6 +418,54 @@ class TestConversionsFromString(object):
         assert actual_value == expected_value
         assert isinstance(output_df.schema["output_key"].dataType, T.TimestampType)
 
+    # fmt:off
+    @pytest.mark.parametrize(
+        argnames=("input_value", "expected_value"),
+        argvalues=[
+            ("2020-08-12T12:43:14+0000",   datetime.datetime(2020, 8, 12, 12, 43, 14)),
+            ("2020-08-12T12:43:14+00:00",  datetime.datetime(2020, 8, 12, 12, 43, 14)),
+            ("2020-08-12T12:43:14Z00:00",  datetime.datetime(2020, 8, 12, 12, 43, 14)),
+            ("2020-08-12T12:43:14Z0000",   datetime.datetime(2020, 8, 12, 12, 43, 14)),
+            ("  2020-08-12T12:43:14+0000", datetime.datetime(2020, 8, 12, 12, 43, 14)),
+            ("2020-08-12T12:43:14+0000  ", datetime.datetime(2020, 8, 12, 12, 43, 14)),
+            (" 2020-08-12T12:43:14+0000 ", datetime.datetime(2020, 8, 12, 12, 43, 14)),
+            ("2020-08-12T12:43:14+02:00",  datetime.datetime(2020, 8, 12, 10, 43, 14)),
+            ("2020-08-12T12:43:14+0200",   None),  # only `+HH:MM` is supported by Spark for timezone offsets
+            ("2020-08-12T12:43:14Z0200",   None),  # only `+HH:MM` is supported by Spark for timezone offsets
+            ("2020-08-12T12:43:14",        datetime.datetime(2020, 8, 12, 12, 43, 14)),
+            ("2020-08-12 12:43:14",        datetime.datetime(2020, 8, 12, 12, 43, 14)),
+            ("2020-08-12",                 datetime.datetime(2020, 8, 12, 0, 0, 0)),
+            (None,                         None),
+            ("1597069446000",              datetime.datetime(2020, 8, 10, 14, 24, 6)),
+            (1597069446000,                datetime.datetime(2020, 8, 10, 14, 24, 6)),
+            ("-1597069446000",             datetime.datetime(1919, 5, 24, 9, 35, 54)),
+            (-1597069446000,               datetime.datetime(1919, 5, 24, 9, 35, 54)),
+            ("null",                       None),
+            ("0",                          datetime.datetime(1970, 1, 1, 0, 0, 0)),
+            ("-1",                         datetime.datetime(1969, 12, 31, 23, 59, 59)),
+            ("1",                          datetime.datetime(1970, 1, 1, 0, 0, 1)),
+            ("nil",                        None),
+        ],
+        ids=parameter_to_string_id
+    )
+    # fmt:on
+    def test_extended_string_unix_timestamp_ms_to_timestamp(self, spark_session, input_value, expected_value):
+        # test uses timezone set to GMT / UTC (pytest.ini)!
+        input_df = self.create_input_df(input_value, spark_session)
+        output_df = Mapper(mapping=[("output_key", "input_key", "extended_string_unix_timestamp_ms_to_timestamp")]).transform(input_df)
+        # workaround via pandas necessary due to bug with direct conversion
+        # to python datetime wrt timezone conversions (https://issues.apache.org/jira/browse/SPARK-32123)
+        try:
+            output_pd_df = output_df.toPandas()
+            actual_value = output_pd_df.iloc[0]["output_key"].to_pydatetime()
+            assert (actual_value.toordinal() == expected_value.toordinal(),
+                    "actual_value: {act_val}, expected value: {expected_val}".format(
+                        act_val=actual_value, expected_val=expected_value))
+        except AttributeError:
+            # `.to_pydatetime()` can only be used on datetimes and throws AttributeErrors on None
+            assert expected_value is None
+        assert isinstance(output_df.schema["output_key"].dataType, T.TimestampType)
+
 
 class TestAnonymizingMethods(object):
     # fmt: off

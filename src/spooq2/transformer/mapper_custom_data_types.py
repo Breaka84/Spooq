@@ -763,3 +763,41 @@ def _generate_select_expression_for_extended_string_to_timestamp(source_column, 
         ).otherwise(F.trim(source_column).cast(sql_types.TimestampType())).alias(name)
     )
 
+def _generate_select_expression_for_extended_string_unix_timestamp_ms_to_timestamp(source_column, name):
+    """
+    More robust conversion from StringType to TimestampsType. It is assumed that the
+    timezone is already set to UTC in spark / java to avoid implicit timezone conversions.
+    Is able to additionally handle (compared to implicit Spark conversion):
+
+    * Unix timestamps in milliseconds
+    * Preceding whitespace
+    * Trailing whitespace
+    * Preceeding and trailing whitespace
+
+    Hint
+    ---
+    Please have a look at the tests to get a better feeling how it behaves under
+    tests/unit/transformer/test_mapper_custom_data_types.py::TestConversionsFromString
+
+    Example
+    -------
+    >>> from spooq2.transformer import Mapper
+    >>>
+    >>> input_df.head(3)
+    [Row(input_string="2020-08-12T12:43:14+0000"),
+     Row(input_string="1597069446000"),
+     Row(input_string="2020-08-12")]
+    >>> mapping = [("output_value", "input_string", "extended_string_to_timestamp")]
+    >>> output_df = Mapper(mapping).transform(input_df)
+    >>> output_df.head(3)
+    [Row(input_string=datetime.datetime(2020, 8, 12, 12, 43, 14)),
+     Row(input_string=datetime.datetime(2020, 8, 10, 14, 24, 6)),
+     Row(input_string=datetime.datetime(2020, 8, 12, 0, 0, 0))]
+    """
+    return (
+        F.when(
+            F.trim(source_column).cast(sql_types.LongType()).isNotNull(),
+            (F.trim(source_column) / 1000).cast(sql_types.TimestampType())
+        ).otherwise(F.trim(source_column).cast(sql_types.TimestampType())).alias(name)
+    )
+
