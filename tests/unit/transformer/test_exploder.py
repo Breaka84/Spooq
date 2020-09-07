@@ -32,7 +32,7 @@ class TestExploding(object):
 
     @pytest.mark.slow
     def test_count(self, input_df, default_params):
-        expected_count = input_df.select(sql_funcs.explode(input_df[default_params["path_to_array"]])).count()
+        expected_count = input_df.select(sql_funcs.explode_outer(input_df[default_params["path_to_array"]])).count()
         actual_count = Exploder(**default_params).transform(input_df).count()
         assert expected_count == actual_count
 
@@ -67,7 +67,7 @@ class TestExploding(object):
             Row(id=3, array_to_explode=[]),
         ])
         transformed_df = Exploder(path_to_array="array_to_explode", exploded_elem_name="elem").transform(input_df)
-        assert transformed_df.count() == 3
+        assert transformed_df.count() == 5
 
     def test_records_with_empty_arrays_are_kept_via_setting(self, spark_session):
         input_df = spark_session.createDataFrame([
@@ -77,6 +77,6 @@ class TestExploding(object):
         ])
         transformed_df = Exploder(path_to_array="array_to_explode",
                                   exploded_elem_name="elem",
-                                  drop_rows_with_empty_array=False).transform(input_df)
-        assert transformed_df.count() == 5
+                                  drop_rows_with_empty_array=True).transform(input_df)
+        assert transformed_df.count() == 3
 

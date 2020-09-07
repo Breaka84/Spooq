@@ -57,7 +57,7 @@ class Exploder(Transformer):
     equal to the Input DataFrame!
     """
 
-    def __init__(self, path_to_array="included", exploded_elem_name="elem", drop_rows_with_empty_array=True):
+    def __init__(self, path_to_array="included", exploded_elem_name="elem", drop_rows_with_empty_array=False):
         super(Exploder, self).__init__()
         self.path_to_array = path_to_array
         self.exploded_elem_name = exploded_elem_name
