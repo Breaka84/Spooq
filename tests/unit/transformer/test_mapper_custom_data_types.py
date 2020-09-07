@@ -15,6 +15,13 @@ def parameter_to_string_id(val):
     return "<" + str(val) + ">"
 
 
+def parameters_to_string_id(actual_value, expected_value):
+    return " actual: <{a}> ({a_cls}) -> expected: <{e}>  ({e_cls})".format(a=actual_value,
+                                                                           a_cls=str(type(actual_value)),
+                                                                           e=expected_value,
+                                                                           e_cls=str(type(expected_value)))
+
+
 def get_input_df(spark_session, spark_context, source_key, input_value):
     input_json = json.dumps(
         {"attributes": {
@@ -168,36 +175,38 @@ class TestConversionsFromString(object):
                 schema=T.StructType([T.StructField("input_key", T.StringType(), True)]))
 
     # fmt:off
+    test_extended_string_to_int = [
+        ("123456",        123456),
+        ("-123456",      -123456),
+        ("-1",                -1),
+        ("0",                  0),
+        ("NULL",            None),
+        ("null",            None),
+        ("None",            None),
+        (None,              None),
+        ("Hello World",     None),
+        ("2020-08-12",      None),
+        ("1234.56",         1234),
+        ("-1234.56",       -1234),
+        ("123,456",         None),  # commas not allowed due to their ambiguity
+        ("-123,456",        None),  # commas not allowed due to their ambiguity
+        ("123_456",       123456),
+        ("-123_456",     -123456),
+        ("   123456",     123456),
+        ("123456   ",     123456),
+        (" 123456  ",     123456),
+        (123456,          123456),
+        (-123456,        -123456),
+        (-1,                  -1),
+        (0,                    0),
+        (1234.56,           1234),
+        (-1234.56,         -1234),
+    ]
+    # fmt:on
     @pytest.mark.parametrize(
         argnames=("input_value", "expected_value"),
-        argvalues=[
-            ("123456",        123456),
-            ("-123456",      -123456),
-            ("-1",                -1),
-            ("0",                  0),
-            ("NULL",            None),
-            ("null",            None),
-            ("None",            None),
-            (None,              None),
-            ("Hello World",     None),
-            ("2020-08-12",      None),
-            ("1234.56",         1234),
-            ("-1234.56",       -1234),
-            ("123,456",         None),  # commas not allowed due to their ambiguity
-            ("-123,456",        None),  # commas not allowed due to their ambiguity
-            ("123_456",       123456),
-            ("-123_456",     -123456),
-            ("   123456",     123456),
-            ("123456   ",     123456),
-            (" 123456  ",     123456),
-            (123456,          123456),
-            (-123456,        -123456),
-            (-1,                  -1),
-            (0,                    0),
-            (1234.56,           1234),
-            (-1234.56,         -1234),
-        ])
-    # fmt:on
+        argvalues=test_extended_string_to_int,
+        ids=[parameters_to_string_id(actual, expected) for actual, expected in test_extended_string_to_int])
     def test_extended_string_to_int(self, spark_session, input_value, expected_value):
         input_df = self.create_input_df(input_value, spark_session)
         output_df = Mapper(mapping=[("output_key", "input_key", "extended_string_to_int")]).transform(input_df)
@@ -205,38 +214,40 @@ class TestConversionsFromString(object):
         assert isinstance(output_df.schema["output_key"].dataType, T.IntegerType)
 
     # fmt:off
+    test_extended_string_to_long = [
+        ("21474836470",                21474836470),
+        ("-21474836470",              -21474836470),
+        ("-1",                                  -1),
+        ("0",                                    0),
+        ("NULL",                              None),
+        ("null",                              None),
+        ("None",                              None),
+        (None,                                None),
+        ("Hello World",                       None),
+        ("2020-08-12T12:43:14+0000",          None),
+        ("214748364.70",                 214748364),
+        ("-214748364.70",               -214748364),
+        ("21,474,836,470",                    None),  # commas not allowed due to their ambiguity
+        ("-21,474,836,470",                   None),  # commas not allowed due to their ambiguity
+        ("214748364,7",                       None),  # commas not allowed due to their ambiguity
+        ("-214748364,7",                      None),  # commas not allowed due to their ambiguity
+        ("21_474_836_470",             21474836470),
+        ("-21_474_836_470",           -21474836470),
+        ("   21474836470",             21474836470),
+        ("21474836470   ",             21474836470),
+        (" 21474836470  ",             21474836470),
+        (2147483.64,                       2147483),
+        (-2147483.64,                     -2147483),
+        (21474836470,                  21474836470),
+        (-21474836470,                -21474836470),
+        (-1,                                    -1),
+        (0,                                      0),
+    ]
+    # fmt:on
     @pytest.mark.parametrize(
         argnames=("input_value", "expected_value"),
-        argvalues=[
-            ("21474836470",                21474836470),
-            ("-21474836470",              -21474836470),
-            ("-1",                                  -1),
-            ("0",                                    0),
-            ("NULL",                              None),
-            ("null",                              None),
-            ("None",                              None),
-            (None,                                None),
-            ("Hello World",                       None),
-            ("2020-08-12T12:43:14+0000",          None),
-            ("214748364.70",                 214748364),
-            ("-214748364.70",               -214748364),
-            ("21,474,836,470",                    None),  # commas not allowed due to their ambiguity
-            ("-21,474,836,470",                   None),  # commas not allowed due to their ambiguity
-            ("214748364,7",                       None),  # commas not allowed due to their ambiguity
-            ("-214748364,7",                      None),  # commas not allowed due to their ambiguity
-            ("21_474_836_470",             21474836470),
-            ("-21_474_836_470",           -21474836470),
-            ("   21474836470",             21474836470),
-            ("21474836470   ",             21474836470),
-            (" 21474836470  ",             21474836470),
-            (2147483.64,                       2147483),
-            (-2147483.64,                     -2147483),
-            (21474836470,                  21474836470),
-            (-21474836470,                -21474836470),
-            (-1,                                    -1),
-            (0,                                      0),
-        ])
-    # fmt:on
+        argvalues=test_extended_string_to_long,
+        ids=[parameters_to_string_id(actual, expected) for actual, expected in test_extended_string_to_long])
     def test_extended_string_to_long(self, spark_session, input_value, expected_value):
         input_df = self.create_input_df(input_value, spark_session)
         output_df = Mapper(mapping=[("output_key", "input_key", "extended_string_to_long")]).transform(input_df)
@@ -244,36 +255,38 @@ class TestConversionsFromString(object):
         assert isinstance(output_df.schema["output_key"].dataType, T.LongType)
 
     # fmt:off
+    test_extended_string_to_float = [
+        ("123456.0",      123456.0),
+        ("123456",        123456.0),
+        ("-123456.0",    -123456.0),
+        ("-1.0",              -1.0),
+        ("0.0",                0.0),
+        ("NULL",              None),
+        ("null",              None),
+        ("None",              None),
+        (None,                None),
+        ("1234.56",        1234.56),
+        ("-1234.56",      -1234.56),
+        ("-123,456.7",        None),  # commas not allowed due to their ambiguity
+        ("123,456.7",         None),  # commas not allowed due to their ambiguity
+        ("-123456,7",         None),  # commas not allowed due to their ambiguity
+        ("123456,7",          None),  # commas not allowed due to their ambiguity
+        ("123_456.7",     123456.7),
+        ("-123_456.7",   -123456.7),
+        ("   123456.7",   123456.7),
+        ("123456.7   ",   123456.7),
+        (" 123456.7  ",   123456.7),
+        (123456.0,        123456.0),
+        (123456,          123456.0),
+        (-123456.0,      -123456.0),
+        (-1.0,                -1.0),
+        (0.0,                  0.0),
+    ]
+    # fmt:on
     @pytest.mark.parametrize(
         argnames=("input_value", "expected_value"),
-        argvalues=[
-            ("123456.0",      123456.0),
-            ("123456",        123456.0),
-            ("-123456.0",    -123456.0),
-            ("-1.0",              -1.0),
-            ("0.0",                0.0),
-            ("NULL",              None),
-            ("null",              None),
-            ("None",              None),
-            (None,                None),
-            ("1234.56",        1234.56),
-            ("-1234.56",      -1234.56),
-            ("-123,456.7",        None),  # commas not allowed due to their ambiguity
-            ("123,456.7",         None),  # commas not allowed due to their ambiguity
-            ("-123456,7",         None),  # commas not allowed due to their ambiguity
-            ("123456,7",          None),  # commas not allowed due to their ambiguity
-            ("123_456.7",     123456.7),
-            ("-123_456.7",   -123456.7),
-            ("   123456.7",   123456.7),
-            ("123456.7   ",   123456.7),
-            (" 123456.7  ",   123456.7),
-            (123456.0,        123456.0),
-            (123456,          123456.0),
-            (-123456.0,      -123456.0),
-            (-1.0,                -1.0),
-            (0.0,                  0.0),
-        ])
-    # fmt:on
+        argvalues=test_extended_string_to_float,
+        ids=[parameters_to_string_id(actual, expected) for actual, expected in test_extended_string_to_float])
     def test_extended_string_to_float(self, spark_session, input_value, expected_value):
         input_df = self.create_input_df(input_value, spark_session)
         output_df = Mapper(mapping=[("output_key", "input_key", "extended_string_to_float")]).transform(input_df)
@@ -285,36 +298,38 @@ class TestConversionsFromString(object):
         assert isinstance(output_df.schema["output_key"].dataType, T.FloatType)
 
     # fmt:off
+    test_extended_string_to_double = [
+        ("214748364.70",          214748364.70),
+        ("214748364",              214748364.0),
+        ("-214748364.70",        -214748364.70),
+        ("-1.0",                          -1.0),
+        ("0.0",                            0.0),
+        ("NULL",                          None),
+        ("null",                          None),
+        ("None",                          None),
+        (None,                            None),
+        ("21474836470",          21474836470.0),
+        ("-21474836470",        -21474836470.0),
+        ("21,474,836,470.7",              None),  # commas not allowed due to their ambiguity
+        ("-21,474,836,470.7",             None),  # commas not allowed due to their ambiguity
+        ("21474836470,7",                 None),  # commas not allowed due to their ambiguity
+        ("-21474836470,7",                None),  # commas not allowed due to their ambiguity
+        ("21_474_836_470.7",     21474836470.7),
+        ("-21_474_836_470.7",   -21474836470.7),
+        ("   21474836470.7",     21474836470.7),
+        ("21474836470.7   ",     21474836470.7),
+        (  " 21474836470.7  ",   21474836470.7),
+        (214748364.70,            214748364.70),
+        (214748364,                214748364.0),
+        (-214748364.70,          -214748364.70),
+        (-1.0,                            -1.0),
+        (0.0,                              0.0),
+    ]
+    # fmt:on
     @pytest.mark.parametrize(
         argnames=("input_value", "expected_value"),
-        argvalues=[
-            ("214748364.70",          214748364.70),
-            ("214748364",              214748364.0),
-            ("-214748364.70",        -214748364.70),
-            ("-1.0",                          -1.0),
-            ("0.0",                            0.0),
-            ("NULL",                          None),
-            ("null",                          None),
-            ("None",                          None),
-            (None,                            None),
-            ("21474836470",          21474836470.0),
-            ("-21474836470",        -21474836470.0),
-            ("21,474,836,470.7",              None),  # commas not allowed due to their ambiguity
-            ("-21,474,836,470.7",             None),  # commas not allowed due to their ambiguity
-            ("21474836470,7",                 None),  # commas not allowed due to their ambiguity
-            ("-21474836470,7",                None),  # commas not allowed due to their ambiguity
-            ("21_474_836_470.7",     21474836470.7),
-            ("-21_474_836_470.7",   -21474836470.7),
-            ("   21474836470.7",     21474836470.7),
-            ("21474836470.7   ",     21474836470.7),
-            (  " 21474836470.7  ",   21474836470.7),
-            (214748364.70,            214748364.70),
-            (214748364,                214748364.0),
-            (-214748364.70,          -214748364.70),
-            (-1.0,                            -1.0),
-            (0.0,                              0.0),
-        ])
-    # fmt:on
+        argvalues=test_extended_string_to_double,
+        ids=[parameters_to_string_id(actual, expected) for actual, expected in test_extended_string_to_double])
     def test_extended_string_to_double(self, spark_session, input_value, expected_value):
         input_df = self.create_input_df(input_value, spark_session)
         output_df = Mapper(mapping=[("output_key", "input_key", "extended_string_to_double")]).transform(input_df)
@@ -326,41 +341,43 @@ class TestConversionsFromString(object):
         assert isinstance(output_df.schema["output_key"].dataType, T.DoubleType)
 
     # fmt:off
+    test_extended_string_to_boolean = [
+        ("1",       True),
+        ("1.0",     None),
+        ("TRUE",    True),
+        ("True",    True),
+        ("true",    True),
+        ("0",       False),
+        ("0.0",     None),
+        ("-1",      None),
+        ("-1.0",    None),
+        ("123",     None),
+        ("-123",    None),
+        (None,      None),
+        ("FALSE",   False),
+        ("False",   False),
+        ("false",   False),
+        ("n",       False),
+        ("no",      False),
+        ("yes",     True),
+        ("y",       True),
+        ("   true", True),
+        ("true   ", True),
+        (" true  ", True),
+        (1,         True),
+        (0,         False),
+        (-1,        None),
+        (1.0,       None),
+        (0.0,       None),
+        (-1.0,      None),
+        (True,       True),
+        (False,      False),
+    ]
+    # fmt:on
     @pytest.mark.parametrize(
         argnames=("input_value", "expected_value"),
-        argvalues=[
-            ("1",       True),
-            ("1.0",     None),
-            ("TRUE",    True),
-            ("True",    True),
-            ("true",    True),
-            ("0",       False),
-            ("0.0",     None),
-            ("-1",      None),
-            ("-1.0",    None),
-            ("123",     None),
-            ("-123",    None),
-            (None,      None),
-            ("FALSE",   False),
-            ("False",   False),
-            ("false",   False),
-            ("n",       False),
-            ("no",      False),
-            ("yes",     True),
-            ("y",       True),
-            ("   true", True),
-            ("true   ", True),
-            (" true  ", True),
-            (1,         True),
-            (0,         False),
-            (-1,        None),
-            (1.0,       None),
-            (0.0,       None),
-            (-1.0,      None),
-            (True,       True),
-            (False,      False),
-        ])
-    # fmt:on
+        argvalues=test_extended_string_to_boolean,
+        ids=[parameters_to_string_id(actual, expected) for actual, expected in test_extended_string_to_boolean])
     def test_extended_string_to_boolean(self, spark_session, input_value, expected_value):
         input_df = self.create_input_df(input_value, spark_session)
         output_df = Mapper(mapping=[("output_key", "input_key", "extended_string_to_boolean")]).transform(input_df)
@@ -368,38 +385,38 @@ class TestConversionsFromString(object):
         assert isinstance(output_df.schema["output_key"].dataType, T.BooleanType)
 
     # fmt:off
+    test_parameters_extended_string_to_timestamp = [
+        ("2020-08-12T12:43:14+0000",   datetime.datetime(2020, 8, 12, 12, 43, 14)),
+        ("2020-08-12T12:43:14+00:00",  datetime.datetime(2020, 8, 12, 12, 43, 14)),
+        ("2020-08-12T12:43:14Z00:00",  datetime.datetime(2020, 8, 12, 12, 43, 14)),
+        ("2020-08-12T12:43:14Z0000",   datetime.datetime(2020, 8, 12, 12, 43, 14)),
+        ("  2020-08-12T12:43:14+0000", datetime.datetime(2020, 8, 12, 12, 43, 14)),
+        ("2020-08-12T12:43:14+0000  ", datetime.datetime(2020, 8, 12, 12, 43, 14)),
+        (" 2020-08-12T12:43:14+0000 ", datetime.datetime(2020, 8, 12, 12, 43, 14)),
+        ("2020-08-12T12:43:14+02:00",  datetime.datetime(2020, 8, 12, 10, 43, 14)),
+        ("2020-08-12T12:43:14+0200",   None),  # only `+HH:MM` is supported by Spark for timezone offsets
+        ("2020-08-12T12:43:14Z0200",   None),  # only `+HH:MM` is supported by Spark for timezone offsets
+        ("2020-08-12T12:43:14",        datetime.datetime(2020, 8, 12, 12, 43, 14)),
+        ("2020-08-12 12:43:14",        datetime.datetime(2020, 8, 12, 12, 43, 14)),
+        ("2020-08-12",                 datetime.datetime(2020, 8, 12, 0, 0, 0)),
+        (None,                         None),
+        ("1597069446",                 datetime.datetime(2020, 8, 10, 14, 24, 6)),
+        (1597069446,                   datetime.datetime(2020, 8, 10, 14, 24, 6)),
+        ("-1597069446",                datetime.datetime(1919, 5, 24, 9, 35, 54)),
+        (-1597069446,                  datetime.datetime(1919, 5, 24, 9, 35, 54)),
+        ("1597069446000",              "out_of_range_for_python"),  # Spark can handle it but not Python
+        ("-1597069446000",             "out_of_range_for_python"),  # Spark can handle it but not Python
+        ("null",                       None),
+        ("0",                          datetime.datetime(1970, 1, 1, 0, 0, 0)),
+        ("-1",                         datetime.datetime(1969, 12, 31, 23, 59, 59)),
+        ("1",                          datetime.datetime(1970, 1, 1, 0, 0, 1)),
+        ("nil",                        None),
+    ]
+    # fmt:on
     @pytest.mark.parametrize(
         argnames=("input_value", "expected_value"),
-        argvalues=[
-            ("2020-08-12T12:43:14+0000",   datetime.datetime(2020, 8, 12, 12, 43, 14)),
-            ("2020-08-12T12:43:14+00:00",  datetime.datetime(2020, 8, 12, 12, 43, 14)),
-            ("2020-08-12T12:43:14Z00:00",  datetime.datetime(2020, 8, 12, 12, 43, 14)),
-            ("2020-08-12T12:43:14Z0000",   datetime.datetime(2020, 8, 12, 12, 43, 14)),
-            ("  2020-08-12T12:43:14+0000", datetime.datetime(2020, 8, 12, 12, 43, 14)),
-            ("2020-08-12T12:43:14+0000  ", datetime.datetime(2020, 8, 12, 12, 43, 14)),
-            (" 2020-08-12T12:43:14+0000 ", datetime.datetime(2020, 8, 12, 12, 43, 14)),
-            ("2020-08-12T12:43:14+02:00",  datetime.datetime(2020, 8, 12, 10, 43, 14)),
-            ("2020-08-12T12:43:14+0200",   None),  # only `+HH:MM` is supported by Spark for timezone offsets
-            ("2020-08-12T12:43:14Z0200",   None),  # only `+HH:MM` is supported by Spark for timezone offsets
-            ("2020-08-12T12:43:14",        datetime.datetime(2020, 8, 12, 12, 43, 14)),
-            ("2020-08-12 12:43:14",        datetime.datetime(2020, 8, 12, 12, 43, 14)),
-            ("2020-08-12",                 datetime.datetime(2020, 8, 12, 0, 0, 0)),
-            (None,                         None),
-            ("1597069446",                 datetime.datetime(2020, 8, 10, 14, 24, 6)),
-            (1597069446,                   datetime.datetime(2020, 8, 10, 14, 24, 6)),
-            ("-1597069446",                datetime.datetime(1919, 5, 24, 9, 35, 54)),
-            (-1597069446,                  datetime.datetime(1919, 5, 24, 9, 35, 54)),
-            ("1597069446000",              "out_of_range_for_python"),  # Spark can handle it but not Python
-            ("-1597069446000",             "out_of_range_for_python"),  # Spark can handle it but not Python
-            ("null",                       None),
-            ("0",                          datetime.datetime(1970, 1, 1, 0, 0, 0)),
-            ("-1",                         datetime.datetime(1969, 12, 31, 23, 59, 59)),
-            ("1",                          datetime.datetime(1970, 1, 1, 0, 0, 1)),
-            ("nil",                        None),
-        ],
-        ids=parameter_to_string_id
-    )
-    # fmt:on
+        argvalues=test_parameters_extended_string_to_timestamp,
+        ids=[parameters_to_string_id(actual, expected) for actual, expected in test_parameters_extended_string_to_timestamp])
     def test_extended_string_to_timestamp(self, spark_session, input_value, expected_value):
         # test uses timezone set to GMT / UTC (pytest.ini)!
         input_df = self.create_input_df(input_value, spark_session)
@@ -419,36 +436,36 @@ class TestConversionsFromString(object):
         assert isinstance(output_df.schema["output_key"].dataType, T.TimestampType)
 
     # fmt:off
+    test_parameters_extended_string_unix_timestamp_ms_to_timestamp = [
+       ("2020-08-12T12:43:14+0000",   datetime.datetime(2020, 8, 12, 12, 43, 14)),
+       ("2020-08-12T12:43:14+00:00",  datetime.datetime(2020, 8, 12, 12, 43, 14)),
+       ("2020-08-12T12:43:14Z00:00",  datetime.datetime(2020, 8, 12, 12, 43, 14)),
+       ("2020-08-12T12:43:14Z0000",   datetime.datetime(2020, 8, 12, 12, 43, 14)),
+       ("  2020-08-12T12:43:14+0000", datetime.datetime(2020, 8, 12, 12, 43, 14)),
+       ("2020-08-12T12:43:14+0000  ", datetime.datetime(2020, 8, 12, 12, 43, 14)),
+       (" 2020-08-12T12:43:14+0000 ", datetime.datetime(2020, 8, 12, 12, 43, 14)),
+       ("2020-08-12T12:43:14+02:00",  datetime.datetime(2020, 8, 12, 10, 43, 14)),
+       ("2020-08-12T12:43:14+0200",   None),  # only `+HH:MM` is supported by Spark for timezone offsets
+       ("2020-08-12T12:43:14Z0200",   None),  # only `+HH:MM` is supported by Spark for timezone offsets
+       ("2020-08-12T12:43:14",        datetime.datetime(2020, 8, 12, 12, 43, 14)),
+       ("2020-08-12 12:43:14",        datetime.datetime(2020, 8, 12, 12, 43, 14)),
+       ("2020-08-12",                 datetime.datetime(2020, 8, 12, 0, 0, 0)),
+       (None,                         None),
+       ("1597069446000",              datetime.datetime(2020, 8, 10, 14, 24, 6)),
+       (1597069446000,                datetime.datetime(2020, 8, 10, 14, 24, 6)),
+       ("-1597069446000",             datetime.datetime(1919, 5, 24, 9, 35, 54)),
+       (-1597069446000,               datetime.datetime(1919, 5, 24, 9, 35, 54)),
+       ("null",                       None),
+       ("0",                          datetime.datetime(1970, 1, 1, 0, 0, 0)),
+       ("-1",                         datetime.datetime(1969, 12, 31, 23, 59, 59)),
+       ("1",                          datetime.datetime(1970, 1, 1, 0, 0, 1)),
+       ("nil",                        None),
+    ]
+    # fmt:on
     @pytest.mark.parametrize(
         argnames=("input_value", "expected_value"),
-        argvalues=[
-            ("2020-08-12T12:43:14+0000",   datetime.datetime(2020, 8, 12, 12, 43, 14)),
-            ("2020-08-12T12:43:14+00:00",  datetime.datetime(2020, 8, 12, 12, 43, 14)),
-            ("2020-08-12T12:43:14Z00:00",  datetime.datetime(2020, 8, 12, 12, 43, 14)),
-            ("2020-08-12T12:43:14Z0000",   datetime.datetime(2020, 8, 12, 12, 43, 14)),
-            ("  2020-08-12T12:43:14+0000", datetime.datetime(2020, 8, 12, 12, 43, 14)),
-            ("2020-08-12T12:43:14+0000  ", datetime.datetime(2020, 8, 12, 12, 43, 14)),
-            (" 2020-08-12T12:43:14+0000 ", datetime.datetime(2020, 8, 12, 12, 43, 14)),
-            ("2020-08-12T12:43:14+02:00",  datetime.datetime(2020, 8, 12, 10, 43, 14)),
-            ("2020-08-12T12:43:14+0200",   None),  # only `+HH:MM` is supported by Spark for timezone offsets
-            ("2020-08-12T12:43:14Z0200",   None),  # only `+HH:MM` is supported by Spark for timezone offsets
-            ("2020-08-12T12:43:14",        datetime.datetime(2020, 8, 12, 12, 43, 14)),
-            ("2020-08-12 12:43:14",        datetime.datetime(2020, 8, 12, 12, 43, 14)),
-            ("2020-08-12",                 datetime.datetime(2020, 8, 12, 0, 0, 0)),
-            (None,                         None),
-            ("1597069446000",              datetime.datetime(2020, 8, 10, 14, 24, 6)),
-            (1597069446000,                datetime.datetime(2020, 8, 10, 14, 24, 6)),
-            ("-1597069446000",             datetime.datetime(1919, 5, 24, 9, 35, 54)),
-            (-1597069446000,               datetime.datetime(1919, 5, 24, 9, 35, 54)),
-            ("null",                       None),
-            ("0",                          datetime.datetime(1970, 1, 1, 0, 0, 0)),
-            ("-1",                         datetime.datetime(1969, 12, 31, 23, 59, 59)),
-            ("1",                          datetime.datetime(1970, 1, 1, 0, 0, 1)),
-            ("nil",                        None),
-        ],
-        ids=parameter_to_string_id
-    )
-    # fmt:on
+        argvalues=test_parameters_extended_string_unix_timestamp_ms_to_timestamp,
+        ids=[parameters_to_string_id(actual, expected) for actual, expected in test_parameters_extended_string_unix_timestamp_ms_to_timestamp])
     def test_extended_string_unix_timestamp_ms_to_timestamp(self, spark_session, input_value, expected_value):
         # test uses timezone set to GMT / UTC (pytest.ini)!
         input_df = self.create_input_df(input_value, spark_session)
