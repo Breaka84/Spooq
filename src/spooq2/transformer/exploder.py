@@ -29,9 +29,12 @@ class Exploder(Transformer):
         Writing nested columns is not supported.
         The output column has to be first level.
 
-    drop_rows_with_empty_array : :any:`bool`, (Defaults to True)
-        By default Spark (and Spooq) drops rows which don't have any elements in the array
-        which is being exploded. To work-around this, set `drop_rows_with_empty_array` to False.
+    drop_rows_with_empty_array : :any:`bool`, (Defaults to False)
+        The Spark method :meth:`~spark.sql.functions.explode` drops rows that don't
+        have any elements in the array which is being exploded.
+        To work-around this, set `drop_rows_with_empty_array` to False (default) and the
+        :meth:`~spark.sql.functions.explode_outer` method will be used internally to keep those
+        rows.
 
     Warning
     -------
