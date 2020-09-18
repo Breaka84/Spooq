@@ -3,6 +3,7 @@ from builtins import object
 import pytest
 from pyspark.sql import functions as F
 from pyspark.sql import types as T
+from pyspark.sql.utils import AnalysisException
 from spooq2.transformer import Mapper
 
 
@@ -124,12 +125,12 @@ class TestExceptionForMissingInputColumns(object):
 
     def test_missing_column_raises_exception(self, input_df, transformer):
         input_df = input_df.drop("attributes")
-        with pytest.raises(ValueError):
+        with pytest.raises(AnalysisException):
             transformer.transform(input_df)
 
     def test_empty_input_dataframe_raises_exception(self, spark_session, transformer):
         input_df = spark_session.createDataFrame([], schema=T.StructType())
-        with pytest.raises(ValueError):
+        with pytest.raises(AnalysisException):
             transformer.transform(input_df)
 
 

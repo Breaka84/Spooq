@@ -722,7 +722,13 @@ def _generate_select_expression_for_extended_string_to_boolean(source_column, na
      Row(input_string=False),
      Row(input_string=True)]
     """
-    return F.trim(source_column).cast(sql_types.BooleanType()).alias(name)
+    return (
+        F.when(F.trim(source_column) == "on", F.lit(True))
+        .when(F.trim(source_column) == "enabled", F.lit(True))
+        .when(F.trim(source_column) == "off", F.lit(False))
+        .when(F.trim(source_column) == "disabled", F.lit(False))
+        .otherwise(F.trim(source_column).cast(sql_types.BooleanType()))
+    ).alias(name)
 
 
 def _generate_select_expression_for_extended_string_to_timestamp(source_column, name):
