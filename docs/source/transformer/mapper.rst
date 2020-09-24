@@ -8,6 +8,8 @@ Class
 
 Activity Diagram
 ---------------------------------------------
+# todo: update to new logic
+
 .. uml:: ../diagrams/from_thesis/activity/mapper_1.puml
 
 Custom Mapping Methods

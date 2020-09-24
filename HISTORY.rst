@@ -1,8 +1,9 @@
 =======
 History
 =======
-2.2.0 (2020-09-18)
+2.2.0 (2020-09-24)
 ------------------
+* [MOD] add support for prepending and appending mappings on input dataframe (Mapper)
 * [MOD] add support for custom spark sql functions in mapper without injecting methods
 * [MOD] add support for "on"/"off" and "enabled"/"disabled" in extended_string_to_boolean custom mapper transformations
 

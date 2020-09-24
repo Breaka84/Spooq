@@ -769,6 +769,7 @@ def _generate_select_expression_for_extended_string_to_timestamp(source_column, 
         ).otherwise(F.trim(source_column).cast(sql_types.TimestampType())).alias(name)
     )
 
+
 def _generate_select_expression_for_extended_string_unix_timestamp_ms_to_timestamp(source_column, name):
     """
     More robust conversion from StringType to TimestampsType. It is assumed that the

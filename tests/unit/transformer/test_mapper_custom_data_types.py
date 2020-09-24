@@ -74,6 +74,8 @@ class TestDynamicallyCallMethodsByDataTypeName(object):
         ("_generate_select_expression_for_extended_string_to_double",    "extended_string_to_double"),
         ("_generate_select_expression_for_extended_string_to_boolean",   "extended_string_to_boolean"),
         ("_generate_select_expression_for_extended_string_to_timestamp", "extended_string_to_timestamp"),
+        ("_generate_select_expression_for_extended_string_unix_timestamp_ms_to_timestamp",
+         "extended_string_unix_timestamp_ms_to_timestamp"),
     ])
     # fmt: on
     def test_get_select_expression_for_custom_type(self, data_type, function_name, mocker):
@@ -207,7 +209,7 @@ class TestMiscConversions(object):
         assert output_df.schema["output_column"].dataType.typeName() == "integer", "Casting of column"
 
 
-class TestConversionsFromString(object):
+class TestExtendedStringConversions(object):
 
     @staticmethod
     def create_input_df(input_value, spark_session):

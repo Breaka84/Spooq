@@ -95,7 +95,7 @@ class TestShapeOfMappedDataFrame(object):
         """Amount of Columns of the mapped DF is according to the Mapping"""
         assert len(mapped_df.columns) == len(mapping)
 
-    def test_columns_are_renamed(self, input_df, mapped_df, mapping):
+    def test_columns_are_renamed(self, mapped_df, mapping):
         """Mapped DF has renamed the Columns according to the Mapping"""
         assert mapped_df.columns == [name for (name, path, data_type) in mapping]
 
@@ -113,6 +113,59 @@ class TestShapeOfMappedDataFrame(object):
         input_df = spark_session.createDataFrame([], schema=T.StructType())
         mapped_df = transformer.transform(input_df)
         assert mapped_df.columns == [name for (name, path, data_type) in mapping]
+
+
+class TestMultipleMappings(object):
+
+    @pytest.fixture(scope="module")
+    def input_columns(self, mapped_df):
+        return mapped_df.columns
+
+    @pytest.fixture(scope="module")
+    def new_mapping(self):
+        return [("created_date", "meta.created_at_sec", "DateType")]
+
+    @pytest.fixture(scope="module")
+    def new_columns(self, new_mapping):
+        return [name for (name, path, data_type) in new_mapping]
+
+    def test_appending_a_mapping(self, mapped_df, new_mapping, input_columns, new_columns):
+        """Output schema is correct for added mapping at the end of the input schema"""
+        new_mapped_df = Mapper(mapping=new_mapping, mode="append").transform(mapped_df)
+        assert input_columns + new_columns == new_mapped_df.columns
+
+    def test_prepending_a_mapping(self, mapped_df, new_mapping, input_columns, new_columns):
+        """Output schema is correct for added mapping at the beginning of the input schema"""
+        new_mapped_df = Mapper(mapping=new_mapping, mode="prepend").transform(mapped_df)
+        assert new_columns + input_columns == new_mapped_df.columns
+
+    def test_appending_a_mapping_with_duplicated_columns(self, input_columns, mapped_df):
+        """Output schema is correct for newly appended mapping with columns
+        that are also included in the input schema"""
+        new_mapping = [
+            ("created_date", "meta.created_at_sec", "DateType"),
+            ("birthday",     "birthday",            "DateType"),
+        ]
+        new_columns = [name for (name, path, data_type) in new_mapping]
+        new_columns_deduplicated = [x for x in new_columns if x not in input_columns]
+        new_mapped_df = Mapper(mapping=new_mapping, mode="append").transform(mapped_df)
+        assert input_columns + new_columns_deduplicated == new_mapped_df.columns
+        assert mapped_df.schema["birthday"].dataType == T.TimestampType()
+        assert new_mapped_df.schema["birthday"].dataType == T.DateType()
+
+    def test_prepending_a_mapping_with_duplicated_columns(self, input_columns, mapped_df):
+        """Output schema is correct for newly prepended mapping with columns
+        that are also included in the input schema"""
+        new_mapping = [
+            ("created_date", "meta.created_at_sec", "DateType"),
+            ("birthday",     "birthday",            "DateType"),
+        ]
+        new_columns = [name for (name, path, data_type) in new_mapping]
+        new_columns_deduplicated = [x for x in new_columns if x not in input_columns]
+        new_mapped_df = Mapper(mapping=new_mapping, mode="prepend").transform(mapped_df)
+        assert new_columns_deduplicated + input_columns == new_mapped_df.columns
+        assert mapped_df.schema["birthday"].dataType == T.TimestampType()
+        assert new_mapped_df.schema["birthday"].dataType == T.DateType()
 
 
 class TestExceptionForMissingInputColumns(object):

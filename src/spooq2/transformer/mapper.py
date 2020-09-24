@@ -85,16 +85,19 @@ class Mapper(Transformer):
     Attention: Decimal is NOT SUPPORTED by Hive! Please use Double instead!
     """
 
-    def __init__(self, mapping, ignore_missing_columns=True):
+    def __init__(self, mapping, ignore_missing_columns=True, mode="replace"):
         super(Mapper, self).__init__()
         self.mapping = mapping
         self.ignore_missing_columns = ignore_missing_columns
+        self.mode = mode
 
     def transform(self, input_df):
         self.logger.info("Generating SQL Select-Expression for Mapping...")
         self.logger.debug("Input Schema/Mapping: {mp}".format(mp=str(self.mapping)))
 
+        input_columns = input_df.columns
         select_expressions = []
+        with_column_expressions = []
 
         for (name, source_column, data_type) in self.mapping:
             self.logger.debug(
@@ -109,14 +112,36 @@ class Mapper(Transformer):
 
             self.logger.debug("Select-Expression for Attribute {nm}: {sql_expr}"
                               .format(nm=name, sql_expr=str(select_expression)))
-            select_expressions.append(select_expression)
+            if self.mode != "replace" and name in input_columns:
+                with_column_expressions.append((name, select_expression))
+            else:
+                select_expressions.append(select_expression)
 
-        self.logger.info("SQL Select-Expression for mapping generated!" + str(select_expressions))
-        self.logger.debug("SQL Select-Expression for mapping: " + str(select_expressions))
-        return input_df.select(select_expressions)
+        self.logger.info("SQL Select-Expression for new mapping generated!" + str(select_expressions))
+        self.logger.debug("SQL Select-Expressions for new mapping: " + str(select_expressions))
+        self.logger.debug("SQL WithColumn-Expressions for new mapping: " + str(with_column_expressions))
+        if self.mode == "prepend":
+            df_to_return = input_df.select(select_expressions + ["*"])
+        elif self.mode == "append":
+            df_to_return = input_df.select(["*"] + select_expressions)
+        elif self.mode == "replace":
+            df_to_return = input_df.select(select_expressions)
+        else:
+            exception_message = ("Only 'prepend', 'append' and 'replace' are allowed for Mapper mode!"
+                                 "Value: '{val}' was used as mode for the Mapper transformer.")
+            self.logger.exception(exception_message)
+            raise ValueError(exception_message)
+
+        if with_column_expressions:
+            for name, expression in with_column_expressions:
+                df_to_return = df_to_return.withColumn(name, expression)
+        return df_to_return
 
     def _get_spark_column(self, source_column, name, input_df):
-        # todo: write proper docstring
+        """
+        Returns the provided source column as a Pyspark.sql.Column and marks if it is missing or not.
+        Supports source column definition as a string or a Pyspark.sql.Column (including functions).
+        """
         try:
             input_df.select(source_column)
             source_column_is_missing = False
@@ -136,7 +161,11 @@ class Mapper(Transformer):
 
     @staticmethod
     def _get_spark_data_type(data_type):
-        # todo: write proper docstring
+        """
+        Returns the provided data_type as a Pyspark.sql.type.DataType (for spark-built-ins)
+        or as a string (for custom spooq transformations) and marks if it is built-in or not.
+        Supports source column definition as a string or a Pyspark.sql.Column (including functions).
+        """
         if isinstance(data_type, T.DataType):
             data_type_is_spark_builtin = True
         elif isinstance(data_type, str):
@@ -155,7 +184,9 @@ class Mapper(Transformer):
     @staticmethod
     def _get_select_expression(name, source_column, data_type, source_column_is_missing,
                                data_type_is_spark_builtin):
-        # todo: write proper docstring
+        """
+        Returns a valid pyspark sql select-expression with cast and alias, depending on the input parameters.
+        """
         if data_type_is_spark_builtin:
             return source_column.cast(data_type).alias(name)
 
