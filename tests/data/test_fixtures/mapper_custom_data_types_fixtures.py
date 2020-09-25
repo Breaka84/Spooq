@@ -212,7 +212,6 @@ fixtures_for_extended_string_to_timestamp = [
     ("nil",                        None),
 ]
 
-# fmt:off
 fixtures_for_extended_string_unix_timestamp_ms_to_timestamp = [
     ("2020-08-12T12:43:14+0000",   datetime.datetime(2020, 8, 12, 12, 43, 14)),
     ("2020-08-12T12:43:14+00:00",  datetime.datetime(2020, 8, 12, 12, 43, 14)),
@@ -236,6 +235,60 @@ fixtures_for_extended_string_unix_timestamp_ms_to_timestamp = [
     ("0",                          datetime.datetime(1970, 1, 1, 0, 0, 0)),
     ("-1",                         datetime.datetime(1969, 12, 31, 23, 59, 59)),
     ("1",                          datetime.datetime(1970, 1, 1, 0, 0, 1)),
+    ("nil",                        None),
+]
+
+fixtures_for_extended_string_to_date = [
+    ("2020-08-12T12:43:14+0000",   datetime.date(2020, 8, 12)),
+    ("2020-08-12T12:43:14+00:00",  datetime.date(2020, 8, 12)),
+    ("2020-08-12T12:43:14Z00:00",  datetime.date(2020, 8, 12)),
+    ("2020-08-12T12:43:14Z0000",   datetime.date(2020, 8, 12)),
+    ("  2020-08-12T12:43:14+0000", datetime.date(2020, 8, 12)),
+    ("2020-08-12T12:43:14+0000  ", datetime.date(2020, 8, 12)),
+    (" 2020-08-12T12:43:14+0000 ", datetime.date(2020, 8, 12)),
+    ("2020-08-12T12:43:14+02:00",  datetime.date(2020, 8, 12)),
+    ("2020-08-12T12:43:14+0200",   None),  # only `+HH:MM` is supported by Spark for timezone offsets
+    ("2020-08-12T12:43:14Z0200",   None),  # only `+HH:MM` is supported by Spark for timezone offsets
+    ("2020-08-12T12:43:14",        datetime.date(2020, 8, 12)),
+    ("2020-08-12 12:43:14",        datetime.date(2020, 8, 12)),
+    ("2020-08-12",                 datetime.date(2020, 8, 12)),
+    (None,                         None),
+    ("1597069446",                 datetime.date(2020, 8, 10)),
+    (1597069446,                   datetime.date(2020, 8, 10)),
+    ("-1597069446",                datetime.date(1919, 5, 24)),
+    (-1597069446,                  datetime.date(1919, 5, 24)),
+    ("1597069446000",              "out_of_range_for_python"),  # Spark can handle it but not Python
+    ("-1597069446000",             "out_of_range_for_python"),  # Spark can handle it but not Python
+    ("null",                       None),
+    ("0",                          datetime.date(1970, 1, 1,)),
+    ("-1",                         datetime.date(1969, 12, 31,)),
+    ("1",                          datetime.date(1970, 1, 1,)),
+    ("nil",                        None),
+]
+
+fixtures_for_extended_string_unix_timestamp_ms_to_date = [
+    ("2020-08-12T12:43:14+0000",   datetime.date(2020, 8, 12)),
+    ("2020-08-12T12:43:14+00:00",  datetime.date(2020, 8, 12)),
+    ("2020-08-12T12:43:14Z00:00",  datetime.date(2020, 8, 12)),
+    ("2020-08-12T12:43:14Z0000",   datetime.date(2020, 8, 12)),
+    ("  2020-08-12T12:43:14+0000", datetime.date(2020, 8, 12)),
+    ("2020-08-12T12:43:14+0000  ", datetime.date(2020, 8, 12)),
+    (" 2020-08-12T12:43:14+0000 ", datetime.date(2020, 8, 12)),
+    ("2020-08-12T12:43:14+02:00",  datetime.date(2020, 8, 12)),
+    ("2020-08-12T12:43:14+0200",   None),  # only `+HH:MM` is supported by Spark for timezone offsets
+    ("2020-08-12T12:43:14Z0200",   None),  # only `+HH:MM` is supported by Spark for timezone offsets
+    ("2020-08-12T12:43:14",        datetime.date(2020, 8, 12)),
+    ("2020-08-12 12:43:14",        datetime.date(2020, 8, 12)),
+    ("2020-08-12",                 datetime.date(2020, 8, 12)),
+    (None,                         None),
+    ("1597069446000",              datetime.date(2020, 8, 10)),
+    (1597069446000,                datetime.date(2020, 8, 10)),
+    ("-1597069446000",             datetime.date(1919, 5, 24)),
+    (-1597069446000,               datetime.date(1919, 5, 24)),
+    ("null",                       None),
+    ("0",                          datetime.date(1970, 1, 1)),
+    ("-1",                         datetime.date(1969, 12, 31)),
+    ("1",                          datetime.date(1970, 1, 1)),
     ("nil",                        None),
 ]
 # fmt:on

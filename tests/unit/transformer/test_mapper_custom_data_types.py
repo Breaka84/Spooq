@@ -17,6 +17,8 @@ from ...data.test_fixtures.mapper_custom_data_types_fixtures import (
     fixtures_for_extended_string_to_boolean,
     fixtures_for_extended_string_to_timestamp,
     fixtures_for_extended_string_unix_timestamp_ms_to_timestamp,
+    fixtures_for_extended_string_to_date,
+    fixtures_for_extended_string_unix_timestamp_ms_to_date
 )
 
 
@@ -192,18 +194,27 @@ class TestMiscConversions(object):
     @pytest.mark.parametrize(
         argnames=("input_value", "expected_value"),
         argvalues=[
-            (1.80,  180),
-            (2.,    200),
-            (-1.0, -100),
-            (0.0,     0),
+            (1.80,    180),
+            (2.,      200),
+            (-1.0,   -100),
+            (0.0,       0),
+            (0,         0),
+            (2,       200),
+            (-4,     -400),
+            ("1.80",  180),
+            ("2.",    200),
+            ("-1.0", -100),
+            ("0.0",     0),
+            (None,   None),
+            ("one",  None),
         ])
     # fmt: on
     def test_generate_select_expression_for_meters_to_cm(self, input_value, expected_value, spark_session):
         input_df = spark_session.createDataFrame(
-            [Row(input_column=input_value)],
-            schema=T.StructType([T.StructField("input_column", T.DoubleType(), True)])
+            data=[Row(input_key=input_value)],
+            schema=T.StructType([T.StructField("input_key", get_spark_data_type(input_value), True)])
         )
-        output_df = Mapper(mapping=[("output_column", "input_column", "meters_to_cm")]).transform(input_df)
+        output_df = Mapper(mapping=[("output_column", "input_key", "meters_to_cm")]).transform(input_df)
         assert output_df.first().output_column == expected_value, "Processing of column value"
         assert output_df.schema.fieldNames() == ["output_column"], "Renaming of column"
         assert output_df.schema["output_column"].dataType.typeName() == "integer", "Casting of column"
@@ -318,6 +329,35 @@ class TestExtendedStringConversions(object):
             assert expected_value is None
         assert isinstance(output_df.schema["output_key"].dataType, T.TimestampType)
 
+    @pytest.mark.parametrize(
+        argnames=("input_value", "expected_value"),
+        argvalues=fixtures_for_extended_string_to_date,
+        ids=[parameters_to_string_id(actual, expected)
+             for actual, expected
+             in fixtures_for_extended_string_to_date])
+    def test_extended_string_to_date(self, spark_session, input_value, expected_value):
+        input_df = self.create_input_df(input_value, spark_session)
+        output_df = Mapper(mapping=[("output_key", "input_key", "extended_string_to_date")]).transform(input_df)
+        try:
+            actual_value = output_df.first().output_key
+        except ValueError:
+            # If input is in milliseconds it will still be stored in the DF but cannot be collected in Python
+            actual_value = "out_of_range_for_python"
+        assert actual_value == expected_value
+        assert isinstance(output_df.schema["output_key"].dataType, T.DateType)
+
+    @pytest.mark.parametrize(
+        argnames=("input_value", "expected_value"),
+        argvalues=fixtures_for_extended_string_unix_timestamp_ms_to_date,
+        ids=[parameters_to_string_id(actual, expected)
+             for actual, expected
+             in fixtures_for_extended_string_unix_timestamp_ms_to_date])
+    def test_extended_string_unix_timestamp_ms_to_date(self, spark_session, input_value, expected_value):
+        input_df = self.create_input_df(input_value, spark_session)
+        output_df = Mapper(mapping=[("output_key", "input_key", "extended_string_unix_timestamp_ms_to_date")]).transform(input_df)
+        actual_value = output_df.first().output_key
+        assert actual_value == expected_value
+        assert isinstance(output_df.schema["output_key"].dataType, T.DateType)
 
 class TestAnonymizingMethods(object):
     # fmt: off
