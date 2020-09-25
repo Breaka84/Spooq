@@ -722,11 +722,11 @@ def _generate_select_expression_for_extended_string_to_boolean(source_column, na
      Row(input_string=False),
      Row(input_string=True)]
     """
+    true_values = ["on", "enabled"]
+    false_values = ["off", "disabled"]
     return (
-        F.when(F.trim(source_column) == "on", F.lit(True))
-        .when(F.trim(source_column) == "enabled", F.lit(True))
-        .when(F.trim(source_column) == "off", F.lit(False))
-        .when(F.trim(source_column) == "disabled", F.lit(False))
+        F.when(F.trim(source_column).isin(true_values), F.lit(True))
+        .when(F.trim(source_column).isin(false_values), F.lit(False))
         .otherwise(F.trim(source_column).cast(sql_types.BooleanType()))
     ).alias(name)
 
