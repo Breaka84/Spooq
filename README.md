@@ -1,3 +1,5 @@
+[![Documentation Status](https://readthedocs.org/projects/spooq/badge/?version=latest)](https://spooq.readthedocs.io/en/latest/?badge=latest)
+
 # Welcome to Spooq 2
 
 **Spooq** is a PySpark based helper library for ETL data ingestion pipeline in Data Lakes.
