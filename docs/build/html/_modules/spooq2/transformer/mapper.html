@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>spooq2.transformer.mapper &mdash; Spooq2 2.1.0 documentation</title>
+  <title>spooq2.transformer.mapper &mdash; Spooq2 2.2.0 documentation</title>
   
 
   
@@ -159,8 +159,9 @@
 <span></span><span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">absolute_import</span>
 <span class="kn">from</span> <span class="nn">builtins</span> <span class="kn">import</span> <span class="nb">str</span>
 <span class="kn">from</span> <span class="nn">pyspark.sql.utils</span> <span class="kn">import</span> <span class="n">AnalysisException</span>
-<span class="kn">from</span> <span class="nn">pyspark.sql.functions</span> <span class="kn">import</span> <span class="n">lit</span>
-<span class="kn">from</span> <span class="nn">pyspark.sql</span> <span class="kn">import</span> <span class="n">types</span> <span class="k">as</span> <span class="n">sql_types</span>
+<span class="kn">from</span> <span class="nn">pyspark.sql</span> <span class="kn">import</span> <span class="n">functions</span> <span class="k">as</span> <span class="n">F</span>
+<span class="kn">from</span> <span class="nn">pyspark.sql</span> <span class="kn">import</span> <span class="n">types</span> <span class="k">as</span> <span class="n">T</span>
+<span class="kn">from</span> <span class="nn">pyspark.sql.column</span> <span class="kn">import</span> <span class="n">Column</span>
 
 <span class="kn">from</span> <span class="nn">.transformer</span> <span class="kn">import</span> <span class="n">Transformer</span>
 <span class="kn">from</span> <span class="nn">.mapper_custom_data_types</span> <span class="kn">import</span> <span class="n">_get_select_expression_for_custom_type</span>
@@ -242,73 +243,119 @@
 <span class="sd">    Attention: Decimal is NOT SUPPORTED by Hive! Please use Double instead!</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mapping</span><span class="p">,</span> <span class="n">ignore_missing_columns</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mapping</span><span class="p">,</span> <span class="n">ignore_missing_columns</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;replace&quot;</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">Mapper</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">mapping</span> <span class="o">=</span> <span class="n">mapping</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">ignore_missing_columns</span> <span class="o">=</span> <span class="n">ignore_missing_columns</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Mapping: </span><span class="si">{mp}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">mp</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mapping</span><span class="p">)))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mode</span> <span class="o">=</span> <span class="n">mode</span>
 
 <div class="viewcode-block" id="Mapper.transform"><a class="viewcode-back" href="../../../transformer/mapper.html#spooq2.transformer.mapper.Mapper.transform">[docs]</a>    <span class="k">def</span> <span class="nf">transform</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_df</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Schema: &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mapping</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Generating SQL Select-Expression for Mapping...&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Input Schema/Mapping: </span><span class="si">{mp}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">mp</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mapping</span><span class="p">)))</span>
 
+        <span class="n">input_columns</span> <span class="o">=</span> <span class="n">input_df</span><span class="o">.</span><span class="n">columns</span>
         <span class="n">select_expressions</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">with_column_expressions</span> <span class="o">=</span> <span class="p">[]</span>
 
-        <span class="k">for</span> <span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">data_type</span><span class="p">)</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">mapping</span><span class="p">:</span>
+        <span class="k">for</span> <span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">source_column</span><span class="p">,</span> <span class="n">data_type</span><span class="p">)</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">mapping</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
                 <span class="s2">&quot;generating Select statement for attribute: </span><span class="si">{nm}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">nm</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
             <span class="p">)</span>
 
-            <span class="n">data_type</span> <span class="o">=</span> <span class="n">data_type</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;()&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
-            <span class="n">data_type_is_spark_builtin</span> <span class="o">=</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">sql_types</span><span class="p">,</span> <span class="n">data_type</span><span class="p">)</span>
-            <span class="n">path_segments</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)</span>
+            <span class="n">source_column</span><span class="p">,</span> <span class="n">source_column_is_missing</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_spark_column</span><span class="p">(</span><span class="n">source_column</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">input_df</span><span class="p">)</span>
+            <span class="n">data_type</span><span class="p">,</span> <span class="n">data_type_is_spark_builtin</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_spark_data_type</span><span class="p">(</span><span class="n">data_type</span><span class="p">)</span>
+            <span class="n">select_expression</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_select_expression</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">source_column</span><span class="p">,</span> <span class="n">data_type</span><span class="p">,</span>
+                                                            <span class="n">source_column_is_missing</span><span class="p">,</span>
+                                                            <span class="n">data_type_is_spark_builtin</span><span class="p">)</span>
 
-            <span class="n">source_column</span> <span class="o">=</span> <span class="n">input_df</span>
-            <span class="n">source_column_is_missing</span> <span class="o">=</span> <span class="kc">False</span>
-            <span class="k">for</span> <span class="n">path_segment</span> <span class="ow">in</span> <span class="n">path_segments</span><span class="p">:</span>
-                <span class="k">try</span><span class="p">:</span>
-                    <span class="n">source_column</span> <span class="o">=</span> <span class="n">source_column</span><span class="p">[</span><span class="n">path_segment</span><span class="p">]</span>
-                    <span class="n">input_df</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">source_column</span><span class="p">)</span>
-                <span class="k">except</span> <span class="n">AnalysisException</span><span class="p">:</span>
-                    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ignore_missing_columns</span><span class="p">:</span>
-                        <span class="n">source_column</span> <span class="o">=</span> <span class="kc">None</span>
-                        <span class="n">source_column_is_missing</span> <span class="o">=</span> <span class="kc">True</span>
-                        <span class="k">break</span>
-                    <span class="k">else</span><span class="p">:</span>
-                        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                            <span class="s2">&quot;Column: </span><span class="se">\&quot;</span><span class="si">{}</span><span class="se">\&quot;</span><span class="s2"> is missing in the input DataFrame &quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">path</span><span class="p">)</span> <span class="o">+</span>
-                            <span class="s2">&quot;but is referenced in the mapping by column: </span><span class="se">\&quot;</span><span class="si">{}</span><span class="se">\&quot;</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
-                        <span class="p">)</span>
-
-            <span class="k">del</span> <span class="n">path_segment</span><span class="p">,</span> <span class="n">path_segments</span>
-
-            <span class="k">if</span> <span class="n">data_type_is_spark_builtin</span><span class="p">:</span>
-
-                <span class="k">if</span> <span class="n">source_column_is_missing</span><span class="p">:</span>
-                    <span class="n">select_expression</span> <span class="o">=</span> <span class="n">lit</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
-                <span class="k">else</span><span class="p">:</span>
-                    <span class="n">select_expression</span> <span class="o">=</span> <span class="n">source_column</span>
-
-                <span class="n">select_expressions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-                    <span class="n">select_expression</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="n">sql_types</span><span class="p">,</span> <span class="n">data_type</span><span class="p">)())</span><span class="o">.</span><span class="n">alias</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
-                <span class="p">)</span>
-
-            <span class="k">else</span><span class="p">:</span>  <span class="c1"># Custom Data Type</span>
-
-                <span class="k">if</span> <span class="n">source_column_is_missing</span><span class="p">:</span>
-                    <span class="n">select_expression</span> <span class="o">=</span> <span class="n">lit</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span><span class="o">.</span><span class="n">alias</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
-                <span class="k">else</span><span class="p">:</span>
-                    <span class="n">select_expression</span> <span class="o">=</span> <span class="n">_get_select_expression_for_custom_type</span><span class="p">(</span>
-                        <span class="n">source_column</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">data_type</span>
-                    <span class="p">)</span>
-
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Select-Expression for Attribute </span><span class="si">{nm}</span><span class="s2">: </span><span class="si">{sql_expr}</span><span class="s2">&quot;</span>
+                              <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">nm</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">sql_expr</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">select_expression</span><span class="p">)))</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">mode</span> <span class="o">!=</span> <span class="s2">&quot;replace&quot;</span> <span class="ow">and</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">input_columns</span><span class="p">:</span>
+                <span class="n">with_column_expressions</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">name</span><span class="p">,</span> <span class="n">select_expression</span><span class="p">))</span>
+            <span class="k">else</span><span class="p">:</span>
                 <span class="n">select_expressions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">select_expression</span><span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-            <span class="s2">&quot;SQL Select-Expression for mapping: &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">select_expressions</span><span class="p">)</span>
-        <span class="p">)</span>
-        <span class="n">spark_sql_query</span> <span class="o">=</span> <span class="n">input_df</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">select_expressions</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;SQL Select-Expression for new mapping generated!&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">select_expressions</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;SQL Select-Expressions for new mapping: &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">select_expressions</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;SQL WithColumn-Expressions for new mapping: &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">with_column_expressions</span><span class="p">))</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">mode</span> <span class="o">==</span> <span class="s2">&quot;prepend&quot;</span><span class="p">:</span>
+            <span class="n">df_to_return</span> <span class="o">=</span> <span class="n">input_df</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">select_expressions</span> <span class="o">+</span> <span class="p">[</span><span class="s2">&quot;*&quot;</span><span class="p">])</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">mode</span> <span class="o">==</span> <span class="s2">&quot;append&quot;</span><span class="p">:</span>
+            <span class="n">df_to_return</span> <span class="o">=</span> <span class="n">input_df</span><span class="o">.</span><span class="n">select</span><span class="p">([</span><span class="s2">&quot;*&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="n">select_expressions</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">mode</span> <span class="o">==</span> <span class="s2">&quot;replace&quot;</span><span class="p">:</span>
+            <span class="n">df_to_return</span> <span class="o">=</span> <span class="n">input_df</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">select_expressions</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">exception_message</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;Only &#39;prepend&#39;, &#39;append&#39; and &#39;replace&#39; are allowed for Mapper mode!&quot;</span>
+                                 <span class="s2">&quot;Value: &#39;</span><span class="si">{val}</span><span class="s2">&#39; was used as mode for the Mapper transformer.&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="n">exception_message</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">exception_message</span><span class="p">)</span>
 
-        <span class="k">return</span> <span class="n">spark_sql_query</span></div></div>
+        <span class="k">if</span> <span class="n">with_column_expressions</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">expression</span> <span class="ow">in</span> <span class="n">with_column_expressions</span><span class="p">:</span>
+                <span class="n">df_to_return</span> <span class="o">=</span> <span class="n">df_to_return</span><span class="o">.</span><span class="n">withColumn</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">expression</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">df_to_return</span></div>
+
+    <span class="k">def</span> <span class="nf">_get_spark_column</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">source_column</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">input_df</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the provided source column as a Pyspark.sql.Column and marks if it is missing or not.</span>
+<span class="sd">        Supports source column definition as a string or a Pyspark.sql.Column (including functions).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">input_df</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">source_column</span><span class="p">)</span>
+            <span class="n">source_column_is_missing</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">source_column</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+                <span class="n">source_column</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="n">source_column</span><span class="p">)</span>
+
+        <span class="k">except</span> <span class="n">AnalysisException</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">source_column</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">ignore_missing_columns</span><span class="p">:</span>
+                <span class="n">source_column</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">lit</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
+                <span class="n">source_column_is_missing</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span>
+                    <span class="s2">&quot;Column: </span><span class="se">\&quot;</span><span class="si">{}</span><span class="se">\&quot;</span><span class="s2"> cannot be resolved &quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">source_column</span><span class="p">))</span> <span class="o">+</span>
+                    <span class="s2">&quot;but is referenced in the mapping by column: </span><span class="se">\&quot;</span><span class="si">{}</span><span class="se">\&quot;</span><span class="s2">.</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="p">))</span>
+                <span class="k">raise</span> <span class="n">e</span>
+        <span class="k">return</span> <span class="n">source_column</span><span class="p">,</span> <span class="n">source_column_is_missing</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_get_spark_data_type</span><span class="p">(</span><span class="n">data_type</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the provided data_type as a Pyspark.sql.type.DataType (for spark-built-ins)</span>
+<span class="sd">        or as a string (for custom spooq transformations) and marks if it is built-in or not.</span>
+<span class="sd">        Supports source column definition as a string or a Pyspark.sql.Column (including functions).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data_type</span><span class="p">,</span> <span class="n">T</span><span class="o">.</span><span class="n">DataType</span><span class="p">):</span>
+            <span class="n">data_type_is_spark_builtin</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data_type</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="n">data_type</span> <span class="o">=</span> <span class="n">data_type</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;()&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">T</span><span class="p">,</span> <span class="n">data_type</span><span class="p">):</span>
+                <span class="n">data_type_is_spark_builtin</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="n">data_type</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">T</span><span class="p">,</span> <span class="n">data_type</span><span class="p">)()</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">data_type_is_spark_builtin</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;data_type not supported! class: </span><span class="se">\&quot;</span><span class="si">{}</span><span class="se">\&quot;</span><span class="s2">, name: </span><span class="se">\&quot;</span><span class="si">{}</span><span class="se">\&quot;</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                    <span class="nb">type</span><span class="p">(</span><span class="n">data_type</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">data_type</span><span class="p">)))</span>
+        <span class="k">return</span> <span class="n">data_type</span><span class="p">,</span> <span class="n">data_type_is_spark_builtin</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_get_select_expression</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">source_column</span><span class="p">,</span> <span class="n">data_type</span><span class="p">,</span> <span class="n">source_column_is_missing</span><span class="p">,</span>
+                               <span class="n">data_type_is_spark_builtin</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns a valid pyspark sql select-expression with cast and alias, depending on the input parameters.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">data_type_is_spark_builtin</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">source_column</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">data_type</span><span class="p">)</span><span class="o">.</span><span class="n">alias</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+
+        <span class="k">else</span><span class="p">:</span>  <span class="c1"># Custom Data Type</span>
+            <span class="k">if</span> <span class="n">source_column_is_missing</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">source_column</span><span class="o">.</span><span class="n">alias</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">_get_select_expression_for_custom_type</span><span class="p">(</span>
+                    <span class="n">source_column</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">data_type</span>
+                <span class="p">)</span></div>
+
 </pre></div>
 
            </div>

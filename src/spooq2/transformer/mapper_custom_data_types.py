@@ -20,7 +20,7 @@ from past.utils import old_div
 import sys
 import json
 from pyspark.sql import functions as F
-from pyspark.sql import types as sql_types
+from pyspark.sql import types as T
 
 __all__ = ["add_custom_data_type"]
 
@@ -39,7 +39,7 @@ def add_custom_data_type(function_name, func):
     -------
     >>> import spooq2.transformer.mapper_custom_data_types as custom_types
     >>> import spooq2.transformer as T
-    >>> from pyspark.sql import Row, functions as F, types as sql_types
+    >>> from pyspark.sql import Row, functions as F, types as T
 
     >>> def hello_world(source_column, name):
     >>>     "A UDF (User Defined Function) in Python"
@@ -49,7 +49,7 @@ def add_custom_data_type(function_name, func):
     >>>         else:
     >>>             return "Hello World"
     >>>
-    >>>     udf_hello_world = F.udf(_to_hello_world, sql_types.StringType())
+    >>>     udf_hello_world = F.udf(_to_hello_world, T.StringType())
     >>>     return udf_hello_world(source_column).alias(name)
     >>>
     >>> input_df = spark.createDataFrame(
@@ -203,7 +203,7 @@ def _generate_select_expression_for_json_string(source_column, name):
         except (AttributeError, TypeError):
             return str(col)
 
-    udf_to_json = F.udf(_to_json, sql_types.StringType())
+    udf_to_json = F.udf(_to_json, T.StringType())
     return udf_to_json(source_column).alias(name)
 
 
@@ -240,7 +240,7 @@ def _generate_select_expression_for_timestamp_ms_to_ms(source_column, name):
     return (
         F.when(source_column.between(MIN_TIMESTAMP_MS, MAX_TIMESTAMP_MS), source_column)
         .otherwise(F.lit(None))
-        .cast(sql_types.LongType())
+        .cast(T.LongType())
         .alias(name)
     )
 
@@ -281,7 +281,7 @@ def _generate_select_expression_for_timestamp_ms_to_s(source_column, name):
             source_column / 1000,
         )
         .otherwise(F.lit(None))
-        .cast(sql_types.LongType())
+        .cast(T.LongType())
         .alias(name)
     )
 
@@ -322,7 +322,7 @@ def _generate_select_expression_for_timestamp_s_to_ms(source_column, name):
             source_column * 1000,
         )
         .otherwise(F.lit(None))
-        .cast(sql_types.LongType())
+        .cast(T.LongType())
         .alias(name)
     )
 
@@ -359,7 +359,7 @@ def _generate_select_expression_for_timestamp_s_to_s(source_column, name):
     return (
         F.when(source_column.between(MIN_TIMESTAMP_SEC, MAX_TIMESTAMP_SEC), source_column)
         .otherwise(F.lit(None))
-        .cast(sql_types.LongType())
+        .cast(T.LongType())
         .alias(name)
     )
 
@@ -387,7 +387,7 @@ def _generate_select_expression_for_StringNull(source_column, name):  # noqa: N8
     [Row(email=None), Row(email=None), Row(email=None)]
     """
 
-    return F.lit(None).cast(sql_types.StringType()).alias(name)
+    return F.lit(None).cast(T.StringType()).alias(name)
 
 
 def _generate_select_expression_for_IntNull(source_column, name):  # noqa: N802
@@ -413,7 +413,7 @@ def _generate_select_expression_for_IntNull(source_column, name):  # noqa: N802
     [Row(facebook_id=None), Row(facebook_id=None), Row(facebook_id=None)]
     """
 
-    return F.lit(None).cast(sql_types.IntegerType()).alias(name)
+    return F.lit(None).cast(T.IntegerType()).alias(name)
 
 
 def _generate_select_expression_for_StringBoolean(source_column, name):  # noqa: N802
@@ -444,7 +444,7 @@ def _generate_select_expression_for_StringBoolean(source_column, name):  # noqa:
         F.when(source_column.isNull(), F.lit(None))
         .when(source_column == "", F.lit(None))
         .otherwise("1")
-        .cast(sql_types.StringType())
+        .cast(T.StringType())
         .alias(name)
     )
 
@@ -477,7 +477,7 @@ def _generate_select_expression_for_IntBoolean(source_column, name):  # noqa: N8
     return (
         F.when(source_column.isNull(), F.lit(None))
         .otherwise(1)
-        .cast(sql_types.IntegerType())
+        .cast(T.IntegerType())
         .alias(name)
     )
 
@@ -507,7 +507,7 @@ def _generate_select_expression_for_TimestampMonth(source_column, name):  # noqa
      Row(birthday=None),
      Row(birthday=datetime.datetime(1988, 1, 1, 0, 0))]
     """
-    return F.trunc(source_column, "month").cast(sql_types.TimestampType()).alias(name)
+    return F.trunc(source_column, "month").cast(T.TimestampType()).alias(name)
 
 
 def _generate_select_expression_for_meters_to_cm(source_column, name):
@@ -532,7 +532,7 @@ def _generate_select_expression_for_meters_to_cm(source_column, name):
      Row(size_in_cm=165),
      Row(size_in_cm=205)]
     """
-    return (source_column * 100).cast(sql_types.IntegerType()).alias(name)
+    return (source_column * 100).cast(T.IntegerType()).alias(name)
 
 
 def _generate_select_expression_for_unix_timestamp_ms_to_spark_timestamp(source_column, name):
@@ -558,7 +558,7 @@ def _generate_select_expression_for_unix_timestamp_ms_to_spark_timestamp(source_
      Row(spark_timestamp=datetime.datetime(2020, 8, 7, 17, 9, 12)),
      Row(spark_timestamp=datetime.datetime(1999, 12, 31, 21, 30))]
     """
-    return (source_column / 1000).cast(sql_types.TimestampType()).alias(name)
+    return (source_column / 1000).cast(T.TimestampType()).alias(name)
 
 
 def _generate_select_expression_for_extended_string_to_int(source_column, name):
@@ -574,7 +574,8 @@ def _generate_select_expression_for_extended_string_to_int(source_column, name):
     Hint
     ---
     Please have a look at the tests to get a better feeling how it behaves under
-    tests/unit/transformer/test_mapper_custom_data_types.py::TestConversionsFromString
+    tests/unit/transformer/test_mapper_custom_data_types.py::TestExtendedStringConversions and
+    tests/data/test_fixtures/mapper_custom_data_types_fixtures.py
 
     Example
     -------
@@ -591,7 +592,7 @@ def _generate_select_expression_for_extended_string_to_int(source_column, name):
      Row(input_string=None),
      Row(input_string=123456)]
     """
-    return _generate_select_expression_for_extended_string_to_long(source_column, name).cast(sql_types.IntegerType())
+    return _generate_select_expression_for_extended_string_to_long(source_column, name).cast(T.IntegerType())
 
 
 def _generate_select_expression_for_extended_string_to_long(source_column, name):
@@ -607,7 +608,8 @@ def _generate_select_expression_for_extended_string_to_long(source_column, name)
     Hint
     ---
     Please have a look at the tests to get a better feeling how it behaves under
-    tests/unit/transformer/test_mapper_custom_data_types.py::TestConversionsFromString
+    tests/unit/transformer/test_mapper_custom_data_types.py::TestExtendedStringConversions and
+    tests/data/test_fixtures/mapper_custom_data_types_fixtures.py
 
     Example
     -------
@@ -624,7 +626,7 @@ def _generate_select_expression_for_extended_string_to_long(source_column, name)
      Row(input_string=None),
      Row(input_string=21474836470)]
     """
-    return F.regexp_replace(F.trim(source_column), "_", "").cast(sql_types.LongType()).alias(name)
+    return F.regexp_replace(F.trim(source_column), "_", "").cast(T.LongType()).alias(name)
 
 
 def _generate_select_expression_for_extended_string_to_float(source_column, name):
@@ -640,7 +642,8 @@ def _generate_select_expression_for_extended_string_to_float(source_column, name
     Hint
     ---
     Please have a look at the tests to get a better feeling how it behaves under
-    tests/unit/transformer/test_mapper_custom_data_types.py::TestConversionsFromString
+    tests/unit/transformer/test_mapper_custom_data_types.py::TestExtendedStringConversions and
+    tests/data/test_fixtures/mapper_custom_data_types_fixtures.py
 
     Example
     -------
@@ -657,7 +660,7 @@ def _generate_select_expression_for_extended_string_to_float(source_column, name
      Row(input_string=None),
      Row(input_string=836470.819)]
     """
-    return _generate_select_expression_for_extended_string_to_double(source_column, name).cast(sql_types.FloatType())
+    return _generate_select_expression_for_extended_string_to_double(source_column, name).cast(T.FloatType())
 
 
 def _generate_select_expression_for_extended_string_to_double(source_column, name):
@@ -673,7 +676,8 @@ def _generate_select_expression_for_extended_string_to_double(source_column, nam
     Hint
     ---
     Please have a look at the tests to get a better feeling how it behaves under
-    tests/unit/transformer/test_mapper_custom_data_types.py::TestConversionsFromString
+    tests/unit/transformer/test_mapper_custom_data_types.py::TestExtendedStringConversions and
+    tests/data/test_fixtures/mapper_custom_data_types_fixtures.py
 
     Example
     -------
@@ -690,7 +694,7 @@ def _generate_select_expression_for_extended_string_to_double(source_column, nam
      Row(input_string=None),
      Row(input_string=21474838464.70)]
     """
-    return F.regexp_replace(F.trim(source_column), "_", "").cast(sql_types.DoubleType()).alias(name)
+    return F.regexp_replace(F.trim(source_column), "_", "").cast(T.DoubleType()).alias(name)
 
 
 def _generate_select_expression_for_extended_string_to_boolean(source_column, name):
@@ -705,7 +709,8 @@ def _generate_select_expression_for_extended_string_to_boolean(source_column, na
     Hint
     ---
     Please have a look at the tests to get a better feeling how it behaves under
-    tests/unit/transformer/test_mapper_custom_data_types.py::TestConversionsFromString
+    tests/unit/transformer/test_mapper_custom_data_types.py::TestExtendedStringConversions and
+    tests/data/test_fixtures/mapper_custom_data_types_fixtures.py
 
     Example
     -------
@@ -722,12 +727,18 @@ def _generate_select_expression_for_extended_string_to_boolean(source_column, na
      Row(input_string=False),
      Row(input_string=True)]
     """
-    return F.trim(source_column).cast(sql_types.BooleanType()).alias(name)
+    true_values = ["on", "enabled"]
+    false_values = ["off", "disabled"]
+    return (
+        F.when(F.trim(source_column).isin(true_values), F.lit(True))
+        .when(F.trim(source_column).isin(false_values), F.lit(False))
+        .otherwise(F.trim(source_column).cast(T.BooleanType()))
+    ).alias(name)
 
 
 def _generate_select_expression_for_extended_string_to_timestamp(source_column, name):
     """
-    More robust conversion from StringType to TimestampsType. It is assumed that the
+    More robust conversion from StringType to TimestampType. It is assumed that the
     timezone is already set to UTC in spark / java to avoid implicit timezone conversions.
     Is able to additionally handle (compared to implicit Spark conversion):
 
@@ -739,7 +750,8 @@ def _generate_select_expression_for_extended_string_to_timestamp(source_column, 
     Hint
     ---
     Please have a look at the tests to get a better feeling how it behaves under
-    tests/unit/transformer/test_mapper_custom_data_types.py::TestConversionsFromString
+    tests/unit/transformer/test_mapper_custom_data_types.py::TestExtendedStringConversions and
+    tests/data/test_fixtures/mapper_custom_data_types_fixtures.py
 
     Example
     -------
@@ -758,14 +770,45 @@ def _generate_select_expression_for_extended_string_to_timestamp(source_column, 
     """
     return (
         F.when(
-            F.trim(source_column).cast(sql_types.LongType()).isNotNull(),
-            F.trim(source_column).cast(sql_types.LongType()).cast(sql_types.TimestampType())
-        ).otherwise(F.trim(source_column).cast(sql_types.TimestampType())).alias(name)
+            F.trim(source_column).cast(T.LongType()).isNotNull(),
+            F.trim(source_column).cast(T.LongType()).cast(T.TimestampType())
+        ).otherwise(F.trim(source_column).cast(T.TimestampType())).alias(name)
     )
+
+
+def _generate_select_expression_for_extended_string_to_date(source_column, name):
+    """
+    More robust conversion from StringType to DateType. It is assumed that the
+    timezone is already set to UTC in spark / java to avoid implicit timezone conversions and that
+    unix timestamps are in **seconds**
+
+    Hint
+    ---
+    Please have a look at the tests to get a better feeling how it behaves under
+    tests/unit/transformer/test_mapper_custom_data_types.py::TestExtendedStringConversions and
+    tests/data/test_fixtures/mapper_custom_data_types_fixtures.py
+
+    Example
+    -------
+    >>> from spooq2.transformer import Mapper
+    >>>
+    >>> input_df.head(3)
+    [Row(input_string="2020-08-12T12:43:14+0000"),
+     Row(input_string="1597069446"),
+     Row(input_string="2020-08-12")]
+    >>> mapping = [("output_value", "input_string", "extended_string_to_date")]
+    >>> output_df = Mapper(mapping).transform(input_df)
+    >>> output_df.head(3)
+    [Row(input_string=datetime.datetime(2020, 8, 12)),
+     Row(input_string=datetime.datetime(2020, 8, 10)),
+     Row(input_string=datetime.datetime(2020, 8, 12))]
+    """
+    return _generate_select_expression_for_extended_string_to_timestamp(source_column, name).cast(T.DateType())
+
 
 def _generate_select_expression_for_extended_string_unix_timestamp_ms_to_timestamp(source_column, name):
     """
-    More robust conversion from StringType to TimestampsType. It is assumed that the
+    More robust conversion from StringType to TimestampType. It is assumed that the
     timezone is already set to UTC in spark / java to avoid implicit timezone conversions.
     Is able to additionally handle (compared to implicit Spark conversion):
 
@@ -777,7 +820,8 @@ def _generate_select_expression_for_extended_string_unix_timestamp_ms_to_timesta
     Hint
     ---
     Please have a look at the tests to get a better feeling how it behaves under
-    tests/unit/transformer/test_mapper_custom_data_types.py::TestConversionsFromString
+    tests/unit/transformer/test_mapper_custom_data_types.py::TestExtendedStringConversions and
+    tests/data/test_fixtures/mapper_custom_data_types_fixtures.py
 
     Example
     -------
@@ -796,8 +840,39 @@ def _generate_select_expression_for_extended_string_unix_timestamp_ms_to_timesta
     """
     return (
         F.when(
-            F.trim(source_column).cast(sql_types.LongType()).isNotNull(),
-            (F.trim(source_column) / 1000).cast(sql_types.TimestampType())
-        ).otherwise(F.trim(source_column).cast(sql_types.TimestampType())).alias(name)
+            F.trim(source_column).cast(T.LongType()).isNotNull(),
+            (F.trim(source_column) / 1000).cast(T.TimestampType())
+        ).otherwise(F.trim(source_column).cast(T.TimestampType())).alias(name)
     )
+
+
+def _generate_select_expression_for_extended_string_unix_timestamp_ms_to_date(source_column, name):
+    """
+    More robust conversion from StringType to DateType. It is assumed that the
+    timezone is already set to UTC in spark / java to avoid implicit timezone conversions and that
+    unix timestamps are in **milli seconds**
+
+    Hint
+    ---
+    Please have a look at the tests to get a better feeling how it behaves under
+    tests/unit/transformer/test_mapper_custom_data_types.py::TestExtendedStringConversions and
+    tests/data/test_fixtures/mapper_custom_data_types_fixtures.py
+
+    Example
+    -------
+    >>> from spooq2.transformer import Mapper
+    >>>
+    >>> input_df.head(3)
+    [Row(input_string="2020-08-12T12:43:14+0000"),
+     Row(input_string="1597069446000"),
+     Row(input_string="2020-08-12")]
+    >>> mapping = [("output_value", "input_string", "extended_string_to_date")]
+    >>> output_df = Mapper(mapping).transform(input_df)
+    >>> output_df.head(3)
+    [Row(input_string=datetime.datetime(2020, 8, 12)),
+     Row(input_string=datetime.datetime(2020, 8, 10)),
+     Row(input_string=datetime.datetime(2020, 8, 12))]
+    """
+    return _generate_select_expression_for_extended_string_unix_timestamp_ms_to_timestamp(source_column, name).cast(T.DateType())
+
 

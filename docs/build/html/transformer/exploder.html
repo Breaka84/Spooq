@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Exploder &mdash; Spooq2 2.1.0 documentation</title>
+  <title>Exploder &mdash; Spooq2 2.2.0 documentation</title>
   
 
   
@@ -93,6 +93,8 @@
 <li class="toctree-l2 current"><a class="current reference internal" href="#">Exploder</a></li>
 <li class="toctree-l2"><a class="reference internal" href="sieve.html">Sieve (Filter)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="mapper.html">Mapper</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mapper.html#a">a</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mapper.html#b">b</a></li>
 <li class="toctree-l2"><a class="reference internal" href="threshold_cleaner.html">Threshold-based Cleaner</a></li>
 <li class="toctree-l2"><a class="reference internal" href="newest_by_group.html">Newest by Group (Most current record per ID)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="overview.html#class-diagram-of-transformer-subpackage">Class Diagram of Transformer Subpackage</a></li>
@@ -174,7 +176,7 @@
 <span id="exploder"></span><h1>Exploder<a class="headerlink" href="#module-spooq2.transformer.exploder" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
 <dt id="spooq2.transformer.exploder.Exploder">
-<em class="property">class </em><code class="descname">Exploder</code><span class="sig-paren">(</span><em>path_to_array='included'</em>, <em>exploded_elem_name='elem'</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/spooq2/transformer/exploder.html#Exploder"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spooq2.transformer.exploder.Exploder" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descname">Exploder</code><span class="sig-paren">(</span><em>path_to_array='included'</em>, <em>exploded_elem_name='elem'</em>, <em>drop_rows_with_empty_array=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/spooq2/transformer/exploder.html#Exploder"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spooq2.transformer.exploder.Exploder" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="../base_classes/transformer.html#spooq2.transformer.transformer.Transformer" title="spooq2.transformer.transformer.Transformer"><code class="xref py py-class docutils literal notranslate"><span class="pre">spooq2.transformer.transformer.Transformer</span></code></a></p>
 <p>Explodes an array within a DataFrame and
 drops the column containing the source array.</p>
@@ -197,6 +199,8 @@ Although, you can still explode them.</li>
 This is important to know how to access the Field afterwards.
 Writing nested columns is not supported.
 The output column has to be first level.</li>
+<li><strong>drop_rows_with_empty_array</strong> (<a class="reference external" href="https://docs.python.org/3.7/library/functions.html#bool" title="(in Python v3.7)"><code class="xref any docutils literal notranslate"><span class="pre">bool</span></code></a>, (Defaults to True)) – By default Spark (and Spooq) drops rows which don’t have any elements in the array
+which is being exploded. To work-around this, set <cite>drop_rows_with_empty_array</cite> to False.</li>
 </ul>
 </td>
 </tr>
@@ -217,7 +221,8 @@ you have to redefine the structure or use a UDF.</dd>
 </div>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
-<p class="last">The <code class="xref py py-meth docutils literal notranslate"><span class="pre">explode()</span></code> method of Spark is used internally.</p>
+<p class="last">The <code class="xref py py-meth docutils literal notranslate"><span class="pre">explode()</span></code> or <code class="xref py py-meth docutils literal notranslate"><span class="pre">explode_outer()</span></code> methods
+of Spark are used internally, depending on the <cite>drop_rows_with_empty_array</cite> parameter.</p>
 </div>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>

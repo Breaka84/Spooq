@@ -1,8 +1,9 @@
 from __future__ import absolute_import
 from builtins import str
 from pyspark.sql.utils import AnalysisException
-from pyspark.sql.functions import lit
-from pyspark.sql import types as sql_types
+from pyspark.sql import functions as F
+from pyspark.sql import types as T
+from pyspark.sql.column import Column
 
 from .transformer import Transformer
 from .mapper_custom_data_types import _get_select_expression_for_custom_type
@@ -84,72 +85,116 @@ class Mapper(Transformer):
     Attention: Decimal is NOT SUPPORTED by Hive! Please use Double instead!
     """
 
-    def __init__(self, mapping, ignore_missing_columns=True):
+    def __init__(self, mapping, ignore_missing_columns=True, mode="replace"):
         super(Mapper, self).__init__()
         self.mapping = mapping
         self.ignore_missing_columns = ignore_missing_columns
+        self.mode = mode
 
     def transform(self, input_df):
         self.logger.info("Generating SQL Select-Expression for Mapping...")
         self.logger.debug("Input Schema/Mapping: {mp}".format(mp=str(self.mapping)))
 
+        input_columns = input_df.columns
         select_expressions = []
+        with_column_expressions = []
 
-        for (name, path, data_type) in self.mapping:
+        for (name, source_column, data_type) in self.mapping:
             self.logger.debug(
                 "generating Select statement for attribute: {nm}".format(nm=name)
             )
 
-            data_type = data_type.replace("()", "")
-            data_type_is_spark_builtin = hasattr(sql_types, data_type)
-            path_segments = path.split(".")
+            source_column, source_column_is_missing = self._get_spark_column(source_column, name, input_df)
+            data_type, data_type_is_spark_builtin = self._get_spark_data_type(data_type)
+            select_expression = self._get_select_expression(name, source_column, data_type,
+                                                            source_column_is_missing,
+                                                            data_type_is_spark_builtin)
 
-            source_column = input_df
-            source_column_is_missing = False
-            for path_segment in path_segments:
-                try:
-                    source_column = source_column[path_segment]
-                    input_df.select(source_column)
-                except AnalysisException:
-                    if self.ignore_missing_columns:
-                        source_column = None
-                        source_column_is_missing = True
-                        break
-                    else:
-                        raise ValueError(
-                            "Column: \"{}\" is missing in the input DataFrame ".format(path) +
-                            "but is referenced in the mapping by column: \"{}\"".format(name)
-                        )
-
-            del path_segment, path_segments
-
-            if data_type_is_spark_builtin:
-
-                if source_column_is_missing:
-                    select_expression = lit(None)
-                else:
-                    select_expression = source_column
-
-                select_expressions.append(
-                    select_expression.cast(getattr(sql_types, data_type)()).alias(name)
-                )
-
-            else:  # Custom Data Type
-
-                if source_column_is_missing:
-                    select_expression = lit(None).alias(name)
-                else:
-                    select_expression = _get_select_expression_for_custom_type(
-                        source_column, name, data_type
-                    )
-
+            self.logger.debug("Select-Expression for Attribute {nm}: {sql_expr}"
+                              .format(nm=name, sql_expr=str(select_expression)))
+            if self.mode != "replace" and name in input_columns:
+                with_column_expressions.append((name, select_expression))
+            else:
                 select_expressions.append(select_expression)
-                self.logger.debug("Select-Expression for Attribute {nm}: {sql_expr}"
-                                  .format(nm=name, sql_expr=str(select_expression))
+
+        self.logger.info("SQL Select-Expression for new mapping generated!" + str(select_expressions))
+        self.logger.debug("SQL Select-Expressions for new mapping: " + str(select_expressions))
+        self.logger.debug("SQL WithColumn-Expressions for new mapping: " + str(with_column_expressions))
+        if self.mode == "prepend":
+            df_to_return = input_df.select(select_expressions + ["*"])
+        elif self.mode == "append":
+            df_to_return = input_df.select(["*"] + select_expressions)
+        elif self.mode == "replace":
+            df_to_return = input_df.select(select_expressions)
+        else:
+            exception_message = ("Only 'prepend', 'append' and 'replace' are allowed for Mapper mode!"
+                                 "Value: '{val}' was used as mode for the Mapper transformer.")
+            self.logger.exception(exception_message)
+            raise ValueError(exception_message)
+
+        if with_column_expressions:
+            for name, expression in with_column_expressions:
+                df_to_return = df_to_return.withColumn(name, expression)
+        return df_to_return
+
+    def _get_spark_column(self, source_column, name, input_df):
+        """
+        Returns the provided source column as a Pyspark.sql.Column and marks if it is missing or not.
+        Supports source column definition as a string or a Pyspark.sql.Column (including functions).
+        """
+        try:
+            input_df.select(source_column)
+            source_column_is_missing = False
+            if isinstance(source_column, str):
+                source_column = F.col(source_column)
+
+        except AnalysisException as e:
+            if isinstance(source_column, str) and self.ignore_missing_columns:
+                source_column = F.lit(None)
+                source_column_is_missing = True
+            else:
+                self.logger.exception(
+                    "Column: \"{}\" cannot be resolved ".format(str(source_column)) +
+                    "but is referenced in the mapping by column: \"{}\".\n".format(name))
+                raise e
+        return source_column, source_column_is_missing
+
+    @staticmethod
+    def _get_spark_data_type(data_type):
+        """
+        Returns the provided data_type as a Pyspark.sql.type.DataType (for spark-built-ins)
+        or as a string (for custom spooq transformations) and marks if it is built-in or not.
+        Supports source column definition as a string or a Pyspark.sql.Column (including functions).
+        """
+        if isinstance(data_type, T.DataType):
+            data_type_is_spark_builtin = True
+        elif isinstance(data_type, str):
+            data_type = data_type.replace("()", "")
+            if hasattr(T, data_type):
+                data_type_is_spark_builtin = True
+                data_type = getattr(T, data_type)()
+            else:
+                data_type_is_spark_builtin = False
+        else:
+            raise ValueError(
+                "data_type not supported! class: \"{}\", name: \"{}\"".format(
+                    type(data_type).__name__, str(data_type)))
+        return data_type, data_type_is_spark_builtin
+
+    @staticmethod
+    def _get_select_expression(name, source_column, data_type, source_column_is_missing,
+                               data_type_is_spark_builtin):
+        """
+        Returns a valid pyspark sql select-expression with cast and alias, depending on the input parameters.
+        """
+        if data_type_is_spark_builtin:
+            return source_column.cast(data_type).alias(name)
+
+        else:  # Custom Data Type
+            if source_column_is_missing:
+                return source_column.alias(name)
+            else:
+                return _get_select_expression_for_custom_type(
+                    source_column, name, data_type
                 )
 
-        self.logger.info("SQL Select-Expression for mapping generated!" + str(select_expressions))
-        self.logger.debug("SQL Select-Expression for mapping: " + str(select_expressions))
-        spark_sql_query = input_df.select(select_expressions)
-
-        return spark_sql_query
