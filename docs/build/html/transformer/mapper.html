@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Mapper &mdash; Spooq2 2.1.0 documentation</title>
+  <title>Mapper &mdash; Spooq2 2.2.0 documentation</title>
   
 
   
@@ -95,7 +95,32 @@
 <li class="toctree-l2 current"><a class="current reference internal" href="#">Mapper</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#module-spooq2.transformer.mapper">Class</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#activity-diagram">Activity Diagram</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#module-spooq2.transformer.mapper_custom_data_types">Custom Mapping Methods</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#available-custom-mapping-methods">Available Custom Mapping Methods</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#as-is-keep-no-change-without-casting-aliases">as_is / keep / no_change / without_casting (aliases)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#unix-timestamp-ms-to-spark-timestamp">unix_timestamp_ms_to_spark_timestamp</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#extended-string-to-int">extended_string_to_int</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#extended-string-to-long">extended_string_to_long</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#extended-string-to-float">extended_string_to_float</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#extended-string-to-double">extended_string_to_double</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#extended-string-to-boolean">extended_string_to_boolean</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#extended-string-to-timestamp">extended_string_to_timestamp</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#extended-string-to-date">extended_string_to_date</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#extended-string-unix-timestamp-ms-to-timestamp">extended_string_unix_timestamp_ms_to_timestamp</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#extended-string-unix-timestamp-ms-to-date">extended_string_unix_timestamp_ms_to_date</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#meters-to-cm">meters_to_cm</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#json-string">json_string</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#timestamp-ms-to-ms">timestamp_ms_to_ms</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#timestamp-ms-to-s">timestamp_ms_to_s</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#timestamp-s-to-ms">timestamp_s_to_ms</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#timestamp-s-to-s">timestamp_s_to_s</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#stringnull">StringNull</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#intnull">IntNull</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#stringboolean">StringBoolean</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#intboolean">IntBoolean</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#timestampmonth">TimestampMonth</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#module-spooq2.transformer.mapper_custom_data_types">Custom Mapping Methods Details</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="threshold_cleaner.html">Threshold-based Cleaner</a></li>
@@ -181,7 +206,7 @@
 <span id="class"></span><h2>Class<a class="headerlink" href="#module-spooq2.transformer.mapper" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="spooq2.transformer.mapper.Mapper">
-<em class="property">class </em><code class="descname">Mapper</code><span class="sig-paren">(</span><em>mapping</em>, <em>ignore_missing_columns=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/spooq2/transformer/mapper.html#Mapper"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spooq2.transformer.mapper.Mapper" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descname">Mapper</code><span class="sig-paren">(</span><em>mapping</em>, <em>ignore_missing_columns=True</em>, <em>mode='replace'</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/spooq2/transformer/mapper.html#Mapper"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spooq2.transformer.mapper.Mapper" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="../base_classes/transformer.html#spooq2.transformer.transformer.Transformer" title="spooq2.transformer.transformer.Transformer"><code class="xref py py-class docutils literal notranslate"><span class="pre">spooq2.transformer.transformer.Transformer</span></code></a></p>
 <p>Constructs and applies a PySpark SQL expression, based on the provided mapping.</p>
 <p class="rubric">Examples</p>
@@ -300,6 +325,7 @@ are defined in the initialization of the Transformator Object.</p>
 </div>
 <div class="section" id="activity-diagram">
 <h2>Activity Diagram<a class="headerlink" href="#activity-diagram" title="Permalink to this headline">¶</a></h2>
+<p># todo: update to new logic</p>
 <p class="plantuml">
 <img src="../_images/plantuml-95d88ab79bc74cc16a47d960c784615eb24258cf.svg" alt="&#64;startuml
 start
@@ -343,8 +369,104 @@ stop
 &#64;enduml
 "/></p>
 </div>
+<div class="section" id="available-custom-mapping-methods">
+<h2>Available Custom Mapping Methods<a class="headerlink" href="#available-custom-mapping-methods" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="as-is-keep-no-change-without-casting-aliases">
+<h3>as_is / keep / no_change / without_casting (aliases)<a class="headerlink" href="#as-is-keep-no-change-without-casting-aliases" title="Permalink to this headline">¶</a></h3>
+<p>Only renaming applied. No casting / transformation.</p>
+</div>
+<div class="section" id="unix-timestamp-ms-to-spark-timestamp">
+<h3>unix_timestamp_ms_to_spark_timestamp<a class="headerlink" href="#unix-timestamp-ms-to-spark-timestamp" title="Permalink to this headline">¶</a></h3>
+<p>unix timestamp in ms (LongType) -&gt; timestamp (TimestampType)</p>
+</div>
+<div class="section" id="extended-string-to-int">
+<h3>extended_string_to_int<a class="headerlink" href="#extended-string-to-int" title="Permalink to this headline">¶</a></h3>
+<p>Number (IntegerType, FloatType, StringType) -&gt; Number (IntegerType)</p>
+</div>
+<div class="section" id="extended-string-to-long">
+<h3>extended_string_to_long<a class="headerlink" href="#extended-string-to-long" title="Permalink to this headline">¶</a></h3>
+<p>Number (IntegerType, FloatType, StringType) -&gt; Number (LongType)</p>
+</div>
+<div class="section" id="extended-string-to-float">
+<h3>extended_string_to_float<a class="headerlink" href="#extended-string-to-float" title="Permalink to this headline">¶</a></h3>
+<p>Number (IntegerType, FloatType, StringType) -&gt; Number (FloatType)</p>
+</div>
+<div class="section" id="extended-string-to-double">
+<h3>extended_string_to_double<a class="headerlink" href="#extended-string-to-double" title="Permalink to this headline">¶</a></h3>
+<p>Number (IntegerType, FloatType, StringType) -&gt; Number (DoubleType)</p>
+</div>
+<div class="section" id="extended-string-to-boolean">
+<h3>extended_string_to_boolean<a class="headerlink" href="#extended-string-to-boolean" title="Permalink to this headline">¶</a></h3>
+<p>Number (IntegerType, FloatType, StringType, BooleanType) -&gt; boolean (BooleanType)</p>
+</div>
+<div class="section" id="extended-string-to-timestamp">
+<h3>extended_string_to_timestamp<a class="headerlink" href="#extended-string-to-timestamp" title="Permalink to this headline">¶</a></h3>
+<p>unix timestamp in s or text (IntegerType, FloatType, StringType) -&gt; timestamp (TimestampType)</p>
+</div>
+<div class="section" id="extended-string-to-date">
+<h3>extended_string_to_date<a class="headerlink" href="#extended-string-to-date" title="Permalink to this headline">¶</a></h3>
+<p>unix timestamp in s or text (IntegerType, FloatType, StringType) -&gt; date (DateType)</p>
+</div>
+<div class="section" id="extended-string-unix-timestamp-ms-to-timestamp">
+<h3>extended_string_unix_timestamp_ms_to_timestamp<a class="headerlink" href="#extended-string-unix-timestamp-ms-to-timestamp" title="Permalink to this headline">¶</a></h3>
+<p>unix timestamp in ms or text (IntegerType, FloatType, StringType) -&gt; timestamp (TimestampType)</p>
+</div>
+<div class="section" id="extended-string-unix-timestamp-ms-to-date">
+<h3>extended_string_unix_timestamp_ms_to_date<a class="headerlink" href="#extended-string-unix-timestamp-ms-to-date" title="Permalink to this headline">¶</a></h3>
+<p>unix timestamp in ms or text (IntegerType, FloatType, StringType) -&gt; date (DateType)</p>
+</div>
+<div class="section" id="meters-to-cm">
+<h3>meters_to_cm<a class="headerlink" href="#meters-to-cm" title="Permalink to this headline">¶</a></h3>
+<p>Number (IntegerType, FloatType, StringType) -&gt; Number * 100 (IntegerType)</p>
+</div>
+<div class="section" id="json-string">
+<h3>json_string<a class="headerlink" href="#json-string" title="Permalink to this headline">¶</a></h3>
+<p>Any input data type will be returned as json (StringType).
+Complex data types are supported!</p>
+</div>
+<div class="section" id="timestamp-ms-to-ms">
+<h3>timestamp_ms_to_ms<a class="headerlink" href="#timestamp-ms-to-ms" title="Permalink to this headline">¶</a></h3>
+<p>Unix timestamp in ms (LongType) -&gt; Unix timestamp in ms (LongType) if
+timestamp is between 1970 and 2099</p>
+</div>
+<div class="section" id="timestamp-ms-to-s">
+<h3>timestamp_ms_to_s<a class="headerlink" href="#timestamp-ms-to-s" title="Permalink to this headline">¶</a></h3>
+<p>Unix timestamp in ms (LongType) -&gt; Unix timestamp in s (LongType) if
+timestamp is between 1970 and 2099</p>
+</div>
+<div class="section" id="timestamp-s-to-ms">
+<h3>timestamp_s_to_ms<a class="headerlink" href="#timestamp-s-to-ms" title="Permalink to this headline">¶</a></h3>
+<p>Unix timestamp in s (LongType) -&gt; Unix timestamp in ms (LongType) if
+timestamp is between 1970 and 2099</p>
+</div>
+<div class="section" id="timestamp-s-to-s">
+<h3>timestamp_s_to_s<a class="headerlink" href="#timestamp-s-to-s" title="Permalink to this headline">¶</a></h3>
+<p>Unix timestamp in s (LongType) -&gt; Unix timestamp in s (LongType) if
+timestamp is between 1970 and 2099</p>
+</div>
+<div class="section" id="stringnull">
+<h3>StringNull<a class="headerlink" href="#stringnull" title="Permalink to this headline">¶</a></h3>
+<p>Any data -&gt; NULL (StringType)</p>
+</div>
+<div class="section" id="intnull">
+<h3>IntNull<a class="headerlink" href="#intnull" title="Permalink to this headline">¶</a></h3>
+<p>Any data -&gt; NULL (IntegerType)</p>
+</div>
+<div class="section" id="stringboolean">
+<h3>StringBoolean<a class="headerlink" href="#stringboolean" title="Permalink to this headline">¶</a></h3>
+<p>Any data -&gt; “1” (StringType) if source columns contains any valid data, otherwise NULL</p>
+</div>
+<div class="section" id="intboolean">
+<h3>IntBoolean<a class="headerlink" href="#intboolean" title="Permalink to this headline">¶</a></h3>
+<p>Any data -&gt; 1 (IntegerType) if source columns contains any valid data, otherwise NULL</p>
+</div>
+<div class="section" id="timestampmonth">
+<h3>TimestampMonth<a class="headerlink" href="#timestampmonth" title="Permalink to this headline">¶</a></h3>
+<p>Timestamp (TimestampType / DateType) -&gt; 1st day of the input value’s month (TimestampType)</p>
+</div>
+</div>
 <div class="section" id="module-spooq2.transformer.mapper_custom_data_types">
-<span id="custom-mapping-methods"></span><h2>Custom Mapping Methods<a class="headerlink" href="#module-spooq2.transformer.mapper_custom_data_types" title="Permalink to this headline">¶</a></h2>
+<span id="custom-mapping-methods-details"></span><h2>Custom Mapping Methods Details<a class="headerlink" href="#module-spooq2.transformer.mapper_custom_data_types" title="Permalink to this headline">¶</a></h2>
 <p>This is a collection of module level methods to construct a specific
 PySpark DataFrame query for custom defined data types.</p>
 <p>These methods are not meant to be called directly but via the
@@ -359,7 +481,7 @@ Please see that particular class on how to apply custom data types.</p>
 <p class="rubric">Example</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">spooq2.transformer.mapper_custom_data_types</span> <span class="k">as</span> <span class="nn">custom_types</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">spooq2.transformer</span> <span class="k">as</span> <span class="nn">T</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pyspark.sql</span> <span class="kn">import</span> <span class="n">Row</span><span class="p">,</span> <span class="n">functions</span> <span class="k">as</span> <span class="n">F</span><span class="p">,</span> <span class="n">types</span> <span class="k">as</span> <span class="n">sql_types</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pyspark.sql</span> <span class="kn">import</span> <span class="n">Row</span><span class="p">,</span> <span class="n">functions</span> <span class="k">as</span> <span class="n">F</span><span class="p">,</span> <span class="n">types</span> <span class="k">as</span> <span class="n">T</span>
 </pre></div>
 </div>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">hello_world</span><span class="p">(</span><span class="n">source_column</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
@@ -370,7 +492,7 @@ Please see that particular class on how to apply custom data types.</p>
 <span class="gp">&gt;&gt;&gt; </span>        <span class="k">else</span><span class="p">:</span>
 <span class="gp">&gt;&gt;&gt; </span>            <span class="k">return</span> <span class="s2">&quot;Hello World&quot;</span>
 <span class="go">&gt;&gt;&gt;</span>
-<span class="gp">&gt;&gt;&gt; </span>    <span class="n">udf_hello_world</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">udf</span><span class="p">(</span><span class="n">_to_hello_world</span><span class="p">,</span> <span class="n">sql_types</span><span class="o">.</span><span class="n">StringType</span><span class="p">())</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">udf_hello_world</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">udf</span><span class="p">(</span><span class="n">_to_hello_world</span><span class="p">,</span> <span class="n">T</span><span class="o">.</span><span class="n">StringType</span><span class="p">())</span>
 <span class="gp">&gt;&gt;&gt; </span>    <span class="k">return</span> <span class="n">udf_hello_world</span><span class="p">(</span><span class="n">source_column</span><span class="p">)</span><span class="o">.</span><span class="n">alias</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
 <span class="go">&gt;&gt;&gt;</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">input_df</span> <span class="o">=</span> <span class="n">spark</span><span class="o">.</span><span class="n">createDataFrame</span><span class="p">(</span>
@@ -821,7 +943,8 @@ Is able to additionally handle (compared to implicit Spark conversion):</p>
 <div class="admonition hint">
 <p class="first admonition-title">Hint</p>
 <p class="last">Please have a look at the tests to get a better feeling how it behaves under
-tests/unit/transformer/test_mapper_custom_data_types.py::TestConversionsFromString</p>
+tests/unit/transformer/test_mapper_custom_data_types.py::TestExtendedStringConversions and
+tests/data/test_fixtures/mapper_custom_data_types_fixtures.py</p>
 </div>
 <p class="rubric">Example</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">spooq2.transformer</span> <span class="kn">import</span> <span class="n">Mapper</span>
@@ -854,7 +977,8 @@ Is able to additionally handle (compared to implicit Spark conversion):</p>
 <div class="admonition hint">
 <p class="first admonition-title">Hint</p>
 <p class="last">Please have a look at the tests to get a better feeling how it behaves under
-tests/unit/transformer/test_mapper_custom_data_types.py::TestConversionsFromString</p>
+tests/unit/transformer/test_mapper_custom_data_types.py::TestExtendedStringConversions and
+tests/data/test_fixtures/mapper_custom_data_types_fixtures.py</p>
 </div>
 <p class="rubric">Example</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">spooq2.transformer</span> <span class="kn">import</span> <span class="n">Mapper</span>
@@ -887,7 +1011,8 @@ Is able to additionally handle (compared to implicit Spark conversion):</p>
 <div class="admonition hint">
 <p class="first admonition-title">Hint</p>
 <p class="last">Please have a look at the tests to get a better feeling how it behaves under
-tests/unit/transformer/test_mapper_custom_data_types.py::TestConversionsFromString</p>
+tests/unit/transformer/test_mapper_custom_data_types.py::TestExtendedStringConversions and
+tests/data/test_fixtures/mapper_custom_data_types_fixtures.py</p>
 </div>
 <p class="rubric">Example</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">spooq2.transformer</span> <span class="kn">import</span> <span class="n">Mapper</span>
@@ -920,7 +1045,8 @@ Is able to additionally handle (compared to implicit Spark conversion):</p>
 <div class="admonition hint">
 <p class="first admonition-title">Hint</p>
 <p class="last">Please have a look at the tests to get a better feeling how it behaves under
-tests/unit/transformer/test_mapper_custom_data_types.py::TestConversionsFromString</p>
+tests/unit/transformer/test_mapper_custom_data_types.py::TestExtendedStringConversions and
+tests/data/test_fixtures/mapper_custom_data_types_fixtures.py</p>
 </div>
 <p class="rubric">Example</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">spooq2.transformer</span> <span class="kn">import</span> <span class="n">Mapper</span>
@@ -952,7 +1078,8 @@ Is able to additionally handle (compared to implicit Spark conversion):</p>
 <div class="admonition hint">
 <p class="first admonition-title">Hint</p>
 <p class="last">Please have a look at the tests to get a better feeling how it behaves under
-tests/unit/transformer/test_mapper_custom_data_types.py::TestConversionsFromString</p>
+tests/unit/transformer/test_mapper_custom_data_types.py::TestExtendedStringConversions and
+tests/data/test_fixtures/mapper_custom_data_types_fixtures.py</p>
 </div>
 <p class="rubric">Example</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">spooq2.transformer</span> <span class="kn">import</span> <span class="n">Mapper</span>
@@ -974,7 +1101,7 @@ tests/unit/transformer/test_mapper_custom_data_types.py::TestConversionsFromStri
 <dl class="function">
 <dt id="spooq2.transformer.mapper_custom_data_types._generate_select_expression_for_extended_string_to_timestamp">
 <code class="descname">_generate_select_expression_for_extended_string_to_timestamp</code><span class="sig-paren">(</span><em>source_column</em>, <em>name</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/spooq2/transformer/mapper_custom_data_types.html#_generate_select_expression_for_extended_string_to_timestamp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spooq2.transformer.mapper_custom_data_types._generate_select_expression_for_extended_string_to_timestamp" title="Permalink to this definition">¶</a></dt>
-<dd><p>More robust conversion from StringType to TimestampsType. It is assumed that the
+<dd><p>More robust conversion from StringType to TimestampType. It is assumed that the
 timezone is already set to UTC in spark / java to avoid implicit timezone conversions.
 Is able to additionally handle (compared to implicit Spark conversion):</p>
 <ul class="simple">
@@ -986,7 +1113,8 @@ Is able to additionally handle (compared to implicit Spark conversion):</p>
 <div class="admonition hint">
 <p class="first admonition-title">Hint</p>
 <p class="last">Please have a look at the tests to get a better feeling how it behaves under
-tests/unit/transformer/test_mapper_custom_data_types.py::TestConversionsFromString</p>
+tests/unit/transformer/test_mapper_custom_data_types.py::TestExtendedStringConversions and
+tests/data/test_fixtures/mapper_custom_data_types_fixtures.py</p>
 </div>
 <p class="rubric">Example</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">spooq2.transformer</span> <span class="kn">import</span> <span class="n">Mapper</span>
@@ -1001,6 +1129,99 @@ tests/unit/transformer/test_mapper_custom_data_types.py::TestConversionsFromStri
 <span class="go">[Row(input_string=datetime.datetime(2020, 8, 12, 12, 43, 14)),</span>
 <span class="go"> Row(input_string=datetime.datetime(2020, 8, 10, 14, 24, 6)),</span>
 <span class="go"> Row(input_string=datetime.datetime(2020, 8, 12, 0, 0, 0))]</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="spooq2.transformer.mapper_custom_data_types._generate_select_expression_for_extended_string_to_date">
+<code class="descname">_generate_select_expression_for_extended_string_to_date</code><span class="sig-paren">(</span><em>source_column</em>, <em>name</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/spooq2/transformer/mapper_custom_data_types.html#_generate_select_expression_for_extended_string_to_date"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spooq2.transformer.mapper_custom_data_types._generate_select_expression_for_extended_string_to_date" title="Permalink to this definition">¶</a></dt>
+<dd><p>More robust conversion from StringType to DateType. It is assumed that the
+timezone is already set to UTC in spark / java to avoid implicit timezone conversions and that
+unix timestamps are in <strong>seconds</strong></p>
+<div class="admonition hint">
+<p class="first admonition-title">Hint</p>
+<p class="last">Please have a look at the tests to get a better feeling how it behaves under
+tests/unit/transformer/test_mapper_custom_data_types.py::TestExtendedStringConversions and
+tests/data/test_fixtures/mapper_custom_data_types_fixtures.py</p>
+</div>
+<p class="rubric">Example</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">spooq2.transformer</span> <span class="kn">import</span> <span class="n">Mapper</span>
+<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">input_df</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="go">[Row(input_string=&quot;2020-08-12T12:43:14+0000&quot;),</span>
+<span class="go"> Row(input_string=&quot;1597069446&quot;),</span>
+<span class="go"> Row(input_string=&quot;2020-08-12&quot;)]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">mapping</span> <span class="o">=</span> <span class="p">[(</span><span class="s2">&quot;output_value&quot;</span><span class="p">,</span> <span class="s2">&quot;input_string&quot;</span><span class="p">,</span> <span class="s2">&quot;extended_string_to_date&quot;</span><span class="p">)]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">output_df</span> <span class="o">=</span> <span class="n">Mapper</span><span class="p">(</span><span class="n">mapping</span><span class="p">)</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">input_df</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">output_df</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="go">[Row(input_string=datetime.datetime(2020, 8, 12)),</span>
+<span class="go"> Row(input_string=datetime.datetime(2020, 8, 10)),</span>
+<span class="go"> Row(input_string=datetime.datetime(2020, 8, 12))]</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="spooq2.transformer.mapper_custom_data_types._generate_select_expression_for_extended_string_unix_timestamp_ms_to_timestamp">
+<code class="descname">_generate_select_expression_for_extended_string_unix_timestamp_ms_to_timestamp</code><span class="sig-paren">(</span><em>source_column</em>, <em>name</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/spooq2/transformer/mapper_custom_data_types.html#_generate_select_expression_for_extended_string_unix_timestamp_ms_to_timestamp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spooq2.transformer.mapper_custom_data_types._generate_select_expression_for_extended_string_unix_timestamp_ms_to_timestamp" title="Permalink to this definition">¶</a></dt>
+<dd><p>More robust conversion from StringType to TimestampType. It is assumed that the
+timezone is already set to UTC in spark / java to avoid implicit timezone conversions.
+Is able to additionally handle (compared to implicit Spark conversion):</p>
+<ul class="simple">
+<li>Unix timestamps in milliseconds</li>
+<li>Preceding whitespace</li>
+<li>Trailing whitespace</li>
+<li>Preceeding and trailing whitespace</li>
+</ul>
+<div class="admonition hint">
+<p class="first admonition-title">Hint</p>
+<p class="last">Please have a look at the tests to get a better feeling how it behaves under
+tests/unit/transformer/test_mapper_custom_data_types.py::TestExtendedStringConversions and
+tests/data/test_fixtures/mapper_custom_data_types_fixtures.py</p>
+</div>
+<p class="rubric">Example</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">spooq2.transformer</span> <span class="kn">import</span> <span class="n">Mapper</span>
+<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">input_df</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="go">[Row(input_string=&quot;2020-08-12T12:43:14+0000&quot;),</span>
+<span class="go"> Row(input_string=&quot;1597069446000&quot;),</span>
+<span class="go"> Row(input_string=&quot;2020-08-12&quot;)]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">mapping</span> <span class="o">=</span> <span class="p">[(</span><span class="s2">&quot;output_value&quot;</span><span class="p">,</span> <span class="s2">&quot;input_string&quot;</span><span class="p">,</span> <span class="s2">&quot;extended_string_to_timestamp&quot;</span><span class="p">)]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">output_df</span> <span class="o">=</span> <span class="n">Mapper</span><span class="p">(</span><span class="n">mapping</span><span class="p">)</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">input_df</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">output_df</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="go">[Row(input_string=datetime.datetime(2020, 8, 12, 12, 43, 14)),</span>
+<span class="go"> Row(input_string=datetime.datetime(2020, 8, 10, 14, 24, 6)),</span>
+<span class="go"> Row(input_string=datetime.datetime(2020, 8, 12, 0, 0, 0))]</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="spooq2.transformer.mapper_custom_data_types._generate_select_expression_for_extended_string_unix_timestamp_ms_to_date">
+<code class="descname">_generate_select_expression_for_extended_string_unix_timestamp_ms_to_date</code><span class="sig-paren">(</span><em>source_column</em>, <em>name</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/spooq2/transformer/mapper_custom_data_types.html#_generate_select_expression_for_extended_string_unix_timestamp_ms_to_date"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spooq2.transformer.mapper_custom_data_types._generate_select_expression_for_extended_string_unix_timestamp_ms_to_date" title="Permalink to this definition">¶</a></dt>
+<dd><p>More robust conversion from StringType to DateType. It is assumed that the
+timezone is already set to UTC in spark / java to avoid implicit timezone conversions and that
+unix timestamps are in <strong>milli seconds</strong></p>
+<div class="admonition hint">
+<p class="first admonition-title">Hint</p>
+<p class="last">Please have a look at the tests to get a better feeling how it behaves under
+tests/unit/transformer/test_mapper_custom_data_types.py::TestExtendedStringConversions and
+tests/data/test_fixtures/mapper_custom_data_types_fixtures.py</p>
+</div>
+<p class="rubric">Example</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">spooq2.transformer</span> <span class="kn">import</span> <span class="n">Mapper</span>
+<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">input_df</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="go">[Row(input_string=&quot;2020-08-12T12:43:14+0000&quot;),</span>
+<span class="go"> Row(input_string=&quot;1597069446000&quot;),</span>
+<span class="go"> Row(input_string=&quot;2020-08-12&quot;)]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">mapping</span> <span class="o">=</span> <span class="p">[(</span><span class="s2">&quot;output_value&quot;</span><span class="p">,</span> <span class="s2">&quot;input_string&quot;</span><span class="p">,</span> <span class="s2">&quot;extended_string_to_date&quot;</span><span class="p">)]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">output_df</span> <span class="o">=</span> <span class="n">Mapper</span><span class="p">(</span><span class="n">mapping</span><span class="p">)</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">input_df</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">output_df</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="go">[Row(input_string=datetime.datetime(2020, 8, 12)),</span>
+<span class="go"> Row(input_string=datetime.datetime(2020, 8, 10)),</span>
+<span class="go"> Row(input_string=datetime.datetime(2020, 8, 12))]</span>
 </pre></div>
 </div>
 </dd></dl>

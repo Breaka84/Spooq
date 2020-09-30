@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>spooq2.transformer.mapper_custom_data_types &mdash; Spooq2 2.1.0 documentation</title>
+  <title>spooq2.transformer.mapper_custom_data_types &mdash; Spooq2 2.2.0 documentation</title>
   
 
   
@@ -178,7 +178,7 @@
 <span class="kn">import</span> <span class="nn">sys</span>
 <span class="kn">import</span> <span class="nn">json</span>
 <span class="kn">from</span> <span class="nn">pyspark.sql</span> <span class="kn">import</span> <span class="n">functions</span> <span class="k">as</span> <span class="n">F</span>
-<span class="kn">from</span> <span class="nn">pyspark.sql</span> <span class="kn">import</span> <span class="n">types</span> <span class="k">as</span> <span class="n">sql_types</span>
+<span class="kn">from</span> <span class="nn">pyspark.sql</span> <span class="kn">import</span> <span class="n">types</span> <span class="k">as</span> <span class="n">T</span>
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;add_custom_data_type&quot;</span><span class="p">]</span>
 
@@ -197,7 +197,7 @@
 <span class="sd">    -------</span>
 <span class="sd">    &gt;&gt;&gt; import spooq2.transformer.mapper_custom_data_types as custom_types</span>
 <span class="sd">    &gt;&gt;&gt; import spooq2.transformer as T</span>
-<span class="sd">    &gt;&gt;&gt; from pyspark.sql import Row, functions as F, types as sql_types</span>
+<span class="sd">    &gt;&gt;&gt; from pyspark.sql import Row, functions as F, types as T</span>
 
 <span class="sd">    &gt;&gt;&gt; def hello_world(source_column, name):</span>
 <span class="sd">    &gt;&gt;&gt;     &quot;A UDF (User Defined Function) in Python&quot;</span>
@@ -207,7 +207,7 @@
 <span class="sd">    &gt;&gt;&gt;         else:</span>
 <span class="sd">    &gt;&gt;&gt;             return &quot;Hello World&quot;</span>
 <span class="sd">    &gt;&gt;&gt;</span>
-<span class="sd">    &gt;&gt;&gt;     udf_hello_world = F.udf(_to_hello_world, sql_types.StringType())</span>
+<span class="sd">    &gt;&gt;&gt;     udf_hello_world = F.udf(_to_hello_world, T.StringType())</span>
 <span class="sd">    &gt;&gt;&gt;     return udf_hello_world(source_column).alias(name)</span>
 <span class="sd">    &gt;&gt;&gt;</span>
 <span class="sd">    &gt;&gt;&gt; input_df = spark.createDataFrame(</span>
@@ -361,7 +361,7 @@
         <span class="k">except</span> <span class="p">(</span><span class="ne">AttributeError</span><span class="p">,</span> <span class="ne">TypeError</span><span class="p">):</span>
             <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">col</span><span class="p">)</span>
 
-    <span class="n">udf_to_json</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">udf</span><span class="p">(</span><span class="n">_to_json</span><span class="p">,</span> <span class="n">sql_types</span><span class="o">.</span><span class="n">StringType</span><span class="p">())</span>
+    <span class="n">udf_to_json</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">udf</span><span class="p">(</span><span class="n">_to_json</span><span class="p">,</span> <span class="n">T</span><span class="o">.</span><span class="n">StringType</span><span class="p">())</span>
     <span class="k">return</span> <span class="n">udf_to_json</span><span class="p">(</span><span class="n">source_column</span><span class="p">)</span><span class="o">.</span><span class="n">alias</span><span class="p">(</span><span class="n">name</span><span class="p">)</span></div>
 
 
@@ -398,7 +398,7 @@
     <span class="k">return</span> <span class="p">(</span>
         <span class="n">F</span><span class="o">.</span><span class="n">when</span><span class="p">(</span><span class="n">source_column</span><span class="o">.</span><span class="n">between</span><span class="p">(</span><span class="n">MIN_TIMESTAMP_MS</span><span class="p">,</span> <span class="n">MAX_TIMESTAMP_MS</span><span class="p">),</span> <span class="n">source_column</span><span class="p">)</span>
         <span class="o">.</span><span class="n">otherwise</span><span class="p">(</span><span class="n">F</span><span class="o">.</span><span class="n">lit</span><span class="p">(</span><span class="kc">None</span><span class="p">))</span>
-        <span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">sql_types</span><span class="o">.</span><span class="n">LongType</span><span class="p">())</span>
+        <span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">T</span><span class="o">.</span><span class="n">LongType</span><span class="p">())</span>
         <span class="o">.</span><span class="n">alias</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
     <span class="p">)</span></div>
 
@@ -439,7 +439,7 @@
             <span class="n">source_column</span> <span class="o">/</span> <span class="mi">1000</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="o">.</span><span class="n">otherwise</span><span class="p">(</span><span class="n">F</span><span class="o">.</span><span class="n">lit</span><span class="p">(</span><span class="kc">None</span><span class="p">))</span>
-        <span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">sql_types</span><span class="o">.</span><span class="n">LongType</span><span class="p">())</span>
+        <span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">T</span><span class="o">.</span><span class="n">LongType</span><span class="p">())</span>
         <span class="o">.</span><span class="n">alias</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
     <span class="p">)</span></div>
 
@@ -480,7 +480,7 @@
             <span class="n">source_column</span> <span class="o">*</span> <span class="mi">1000</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="o">.</span><span class="n">otherwise</span><span class="p">(</span><span class="n">F</span><span class="o">.</span><span class="n">lit</span><span class="p">(</span><span class="kc">None</span><span class="p">))</span>
-        <span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">sql_types</span><span class="o">.</span><span class="n">LongType</span><span class="p">())</span>
+        <span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">T</span><span class="o">.</span><span class="n">LongType</span><span class="p">())</span>
         <span class="o">.</span><span class="n">alias</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
     <span class="p">)</span></div>
 
@@ -517,7 +517,7 @@
     <span class="k">return</span> <span class="p">(</span>
         <span class="n">F</span><span class="o">.</span><span class="n">when</span><span class="p">(</span><span class="n">source_column</span><span class="o">.</span><span class="n">between</span><span class="p">(</span><span class="n">MIN_TIMESTAMP_SEC</span><span class="p">,</span> <span class="n">MAX_TIMESTAMP_SEC</span><span class="p">),</span> <span class="n">source_column</span><span class="p">)</span>
         <span class="o">.</span><span class="n">otherwise</span><span class="p">(</span><span class="n">F</span><span class="o">.</span><span class="n">lit</span><span class="p">(</span><span class="kc">None</span><span class="p">))</span>
-        <span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">sql_types</span><span class="o">.</span><span class="n">LongType</span><span class="p">())</span>
+        <span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">T</span><span class="o">.</span><span class="n">LongType</span><span class="p">())</span>
         <span class="o">.</span><span class="n">alias</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
     <span class="p">)</span></div>
 
@@ -545,7 +545,7 @@
 <span class="sd">    [Row(email=None), Row(email=None), Row(email=None)]</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">return</span> <span class="n">F</span><span class="o">.</span><span class="n">lit</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">sql_types</span><span class="o">.</span><span class="n">StringType</span><span class="p">())</span><span class="o">.</span><span class="n">alias</span><span class="p">(</span><span class="n">name</span><span class="p">)</span></div>
+    <span class="k">return</span> <span class="n">F</span><span class="o">.</span><span class="n">lit</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">T</span><span class="o">.</span><span class="n">StringType</span><span class="p">())</span><span class="o">.</span><span class="n">alias</span><span class="p">(</span><span class="n">name</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="_generate_select_expression_for_IntNull"><a class="viewcode-back" href="../../../transformer/mapper.html#spooq2.transformer.mapper_custom_data_types._generate_select_expression_for_IntNull">[docs]</a><span class="k">def</span> <span class="nf">_generate_select_expression_for_IntNull</span><span class="p">(</span><span class="n">source_column</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>  <span class="c1"># noqa: N802</span>
@@ -571,7 +571,7 @@
 <span class="sd">    [Row(facebook_id=None), Row(facebook_id=None), Row(facebook_id=None)]</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">return</span> <span class="n">F</span><span class="o">.</span><span class="n">lit</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">sql_types</span><span class="o">.</span><span class="n">IntegerType</span><span class="p">())</span><span class="o">.</span><span class="n">alias</span><span class="p">(</span><span class="n">name</span><span class="p">)</span></div>
+    <span class="k">return</span> <span class="n">F</span><span class="o">.</span><span class="n">lit</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">T</span><span class="o">.</span><span class="n">IntegerType</span><span class="p">())</span><span class="o">.</span><span class="n">alias</span><span class="p">(</span><span class="n">name</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="_generate_select_expression_for_StringBoolean"><a class="viewcode-back" href="../../../transformer/mapper.html#spooq2.transformer.mapper_custom_data_types._generate_select_expression_for_StringBoolean">[docs]</a><span class="k">def</span> <span class="nf">_generate_select_expression_for_StringBoolean</span><span class="p">(</span><span class="n">source_column</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>  <span class="c1"># noqa: N802</span>
@@ -602,7 +602,7 @@
         <span class="n">F</span><span class="o">.</span><span class="n">when</span><span class="p">(</span><span class="n">source_column</span><span class="o">.</span><span class="n">isNull</span><span class="p">(),</span> <span class="n">F</span><span class="o">.</span><span class="n">lit</span><span class="p">(</span><span class="kc">None</span><span class="p">))</span>
         <span class="o">.</span><span class="n">when</span><span class="p">(</span><span class="n">source_column</span> <span class="o">==</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">F</span><span class="o">.</span><span class="n">lit</span><span class="p">(</span><span class="kc">None</span><span class="p">))</span>
         <span class="o">.</span><span class="n">otherwise</span><span class="p">(</span><span class="s2">&quot;1&quot;</span><span class="p">)</span>
-        <span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">sql_types</span><span class="o">.</span><span class="n">StringType</span><span class="p">())</span>
+        <span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">T</span><span class="o">.</span><span class="n">StringType</span><span class="p">())</span>
         <span class="o">.</span><span class="n">alias</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
     <span class="p">)</span></div>
 
@@ -635,7 +635,7 @@
     <span class="k">return</span> <span class="p">(</span>
         <span class="n">F</span><span class="o">.</span><span class="n">when</span><span class="p">(</span><span class="n">source_column</span><span class="o">.</span><span class="n">isNull</span><span class="p">(),</span> <span class="n">F</span><span class="o">.</span><span class="n">lit</span><span class="p">(</span><span class="kc">None</span><span class="p">))</span>
         <span class="o">.</span><span class="n">otherwise</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
-        <span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">sql_types</span><span class="o">.</span><span class="n">IntegerType</span><span class="p">())</span>
+        <span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">T</span><span class="o">.</span><span class="n">IntegerType</span><span class="p">())</span>
         <span class="o">.</span><span class="n">alias</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
     <span class="p">)</span></div>
 
@@ -665,7 +665,7 @@
 <span class="sd">     Row(birthday=None),</span>
 <span class="sd">     Row(birthday=datetime.datetime(1988, 1, 1, 0, 0))]</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="n">F</span><span class="o">.</span><span class="n">trunc</span><span class="p">(</span><span class="n">source_column</span><span class="p">,</span> <span class="s2">&quot;month&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">sql_types</span><span class="o">.</span><span class="n">TimestampType</span><span class="p">())</span><span class="o">.</span><span class="n">alias</span><span class="p">(</span><span class="n">name</span><span class="p">)</span></div>
+    <span class="k">return</span> <span class="n">F</span><span class="o">.</span><span class="n">trunc</span><span class="p">(</span><span class="n">source_column</span><span class="p">,</span> <span class="s2">&quot;month&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">T</span><span class="o">.</span><span class="n">TimestampType</span><span class="p">())</span><span class="o">.</span><span class="n">alias</span><span class="p">(</span><span class="n">name</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="_generate_select_expression_for_meters_to_cm"><a class="viewcode-back" href="../../../transformer/mapper.html#spooq2.transformer.mapper_custom_data_types._generate_select_expression_for_meters_to_cm">[docs]</a><span class="k">def</span> <span class="nf">_generate_select_expression_for_meters_to_cm</span><span class="p">(</span><span class="n">source_column</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
@@ -690,7 +690,7 @@
 <span class="sd">     Row(size_in_cm=165),</span>
 <span class="sd">     Row(size_in_cm=205)]</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="p">(</span><span class="n">source_column</span> <span class="o">*</span> <span class="mi">100</span><span class="p">)</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">sql_types</span><span class="o">.</span><span class="n">IntegerType</span><span class="p">())</span><span class="o">.</span><span class="n">alias</span><span class="p">(</span><span class="n">name</span><span class="p">)</span></div>
+    <span class="k">return</span> <span class="p">(</span><span class="n">source_column</span> <span class="o">*</span> <span class="mi">100</span><span class="p">)</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">T</span><span class="o">.</span><span class="n">IntegerType</span><span class="p">())</span><span class="o">.</span><span class="n">alias</span><span class="p">(</span><span class="n">name</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="_generate_select_expression_for_unix_timestamp_ms_to_spark_timestamp"><a class="viewcode-back" href="../../../transformer/mapper.html#spooq2.transformer.mapper_custom_data_types._generate_select_expression_for_unix_timestamp_ms_to_spark_timestamp">[docs]</a><span class="k">def</span> <span class="nf">_generate_select_expression_for_unix_timestamp_ms_to_spark_timestamp</span><span class="p">(</span><span class="n">source_column</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
@@ -716,7 +716,7 @@
 <span class="sd">     Row(spark_timestamp=datetime.datetime(2020, 8, 7, 17, 9, 12)),</span>
 <span class="sd">     Row(spark_timestamp=datetime.datetime(1999, 12, 31, 21, 30))]</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="p">(</span><span class="n">source_column</span> <span class="o">/</span> <span class="mi">1000</span><span class="p">)</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">sql_types</span><span class="o">.</span><span class="n">TimestampType</span><span class="p">())</span><span class="o">.</span><span class="n">alias</span><span class="p">(</span><span class="n">name</span><span class="p">)</span></div>
+    <span class="k">return</span> <span class="p">(</span><span class="n">source_column</span> <span class="o">/</span> <span class="mi">1000</span><span class="p">)</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">T</span><span class="o">.</span><span class="n">TimestampType</span><span class="p">())</span><span class="o">.</span><span class="n">alias</span><span class="p">(</span><span class="n">name</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="_generate_select_expression_for_extended_string_to_int"><a class="viewcode-back" href="../../../transformer/mapper.html#spooq2.transformer.mapper_custom_data_types._generate_select_expression_for_extended_string_to_int">[docs]</a><span class="k">def</span> <span class="nf">_generate_select_expression_for_extended_string_to_int</span><span class="p">(</span><span class="n">source_column</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
@@ -732,7 +732,8 @@
 <span class="sd">    Hint</span>
 <span class="sd">    ---</span>
 <span class="sd">    Please have a look at the tests to get a better feeling how it behaves under</span>
-<span class="sd">    tests/unit/transformer/test_mapper_custom_data_types.py::TestConversionsFromString</span>
+<span class="sd">    tests/unit/transformer/test_mapper_custom_data_types.py::TestExtendedStringConversions and</span>
+<span class="sd">    tests/data/test_fixtures/mapper_custom_data_types_fixtures.py</span>
 
 <span class="sd">    Example</span>
 <span class="sd">    -------</span>
@@ -749,7 +750,7 @@
 <span class="sd">     Row(input_string=None),</span>
 <span class="sd">     Row(input_string=123456)]</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="n">_generate_select_expression_for_extended_string_to_long</span><span class="p">(</span><span class="n">source_column</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">sql_types</span><span class="o">.</span><span class="n">IntegerType</span><span class="p">())</span></div>
+    <span class="k">return</span> <span class="n">_generate_select_expression_for_extended_string_to_long</span><span class="p">(</span><span class="n">source_column</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">T</span><span class="o">.</span><span class="n">IntegerType</span><span class="p">())</span></div>
 
 
 <div class="viewcode-block" id="_generate_select_expression_for_extended_string_to_long"><a class="viewcode-back" href="../../../transformer/mapper.html#spooq2.transformer.mapper_custom_data_types._generate_select_expression_for_extended_string_to_long">[docs]</a><span class="k">def</span> <span class="nf">_generate_select_expression_for_extended_string_to_long</span><span class="p">(</span><span class="n">source_column</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
@@ -765,7 +766,8 @@
 <span class="sd">    Hint</span>
 <span class="sd">    ---</span>
 <span class="sd">    Please have a look at the tests to get a better feeling how it behaves under</span>
-<span class="sd">    tests/unit/transformer/test_mapper_custom_data_types.py::TestConversionsFromString</span>
+<span class="sd">    tests/unit/transformer/test_mapper_custom_data_types.py::TestExtendedStringConversions and</span>
+<span class="sd">    tests/data/test_fixtures/mapper_custom_data_types_fixtures.py</span>
 
 <span class="sd">    Example</span>
 <span class="sd">    -------</span>
@@ -782,7 +784,7 @@
 <span class="sd">     Row(input_string=None),</span>
 <span class="sd">     Row(input_string=21474836470)]</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="n">F</span><span class="o">.</span><span class="n">regexp_replace</span><span class="p">(</span><span class="n">F</span><span class="o">.</span><span class="n">trim</span><span class="p">(</span><span class="n">source_column</span><span class="p">),</span> <span class="s2">&quot;_&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">sql_types</span><span class="o">.</span><span class="n">LongType</span><span class="p">())</span><span class="o">.</span><span class="n">alias</span><span class="p">(</span><span class="n">name</span><span class="p">)</span></div>
+    <span class="k">return</span> <span class="n">F</span><span class="o">.</span><span class="n">regexp_replace</span><span class="p">(</span><span class="n">F</span><span class="o">.</span><span class="n">trim</span><span class="p">(</span><span class="n">source_column</span><span class="p">),</span> <span class="s2">&quot;_&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">T</span><span class="o">.</span><span class="n">LongType</span><span class="p">())</span><span class="o">.</span><span class="n">alias</span><span class="p">(</span><span class="n">name</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="_generate_select_expression_for_extended_string_to_float"><a class="viewcode-back" href="../../../transformer/mapper.html#spooq2.transformer.mapper_custom_data_types._generate_select_expression_for_extended_string_to_float">[docs]</a><span class="k">def</span> <span class="nf">_generate_select_expression_for_extended_string_to_float</span><span class="p">(</span><span class="n">source_column</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
@@ -798,7 +800,8 @@
 <span class="sd">    Hint</span>
 <span class="sd">    ---</span>
 <span class="sd">    Please have a look at the tests to get a better feeling how it behaves under</span>
-<span class="sd">    tests/unit/transformer/test_mapper_custom_data_types.py::TestConversionsFromString</span>
+<span class="sd">    tests/unit/transformer/test_mapper_custom_data_types.py::TestExtendedStringConversions and</span>
+<span class="sd">    tests/data/test_fixtures/mapper_custom_data_types_fixtures.py</span>
 
 <span class="sd">    Example</span>
 <span class="sd">    -------</span>
@@ -815,7 +818,7 @@
 <span class="sd">     Row(input_string=None),</span>
 <span class="sd">     Row(input_string=836470.819)]</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="n">_generate_select_expression_for_extended_string_to_double</span><span class="p">(</span><span class="n">source_column</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">sql_types</span><span class="o">.</span><span class="n">FloatType</span><span class="p">())</span></div>
+    <span class="k">return</span> <span class="n">_generate_select_expression_for_extended_string_to_double</span><span class="p">(</span><span class="n">source_column</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">T</span><span class="o">.</span><span class="n">FloatType</span><span class="p">())</span></div>
 
 
 <div class="viewcode-block" id="_generate_select_expression_for_extended_string_to_double"><a class="viewcode-back" href="../../../transformer/mapper.html#spooq2.transformer.mapper_custom_data_types._generate_select_expression_for_extended_string_to_double">[docs]</a><span class="k">def</span> <span class="nf">_generate_select_expression_for_extended_string_to_double</span><span class="p">(</span><span class="n">source_column</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
@@ -831,7 +834,8 @@
 <span class="sd">    Hint</span>
 <span class="sd">    ---</span>
 <span class="sd">    Please have a look at the tests to get a better feeling how it behaves under</span>
-<span class="sd">    tests/unit/transformer/test_mapper_custom_data_types.py::TestConversionsFromString</span>
+<span class="sd">    tests/unit/transformer/test_mapper_custom_data_types.py::TestExtendedStringConversions and</span>
+<span class="sd">    tests/data/test_fixtures/mapper_custom_data_types_fixtures.py</span>
 
 <span class="sd">    Example</span>
 <span class="sd">    -------</span>
@@ -848,7 +852,7 @@
 <span class="sd">     Row(input_string=None),</span>
 <span class="sd">     Row(input_string=21474838464.70)]</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="n">F</span><span class="o">.</span><span class="n">regexp_replace</span><span class="p">(</span><span class="n">F</span><span class="o">.</span><span class="n">trim</span><span class="p">(</span><span class="n">source_column</span><span class="p">),</span> <span class="s2">&quot;_&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">sql_types</span><span class="o">.</span><span class="n">DoubleType</span><span class="p">())</span><span class="o">.</span><span class="n">alias</span><span class="p">(</span><span class="n">name</span><span class="p">)</span></div>
+    <span class="k">return</span> <span class="n">F</span><span class="o">.</span><span class="n">regexp_replace</span><span class="p">(</span><span class="n">F</span><span class="o">.</span><span class="n">trim</span><span class="p">(</span><span class="n">source_column</span><span class="p">),</span> <span class="s2">&quot;_&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">T</span><span class="o">.</span><span class="n">DoubleType</span><span class="p">())</span><span class="o">.</span><span class="n">alias</span><span class="p">(</span><span class="n">name</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="_generate_select_expression_for_extended_string_to_boolean"><a class="viewcode-back" href="../../../transformer/mapper.html#spooq2.transformer.mapper_custom_data_types._generate_select_expression_for_extended_string_to_boolean">[docs]</a><span class="k">def</span> <span class="nf">_generate_select_expression_for_extended_string_to_boolean</span><span class="p">(</span><span class="n">source_column</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
@@ -863,7 +867,8 @@
 <span class="sd">    Hint</span>
 <span class="sd">    ---</span>
 <span class="sd">    Please have a look at the tests to get a better feeling how it behaves under</span>
-<span class="sd">    tests/unit/transformer/test_mapper_custom_data_types.py::TestConversionsFromString</span>
+<span class="sd">    tests/unit/transformer/test_mapper_custom_data_types.py::TestExtendedStringConversions and</span>
+<span class="sd">    tests/data/test_fixtures/mapper_custom_data_types_fixtures.py</span>
 
 <span class="sd">    Example</span>
 <span class="sd">    -------</span>
@@ -880,12 +885,18 @@
 <span class="sd">     Row(input_string=False),</span>
 <span class="sd">     Row(input_string=True)]</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="n">F</span><span class="o">.</span><span class="n">trim</span><span class="p">(</span><span class="n">source_column</span><span class="p">)</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">sql_types</span><span class="o">.</span><span class="n">BooleanType</span><span class="p">())</span><span class="o">.</span><span class="n">alias</span><span class="p">(</span><span class="n">name</span><span class="p">)</span></div>
+    <span class="n">true_values</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;on&quot;</span><span class="p">,</span> <span class="s2">&quot;enabled&quot;</span><span class="p">]</span>
+    <span class="n">false_values</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;off&quot;</span><span class="p">,</span> <span class="s2">&quot;disabled&quot;</span><span class="p">]</span>
+    <span class="k">return</span> <span class="p">(</span>
+        <span class="n">F</span><span class="o">.</span><span class="n">when</span><span class="p">(</span><span class="n">F</span><span class="o">.</span><span class="n">trim</span><span class="p">(</span><span class="n">source_column</span><span class="p">)</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">true_values</span><span class="p">),</span> <span class="n">F</span><span class="o">.</span><span class="n">lit</span><span class="p">(</span><span class="kc">True</span><span class="p">))</span>
+        <span class="o">.</span><span class="n">when</span><span class="p">(</span><span class="n">F</span><span class="o">.</span><span class="n">trim</span><span class="p">(</span><span class="n">source_column</span><span class="p">)</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">false_values</span><span class="p">),</span> <span class="n">F</span><span class="o">.</span><span class="n">lit</span><span class="p">(</span><span class="kc">False</span><span class="p">))</span>
+        <span class="o">.</span><span class="n">otherwise</span><span class="p">(</span><span class="n">F</span><span class="o">.</span><span class="n">trim</span><span class="p">(</span><span class="n">source_column</span><span class="p">)</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">T</span><span class="o">.</span><span class="n">BooleanType</span><span class="p">()))</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">alias</span><span class="p">(</span><span class="n">name</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="_generate_select_expression_for_extended_string_to_timestamp"><a class="viewcode-back" href="../../../transformer/mapper.html#spooq2.transformer.mapper_custom_data_types._generate_select_expression_for_extended_string_to_timestamp">[docs]</a><span class="k">def</span> <span class="nf">_generate_select_expression_for_extended_string_to_timestamp</span><span class="p">(</span><span class="n">source_column</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    More robust conversion from StringType to TimestampsType. It is assumed that the</span>
+<span class="sd">    More robust conversion from StringType to TimestampType. It is assumed that the</span>
 <span class="sd">    timezone is already set to UTC in spark / java to avoid implicit timezone conversions.</span>
 <span class="sd">    Is able to additionally handle (compared to implicit Spark conversion):</span>
 
@@ -897,7 +908,8 @@
 <span class="sd">    Hint</span>
 <span class="sd">    ---</span>
 <span class="sd">    Please have a look at the tests to get a better feeling how it behaves under</span>
-<span class="sd">    tests/unit/transformer/test_mapper_custom_data_types.py::TestConversionsFromString</span>
+<span class="sd">    tests/unit/transformer/test_mapper_custom_data_types.py::TestExtendedStringConversions and</span>
+<span class="sd">    tests/data/test_fixtures/mapper_custom_data_types_fixtures.py</span>
 
 <span class="sd">    Example</span>
 <span class="sd">    -------</span>
@@ -916,10 +928,111 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="p">(</span>
         <span class="n">F</span><span class="o">.</span><span class="n">when</span><span class="p">(</span>
-            <span class="n">F</span><span class="o">.</span><span class="n">trim</span><span class="p">(</span><span class="n">source_column</span><span class="p">)</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">sql_types</span><span class="o">.</span><span class="n">LongType</span><span class="p">())</span><span class="o">.</span><span class="n">isNotNull</span><span class="p">(),</span>
-            <span class="n">F</span><span class="o">.</span><span class="n">trim</span><span class="p">(</span><span class="n">source_column</span><span class="p">)</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">sql_types</span><span class="o">.</span><span class="n">LongType</span><span class="p">())</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">sql_types</span><span class="o">.</span><span class="n">TimestampType</span><span class="p">())</span>
-        <span class="p">)</span><span class="o">.</span><span class="n">otherwise</span><span class="p">(</span><span class="n">F</span><span class="o">.</span><span class="n">trim</span><span class="p">(</span><span class="n">source_column</span><span class="p">)</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">sql_types</span><span class="o">.</span><span class="n">TimestampType</span><span class="p">()))</span><span class="o">.</span><span class="n">alias</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+            <span class="n">F</span><span class="o">.</span><span class="n">trim</span><span class="p">(</span><span class="n">source_column</span><span class="p">)</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">T</span><span class="o">.</span><span class="n">LongType</span><span class="p">())</span><span class="o">.</span><span class="n">isNotNull</span><span class="p">(),</span>
+            <span class="n">F</span><span class="o">.</span><span class="n">trim</span><span class="p">(</span><span class="n">source_column</span><span class="p">)</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">T</span><span class="o">.</span><span class="n">LongType</span><span class="p">())</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">T</span><span class="o">.</span><span class="n">TimestampType</span><span class="p">())</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">otherwise</span><span class="p">(</span><span class="n">F</span><span class="o">.</span><span class="n">trim</span><span class="p">(</span><span class="n">source_column</span><span class="p">)</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">T</span><span class="o">.</span><span class="n">TimestampType</span><span class="p">()))</span><span class="o">.</span><span class="n">alias</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
     <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="_generate_select_expression_for_extended_string_to_date"><a class="viewcode-back" href="../../../transformer/mapper.html#spooq2.transformer.mapper_custom_data_types._generate_select_expression_for_extended_string_to_date">[docs]</a><span class="k">def</span> <span class="nf">_generate_select_expression_for_extended_string_to_date</span><span class="p">(</span><span class="n">source_column</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    More robust conversion from StringType to DateType. It is assumed that the</span>
+<span class="sd">    timezone is already set to UTC in spark / java to avoid implicit timezone conversions and that</span>
+<span class="sd">    unix timestamps are in **seconds**</span>
+
+<span class="sd">    Hint</span>
+<span class="sd">    ---</span>
+<span class="sd">    Please have a look at the tests to get a better feeling how it behaves under</span>
+<span class="sd">    tests/unit/transformer/test_mapper_custom_data_types.py::TestExtendedStringConversions and</span>
+<span class="sd">    tests/data/test_fixtures/mapper_custom_data_types_fixtures.py</span>
+
+<span class="sd">    Example</span>
+<span class="sd">    -------</span>
+<span class="sd">    &gt;&gt;&gt; from spooq2.transformer import Mapper</span>
+<span class="sd">    &gt;&gt;&gt;</span>
+<span class="sd">    &gt;&gt;&gt; input_df.head(3)</span>
+<span class="sd">    [Row(input_string=&quot;2020-08-12T12:43:14+0000&quot;),</span>
+<span class="sd">     Row(input_string=&quot;1597069446&quot;),</span>
+<span class="sd">     Row(input_string=&quot;2020-08-12&quot;)]</span>
+<span class="sd">    &gt;&gt;&gt; mapping = [(&quot;output_value&quot;, &quot;input_string&quot;, &quot;extended_string_to_date&quot;)]</span>
+<span class="sd">    &gt;&gt;&gt; output_df = Mapper(mapping).transform(input_df)</span>
+<span class="sd">    &gt;&gt;&gt; output_df.head(3)</span>
+<span class="sd">    [Row(input_string=datetime.datetime(2020, 8, 12)),</span>
+<span class="sd">     Row(input_string=datetime.datetime(2020, 8, 10)),</span>
+<span class="sd">     Row(input_string=datetime.datetime(2020, 8, 12))]</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">_generate_select_expression_for_extended_string_to_timestamp</span><span class="p">(</span><span class="n">source_column</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">T</span><span class="o">.</span><span class="n">DateType</span><span class="p">())</span></div>
+
+
+<div class="viewcode-block" id="_generate_select_expression_for_extended_string_unix_timestamp_ms_to_timestamp"><a class="viewcode-back" href="../../../transformer/mapper.html#spooq2.transformer.mapper_custom_data_types._generate_select_expression_for_extended_string_unix_timestamp_ms_to_timestamp">[docs]</a><span class="k">def</span> <span class="nf">_generate_select_expression_for_extended_string_unix_timestamp_ms_to_timestamp</span><span class="p">(</span><span class="n">source_column</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    More robust conversion from StringType to TimestampType. It is assumed that the</span>
+<span class="sd">    timezone is already set to UTC in spark / java to avoid implicit timezone conversions.</span>
+<span class="sd">    Is able to additionally handle (compared to implicit Spark conversion):</span>
+
+<span class="sd">    * Unix timestamps in milliseconds</span>
+<span class="sd">    * Preceding whitespace</span>
+<span class="sd">    * Trailing whitespace</span>
+<span class="sd">    * Preceeding and trailing whitespace</span>
+
+<span class="sd">    Hint</span>
+<span class="sd">    ---</span>
+<span class="sd">    Please have a look at the tests to get a better feeling how it behaves under</span>
+<span class="sd">    tests/unit/transformer/test_mapper_custom_data_types.py::TestExtendedStringConversions and</span>
+<span class="sd">    tests/data/test_fixtures/mapper_custom_data_types_fixtures.py</span>
+
+<span class="sd">    Example</span>
+<span class="sd">    -------</span>
+<span class="sd">    &gt;&gt;&gt; from spooq2.transformer import Mapper</span>
+<span class="sd">    &gt;&gt;&gt;</span>
+<span class="sd">    &gt;&gt;&gt; input_df.head(3)</span>
+<span class="sd">    [Row(input_string=&quot;2020-08-12T12:43:14+0000&quot;),</span>
+<span class="sd">     Row(input_string=&quot;1597069446000&quot;),</span>
+<span class="sd">     Row(input_string=&quot;2020-08-12&quot;)]</span>
+<span class="sd">    &gt;&gt;&gt; mapping = [(&quot;output_value&quot;, &quot;input_string&quot;, &quot;extended_string_to_timestamp&quot;)]</span>
+<span class="sd">    &gt;&gt;&gt; output_df = Mapper(mapping).transform(input_df)</span>
+<span class="sd">    &gt;&gt;&gt; output_df.head(3)</span>
+<span class="sd">    [Row(input_string=datetime.datetime(2020, 8, 12, 12, 43, 14)),</span>
+<span class="sd">     Row(input_string=datetime.datetime(2020, 8, 10, 14, 24, 6)),</span>
+<span class="sd">     Row(input_string=datetime.datetime(2020, 8, 12, 0, 0, 0))]</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="p">(</span>
+        <span class="n">F</span><span class="o">.</span><span class="n">when</span><span class="p">(</span>
+            <span class="n">F</span><span class="o">.</span><span class="n">trim</span><span class="p">(</span><span class="n">source_column</span><span class="p">)</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">T</span><span class="o">.</span><span class="n">LongType</span><span class="p">())</span><span class="o">.</span><span class="n">isNotNull</span><span class="p">(),</span>
+            <span class="p">(</span><span class="n">F</span><span class="o">.</span><span class="n">trim</span><span class="p">(</span><span class="n">source_column</span><span class="p">)</span> <span class="o">/</span> <span class="mi">1000</span><span class="p">)</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">T</span><span class="o">.</span><span class="n">TimestampType</span><span class="p">())</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">otherwise</span><span class="p">(</span><span class="n">F</span><span class="o">.</span><span class="n">trim</span><span class="p">(</span><span class="n">source_column</span><span class="p">)</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">T</span><span class="o">.</span><span class="n">TimestampType</span><span class="p">()))</span><span class="o">.</span><span class="n">alias</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+    <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="_generate_select_expression_for_extended_string_unix_timestamp_ms_to_date"><a class="viewcode-back" href="../../../transformer/mapper.html#spooq2.transformer.mapper_custom_data_types._generate_select_expression_for_extended_string_unix_timestamp_ms_to_date">[docs]</a><span class="k">def</span> <span class="nf">_generate_select_expression_for_extended_string_unix_timestamp_ms_to_date</span><span class="p">(</span><span class="n">source_column</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    More robust conversion from StringType to DateType. It is assumed that the</span>
+<span class="sd">    timezone is already set to UTC in spark / java to avoid implicit timezone conversions and that</span>
+<span class="sd">    unix timestamps are in **milli seconds**</span>
+
+<span class="sd">    Hint</span>
+<span class="sd">    ---</span>
+<span class="sd">    Please have a look at the tests to get a better feeling how it behaves under</span>
+<span class="sd">    tests/unit/transformer/test_mapper_custom_data_types.py::TestExtendedStringConversions and</span>
+<span class="sd">    tests/data/test_fixtures/mapper_custom_data_types_fixtures.py</span>
+
+<span class="sd">    Example</span>
+<span class="sd">    -------</span>
+<span class="sd">    &gt;&gt;&gt; from spooq2.transformer import Mapper</span>
+<span class="sd">    &gt;&gt;&gt;</span>
+<span class="sd">    &gt;&gt;&gt; input_df.head(3)</span>
+<span class="sd">    [Row(input_string=&quot;2020-08-12T12:43:14+0000&quot;),</span>
+<span class="sd">     Row(input_string=&quot;1597069446000&quot;),</span>
+<span class="sd">     Row(input_string=&quot;2020-08-12&quot;)]</span>
+<span class="sd">    &gt;&gt;&gt; mapping = [(&quot;output_value&quot;, &quot;input_string&quot;, &quot;extended_string_to_date&quot;)]</span>
+<span class="sd">    &gt;&gt;&gt; output_df = Mapper(mapping).transform(input_df)</span>
+<span class="sd">    &gt;&gt;&gt; output_df.head(3)</span>
+<span class="sd">    [Row(input_string=datetime.datetime(2020, 8, 12)),</span>
+<span class="sd">     Row(input_string=datetime.datetime(2020, 8, 10)),</span>
+<span class="sd">     Row(input_string=datetime.datetime(2020, 8, 12))]</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">_generate_select_expression_for_extended_string_unix_timestamp_ms_to_timestamp</span><span class="p">(</span><span class="n">source_column</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">T</span><span class="o">.</span><span class="n">DateType</span><span class="p">())</span></div>
+
 
 </pre></div>
 

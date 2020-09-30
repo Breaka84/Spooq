@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>spooq2.transformer.exploder &mdash; Spooq2 2.1.0 documentation</title>
+  <title>spooq2.transformer.exploder &mdash; Spooq2 2.2.0 documentation</title>
   
 
   
@@ -187,6 +187,10 @@
 <span class="sd">        Writing nested columns is not supported.</span>
 <span class="sd">        The output column has to be first level.</span>
 
+<span class="sd">    drop_rows_with_empty_array : :any:`bool`, (Defaults to True)</span>
+<span class="sd">        By default Spark (and Spooq) drops rows which don&#39;t have any elements in the array</span>
+<span class="sd">        which is being exploded. To work-around this, set `drop_rows_with_empty_array` to False.</span>
+
 <span class="sd">    Warning</span>
 <span class="sd">    -------</span>
 <span class="sd">    **Support for nested column:**</span>
@@ -199,9 +203,11 @@
 <span class="sd">        just with a dot its name. To create a struct with the column as a field</span>
 <span class="sd">        you have to redefine the structure or use a UDF.</span>
 
+
 <span class="sd">    Note</span>
 <span class="sd">    ----</span>
-<span class="sd">    The :meth:`~spark.sql.functions.explode` method of Spark is used internally.</span>
+<span class="sd">    The :meth:`~spark.sql.functions.explode` or :meth:`~spark.sql.functions.explode_outer` methods</span>
+<span class="sd">    of Spark are used internally, depending on the `drop_rows_with_empty_array` parameter.</span>
 
 <span class="sd">    Note</span>
 <span class="sd">    ----</span>
@@ -209,14 +215,20 @@
 <span class="sd">    equal to the Input DataFrame!</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path_to_array</span><span class="o">=</span><span class="s2">&quot;included&quot;</span><span class="p">,</span> <span class="n">exploded_elem_name</span><span class="o">=</span><span class="s2">&quot;elem&quot;</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path_to_array</span><span class="o">=</span><span class="s2">&quot;included&quot;</span><span class="p">,</span> <span class="n">exploded_elem_name</span><span class="o">=</span><span class="s2">&quot;elem&quot;</span><span class="p">,</span> <span class="n">drop_rows_with_empty_array</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">Exploder</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">path_to_array</span> <span class="o">=</span> <span class="n">path_to_array</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">exploded_elem_name</span> <span class="o">=</span> <span class="n">exploded_elem_name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">drop_rows_with_empty_array</span> <span class="o">=</span> <span class="n">drop_rows_with_empty_array</span>
 
 <div class="viewcode-block" id="Exploder.transform"><a class="viewcode-back" href="../../../transformer/exploder.html#spooq2.transformer.exploder.Exploder.transform">[docs]</a>    <span class="k">def</span> <span class="nf">transform</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_df</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">drop_rows_with_empty_array</span><span class="p">:</span>
+            <span class="n">explode_function</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">explode</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">explode_function</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">explode_outer</span>
+
         <span class="k">return</span> <span class="n">input_df</span><span class="o">.</span><span class="n">withColumn</span><span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">exploded_elem_name</span><span class="p">,</span> <span class="n">f</span><span class="o">.</span><span class="n">explode</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">path_to_array</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">exploded_elem_name</span><span class="p">,</span> <span class="n">explode_function</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">path_to_array</span><span class="p">)</span>
         <span class="p">)</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">path_to_array</span><span class="p">)</span></div></div>
 </pre></div>
 

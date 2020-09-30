@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>spooq2.spooq2_logger &mdash; Spooq2 2.1.0 documentation</title>
+  <title>spooq2.spooq2_logger &mdash; Spooq2 2.2.0 documentation</title>
   
 
   
@@ -189,7 +189,7 @@
 
 <span class="sd">    Warning</span>
 <span class="sd">    -------</span>
-<span class="sd">    The ``root`` logger of python is also affected as it has to have a level at least as </span>
+<span class="sd">    The ``root`` logger of python is also affected as it has to have a level at least as</span>
 <span class="sd">    fine grained as the logger of Spooq, to be able to produce an output.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">global</span> <span class="n">initialized</span>
@@ -197,11 +197,11 @@
         <span class="k">return</span>
 
     <span class="n">logging_level</span> <span class="o">=</span> <span class="n">get_logging_level</span><span class="p">()</span>
-    
-    <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s2">&quot;root&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">logging_level</span><span class="p">)</span>
+
+    <span class="c1"># logging.getLogger(&quot;root&quot;).setLevel(logging_level)</span>
     <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s2">&quot;spooq2&quot;</span><span class="p">)</span>
     <span class="n">logger</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">logging_level</span><span class="p">)</span>
-    
+
     <span class="k">if</span> <span class="ow">not</span> <span class="nb">len</span><span class="p">(</span><span class="n">logger</span><span class="o">.</span><span class="n">handlers</span><span class="p">):</span>
         <span class="n">formatter</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">Formatter</span><span class="p">(</span>
             <span class="s2">&quot;[</span><span class="si">%(name)s</span><span class="s2">] </span><span class="si">%(asctime)s</span><span class="s2"> </span><span class="si">%(levelname)s</span><span class="s2"> </span><span class="si">%(module)s</span><span class="s2">::</span><span class="si">%(funcName)s</span><span class="s2">::</span><span class="si">%(lineno)d</span><span class="s2">: </span><span class="si">%(message)s</span><span class="s2">&quot;</span>
@@ -214,12 +214,13 @@
         <span class="n">logger</span><span class="o">.</span><span class="n">addHandler</span><span class="p">(</span><span class="n">ch_out</span><span class="p">)</span>
 
         <span class="c1"># STDERR Handler</span>
-        <span class="n">ch_err</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">StreamHandler</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="p">)</span>
-        <span class="n">ch_err</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">logging_level</span><span class="p">)</span>
-        <span class="n">ch_err</span><span class="o">.</span><span class="n">setFormatter</span><span class="p">(</span><span class="n">formatter</span><span class="p">)</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">addHandler</span><span class="p">(</span><span class="n">ch_err</span><span class="p">)</span>
-        
+        <span class="c1"># ch_err = logging.StreamHandler(sys.stderr)</span>
+        <span class="c1"># ch_err.setLevel(logging_level)</span>
+        <span class="c1"># ch_err.setFormatter(formatter)</span>
+        <span class="c1"># logger.addHandler(ch_err)</span>
+
         <span class="n">initialized</span> <span class="o">=</span> <span class="kc">True</span></div>
+
 
 <div class="viewcode-block" id="get_logging_level"><a class="viewcode-back" href="../../base_classes/spooq2_logger.html#spooq2.spooq2_logger.get_logging_level">[docs]</a><span class="k">def</span> <span class="nf">get_logging_level</span><span class="p">():</span>
     <span class="sd">&quot;&quot;&quot;</span>
@@ -242,6 +243,8 @@
         <span class="k">return</span> <span class="s2">&quot;DEBUG&quot;</span>
     <span class="k">elif</span> <span class="n">spooq_env</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;test&quot;</span><span class="p">):</span>
         <span class="k">return</span> <span class="s2">&quot;ERROR&quot;</span>
+    <span class="k">elif</span> <span class="n">spooq_env</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;pr&quot;</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s2">&quot;WARN&quot;</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="k">return</span> <span class="s2">&quot;INFO&quot;</span></div>
 </pre></div>
