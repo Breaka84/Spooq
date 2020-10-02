@@ -610,7 +610,7 @@ def _generate_select_expression_for_extended_string_to_int(source_column, name):
         * underscores as thousand separators
 
     Hint
-    ---
+    ----
     Please have a look at the tests to get a better feeling how it behaves under
     tests/unit/transformer/test_mapper_custom_data_types.py::TestExtendedStringConversions and
     tests/data/test_fixtures/mapper_custom_data_types_fixtures.py
@@ -644,7 +644,7 @@ def _generate_select_expression_for_extended_string_to_long(source_column, name)
     * underscores as thousand separators
 
     Hint
-    ---
+    ----
     Please have a look at the tests to get a better feeling how it behaves under
     tests/unit/transformer/test_mapper_custom_data_types.py::TestExtendedStringConversions and
     tests/data/test_fixtures/mapper_custom_data_types_fixtures.py
@@ -678,7 +678,7 @@ def _generate_select_expression_for_extended_string_to_float(source_column, name
     * underscores as thousand separators
 
     Hint
-    ---
+    ----
     Please have a look at the tests to get a better feeling how it behaves under
     tests/unit/transformer/test_mapper_custom_data_types.py::TestExtendedStringConversions and
     tests/data/test_fixtures/mapper_custom_data_types_fixtures.py
@@ -712,7 +712,7 @@ def _generate_select_expression_for_extended_string_to_double(source_column, nam
     * underscores as thousand separators
 
     Hint
-    ---
+    ----
     Please have a look at the tests to get a better feeling how it behaves under
     tests/unit/transformer/test_mapper_custom_data_types.py::TestExtendedStringConversions and
     tests/data/test_fixtures/mapper_custom_data_types_fixtures.py
@@ -744,12 +744,17 @@ def _generate_select_expression_for_extended_string_to_boolean(source_column, na
     * Trailing whitespace
     * Preceeding and trailing whitespace
 
-    Attention
+    Warning
     ---------
-    This does not handle numbers cast as strings the same
+    This does not handle numbers (cast as string) the same way as numbers (cast as number) to boolean conversion!
+    F.e.
+
+    * 100 to boolean => True
+    * "100" to extended_string_to_boolean => False
+    * "100" to boolean => False
 
     Hint
-    ---
+    ----
     Please have a look at the tests to get a better feeling how it behaves under
     tests/unit/transformer/test_mapper_custom_data_types.py::TestExtendedStringConversions and
     tests/data/test_fixtures/mapper_custom_data_types_fixtures.py
@@ -790,7 +795,7 @@ def _generate_select_expression_for_extended_string_to_timestamp(source_column, 
     * Preceeding and trailing whitespace
 
     Hint
-    ---
+    ----
     Please have a look at the tests to get a better feeling how it behaves under
     tests/unit/transformer/test_mapper_custom_data_types.py::TestExtendedStringConversions and
     tests/data/test_fixtures/mapper_custom_data_types_fixtures.py
@@ -825,7 +830,7 @@ def _generate_select_expression_for_extended_string_to_date(source_column, name)
     unix timestamps are in **seconds**
 
     Hint
-    ---
+    ----
     Please have a look at the tests to get a better feeling how it behaves under
     tests/unit/transformer/test_mapper_custom_data_types.py::TestExtendedStringConversions and
     tests/data/test_fixtures/mapper_custom_data_types_fixtures.py
@@ -860,7 +865,7 @@ def _generate_select_expression_for_extended_string_unix_timestamp_ms_to_timesta
     * Preceeding and trailing whitespace
 
     Hint
-    ---
+    ----
     Please have a look at the tests to get a better feeling how it behaves under
     tests/unit/transformer/test_mapper_custom_data_types.py::TestExtendedStringConversions and
     tests/data/test_fixtures/mapper_custom_data_types_fixtures.py
@@ -895,7 +900,7 @@ def _generate_select_expression_for_extended_string_unix_timestamp_ms_to_date(so
     unix timestamps are in **milli seconds**
 
     Hint
-    ---
+    ----
     Please have a look at the tests to get a better feeling how it behaves under
     tests/unit/transformer/test_mapper_custom_data_types.py::TestExtendedStringConversions and
     tests/data/test_fixtures/mapper_custom_data_types_fixtures.py
