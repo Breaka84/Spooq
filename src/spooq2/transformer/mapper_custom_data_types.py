@@ -535,6 +535,44 @@ def _generate_select_expression_for_meters_to_cm(source_column, name):
     return (source_column * 100).cast(T.IntegerType()).alias(name)
 
 
+def _generate_select_expression_for_has_value(source_column, name):
+    """
+    Returns True if the source_column is
+        - not NULL and
+        - not "" (empty string)
+    otherwise it returns False
+
+    Warning
+    -------
+    This means that it will return True for values which would indicate a False value. Like "false" or 0!!!
+
+    Example
+    -------
+    >>> from pyspark.sql import Row
+    >>> from spooq2.transformer import Mapper
+    >>>
+    >>> input_df = spark.createDataFrame(
+    >>>     [Row(input_key=1.80),
+    >>>      Row(input_key=None),
+    >>>      Row(input_key="some text"),
+    >>>      Row(input_key="")]
+    >>> )
+    >>>
+    >>> mapping = [("input_key", "result", "has_value")]
+    >>> output_df = Mapper(mapping).transform(input_df)
+    >>> output_df.head(4)
+    [Row(result=True),
+     Row(result=False),
+     Row(result=True),
+     Row(result=False)]
+    """
+    return (
+        F.when((source_column.isNotNull()) & (source_column.cast(T.StringType()) != ""), F.lit(True))
+        .otherwise(F.lit(False))
+        .alias(name)
+    )
+
+
 def _generate_select_expression_for_unix_timestamp_ms_to_spark_timestamp(source_column, name):
     """
     Convert unix timestamps in milliseconds to a Spark TimeStampType. It is assumed that the
@@ -572,7 +610,7 @@ def _generate_select_expression_for_extended_string_to_int(source_column, name):
         * underscores as thousand separators
 
     Hint
-    ---
+    ----
     Please have a look at the tests to get a better feeling how it behaves under
     tests/unit/transformer/test_mapper_custom_data_types.py::TestExtendedStringConversions and
     tests/data/test_fixtures/mapper_custom_data_types_fixtures.py
@@ -606,7 +644,7 @@ def _generate_select_expression_for_extended_string_to_long(source_column, name)
     * underscores as thousand separators
 
     Hint
-    ---
+    ----
     Please have a look at the tests to get a better feeling how it behaves under
     tests/unit/transformer/test_mapper_custom_data_types.py::TestExtendedStringConversions and
     tests/data/test_fixtures/mapper_custom_data_types_fixtures.py
@@ -640,7 +678,7 @@ def _generate_select_expression_for_extended_string_to_float(source_column, name
     * underscores as thousand separators
 
     Hint
-    ---
+    ----
     Please have a look at the tests to get a better feeling how it behaves under
     tests/unit/transformer/test_mapper_custom_data_types.py::TestExtendedStringConversions and
     tests/data/test_fixtures/mapper_custom_data_types_fixtures.py
@@ -674,7 +712,7 @@ def _generate_select_expression_for_extended_string_to_double(source_column, nam
     * underscores as thousand separators
 
     Hint
-    ---
+    ----
     Please have a look at the tests to get a better feeling how it behaves under
     tests/unit/transformer/test_mapper_custom_data_types.py::TestExtendedStringConversions and
     tests/data/test_fixtures/mapper_custom_data_types_fixtures.py
@@ -706,8 +744,17 @@ def _generate_select_expression_for_extended_string_to_boolean(source_column, na
     * Trailing whitespace
     * Preceeding and trailing whitespace
 
+    Warning
+    ---------
+    This does not handle numbers (cast as string) the same way as numbers (cast as number) to boolean conversion!
+    F.e.
+
+    * 100 to boolean => True
+    * "100" to extended_string_to_boolean => False
+    * "100" to boolean => False
+
     Hint
-    ---
+    ----
     Please have a look at the tests to get a better feeling how it behaves under
     tests/unit/transformer/test_mapper_custom_data_types.py::TestExtendedStringConversions and
     tests/data/test_fixtures/mapper_custom_data_types_fixtures.py
@@ -748,7 +795,7 @@ def _generate_select_expression_for_extended_string_to_timestamp(source_column, 
     * Preceeding and trailing whitespace
 
     Hint
-    ---
+    ----
     Please have a look at the tests to get a better feeling how it behaves under
     tests/unit/transformer/test_mapper_custom_data_types.py::TestExtendedStringConversions and
     tests/data/test_fixtures/mapper_custom_data_types_fixtures.py
@@ -783,7 +830,7 @@ def _generate_select_expression_for_extended_string_to_date(source_column, name)
     unix timestamps are in **seconds**
 
     Hint
-    ---
+    ----
     Please have a look at the tests to get a better feeling how it behaves under
     tests/unit/transformer/test_mapper_custom_data_types.py::TestExtendedStringConversions and
     tests/data/test_fixtures/mapper_custom_data_types_fixtures.py
@@ -818,7 +865,7 @@ def _generate_select_expression_for_extended_string_unix_timestamp_ms_to_timesta
     * Preceeding and trailing whitespace
 
     Hint
-    ---
+    ----
     Please have a look at the tests to get a better feeling how it behaves under
     tests/unit/transformer/test_mapper_custom_data_types.py::TestExtendedStringConversions and
     tests/data/test_fixtures/mapper_custom_data_types_fixtures.py
@@ -853,7 +900,7 @@ def _generate_select_expression_for_extended_string_unix_timestamp_ms_to_date(so
     unix timestamps are in **milli seconds**
 
     Hint
-    ---
+    ----
     Please have a look at the tests to get a better feeling how it behaves under
     tests/unit/transformer/test_mapper_custom_data_types.py::TestExtendedStringConversions and
     tests/data/test_fixtures/mapper_custom_data_types_fixtures.py

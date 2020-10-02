@@ -10,6 +10,7 @@ import spooq2.transformer.mapper_custom_data_types as custom_types
 from spooq2.transformer import Mapper
 from ...data.test_fixtures.mapper_custom_data_types_fixtures import (
     fixtures_for_spark_sql_object,
+    fixtures_for_has_value,
     fixtures_for_extended_string_to_int,
     fixtures_for_extended_string_to_long,
     fixtures_for_extended_string_to_float,
@@ -61,6 +62,8 @@ class TestDynamicallyCallMethodsByDataTypeName(object):
         ("_generate_select_expression_without_casting",                  "keep"),
         ("_generate_select_expression_without_casting",                  "no_change"),
         ("_generate_select_expression_for_json_string",                  "json_string"),
+        ("_generate_select_expression_for_meters_to_cm",                 "meters_to_cm"),
+        ("_generate_select_expression_for_has_value",                    "has_value"),
         ("_generate_select_expression_for_timestamp_ms_to_ms",           "timestamp_ms_to_ms"),
         ("_generate_select_expression_for_timestamp_ms_to_s",            "timestamp_ms_to_s"),
         ("_generate_select_expression_for_timestamp_s_to_ms",            "timestamp_s_to_ms"),
@@ -218,6 +221,19 @@ class TestMiscConversions(object):
         assert output_df.first().output_column == expected_value, "Processing of column value"
         assert output_df.schema.fieldNames() == ["output_column"], "Renaming of column"
         assert output_df.schema["output_column"].dataType.typeName() == "integer", "Casting of column"
+
+    @pytest.mark.parametrize(
+        argnames=("input_value", "expected_value"),
+        argvalues=fixtures_for_has_value)
+    def test_generate_select_expression_for_has_value(self, input_value, expected_value, spark_session):
+        input_df = spark_session.createDataFrame(
+            data=[Row(input_key=input_value)],
+            schema=T.StructType([T.StructField("input_key", get_spark_data_type(input_value), True)])
+        )
+        output_df = Mapper(mapping=[("output_column", "input_key", "has_value")]).transform(input_df)
+        assert output_df.first().output_column == expected_value, "Processing of column value"
+        assert output_df.schema.fieldNames() == ["output_column"], "Renaming of column"
+        assert output_df.schema["output_column"].dataType.typeName() == "boolean", "Casting of column"
 
 
 class TestExtendedStringConversions(object):

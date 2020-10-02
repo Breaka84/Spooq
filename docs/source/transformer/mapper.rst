@@ -63,6 +63,10 @@ meters_to_cm
 ***********************************************************************
 Number (IntegerType, FloatType, StringType) -> Number * 100 (IntegerType)
 
+has_value
+***********************************************************************
+Any data -> False if NULL or empty string, otherwise True (BooleanType)
+
 json_string
 ***********************************************************************
 Any input data type will be returned as json (StringType).
