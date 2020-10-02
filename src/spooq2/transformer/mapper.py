@@ -117,7 +117,7 @@ class Mapper(Transformer):
             else:
                 select_expressions.append(select_expression)
 
-        self.logger.info("SQL Select-Expression for new mapping generated!" + str(select_expressions))
+        self.logger.info("SQL Select-Expression for new mapping generated!")
         self.logger.debug("SQL Select-Expressions for new mapping: " + str(select_expressions))
         self.logger.debug("SQL WithColumn-Expressions for new mapping: " + str(with_column_expressions))
         if self.mode == "prepend":

@@ -33,6 +33,44 @@ fixtures_for_spark_sql_object = [
     (1597242246000,             1597069446000,       complex_event_expression,           datetime.date(2020, 8, 12)),
 ]
 
+fixtures_for_has_value = [
+    ("1",        True),
+    ("",         False),
+    ("1.0",      True),
+    ("TRUE",     True),
+    ("True",     True),
+    ("true",     True),
+    ("0",        True),
+    ("0.0",      True),
+    ("-1",       True),
+    ("-1.0",     True),
+    ("123",      True),
+    ("-123",     True),
+    (None,       False),
+    ("FALSE",    True),
+    ("False",    True),
+    ("false",    True),
+    ("y",        True),
+    ("n",        True),
+    ("yes",      True),
+    ("no",       True),
+    ("enabled",  True),
+    ("disabled", True),
+    ("on",       True),
+    ("off",      True),
+    ("   true",  True),
+    ("true   ",  True),
+    (" true  ",  True),
+    (1,          True),
+    (0,          True),
+    (-1,         True),
+    (1.0,        True),
+    (0.0,        True),
+    (-1.0,       True),
+    (True,       True),
+    (False,      True),
+]
+
 fixtures_for_extended_string_to_int = [
     ("123456",        123456),
     ("-123456",      -123456),
@@ -292,3 +330,4 @@ fixtures_for_extended_string_unix_timestamp_ms_to_date = [
     ("nil",                        None),
 ]
 # fmt:on
+

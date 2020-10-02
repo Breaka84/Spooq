@@ -1,7 +1,7 @@
 =======
 History
 =======
-2.2.0 (2020-09-24)
+2.2.0 (2020-10-02)
 ------------------
 * [MOD] add support for prepending and appending mappings on input dataframe (Mapper)
 * [MOD] add support for custom spark sql functions in mapper without injecting methods
@@ -9,6 +9,7 @@ History
 * [ADD] new custom mapper transformations:
     - extended_string_to_date
     - extended_string_unix_timestamp_ms_to_date
+    - has_value
 
 2.1.1 (2020-09-04)
 ------------------
