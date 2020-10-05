@@ -189,12 +189,6 @@ class Mapper(Transformer):
         """
         if data_type_is_spark_builtin:
             return source_column.cast(data_type).alias(name)
-
         else:  # Custom Data Type
-            if source_column_is_missing:
-                return source_column.alias(name)
-            else:
-                return _get_select_expression_for_custom_type(
-                    source_column, name, data_type
-                )
+            return _get_select_expression_for_custom_type(source_column, name, data_type)
 
