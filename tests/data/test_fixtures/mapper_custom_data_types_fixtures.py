@@ -1,11 +1,13 @@
 import datetime
-import pytest
 from pyspark.sql import functions as F
 from pyspark.sql import types as T
-
-# warm up spark_session
+from pyspark.sql import SparkSession
 import pytest_spark
-pytest_spark.fixtures._spark_session().__next__()
+
+
+# warm up spark_session to be able to import Spark functions
+spark_conf = pytest_spark.config.SparkConfigBuilder.initialize()
+SparkSession.builder.config(conf=spark_conf).getOrCreate()
 
 complex_event_expression = (
         F.when(F.col("nested.input_key_1").isNotNull(), F.col("nested.input_key_1") / 1000)

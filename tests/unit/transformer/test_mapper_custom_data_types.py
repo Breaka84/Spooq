@@ -321,8 +321,11 @@ class TestExtendedStringConversions(object):
         except AttributeError:
             # `.to_pydatetime()` can only be used on datetimes and throws AttributeErrors on other objects / None
             actual_value = None
-        assert actual_value == expected_value
-        assert isinstance(output_df.schema["output_key"].dataType, T.TimestampType)
+        try:
+            assert actual_value == expected_value
+            assert isinstance(output_df.schema["output_key"].dataType, T.TimestampType)
+        except AssertionError:
+            import IPython; IPython.embed()
 
     @pytest.mark.parametrize(
         argnames=("input_value", "expected_value"),
