@@ -241,8 +241,10 @@ fixtures_for_extended_string_to_timestamp = [
     (1597069446,                   datetime.datetime(2020, 8, 10, 14, 24, 6)),
     ("-1597069446",                datetime.datetime(1919, 5, 24, 9, 35, 54)),
     (-1597069446,                  datetime.datetime(1919, 5, 24, 9, 35, 54)),
-    ("1597069446000",              "out_of_range_for_python"),  # Spark can handle it but not Python
-    ("-1597069446000",             "out_of_range_for_python"),  # Spark can handle it but not Python
+    ("1597069446000",              datetime.datetime(2020, 8, 10, 14, 24, 6)),
+    (1597069446000,                datetime.datetime(2020, 8, 10, 14, 24, 6)),
+    ("-1597069446000",             datetime.datetime(1919, 5, 24, 9, 35, 54)),
+    (-1597069446000,               datetime.datetime(1919, 5, 24, 9, 35, 54)),
     ("null",                       None),
     ("0",                          datetime.datetime(1970, 1, 1, 0, 0, 0)),
     ("-1",                         datetime.datetime(1969, 12, 31, 23, 59, 59)),
