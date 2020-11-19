@@ -793,8 +793,8 @@ def _generate_select_expression_for_extended_string_to_timestamp(source_column, 
         - There is a time interval (1970-01-01 +- ~2.5 months)where we can not distinguish correctly between s and ms
           (e.g. 3974400000 would be treated as seconds (2095-12-11T00:00:00) as the value is smaller than
           MAX_TIMESTAMP_S, but it could also be a valid date in Milliseconds (1970-02-16T00:00:00)
-    Is able to additionally handle (compared to implicit Spark conversion):
 
+    Is able to additionally handle (compared to implicit Spark conversion):
     * Preceding whitespace
     * Trailing whitespace
     * Preceeding and trailing whitespace
@@ -834,8 +834,18 @@ def _generate_select_expression_for_extended_string_to_timestamp(source_column, 
 def _generate_select_expression_for_extended_string_to_date(source_column, name):
     """
     More robust conversion from StringType to DateType. It is assumed that the
-    timezone is already set to UTC in spark / java to avoid implicit timezone conversions and that
-    unix timestamps are in **seconds**
+    timezone is already set to UTC in spark / java to avoid implicit timezone conversions.
+    The conversion can handle unix timestamps in seconds and in milliseconds:
+        - Timestamps in the range [-MAX_TIMESTAMP_S, MAX_TIMESTAMP_S] are treated as seconds
+        - Timestamps in the range [-inf, -MAX_TIMESTAMP_S) and (MAX_TIMESTAMP_S, inf] are treated as milliseconds
+        - There is a time interval (1970-01-01 +- ~2.5 months)where we can not distinguish correctly between s and ms
+          (e.g. 3974400000 would be treated as seconds (2095-12-11T00:00:00) as the value is smaller than
+          MAX_TIMESTAMP_S, but it could also be a valid date in Milliseconds (1970-02-16T00:00:00)
+
+    Is able to additionally handle (compared to implicit Spark conversion):
+    * Preceding whitespace
+    * Trailing whitespace
+    * Preceeding and trailing whitespace
 
     Hint
     ----

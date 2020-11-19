@@ -297,8 +297,8 @@ fixtures_for_extended_string_to_date = [
     (1597069446,                   datetime.date(2020, 8, 10)),
     ("-1597069446",                datetime.date(1919, 5, 24)),
     (-1597069446,                  datetime.date(1919, 5, 24)),
-    ("1597069446000",              "out_of_range_for_python"),  # Spark can handle it but not Python
-    ("-1597069446000",             "out_of_range_for_python"),  # Spark can handle it but not Python
+    ("1597069446000",              datetime.date(2020, 8, 10)),
+    ("-1597069446000",             datetime.date(1919, 5, 24)),
     ("null",                       None),
     ("0",                          datetime.date(1970, 1, 1,)),
     ("-1",                         datetime.date(1969, 12, 31,)),
