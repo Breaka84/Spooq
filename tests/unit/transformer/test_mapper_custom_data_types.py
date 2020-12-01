@@ -2,6 +2,7 @@ from builtins import object
 import json
 import pytest
 import datetime
+import pandas as pd
 from pyspark.sql import functions as F
 from pyspark.sql import Row
 from pyspark.sql import types as T
@@ -21,6 +22,7 @@ from ...data.test_fixtures.mapper_custom_data_types_fixtures import (
     fixtures_for_extended_string_to_date,
     fixtures_for_extended_string_unix_timestamp_ms_to_date
 )
+from ...helpers.skip_conditions import only_spark2, only_spark3
 
 
 def get_spark_data_type(input_value):
@@ -302,6 +304,7 @@ class TestExtendedStringConversions(object):
         assert output_df.first().output_key == expected_value
         assert isinstance(output_df.schema["output_key"].dataType, T.BooleanType)
 
+    @only_spark2
     @pytest.mark.parametrize(
         argnames=("input_value", "expected_value"),
         argvalues=fixtures_for_extended_string_to_timestamp,
@@ -321,12 +324,10 @@ class TestExtendedStringConversions(object):
         except AttributeError:
             # `.to_pydatetime()` can only be used on datetimes and throws AttributeErrors on other objects / None
             actual_value = None
-        try:
-            assert actual_value == expected_value
-            assert isinstance(output_df.schema["output_key"].dataType, T.TimestampType)
-        except AssertionError:
-            import IPython; IPython.embed()
+        assert actual_value == expected_value
+        assert isinstance(output_df.schema["output_key"].dataType, T.TimestampType)
 
+    @only_spark2
     @pytest.mark.parametrize(
         argnames=("input_value", "expected_value"),
         argvalues=fixtures_for_extended_string_unix_timestamp_ms_to_timestamp,
@@ -348,6 +349,7 @@ class TestExtendedStringConversions(object):
             assert expected_value is None
         assert isinstance(output_df.schema["output_key"].dataType, T.TimestampType)
 
+    @only_spark2
     @pytest.mark.parametrize(
         argnames=("input_value", "expected_value"),
         argvalues=fixtures_for_extended_string_to_date,
@@ -365,6 +367,7 @@ class TestExtendedStringConversions(object):
         assert actual_value == expected_value
         assert isinstance(output_df.schema["output_key"].dataType, T.DateType)
 
+    @only_spark2
     @pytest.mark.parametrize(
         argnames=("input_value", "expected_value"),
         argvalues=fixtures_for_extended_string_unix_timestamp_ms_to_date,

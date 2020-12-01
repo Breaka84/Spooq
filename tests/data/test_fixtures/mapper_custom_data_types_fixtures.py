@@ -1,13 +1,6 @@
 import datetime
 from pyspark.sql import functions as F
 from pyspark.sql import types as T
-from pyspark.sql import SparkSession
-import pytest_spark
-
-
-# warm up spark_session to be able to import Spark functions
-spark_conf = pytest_spark.config.SparkConfigBuilder.initialize()
-SparkSession.builder.config(conf=spark_conf).getOrCreate()
 
 complex_event_expression = (
         F.when(F.col("nested.input_key_1").isNotNull(), F.col("nested.input_key_1") / 1000)
@@ -71,6 +64,8 @@ fixtures_for_has_value = [
     (-1.0,       True),
     (True,       True),
     (False,      True),
+    ("Hello",    None),
+    ("2k",       None),
 ]
 
 fixtures_for_extended_string_to_int = [
@@ -157,6 +152,8 @@ fixtures_for_extended_string_to_float = [
     (-123456.0,      -123456.0),
     (-1.0,                -1.0),
     (0.0,                  0.0),
+    ("Hello",             None),
+    ("2k",                None),
 ]
 
 fixtures_for_extended_string_to_double = [
@@ -185,6 +182,8 @@ fixtures_for_extended_string_to_double = [
     (-214748364.70,          -214748364.70),
     (-1.0,                            -1.0),
     (0.0,                              0.0),
+    ("Hello",                         None),
+    ("2k",                            None),
 ]
 
 fixtures_for_extended_string_to_boolean = [
@@ -252,6 +251,8 @@ fixtures_for_extended_string_to_timestamp = [
     ("-1",                         datetime.datetime(1969, 12, 31, 23, 59, 59)),
     ("1",                          datetime.datetime(1970, 1, 1, 0, 0, 1)),
     ("nil",                        None),
+    ("Hello",                      None),
+    ("2k",                         None),
 ]
 
 fixtures_for_extended_string_unix_timestamp_ms_to_timestamp = [
@@ -278,6 +279,8 @@ fixtures_for_extended_string_unix_timestamp_ms_to_timestamp = [
     ("-1",                         datetime.datetime(1969, 12, 31, 23, 59, 59)),
     ("1",                          datetime.datetime(1970, 1, 1, 0, 0, 1)),
     ("nil",                        None),
+    ("Hello",                      None),
+    ("2k",                         None),
 ]
 
 fixtures_for_extended_string_to_date = [
@@ -306,6 +309,8 @@ fixtures_for_extended_string_to_date = [
     ("-1",                         datetime.date(1969, 12, 31,)),
     ("1",                          datetime.date(1970, 1, 1,)),
     ("nil",                        None),
+    ("Hello",                      None),
+    ("2k",                         None),
 ]
 
 fixtures_for_extended_string_unix_timestamp_ms_to_date = [
@@ -332,6 +337,8 @@ fixtures_for_extended_string_unix_timestamp_ms_to_date = [
     ("-1",                         datetime.date(1969, 12, 31)),
     ("1",                          datetime.date(1970, 1, 1)),
     ("nil",                        None),
+    ("Hello",                      None),
+    ("2k",                         None),
 ]
 # fmt:on
 
