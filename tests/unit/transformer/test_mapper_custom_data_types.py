@@ -454,6 +454,7 @@ class TestExtendedStringConversions(object):
         assert actual_value == expected_value
         assert isinstance(output_df.schema["output_key"].dataType, T.DateType)
 
+
 class TestAnonymizingMethods(object):
     # fmt: off
     @pytest.mark.parametrize(("input_value", "value"), [
@@ -567,6 +568,45 @@ class TestAnonymizingMethods(object):
         assert output_df.first()[name] == value, "Processing of column value"
 
     # fmt: off
+    @only_spark2
+    @pytest.mark.parametrize(("input_value", "value"), [
+        (None,         None),
+        ("1955-09-41", None),
+        ("1969-04-03", "1969-04-01"),
+        ("1985-03-07", "1985-03-01"),
+        ("1998-06-10", "1998-06-01"),
+        ("1967-05-16", "1967-05-01"),
+        ("1953-01-01", "1953-01-01"),
+        ("1954-11-06", "1954-11-01"),
+        ("1978-09-05", "1978-09-01"),
+        ("1999-05-23", "1999-05-01"),
+    ])
+    # fmt: on
+    def test_generate_select_expression_for_TimestampMonth_spark2(
+            self, input_value, value, spark_session, spark_context):
+        source_key, name = "day_of_birth", "birthday"
+        input_df = get_input_df(spark_session, spark_context, source_key, input_value)
+        input_df = input_df.withColumn(
+            source_key,
+            F.to_utc_timestamp(input_df["attributes"]["data"][source_key],
+                               "yyyy-MM-dd"))
+        result_column = custom_types._generate_select_expression_for_TimestampMonth(
+            source_column=input_df[source_key], name=name)
+        output_df = input_df.select(result_column)
+
+        assert output_df.schema.fieldNames() == [name], "Renaming of column"
+        assert output_df.schema[name].dataType.typeName(
+        ) == "timestamp", "Casting of column"
+        output_value = output_df.first()[name]
+        if output_value:
+            output_value = datetime.date.strftime(output_value,
+                                                  format("%Y-%m-%d"))
+        else:
+            output_value = None
+        assert output_value == value, "Processing of column value"
+
+    # fmt: off
+    @only_spark3
     @pytest.mark.parametrize(("input_value", "value"), [
         (None,         None),
         ("1955-09-41", None),
@@ -586,12 +626,10 @@ class TestAnonymizingMethods(object):
         input_df = get_input_df(spark_session, spark_context, source_key, input_value)
         input_df = input_df.withColumn(
             source_key,
-            F.to_utc_timestamp(input_df["attributes"]["data"][source_key],
-                               "yyyy-MM-dd"))
+            input_df["attributes"]["data"][source_key].cast(T.DateType()))
         result_column = custom_types._generate_select_expression_for_TimestampMonth(
             source_column=input_df[source_key], name=name)
         output_df = input_df.select(result_column)
-
         assert output_df.schema.fieldNames() == [name], "Renaming of column"
         assert output_df.schema[name].dataType.typeName(
         ) == "timestamp", "Casting of column"

@@ -64,8 +64,6 @@ fixtures_for_has_value = [
     (-1.0,       True),
     (True,       True),
     (False,      True),
-    ("Hello",    None),
-    ("2k",       None),
 ]
 
 fixtures_for_extended_string_to_int = [
