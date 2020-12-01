@@ -7,9 +7,9 @@ spark_conf = pytest_spark.config.SparkConfigBuilder.initialize()
 spark_session = SparkSession.builder.config(conf=spark_conf).getOrCreate()
 
 only_spark2 = pytest.mark.skipif(
-    spark_session.version.split(".")[0] != 2, reason="This test supports only Spark 2"
+    spark_session.version.split(".")[0] != "2", reason="This test supports only Spark 2"
 )
 
 only_spark3 = pytest.mark.skipif(
-    spark_session.version.split(".")[0] != 3, reason="This test supports only Spark 3"
+    spark_session.version.split(".")[0] != "3", reason="This test supports only Spark 3"
 )
