@@ -4,7 +4,7 @@ Mapper
 Class
 -----
 
-.. automodule:: spooq2.transformer.mapper
+.. autoclass:: spooq2.transformer.mapper.Mapper
 
 Activity Diagram
 ---------------------------------------------
@@ -117,6 +117,7 @@ Custom Mapping Methods Details
 --------------------------------------------
 
 .. automodule:: spooq2.transformer.mapper_custom_data_types
+    :members:
     :ignore-module-all:
     :member-order: bysource
     :private-members:

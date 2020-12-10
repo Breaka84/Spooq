@@ -58,6 +58,13 @@ Please refer to following descriptions and examples to get an idea:
 * :ref:`custom_transformer`
 * :ref:`custom_loader`
 
+Configure Spark
+----------------
+The tests use per default the Spark 3 package in the ``bin/spark3`` folder.
+To use a different Spark installation for the tests, you have to either:
+
+* set ``spark_home`` in the ``pytest.ini`` (tests/pytest.ini) to the new location **or**
+* set the environment variable ``SPARK_HOME`` and comment out ``spark_home`` in pytest.ini
 
 Running Tests
 -------------

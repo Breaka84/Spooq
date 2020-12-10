@@ -9,7 +9,7 @@ from spooq2.transformer import Mapper
 
 @pytest.fixture(scope="module")
 def transformer(mapping):
-    return Mapper(mapping=mapping)
+    return Mapper(mapping=mapping, ignore_missing_columns=True)
 
 
 @pytest.fixture(scope="module")
@@ -131,12 +131,12 @@ class TestMultipleMappings(object):
 
     def test_appending_a_mapping(self, mapped_df, new_mapping, input_columns, new_columns):
         """Output schema is correct for added mapping at the end of the input schema"""
-        new_mapped_df = Mapper(mapping=new_mapping, mode="append").transform(mapped_df)
+        new_mapped_df = Mapper(mapping=new_mapping, mode="append", ignore_missing_columns=True).transform(mapped_df)
         assert input_columns + new_columns == new_mapped_df.columns
 
     def test_prepending_a_mapping(self, mapped_df, new_mapping, input_columns, new_columns):
         """Output schema is correct for added mapping at the beginning of the input schema"""
-        new_mapped_df = Mapper(mapping=new_mapping, mode="prepend").transform(mapped_df)
+        new_mapped_df = Mapper(mapping=new_mapping, mode="prepend", ignore_missing_columns=True).transform(mapped_df)
         assert new_columns + input_columns == new_mapped_df.columns
 
     def test_appending_a_mapping_with_duplicated_columns(self, input_columns, mapped_df):
@@ -148,7 +148,7 @@ class TestMultipleMappings(object):
         ]
         new_columns = [name for (name, path, data_type) in new_mapping]
         new_columns_deduplicated = [x for x in new_columns if x not in input_columns]
-        new_mapped_df = Mapper(mapping=new_mapping, mode="append").transform(mapped_df)
+        new_mapped_df = Mapper(mapping=new_mapping, mode="append", ignore_missing_columns=True).transform(mapped_df)
         assert input_columns + new_columns_deduplicated == new_mapped_df.columns
         assert mapped_df.schema["birthday"].dataType == T.TimestampType()
         assert new_mapped_df.schema["birthday"].dataType == T.DateType()
@@ -162,7 +162,7 @@ class TestMultipleMappings(object):
         ]
         new_columns = [name for (name, path, data_type) in new_mapping]
         new_columns_deduplicated = [x for x in new_columns if x not in input_columns]
-        new_mapped_df = Mapper(mapping=new_mapping, mode="prepend").transform(mapped_df)
+        new_mapped_df = Mapper(mapping=new_mapping, mode="prepend", ignore_missing_columns=True).transform(mapped_df)
         assert new_columns_deduplicated + input_columns == new_mapped_df.columns
         assert mapped_df.schema["birthday"].dataType == T.TimestampType()
         assert new_mapped_df.schema["birthday"].dataType == T.DateType()

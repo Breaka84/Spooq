@@ -540,6 +540,7 @@ def _generate_select_expression_for_has_value(source_column, name):
     Returns True if the source_column is
         - not NULL and
         - not "" (empty string)
+
     otherwise it returns False
 
     Warning
@@ -565,6 +566,7 @@ def _generate_select_expression_for_has_value(source_column, name):
      Row(result=False),
      Row(result=True),
      Row(result=False)]
+
     """
     return (
         F.when((source_column.isNotNull()) & (source_column.cast(T.StringType()) != ""), F.lit(True))
@@ -787,6 +789,7 @@ def _generate_select_expression_for_extended_string_to_timestamp(source_column, 
     """
     More robust conversion from StringType to TimestampType. It is assumed that the
     timezone is already set to UTC in spark / java to avoid implicit timezone conversions.
+
     The conversion can handle unix timestamps in seconds and in milliseconds:
         - Timestamps in the range [-MAX_TIMESTAMP_S, MAX_TIMESTAMP_S] are treated as seconds
         - Timestamps in the range [-inf, -MAX_TIMESTAMP_S) and (MAX_TIMESTAMP_S, inf] are treated as milliseconds
@@ -835,6 +838,7 @@ def _generate_select_expression_for_extended_string_to_date(source_column, name)
     """
     More robust conversion from StringType to DateType. It is assumed that the
     timezone is already set to UTC in spark / java to avoid implicit timezone conversions.
+
     The conversion can handle unix timestamps in seconds and in milliseconds:
         - Timestamps in the range [-MAX_TIMESTAMP_S, MAX_TIMESTAMP_S] are treated as seconds
         - Timestamps in the range [-inf, -MAX_TIMESTAMP_S) and (MAX_TIMESTAMP_S, inf] are treated as milliseconds

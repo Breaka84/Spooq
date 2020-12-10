@@ -1,0 +1,580 @@
+✗ extended string to timestamp[ actual: <2020-08-12T12:43:14+0200> (<class 'str'>) -> expected: <None>  (<class 'NoneType'>)]
+ ✗ generate select expression for TimestampMonth[None-None]
+ ✗ generate select expression for TimestampMonth[1969-04-03-1969-04-01]
+ ✗ generate select expression for TimestampMonth[1998-06-10-1998-06-01]
+ ✗ generate select expression for TimestampMonth[1954-11-06-1954-11-01]
+ ✗ generate select expression for TimestampMonth[1999-05-23-1999-05-01]
+
+
+
+
+==================================================================================================== FAILURES =====================================================================================================
+_____________ TestExtendedStringConversions.test_extended_string_to_timestamp[ actual: <2020-08-12T12:43:14Z00:00> (<class 'str'>) -> expected: <2020-08-12 12:43:14>  (<class 'datetime.datetime'>)] _____________
+
+self = <tests.unit.transformer.test_mapper_custom_data_types.TestExtendedStringConversions object at 0x7fcad88a4110>, spark_session = <pyspark.sql.session.SparkSession object at 0x7fcadc12b3d0>
+input_value = '2020-08-12T12:43:14Z00:00', expected_value = datetime.datetime(2020, 8, 12, 12, 43, 14)
+
+    @pytest.mark.parametrize(
+        argnames=("input_value", "expected_value"),
+        argvalues=fixtures_for_extended_string_to_timestamp,
+        ids=[parameters_to_string_id(actual, expected) for actual, expected in fixtures_for_extended_string_to_timestamp])
+    def test_extended_string_to_timestamp(self, spark_session, input_value, expected_value):
+        # test uses timezone set to GMT / UTC (pytest.ini)!
+        input_df = self.create_input_df(input_value, spark_session)
+        output_df = Mapper(mapping=[("output_key", "input_key", "extended_string_to_timestamp")]).transform(input_df)
+        # workaround via pandas necessary due to bug with direct conversion
+        # to python datetime wrt timezone conversions (https://issues.apache.org/jira/browse/SPARK-32123)
+        try:
+            output_pd_df = output_df.toPandas()
+            actual_value = output_pd_df.iloc[0]["output_key"].to_pydatetime()
+        except ValueError:
+            # If input is in milliseconds it will still be stored in the DF but cannot be collected in Python
+            actual_value = "out_of_range_for_python"
+        except AttributeError:
+            # `.to_pydatetime()` can only be used on datetimes and throws AttributeErrors on other objects / None
+            actual_value = None
+>       assert actual_value == expected_value
+E       assert NaT == datetime.datetime(2020, 8, 12, 12, 43, 14)
+
+unit/transformer/test_mapper_custom_data_types.py:324: AssertionError
+-------------------------------------------------------------------------------------------- Captured stdout teardown ---------------------------------------------------------------------------------------------
+ ✗ extended string to timestamp[ actual: <2020-08-12T12:43:14Z00:00> (<class 'str'>) -> expected: <2020-08-12 12:43:14>  (<class 'datetime.datetime'>)]
+_____________ TestExtendedStringConversions.test_extended_string_to_timestamp[ actual: <2020-08-12T12:43:14Z0000> (<class 'str'>) -> expected: <2020-08-12 12:43:14>  (<class 'datetime.datetime'>)] ______________
+
+self = <tests.unit.transformer.test_mapper_custom_data_types.TestExtendedStringConversions object at 0x7fcad88ed950>, spark_session = <pyspark.sql.session.SparkSession object at 0x7fcadc12b3d0>
+input_value = '2020-08-12T12:43:14Z0000', expected_value = datetime.datetime(2020, 8, 12, 12, 43, 14)
+
+    @pytest.mark.parametrize(
+        argnames=("input_value", "expected_value"),
+        argvalues=fixtures_for_extended_string_to_timestamp,
+        ids=[parameters_to_string_id(actual, expected) for actual, expected in fixtures_for_extended_string_to_timestamp])
+    def test_extended_string_to_timestamp(self, spark_session, input_value, expected_value):
+        # test uses timezone set to GMT / UTC (pytest.ini)!
+        input_df = self.create_input_df(input_value, spark_session)
+        output_df = Mapper(mapping=[("output_key", "input_key", "extended_string_to_timestamp")]).transform(input_df)
+        # workaround via pandas necessary due to bug with direct conversion
+        # to python datetime wrt timezone conversions (https://issues.apache.org/jira/browse/SPARK-32123)
+        try:
+            output_pd_df = output_df.toPandas()
+            actual_value = output_pd_df.iloc[0]["output_key"].to_pydatetime()
+        except ValueError:
+            # If input is in milliseconds it will still be stored in the DF but cannot be collected in Python
+            actual_value = "out_of_range_for_python"
+        except AttributeError:
+            # `.to_pydatetime()` can only be used on datetimes and throws AttributeErrors on other objects / None
+            actual_value = None
+>       assert actual_value == expected_value
+E       assert NaT == datetime.datetime(2020, 8, 12, 12, 43, 14)
+
+unit/transformer/test_mapper_custom_data_types.py:324: AssertionError
+-------------------------------------------------------------------------------------------- Captured stdout teardown ---------------------------------------------------------------------------------------------
+ ✗ extended string to timestamp[ actual: <2020-08-12T12:43:14Z0000> (<class 'str'>) -> expected: <2020-08-12 12:43:14>  (<class 'datetime.datetime'>)]
+_________________________ TestExtendedStringConversions.test_extended_string_to_timestamp[ actual: <2020-08-12T12:43:14+0200> (<class 'str'>) -> expected: <None>  (<class 'NoneType'>)] __________________________
+
+self = <tests.unit.transformer.test_mapper_custom_data_types.TestExtendedStringConversions object at 0x7fcad87727d0>, spark_session = <pyspark.sql.session.SparkSession object at 0x7fcadc12b3d0>
+input_value = '2020-08-12T12:43:14+0200', expected_value = None
+
+    @pytest.mark.parametrize(
+        argnames=("input_value", "expected_value"),
+        argvalues=fixtures_for_extended_string_to_timestamp,
+        ids=[parameters_to_string_id(actual, expected) for actual, expected in fixtures_for_extended_string_to_timestamp])
+    def test_extended_string_to_timestamp(self, spark_session, input_value, expected_value):
+        # test uses timezone set to GMT / UTC (pytest.ini)!
+        input_df = self.create_input_df(input_value, spark_session)
+        output_df = Mapper(mapping=[("output_key", "input_key", "extended_string_to_timestamp")]).transform(input_df)
+        # workaround via pandas necessary due to bug with direct conversion
+        # to python datetime wrt timezone conversions (https://issues.apache.org/jira/browse/SPARK-32123)
+        try:
+            output_pd_df = output_df.toPandas()
+            actual_value = output_pd_df.iloc[0]["output_key"].to_pydatetime()
+        except ValueError:
+            # If input is in milliseconds it will still be stored in the DF but cannot be collected in Python
+            actual_value = "out_of_range_for_python"
+        except AttributeError:
+            # `.to_pydatetime()` can only be used on datetimes and throws AttributeErrors on other objects / None
+            actual_value = None
+>       assert actual_value == expected_value
+E       assert NaT == None
+
+unit/transformer/test_mapper_custom_data_types.py:324: AssertionError
+_________________________ TestExtendedStringConversions.test_extended_string_to_timestamp[ actual: <2020-08-12T12:43:14Z0200> (<class 'str'>) -> expected: <None>  (<class 'NoneType'>)] __________________________
+
+self = <tests.unit.transformer.test_mapper_custom_data_types.TestExtendedStringConversions object at 0x7fcad86bb990>, spark_session = <pyspark.sql.session.SparkSession object at 0x7fcadc12b3d0>
+input_value = '2020-08-12T12:43:14Z0200', expected_value = None
+
+    @pytest.mark.parametrize(
+        argnames=("input_value", "expected_value"),
+        argvalues=fixtures_for_extended_string_to_timestamp,
+        ids=[parameters_to_string_id(actual, expected) for actual, expected in fixtures_for_extended_string_to_timestamp])
+    def test_extended_string_to_timestamp(self, spark_session, input_value, expected_value):
+        # test uses timezone set to GMT / UTC (pytest.ini)!
+        input_df = self.create_input_df(input_value, spark_session)
+        output_df = Mapper(mapping=[("output_key", "input_key", "extended_string_to_timestamp")]).transform(input_df)
+        # workaround via pandas necessary due to bug with direct conversion
+        # to python datetime wrt timezone conversions (https://issues.apache.org/jira/browse/SPARK-32123)
+        try:
+            output_pd_df = output_df.toPandas()
+            actual_value = output_pd_df.iloc[0]["output_key"].to_pydatetime()
+        except ValueError:
+            # If input is in milliseconds it will still be stored in the DF but cannot be collected in Python
+            actual_value = "out_of_range_for_python"
+        except AttributeError:
+            # `.to_pydatetime()` can only be used on datetimes and throws AttributeErrors on other objects / None
+            actual_value = None
+>       assert actual_value == expected_value
+E       assert NaT == None
+
+unit/transformer/test_mapper_custom_data_types.py:324: AssertionError
+-------------------------------------------------------------------------------------------- Captured stdout teardown ---------------------------------------------------------------------------------------------
+ ✗ extended string to timestamp[ actual: <2020-08-12T12:43:14Z0200> (<class 'str'>) -> expected: <None>  (<class 'NoneType'>)]
+_________________________________ TestExtendedStringConversions.test_extended_string_to_timestamp[ actual: <None> (<class 'NoneType'>) -> expected: <None>  (<class 'NoneType'>)] _________________________________
+
+self = <tests.unit.transformer.test_mapper_custom_data_types.TestExtendedStringConversions object at 0x7fcad873d710>, spark_session = <pyspark.sql.session.SparkSession object at 0x7fcadc12b3d0>
+input_value = None, expected_value = None
+
+    @pytest.mark.parametrize(
+        argnames=("input_value", "expected_value"),
+        argvalues=fixtures_for_extended_string_to_timestamp,
+        ids=[parameters_to_string_id(actual, expected) for actual, expected in fixtures_for_extended_string_to_timestamp])
+    def test_extended_string_to_timestamp(self, spark_session, input_value, expected_value):
+        # test uses timezone set to GMT / UTC (pytest.ini)!
+        input_df = self.create_input_df(input_value, spark_session)
+        output_df = Mapper(mapping=[("output_key", "input_key", "extended_string_to_timestamp")]).transform(input_df)
+        # workaround via pandas necessary due to bug with direct conversion
+        # to python datetime wrt timezone conversions (https://issues.apache.org/jira/browse/SPARK-32123)
+        try:
+            output_pd_df = output_df.toPandas()
+            actual_value = output_pd_df.iloc[0]["output_key"].to_pydatetime()
+        except ValueError:
+            # If input is in milliseconds it will still be stored in the DF but cannot be collected in Python
+            actual_value = "out_of_range_for_python"
+        except AttributeError:
+            # `.to_pydatetime()` can only be used on datetimes and throws AttributeErrors on other objects / None
+            actual_value = None
+>       assert actual_value == expected_value
+E       assert NaT == None
+
+unit/transformer/test_mapper_custom_data_types.py:324: AssertionError
+-------------------------------------------------------------------------------------------- Captured stdout teardown ---------------------------------------------------------------------------------------------
+ ✗ extended string to timestamp[ actual: <None> (<class 'NoneType'>) -> expected: <None>  (<class 'NoneType'>)]
+___________________________________ TestExtendedStringConversions.test_extended_string_to_timestamp[ actual: <null> (<class 'str'>) -> expected: <None>  (<class 'NoneType'>)] ____________________________________
+
+self = <tests.unit.transformer.test_mapper_custom_data_types.TestExtendedStringConversions object at 0x7fcad8737ad0>, spark_session = <pyspark.sql.session.SparkSession object at 0x7fcadc12b3d0>
+input_value = 'null', expected_value = None
+
+    @pytest.mark.parametrize(
+        argnames=("input_value", "expected_value"),
+        argvalues=fixtures_for_extended_string_to_timestamp,
+        ids=[parameters_to_string_id(actual, expected) for actual, expected in fixtures_for_extended_string_to_timestamp])
+    def test_extended_string_to_timestamp(self, spark_session, input_value, expected_value):
+        # test uses timezone set to GMT / UTC (pytest.ini)!
+        input_df = self.create_input_df(input_value, spark_session)
+        output_df = Mapper(mapping=[("output_key", "input_key", "extended_string_to_timestamp")]).transform(input_df)
+        # workaround via pandas necessary due to bug with direct conversion
+        # to python datetime wrt timezone conversions (https://issues.apache.org/jira/browse/SPARK-32123)
+        try:
+            output_pd_df = output_df.toPandas()
+            actual_value = output_pd_df.iloc[0]["output_key"].to_pydatetime()
+        except ValueError:
+            # If input is in milliseconds it will still be stored in the DF but cannot be collected in Python
+            actual_value = "out_of_range_for_python"
+        except AttributeError:
+            # `.to_pydatetime()` can only be used on datetimes and throws AttributeErrors on other objects / None
+            actual_value = None
+>       assert actual_value == expected_value
+E       assert NaT == None
+
+unit/transformer/test_mapper_custom_data_types.py:324: AssertionError
+-------------------------------------------------------------------------------------------- Captured stdout teardown ---------------------------------------------------------------------------------------------
+ ✗ extended string to timestamp[ actual: <null> (<class 'str'>) -> expected: <None>  (<class 'NoneType'>)]
+____________________________________ TestExtendedStringConversions.test_extended_string_to_timestamp[ actual: <nil> (<class 'str'>) -> expected: <None>  (<class 'NoneType'>)] ____________________________________
+
+self = <tests.unit.transformer.test_mapper_custom_data_types.TestExtendedStringConversions object at 0x7fcad8695810>, spark_session = <pyspark.sql.session.SparkSession object at 0x7fcadc12b3d0>
+input_value = 'nil', expected_value = None
+
+    @pytest.mark.parametrize(
+        argnames=("input_value", "expected_value"),
+        argvalues=fixtures_for_extended_string_to_timestamp,
+        ids=[parameters_to_string_id(actual, expected) for actual, expected in fixtures_for_extended_string_to_timestamp])
+    def test_extended_string_to_timestamp(self, spark_session, input_value, expected_value):
+        # test uses timezone set to GMT / UTC (pytest.ini)!
+        input_df = self.create_input_df(input_value, spark_session)
+        output_df = Mapper(mapping=[("output_key", "input_key", "extended_string_to_timestamp")]).transform(input_df)
+        # workaround via pandas necessary due to bug with direct conversion
+        # to python datetime wrt timezone conversions (https://issues.apache.org/jira/browse/SPARK-32123)
+        try:
+            output_pd_df = output_df.toPandas()
+            actual_value = output_pd_df.iloc[0]["output_key"].to_pydatetime()
+        except ValueError:
+            # If input is in milliseconds it will still be stored in the DF but cannot be collected in Python
+            actual_value = "out_of_range_for_python"
+        except AttributeError:
+            # `.to_pydatetime()` can only be used on datetimes and throws AttributeErrors on other objects / None
+            actual_value = None
+>       assert actual_value == expected_value
+E       assert NaT == None
+
+unit/transformer/test_mapper_custom_data_types.py:324: AssertionError
+-------------------------------------------------------------------------------------------- Captured stdout teardown ---------------------------------------------------------------------------------------------
+ ✗ extended string to timestamp[ actual: <nil> (<class 'str'>) -> expected: <None>  (<class 'NoneType'>)]
+____ TestExtendedStringConversions.test_extended_string_unix_timestamp_ms_to_timestamp[ actual: <2020-08-12T12:43:14Z00:00> (<class 'str'>) -> expected: <2020-08-12 12:43:14>  (<class 'datetime.datetime'>)] ____
+
+self = <tests.unit.transformer.test_mapper_custom_data_types.TestExtendedStringConversions object at 0x7fcad86b41d0>, spark_session = <pyspark.sql.session.SparkSession object at 0x7fcadc12b3d0>
+input_value = '2020-08-12T12:43:14Z00:00', expected_value = datetime.datetime(2020, 8, 12, 12, 43, 14)
+
+    @pytest.mark.parametrize(
+        argnames=("input_value", "expected_value"),
+        argvalues=fixtures_for_extended_string_unix_timestamp_ms_to_timestamp,
+        ids=[parameters_to_string_id(actual, expected) for actual, expected in fixtures_for_extended_string_unix_timestamp_ms_to_timestamp])
+    def test_extended_string_unix_timestamp_ms_to_timestamp(self, spark_session, input_value, expected_value):
+        # test uses timezone set to GMT / UTC (pytest.ini)!
+        input_df = self.create_input_df(input_value, spark_session)
+        output_df = Mapper(mapping=[("output_key", "input_key", "extended_string_unix_timestamp_ms_to_timestamp")]).transform(input_df)
+        # workaround via pandas necessary due to bug with direct conversion
+        # to python datetime wrt timezone conversions (https://issues.apache.org/jira/browse/SPARK-32123)
+        try:
+            output_pd_df = output_df.toPandas()
+            actual_value = output_pd_df.iloc[0]["output_key"].to_pydatetime()
+>           assert (actual_value.toordinal() == expected_value.toordinal(),
+                    "actual_value: {act_val}, expected value: {expected_val}".format(
+                        act_val=actual_value, expected_val=expected_value))
+
+unit/transformer/test_mapper_custom_data_types.py:340: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+>   ???
+E   ValueError: NaTType does not support toordinal
+
+pandas/_libs/tslibs/nattype.pyx:69: ValueError
+-------------------------------------------------------------------------------------------- Captured stdout teardown ---------------------------------------------------------------------------------------------
+ ✗ extended string unix timestamp ms to timestamp[ actual: <2020-08-12T12:43:14Z00:00> (<class 'str'>) -> expected: <2020-08-12 12:43:14>  (<class 'datetime.datetime'>)]
+____ TestExtendedStringConversions.test_extended_string_unix_timestamp_ms_to_timestamp[ actual: <2020-08-12T12:43:14Z0000> (<class 'str'>) -> expected: <2020-08-12 12:43:14>  (<class 'datetime.datetime'>)] _____
+
+self = <tests.unit.transformer.test_mapper_custom_data_types.TestExtendedStringConversions object at 0x7fcad88a0790>, spark_session = <pyspark.sql.session.SparkSession object at 0x7fcadc12b3d0>
+input_value = '2020-08-12T12:43:14Z0000', expected_value = datetime.datetime(2020, 8, 12, 12, 43, 14)
+
+    @pytest.mark.parametrize(
+        argnames=("input_value", "expected_value"),
+        argvalues=fixtures_for_extended_string_unix_timestamp_ms_to_timestamp,
+        ids=[parameters_to_string_id(actual, expected) for actual, expected in fixtures_for_extended_string_unix_timestamp_ms_to_timestamp])
+    def test_extended_string_unix_timestamp_ms_to_timestamp(self, spark_session, input_value, expected_value):
+        # test uses timezone set to GMT / UTC (pytest.ini)!
+        input_df = self.create_input_df(input_value, spark_session)
+        output_df = Mapper(mapping=[("output_key", "input_key", "extended_string_unix_timestamp_ms_to_timestamp")]).transform(input_df)
+        # workaround via pandas necessary due to bug with direct conversion
+        # to python datetime wrt timezone conversions (https://issues.apache.org/jira/browse/SPARK-32123)
+        try:
+            output_pd_df = output_df.toPandas()
+            actual_value = output_pd_df.iloc[0]["output_key"].to_pydatetime()
+>           assert (actual_value.toordinal() == expected_value.toordinal(),
+                    "actual_value: {act_val}, expected value: {expected_val}".format(
+                        act_val=actual_value, expected_val=expected_value))
+
+unit/transformer/test_mapper_custom_data_types.py:340: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+>   ???
+E   ValueError: NaTType does not support toordinal
+
+pandas/_libs/tslibs/nattype.pyx:69: ValueError
+-------------------------------------------------------------------------------------------- Captured stdout teardown ---------------------------------------------------------------------------------------------
+ ✗ extended string unix timestamp ms to timestamp[ actual: <2020-08-12T12:43:14Z0000> (<class 'str'>) -> expected: <2020-08-12 12:43:14>  (<class 'datetime.datetime'>)]
+________________ TestExtendedStringConversions.test_extended_string_unix_timestamp_ms_to_timestamp[ actual: <2020-08-12T12:43:14+0200> (<class 'str'>) -> expected: <None>  (<class 'NoneType'>)] _________________
+
+self = <tests.unit.transformer.test_mapper_custom_data_types.TestExtendedStringConversions object at 0x7fcad86897d0>, spark_session = <pyspark.sql.session.SparkSession object at 0x7fcadc12b3d0>
+input_value = '2020-08-12T12:43:14+0200', expected_value = None
+
+    @pytest.mark.parametrize(
+        argnames=("input_value", "expected_value"),
+        argvalues=fixtures_for_extended_string_unix_timestamp_ms_to_timestamp,
+        ids=[parameters_to_string_id(actual, expected) for actual, expected in fixtures_for_extended_string_unix_timestamp_ms_to_timestamp])
+    def test_extended_string_unix_timestamp_ms_to_timestamp(self, spark_session, input_value, expected_value):
+        # test uses timezone set to GMT / UTC (pytest.ini)!
+        input_df = self.create_input_df(input_value, spark_session)
+        output_df = Mapper(mapping=[("output_key", "input_key", "extended_string_unix_timestamp_ms_to_timestamp")]).transform(input_df)
+        # workaround via pandas necessary due to bug with direct conversion
+        # to python datetime wrt timezone conversions (https://issues.apache.org/jira/browse/SPARK-32123)
+        try:
+            output_pd_df = output_df.toPandas()
+            actual_value = output_pd_df.iloc[0]["output_key"].to_pydatetime()
+>           assert (actual_value.toordinal() == expected_value.toordinal(),
+                    "actual_value: {act_val}, expected value: {expected_val}".format(
+                        act_val=actual_value, expected_val=expected_value))
+
+unit/transformer/test_mapper_custom_data_types.py:340: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+>   ???
+E   ValueError: NaTType does not support toordinal
+
+pandas/_libs/tslibs/nattype.pyx:69: ValueError
+-------------------------------------------------------------------------------------------- Captured stdout teardown ---------------------------------------------------------------------------------------------
+ ✗ extended string unix timestamp ms to timestamp[ actual: <2020-08-12T12:43:14+0200> (<class 'str'>) -> expected: <None>  (<class 'NoneType'>)]
+________________ TestExtendedStringConversions.test_extended_string_unix_timestamp_ms_to_timestamp[ actual: <2020-08-12T12:43:14Z0200> (<class 'str'>) -> expected: <None>  (<class 'NoneType'>)] _________________
+
+self = <tests.unit.transformer.test_mapper_custom_data_types.TestExtendedStringConversions object at 0x7fcad8744550>, spark_session = <pyspark.sql.session.SparkSession object at 0x7fcadc12b3d0>
+input_value = '2020-08-12T12:43:14Z0200', expected_value = None
+
+    @pytest.mark.parametrize(
+        argnames=("input_value", "expected_value"),
+        argvalues=fixtures_for_extended_string_unix_timestamp_ms_to_timestamp,
+        ids=[parameters_to_string_id(actual, expected) for actual, expected in fixtures_for_extended_string_unix_timestamp_ms_to_timestamp])
+    def test_extended_string_unix_timestamp_ms_to_timestamp(self, spark_session, input_value, expected_value):
+        # test uses timezone set to GMT / UTC (pytest.ini)!
+        input_df = self.create_input_df(input_value, spark_session)
+        output_df = Mapper(mapping=[("output_key", "input_key", "extended_string_unix_timestamp_ms_to_timestamp")]).transform(input_df)
+        # workaround via pandas necessary due to bug with direct conversion
+        # to python datetime wrt timezone conversions (https://issues.apache.org/jira/browse/SPARK-32123)
+        try:
+            output_pd_df = output_df.toPandas()
+            actual_value = output_pd_df.iloc[0]["output_key"].to_pydatetime()
+>           assert (actual_value.toordinal() == expected_value.toordinal(),
+                    "actual_value: {act_val}, expected value: {expected_val}".format(
+                        act_val=actual_value, expected_val=expected_value))
+
+unit/transformer/test_mapper_custom_data_types.py:340: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+>   ???
+E   ValueError: NaTType does not support toordinal
+
+pandas/_libs/tslibs/nattype.pyx:69: ValueError
+-------------------------------------------------------------------------------------------- Captured stdout teardown ---------------------------------------------------------------------------------------------
+ ✗ extended string unix timestamp ms to timestamp[ actual: <2020-08-12T12:43:14Z0200> (<class 'str'>) -> expected: <None>  (<class 'NoneType'>)]
+________________________ TestExtendedStringConversions.test_extended_string_unix_timestamp_ms_to_timestamp[ actual: <None> (<class 'NoneType'>) -> expected: <None>  (<class 'NoneType'>)] ________________________
+
+self = <tests.unit.transformer.test_mapper_custom_data_types.TestExtendedStringConversions object at 0x7fcad86b4810>, spark_session = <pyspark.sql.session.SparkSession object at 0x7fcadc12b3d0>
+input_value = None, expected_value = None
+
+    @pytest.mark.parametrize(
+        argnames=("input_value", "expected_value"),
+        argvalues=fixtures_for_extended_string_unix_timestamp_ms_to_timestamp,
+        ids=[parameters_to_string_id(actual, expected) for actual, expected in fixtures_for_extended_string_unix_timestamp_ms_to_timestamp])
+    def test_extended_string_unix_timestamp_ms_to_timestamp(self, spark_session, input_value, expected_value):
+        # test uses timezone set to GMT / UTC (pytest.ini)!
+        input_df = self.create_input_df(input_value, spark_session)
+        output_df = Mapper(mapping=[("output_key", "input_key", "extended_string_unix_timestamp_ms_to_timestamp")]).transform(input_df)
+        # workaround via pandas necessary due to bug with direct conversion
+        # to python datetime wrt timezone conversions (https://issues.apache.org/jira/browse/SPARK-32123)
+        try:
+            output_pd_df = output_df.toPandas()
+            actual_value = output_pd_df.iloc[0]["output_key"].to_pydatetime()
+>           assert (actual_value.toordinal() == expected_value.toordinal(),
+                    "actual_value: {act_val}, expected value: {expected_val}".format(
+                        act_val=actual_value, expected_val=expected_value))
+
+unit/transformer/test_mapper_custom_data_types.py:340: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+>   ???
+E   ValueError: NaTType does not support toordinal
+
+pandas/_libs/tslibs/nattype.pyx:69: ValueError
+-------------------------------------------------------------------------------------------- Captured stdout teardown ---------------------------------------------------------------------------------------------
+ ✗ extended string unix timestamp ms to timestamp[ actual: <None> (<class 'NoneType'>) -> expected: <None>  (<class 'NoneType'>)]
+__________________________ TestExtendedStringConversions.test_extended_string_unix_timestamp_ms_to_timestamp[ actual: <null> (<class 'str'>) -> expected: <None>  (<class 'NoneType'>)] ___________________________
+
+self = <tests.unit.transformer.test_mapper_custom_data_types.TestExtendedStringConversions object at 0x7fcad84352d0>, spark_session = <pyspark.sql.session.SparkSession object at 0x7fcadc12b3d0>
+input_value = 'null', expected_value = None
+
+    @pytest.mark.parametrize(
+        argnames=("input_value", "expected_value"),
+        argvalues=fixtures_for_extended_string_unix_timestamp_ms_to_timestamp,
+        ids=[parameters_to_string_id(actual, expected) for actual, expected in fixtures_for_extended_string_unix_timestamp_ms_to_timestamp])
+    def test_extended_string_unix_timestamp_ms_to_timestamp(self, spark_session, input_value, expected_value):
+        # test uses timezone set to GMT / UTC (pytest.ini)!
+        input_df = self.create_input_df(input_value, spark_session)
+        output_df = Mapper(mapping=[("output_key", "input_key", "extended_string_unix_timestamp_ms_to_timestamp")]).transform(input_df)
+        # workaround via pandas necessary due to bug with direct conversion
+        # to python datetime wrt timezone conversions (https://issues.apache.org/jira/browse/SPARK-32123)
+        try:
+            output_pd_df = output_df.toPandas()
+            actual_value = output_pd_df.iloc[0]["output_key"].to_pydatetime()
+>           assert (actual_value.toordinal() == expected_value.toordinal(),
+                    "actual_value: {act_val}, expected value: {expected_val}".format(
+                        act_val=actual_value, expected_val=expected_value))
+
+unit/transformer/test_mapper_custom_data_types.py:340: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+>   ???
+E   ValueError: NaTType does not support toordinal
+
+pandas/_libs/tslibs/nattype.pyx:69: ValueError
+-------------------------------------------------------------------------------------------- Captured stdout teardown ---------------------------------------------------------------------------------------------
+ ✗ extended string unix timestamp ms to timestamp[ actual: <null> (<class 'str'>) -> expected: <None>  (<class 'NoneType'>)]
+___________________________ TestExtendedStringConversions.test_extended_string_unix_timestamp_ms_to_timestamp[ actual: <nil> (<class 'str'>) -> expected: <None>  (<class 'NoneType'>)] ___________________________
+
+self = <tests.unit.transformer.test_mapper_custom_data_types.TestExtendedStringConversions object at 0x7fcad8414210>, spark_session = <pyspark.sql.session.SparkSession object at 0x7fcadc12b3d0>
+input_value = 'nil', expected_value = None
+
+    @pytest.mark.parametrize(
+        argnames=("input_value", "expected_value"),
+        argvalues=fixtures_for_extended_string_unix_timestamp_ms_to_timestamp,
+        ids=[parameters_to_string_id(actual, expected) for actual, expected in fixtures_for_extended_string_unix_timestamp_ms_to_timestamp])
+    def test_extended_string_unix_timestamp_ms_to_timestamp(self, spark_session, input_value, expected_value):
+        # test uses timezone set to GMT / UTC (pytest.ini)!
+        input_df = self.create_input_df(input_value, spark_session)
+        output_df = Mapper(mapping=[("output_key", "input_key", "extended_string_unix_timestamp_ms_to_timestamp")]).transform(input_df)
+        # workaround via pandas necessary due to bug with direct conversion
+        # to python datetime wrt timezone conversions (https://issues.apache.org/jira/browse/SPARK-32123)
+        try:
+            output_pd_df = output_df.toPandas()
+            actual_value = output_pd_df.iloc[0]["output_key"].to_pydatetime()
+>           assert (actual_value.toordinal() == expected_value.toordinal(),
+                    "actual_value: {act_val}, expected value: {expected_val}".format(
+                        act_val=actual_value, expected_val=expected_value))
+
+unit/transformer/test_mapper_custom_data_types.py:340: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+>   ???
+E   ValueError: NaTType does not support toordinal
+
+pandas/_libs/tslibs/nattype.pyx:69: ValueError
+-------------------------------------------------------------------------------------------- Captured stdout teardown ---------------------------------------------------------------------------------------------
+ ✗ extended string unix timestamp ms to timestamp[ actual: <nil> (<class 'str'>) -> expected: <None>  (<class 'NoneType'>)]
+______________________ TestExtendedStringConversions.test_extended_string_to_date[ actual: <2020-08-12T12:43:14Z00:00> (<class 'str'>) -> expected: <2020-08-12>  (<class 'datetime.date'>)] ______________________
+
+self = <tests.unit.transformer.test_mapper_custom_data_types.TestExtendedStringConversions object at 0x7fcad8423650>, spark_session = <pyspark.sql.session.SparkSession object at 0x7fcadc12b3d0>
+input_value = '2020-08-12T12:43:14Z00:00', expected_value = datetime.date(2020, 8, 12)
+
+    @pytest.mark.parametrize(
+        argnames=("input_value", "expected_value"),
+        argvalues=fixtures_for_extended_string_to_date,
+        ids=[parameters_to_string_id(actual, expected)
+             for actual, expected
+             in fixtures_for_extended_string_to_date])
+    def test_extended_string_to_date(self, spark_session, input_value, expected_value):
+        input_df = self.create_input_df(input_value, spark_session)
+        output_df = Mapper(mapping=[("output_key", "input_key", "extended_string_to_date")]).transform(input_df)
+        try:
+            actual_value = output_df.first().output_key
+        except ValueError:
+            # If input is in milliseconds it will still be stored in the DF but cannot be collected in Python
+            actual_value = "out_of_range_for_python"
+>       assert actual_value == expected_value
+E       assert None == datetime.date(2020, 8, 12)
+
+unit/transformer/test_mapper_custom_data_types.py:362: AssertionError
+-------------------------------------------------------------------------------------------- Captured stdout teardown ---------------------------------------------------------------------------------------------
+ ✗ extended string to date[ actual: <2020-08-12T12:43:14Z00:00> (<class 'str'>) -> expected: <2020-08-12>  (<class 'datetime.date'>)]
+______________________ TestExtendedStringConversions.test_extended_string_to_date[ actual: <2020-08-12T12:43:14Z0000> (<class 'str'>) -> expected: <2020-08-12>  (<class 'datetime.date'>)] _______________________
+
+self = <tests.unit.transformer.test_mapper_custom_data_types.TestExtendedStringConversions object at 0x7fcad8439d10>, spark_session = <pyspark.sql.session.SparkSession object at 0x7fcadc12b3d0>
+input_value = '2020-08-12T12:43:14Z0000', expected_value = datetime.date(2020, 8, 12)
+
+    @pytest.mark.parametrize(
+        argnames=("input_value", "expected_value"),
+        argvalues=fixtures_for_extended_string_to_date,
+        ids=[parameters_to_string_id(actual, expected)
+             for actual, expected
+             in fixtures_for_extended_string_to_date])
+    def test_extended_string_to_date(self, spark_session, input_value, expected_value):
+        input_df = self.create_input_df(input_value, spark_session)
+        output_df = Mapper(mapping=[("output_key", "input_key", "extended_string_to_date")]).transform(input_df)
+        try:
+            actual_value = output_df.first().output_key
+        except ValueError:
+            # If input is in milliseconds it will still be stored in the DF but cannot be collected in Python
+            actual_value = "out_of_range_for_python"
+>       assert actual_value == expected_value
+E       assert None == datetime.date(2020, 8, 12)
+
+unit/transformer/test_mapper_custom_data_types.py:362: AssertionError
+-------------------------------------------------------------------------------------------- Captured stdout teardown ---------------------------------------------------------------------------------------------
+ ✗ extended string to date[ actual: <2020-08-12T12:43:14Z0000> (<class 'str'>) -> expected: <2020-08-12>  (<class 'datetime.date'>)]
+_____________ TestExtendedStringConversions.test_extended_string_unix_timestamp_ms_to_date[ actual: <2020-08-12T12:43:14Z00:00> (<class 'str'>) -> expected: <2020-08-12>  (<class 'datetime.date'>)] _____________
+
+self = <tests.unit.transformer.test_mapper_custom_data_types.TestExtendedStringConversions object at 0x7fcad84fa110>, spark_session = <pyspark.sql.session.SparkSession object at 0x7fcadc12b3d0>
+input_value = '2020-08-12T12:43:14Z00:00', expected_value = datetime.date(2020, 8, 12)
+
+    @pytest.mark.parametrize(
+        argnames=("input_value", "expected_value"),
+        argvalues=fixtures_for_extended_string_unix_timestamp_ms_to_date,
+        ids=[parameters_to_string_id(actual, expected)
+             for actual, expected
+             in fixtures_for_extended_string_unix_timestamp_ms_to_date])
+    def test_extended_string_unix_timestamp_ms_to_date(self, spark_session, input_value, expected_value):
+        input_df = self.create_input_df(input_value, spark_session)
+        output_df = Mapper(mapping=[("output_key", "input_key", "extended_string_unix_timestamp_ms_to_date")]).transform(input_df)
+        actual_value = output_df.first().output_key
+>       assert actual_value == expected_value
+E       assert None == datetime.date(2020, 8, 12)
+
+unit/transformer/test_mapper_custom_data_types.py:375: AssertionError
+-------------------------------------------------------------------------------------------- Captured stdout teardown ---------------------------------------------------------------------------------------------
+ ✗ extended string unix timestamp ms to date[ actual: <2020-08-12T12:43:14Z00:00> (<class 'str'>) -> expected: <2020-08-12>  (<class 'datetime.date'>)]
+_____________ TestExtendedStringConversions.test_extended_string_unix_timestamp_ms_to_date[ actual: <2020-08-12T12:43:14Z0000> (<class 'str'>) -> expected: <2020-08-12>  (<class 'datetime.date'>)] ______________
+
+self = <tests.unit.transformer.test_mapper_custom_data_types.TestExtendedStringConversions object at 0x7fcad84bddd0>, spark_session = <pyspark.sql.session.SparkSession object at 0x7fcadc12b3d0>
+input_value = '2020-08-12T12:43:14Z0000', expected_value = datetime.date(2020, 8, 12)
+
+    @pytest.mark.parametrize(
+        argnames=("input_value", "expected_value"),
+        argvalues=fixtures_for_extended_string_unix_timestamp_ms_to_date,
+        ids=[parameters_to_string_id(actual, expected)
+             for actual, expected
+             in fixtures_for_extended_string_unix_timestamp_ms_to_date])
+    def test_extended_string_unix_timestamp_ms_to_date(self, spark_session, input_value, expected_value):
+        input_df = self.create_input_df(input_value, spark_session)
+        output_df = Mapper(mapping=[("output_key", "input_key", "extended_string_unix_timestamp_ms_to_date")]).transform(input_df)
+        actual_value = output_df.first().output_key
+>       assert actual_value == expected_value
+E       assert None == datetime.date(2020, 8, 12)
+
+unit/transformer/test_mapper_custom_data_types.py:375: AssertionError
+-------------------------------------------------------------------------------------------- Captured stdout teardown ---------------------------------------------------------------------------------------------
+ ✗ extended string unix timestamp ms to date[ actual: <2020-08-12T12:43:14Z0000> (<class 'str'>) -> expected: <2020-08-12>  (<class 'datetime.date'>)]
+______________________________________________________________ TestAnonymizingMethods.test_generate_select_expression_for_TimestampMonth[None-None] _______________________________________________________________
+
+self = <tests.unit.transformer.test_mapper_custom_data_types.TestAnonymizingMethods object at 0x7fcad8403190>, input_value = None, value = None
+spark_session = <pyspark.sql.session.SparkSession object at 0x7fcadc12b3d0>, spark_context = <SparkContext master=local[*] appName=spooq-pyspark-tests>
+
+    @pytest.mark.parametrize(("input_value", "value"), [
+        (None,         None),
+        ("1955-09-41", None),
+        ("1969-04-03", "1969-04-01"),
+        ("1985-03-07", "1985-03-01"),
+        ("1998-06-10", "1998-06-01"),
+        ("1967-05-16", "1967-05-01"),
+        ("1953-01-01", "1953-01-01"),
+        ("1954-11-06", "1954-11-01"),
+        ("1978-09-05", "1978-09-01"),
+        ("1999-05-23", "1999-05-01"),
+    ])
+    # fmt: on
+    def test_generate_select_expression_for_TimestampMonth(
+            self, input_value, value, spark_session, spark_context):
+        source_key, name = "day_of_birth", "birthday"
+        input_df = get_input_df(spark_session, spark_context, source_key, input_value)
+        input_df = input_df.withColumn(
+            source_key,
+            F.to_utc_timestamp(input_df["attributes"]["data"][source_key],
+                               "yyyy-MM-dd"))
+        result_column = custom_types._generate_select_expression_for_TimestampMonth(
+            source_column=input_df[source_key], name=name)
+        output_df = input_df.select(result_column)
+    
+        assert output_df.schema.fieldNames() == [name], "Renaming of column"
+        assert output_df.schema[name].dataType.typeName(
+        ) == "timestamp", "Casting of column"
+>       output_value = output_df.first()[name]
+
+unit/transformer/test_mapper_custom_data_types.py:519: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+../../../opt/spark3/python/pyspark/sql/dataframe.py:1363: in first
+    return self.head()
+../../../opt/spark3/python/pyspark/sql/dataframe.py:1351: in head
+    rs = self.head(1)
+../../../opt/spark3/python/pyspark/sql/dataframe.py:1353: in head
+    return self.take(n)
+../../../opt/spark3/python/pyspark/sql/dataframe.py:639: in take
+    return self.limit(num).collect()
+../../../opt/spark3/python/pyspark/sql/dataframe.py:596: in collect
+    sock_info = self._jdf.collectToPython()
+/home/dae/opt/spark3/python/lib/py4j-0.10.9-src.zip/py4j/java_gateway.py:1305: in __call__
+    answer, self.gateway_client, self.target_id, self.name)
+../../../opt/spark3/python/pyspark/sql/utils.py:128: in deco
+    return f(*a, **kw)
+

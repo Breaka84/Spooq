@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Pipeline &mdash; Spooq2 2.2.0 documentation</title>
+  <title>Pipeline &mdash; Spooq2 3.0.0b documentation</title>
   
 
   
@@ -21,10 +21,10 @@
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
-        <script type="text/javascript" src="../_static/jquery.js"></script>
-        <script type="text/javascript" src="../_static/underscore.js"></script>
-        <script type="text/javascript" src="../_static/doctools.js"></script>
-        <script type="text/javascript" src="../_static/language_data.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/language_data.js"></script>
     
     <script type="text/javascript" src="../_static/js/theme.js"></script>
 
@@ -86,7 +86,9 @@
             
             
               <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../changelog.html">Changelog</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation / Deployment</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../setup_development_testing.html">Setup for Development, Testing, Documenting</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../examples.html">Examples</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../extractor/overview.html">Extractors</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../transformer/overview.html">Transformers</a></li>
@@ -98,7 +100,6 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../base_classes/overview.html">Spooq Base</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../setup_development_testing.html">Setup for Development, Testing, Documenting</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../architecture.html">Architecture Overview</a></li>
 </ul>
 
@@ -170,264 +171,6 @@
 <span id="pipeline"></span><h1>Pipeline<a class="headerlink" href="#module-spooq2.pipeline.pipeline" title="Permalink to this headline">¶</a></h1>
 <p>This type of object glues the aforementioned processes together and  extracts, transforms
 (Transformer chain possible) and loads the data from start to end.</p>
-<dl class="class">
-<dt id="spooq2.pipeline.pipeline.Pipeline">
-<em class="property">class </em><code class="descname">Pipeline</code><span class="sig-paren">(</span><em>input_df=None</em>, <em>bypass_loader=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/spooq2/pipeline/pipeline.html#Pipeline"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spooq2.pipeline.pipeline.Pipeline" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3.7/library/functions.html#object" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
-<p>Represents a Pipeline of an Extractor, (multiple) Transformers and a Loader Object.</p>
-<dl class="attribute">
-<dt id="spooq2.pipeline.pipeline.Pipeline.extractor">
-<code class="descname">extractor</code><a class="headerlink" href="#spooq2.pipeline.pipeline.Pipeline.extractor" title="Permalink to this definition">¶</a></dt>
-<dd><p>The entry point of the Pipeline. Extracts a DataFrame from a Source.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">Subclass of <code class="xref py py-class docutils literal notranslate"><span class="pre">spooq2.extractor.Extractor</span></code></td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="spooq2.pipeline.pipeline.Pipeline.transformers">
-<code class="descname">transformers</code><a class="headerlink" href="#spooq2.pipeline.pipeline.Pipeline.transformers" title="Permalink to this definition">¶</a></dt>
-<dd><p>The Data Wrangling Part of the Pipeline. A chain of Transformers, a single Transformer
-or a PassThrough Transformer can be set and used.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">List of Subclasses of <code class="xref py py-class docutils literal notranslate"><span class="pre">spooq2.transformer.Transformer</span></code> Objects</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="spooq2.pipeline.pipeline.Pipeline.loader">
-<code class="descname">loader</code><a class="headerlink" href="#spooq2.pipeline.pipeline.Pipeline.loader" title="Permalink to this definition">¶</a></dt>
-<dd><p>The exit point of the Pipeline. Loads a DataFrame to a target Sink.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">Subclass of <code class="xref py py-class docutils literal notranslate"><span class="pre">spooq2.loader.Loader</span></code></td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="spooq2.pipeline.pipeline.Pipeline.name">
-<code class="descname">name</code><a class="headerlink" href="#spooq2.pipeline.pipeline.Pipeline.name" title="Permalink to this definition">¶</a></dt>
-<dd><p>Sets the <cite>__name__</cite> of the class’ type as <cite>name</cite>, which is essentially the Class’ Name.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/3.7/library/stdtypes.html#str" title="(in Python v3.7)"><code class="xref any docutils literal notranslate"><span class="pre">str</span></code></a></td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="spooq2.pipeline.pipeline.Pipeline.logger">
-<code class="descname">logger</code><a class="headerlink" href="#spooq2.pipeline.pipeline.Pipeline.logger" title="Permalink to this definition">¶</a></dt>
-<dd><p>Shared, class level logger for all instances.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/3.7/library/logging.html#logging.Logger" title="(in Python v3.7)"><code class="xref any docutils literal notranslate"><span class="pre">logging.Logger</span></code></a></td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<p class="rubric">Example</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">spooq2.pipeline</span> <span class="kn">import</span> <span class="n">Pipeline</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">spooq2.extractor</span> <span class="k">as</span>   <span class="nn">E</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">spooq2.transformer</span> <span class="k">as</span> <span class="nn">T</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">spooq2.loader</span> <span class="k">as</span>      <span class="nn">L</span>
-<span class="go">&gt;&gt;&gt;</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="c1">#  Definition how the output table should look like and where the attributes come from:</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">users_mapping</span> <span class="o">=</span> <span class="p">[</span>
-<span class="gp">&gt;&gt;&gt; </span>    <span class="p">(</span><span class="s2">&quot;id&quot;</span><span class="p">,</span>              <span class="s2">&quot;id&quot;</span><span class="p">,</span>                     <span class="s2">&quot;IntegerType&quot;</span><span class="p">),</span>
-<span class="gp">&gt;&gt;&gt; </span>    <span class="p">(</span><span class="s2">&quot;guid&quot;</span><span class="p">,</span>            <span class="s2">&quot;guid&quot;</span><span class="p">,</span>                   <span class="s2">&quot;StringType&quot;</span><span class="p">),</span>
-<span class="gp">&gt;&gt;&gt; </span>    <span class="p">(</span><span class="s2">&quot;forename&quot;</span><span class="p">,</span>        <span class="s2">&quot;attributes.first_name&quot;</span><span class="p">,</span>  <span class="s2">&quot;StringType&quot;</span><span class="p">),</span>
-<span class="gp">&gt;&gt;&gt; </span>    <span class="p">(</span><span class="s2">&quot;surename&quot;</span><span class="p">,</span>        <span class="s2">&quot;attributes.last_name&quot;</span><span class="p">,</span>   <span class="s2">&quot;StringType&quot;</span><span class="p">),</span>
-<span class="gp">&gt;&gt;&gt; </span>    <span class="p">(</span><span class="s2">&quot;gender&quot;</span><span class="p">,</span>          <span class="s2">&quot;attributes.gender&quot;</span><span class="p">,</span>      <span class="s2">&quot;StringType&quot;</span><span class="p">),</span>
-<span class="gp">&gt;&gt;&gt; </span>    <span class="p">(</span><span class="s2">&quot;has_email&quot;</span><span class="p">,</span>       <span class="s2">&quot;attributes.email&quot;</span><span class="p">,</span>       <span class="s2">&quot;StringBoolean&quot;</span><span class="p">),</span>
-<span class="gp">&gt;&gt;&gt; </span>    <span class="p">(</span><span class="s2">&quot;has_university&quot;</span><span class="p">,</span>  <span class="s2">&quot;attributes.university&quot;</span><span class="p">,</span>  <span class="s2">&quot;StringBoolean&quot;</span><span class="p">),</span>
-<span class="gp">&gt;&gt;&gt; </span>    <span class="p">(</span><span class="s2">&quot;created_at&quot;</span><span class="p">,</span>      <span class="s2">&quot;meta.created_at_ms&quot;</span><span class="p">,</span>     <span class="s2">&quot;timestamp_ms_to_s&quot;</span><span class="p">),</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="p">]</span>
-<span class="go">&gt;&gt;&gt;</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="c1">#  The main object where all steps are defined:</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">users_pipeline</span> <span class="o">=</span> <span class="n">Pipeline</span><span class="p">()</span>
-<span class="go">&gt;&gt;&gt;</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="c1">#  Defining the EXTRACTION:</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">users_pipeline</span><span class="o">.</span><span class="n">set_extractor</span><span class="p">(</span><span class="n">E</span><span class="o">.</span><span class="n">JSONExtractor</span><span class="p">(</span>
-<span class="gp">&gt;&gt;&gt; </span>    <span class="n">input_path</span><span class="o">=</span><span class="s2">&quot;tests/data/schema_v1/sequenceFiles&quot;</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="p">))</span>
-<span class="go">&gt;&gt;&gt;</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="c1">#  Defining the TRANSFORMATION:</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">users_pipeline</span><span class="o">.</span><span class="n">add_transformers</span><span class="p">([</span>
-<span class="gp">&gt;&gt;&gt; </span>    <span class="n">T</span><span class="o">.</span><span class="n">Mapper</span><span class="p">(</span><span class="n">mapping</span><span class="o">=</span><span class="n">users_mapping</span><span class="p">),</span>
-<span class="gp">&gt;&gt;&gt; </span>    <span class="n">T</span><span class="o">.</span><span class="n">ThresholdCleaner</span><span class="p">(</span><span class="n">thresholds</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;created_at&quot;</span><span class="p">:</span> <span class="p">{</span>
-<span class="gp">&gt;&gt;&gt; </span>                                                <span class="s2">&quot;min&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
-<span class="gp">&gt;&gt;&gt; </span>                                                <span class="s2">&quot;max&quot;</span><span class="p">:</span> <span class="mi">1580737513</span><span class="p">,</span>
-<span class="gp">&gt;&gt;&gt; </span>                                                <span class="s2">&quot;default&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">}}),</span>
-<span class="gp">&gt;&gt;&gt; </span>    <span class="n">T</span><span class="o">.</span><span class="n">NewestByGroup</span><span class="p">(</span><span class="n">group_by</span><span class="o">=</span><span class="s2">&quot;id&quot;</span><span class="p">,</span> <span class="n">order_by</span><span class="o">=</span><span class="s2">&quot;created_at&quot;</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="p">])</span>
-<span class="go">&gt;&gt;&gt;</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="c1">#  Defining the LOAD:</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">users_pipeline</span><span class="o">.</span><span class="n">set_loader</span><span class="p">(</span><span class="n">L</span><span class="o">.</span><span class="n">HiveLoader</span><span class="p">(</span>
-<span class="gp">&gt;&gt;&gt; </span>    <span class="n">db_name</span><span class="o">=</span><span class="s2">&quot;users_and_friends&quot;</span><span class="p">,</span>
-<span class="gp">&gt;&gt;&gt; </span>    <span class="n">table_name</span><span class="o">=</span><span class="s2">&quot;users&quot;</span><span class="p">,</span>
-<span class="gp">&gt;&gt;&gt; </span>    <span class="n">partition_definitions</span><span class="o">=</span><span class="p">[{</span>
-<span class="gp">&gt;&gt;&gt; </span>        <span class="s2">&quot;column_name&quot;</span><span class="p">:</span> <span class="s2">&quot;dt&quot;</span><span class="p">,</span>
-<span class="gp">&gt;&gt;&gt; </span>        <span class="s2">&quot;column_type&quot;</span><span class="p">:</span> <span class="s2">&quot;IntegerType&quot;</span><span class="p">,</span>
-<span class="gp">&gt;&gt;&gt; </span>        <span class="s2">&quot;default_value&quot;</span><span class="p">:</span> <span class="mi">20200201</span><span class="p">}],</span>
-<span class="gp">&gt;&gt;&gt; </span>    <span class="n">repartition_size</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="p">))</span>
-<span class="go">&gt;&gt;&gt;</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="c1">#  Executing the whole ETL pipeline</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">users_pipeline</span><span class="o">.</span><span class="n">execute</span><span class="p">()</span>
-</pre></div>
-</div>
-<dl class="method">
-<dt id="spooq2.pipeline.pipeline.Pipeline.execute">
-<code class="descname">execute</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/spooq2/pipeline/pipeline.html#Pipeline.execute"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spooq2.pipeline.pipeline.Pipeline.execute" title="Permalink to this definition">¶</a></dt>
-<dd><p>Executes the whole Pipeline at once.</p>
-<p>Extracts from the Source, transformes the DataFrame and loads it into a target Sink.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><strong>input_df</strong> – <strong>If</strong> the <code class="docutils literal notranslate"><span class="pre">bypass_loader</span></code> attribute was set to True in the Pipeline class,
-the output DataFrame from the Transformer(s) will be directly returned.</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference external" href="https://spark.apache.org/docs/2.4.3/api/python/pyspark.sql.html#pyspark.sql.DataFrame" title="(in PySpark vmaster)"><code class="xref any docutils literal notranslate"><span class="pre">pyspark.sql.DataFrame</span></code></a></td>
-</tr>
-</tbody>
-</table>
-<div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p class="last">This method does not take ANY input parameters. All needed parameters are defined
-at the initialization phase.</p>
-</div>
-</dd></dl>
-
-<dl class="method">
-<dt id="spooq2.pipeline.pipeline.Pipeline.extract">
-<code class="descname">extract</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/spooq2/pipeline/pipeline.html#Pipeline.extract"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spooq2.pipeline.pipeline.Pipeline.extract" title="Permalink to this definition">¶</a></dt>
-<dd><p>Calls the extract Method on the Extractor Object.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">The output_df from the Extractor used as the input for the Transformer (chain).</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference external" href="https://spark.apache.org/docs/2.4.3/api/python/pyspark.sql.html#pyspark.sql.DataFrame" title="(in PySpark vmaster)"><code class="xref any docutils literal notranslate"><span class="pre">pyspark.sql.DataFrame</span></code></a></td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
-<dt id="spooq2.pipeline.pipeline.Pipeline.transform">
-<code class="descname">transform</code><span class="sig-paren">(</span><em>input_df</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/spooq2/pipeline/pipeline.html#Pipeline.transform"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spooq2.pipeline.pipeline.Pipeline.transform" title="Permalink to this definition">¶</a></dt>
-<dd><p>Calls the transform Method on the Transformer Object(s) in the order of importing the
-Objects while passing the DataFrame.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>input_df</strong> (<a class="reference external" href="https://spark.apache.org/docs/2.4.3/api/python/pyspark.sql.html#pyspark.sql.DataFrame" title="(in PySpark vmaster)"><code class="xref any docutils literal notranslate"><span class="pre">pyspark.sql.DataFrame</span></code></a>) – The output DataFrame of the Extractor Object.</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">The input DataFrame for the Loader.</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference external" href="https://spark.apache.org/docs/2.4.3/api/python/pyspark.sql.html#pyspark.sql.DataFrame" title="(in PySpark vmaster)"><code class="xref any docutils literal notranslate"><span class="pre">pyspark.sql.DataFrame</span></code></a></td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
-<dt id="spooq2.pipeline.pipeline.Pipeline.load">
-<code class="descname">load</code><span class="sig-paren">(</span><em>input_df</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/spooq2/pipeline/pipeline.html#Pipeline.load"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spooq2.pipeline.pipeline.Pipeline.load" title="Permalink to this definition">¶</a></dt>
-<dd><p>Calls the load Method on the Loader Object.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>input_df</strong> (<a class="reference external" href="https://spark.apache.org/docs/2.4.3/api/python/pyspark.sql.html#pyspark.sql.DataFrame" title="(in PySpark vmaster)"><code class="xref any docutils literal notranslate"><span class="pre">pyspark.sql.DataFrame</span></code></a>) – The output DataFrame from the Transformer(s).</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><strong>input_df</strong> – <strong>If</strong> the <code class="docutils literal notranslate"><span class="pre">bypass_loader</span></code> attribute was set to True in the Pipeline class,
-the output DataFrame from the Transformer(s) will be directly returned.</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference external" href="https://spark.apache.org/docs/2.4.3/api/python/pyspark.sql.html#pyspark.sql.DataFrame" title="(in PySpark vmaster)"><code class="xref any docutils literal notranslate"><span class="pre">pyspark.sql.DataFrame</span></code></a></td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
-<dt id="spooq2.pipeline.pipeline.Pipeline.set_extractor">
-<code class="descname">set_extractor</code><span class="sig-paren">(</span><em>extractor</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/spooq2/pipeline/pipeline.html#Pipeline.set_extractor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spooq2.pipeline.pipeline.Pipeline.set_extractor" title="Permalink to this definition">¶</a></dt>
-<dd><p>Sets an Extractor Object to be used within the Pipeline.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>extractor</strong> (Subclass of <code class="xref py py-class docutils literal notranslate"><span class="pre">spooq2.extractor.Extractor</span></code>) – An already initialized Object of any Subclass of spooq2.extractor.Extractor.</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><code class="xref any docutils literal notranslate"><span class="pre">exceptions.AssertionError</span></code>: – An input_df was already provided which bypasses the extraction action</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
-<dt id="spooq2.pipeline.pipeline.Pipeline.add_transformers">
-<code class="descname">add_transformers</code><span class="sig-paren">(</span><em>transformers</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/spooq2/pipeline/pipeline.html#Pipeline.add_transformers"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spooq2.pipeline.pipeline.Pipeline.add_transformers" title="Permalink to this definition">¶</a></dt>
-<dd><p>Adds a list of Transformer Objects to be used within the Pipeline.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>transformer</strong> (<a class="reference external" href="https://docs.python.org/3.7/library/stdtypes.html#list" title="(in Python v3.7)"><code class="xref any docutils literal notranslate"><span class="pre">list</span></code></a> of Subclass of <code class="xref py py-class docutils literal notranslate"><span class="pre">spooq2.transformer.Transformer</span></code>) – Already initialized Object of any Subclass of spooq2.transformer.Transformer.</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
-<dt id="spooq2.pipeline.pipeline.Pipeline.clear_transformers">
-<code class="descname">clear_transformers</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/spooq2/pipeline/pipeline.html#Pipeline.clear_transformers"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spooq2.pipeline.pipeline.Pipeline.clear_transformers" title="Permalink to this definition">¶</a></dt>
-<dd><p>Clears the list of already added Transformers.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="spooq2.pipeline.pipeline.Pipeline.set_loader">
-<code class="descname">set_loader</code><span class="sig-paren">(</span><em>loader</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/spooq2/pipeline/pipeline.html#Pipeline.set_loader"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spooq2.pipeline.pipeline.Pipeline.set_loader" title="Permalink to this definition">¶</a></dt>
-<dd><p>Sets an Loader Object to be used within the Pipeline.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>loader</strong> (Subclass of <code class="xref py py-class docutils literal notranslate"><span class="pre">spooq2.loader.Loader</span></code>) – An already initialized Object of any Subclass of spooq2.loader.Loader.</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><code class="xref any docutils literal notranslate"><span class="pre">exceptions.AssertionError</span></code>: – You can not set a loader if the <cite>bypass_loader</cite> parameter is set.</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-</dd></dl>
-
 </div>
 
 

@@ -245,7 +245,7 @@ intersphinx_mapping = {
     'python':         ('https://docs.python.org/3.7', None),
 	'pyExceptions':   ('https://pyexceptions.readthedocs.io/en/stable/', None),
 	'pyMetaClasses':  ('https://pymetaclasses.readthedocs.io/en/latest/', None),
-    'pyspark':        ('https://spark.apache.org/docs/2.4.3/api/python/', None)
+    'pyspark':        ('https://spark.apache.org/docs/3.0.1/api/python/', None)
 
 }
 

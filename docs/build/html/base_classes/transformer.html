@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Transformer Base Class &mdash; Spooq2 2.2.0 documentation</title>
+  <title>Transformer Base Class &mdash; Spooq2 3.0.0b documentation</title>
   
 
   
@@ -21,10 +21,10 @@
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
-        <script type="text/javascript" src="../_static/jquery.js"></script>
-        <script type="text/javascript" src="../_static/underscore.js"></script>
-        <script type="text/javascript" src="../_static/doctools.js"></script>
-        <script type="text/javascript" src="../_static/language_data.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/language_data.js"></script>
     
     <script type="text/javascript" src="../_static/js/theme.js"></script>
 
@@ -86,7 +86,9 @@
             
             
               <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../changelog.html">Changelog</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation / Deployment</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../setup_development_testing.html">Setup for Development, Testing, Documenting</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../examples.html">Examples</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../extractor/overview.html">Extractors</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../transformer/overview.html">Transformers</a></li>
@@ -108,7 +110,6 @@
 <li class="toctree-l2"><a class="reference internal" href="loader.html">Loader Base Class</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../setup_development_testing.html">Setup for Development, Testing, Documenting</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../architecture.html">Architecture Overview</a></li>
 </ul>
 
@@ -176,73 +177,15 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="module-spooq2.transformer.transformer">
-<span id="transformer-base-class"></span><h1>Transformer Base Class<a class="headerlink" href="#module-spooq2.transformer.transformer" title="Permalink to this headline">¶</a></h1>
-<p>Transformers take a <a class="reference external" href="https://spark.apache.org/docs/2.4.3/api/python/pyspark.sql.html#pyspark.sql.DataFrame" title="(in PySpark vmaster)"><code class="xref py py-class docutils literal notranslate"><span class="pre">pyspark.sql.DataFrame</span></code></a> as an input, transform it accordingly
+  <div class="section" id="transformer-base-class">
+<h1>Transformer Base Class<a class="headerlink" href="#transformer-base-class" title="Permalink to this headline">¶</a></h1>
+<p>Transformers take a <a class="reference external" href="https://spark.apache.org/docs/3.0.1/api/python/pyspark.sql.html#pyspark.sql.DataFrame" title="(in PySpark vmaster)"><code class="xref py py-class docutils literal notranslate"><span class="pre">pyspark.sql.DataFrame</span></code></a> as an input, transform it accordingly
 and return a PySpark DataFrame.</p>
 <p>Each Transformer class has to have a <cite>transform</cite> method which takes no arguments
 and returns a PySpark DataFrame.</p>
 <p>Possible transformation methods can be <strong>Selecting the most up to date record by id</strong>,
 <strong>Exploding an array</strong>, <strong>Filter (on an exploded array)</strong>, <strong>Apply basic threshold cleansing</strong> or
 <strong>Map the incoming DataFrame to at provided structure</strong>.</p>
-<dl class="class">
-<dt id="spooq2.transformer.transformer.Transformer">
-<em class="property">class </em><code class="descname">Transformer</code><a class="reference internal" href="../_modules/spooq2/transformer/transformer.html#Transformer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spooq2.transformer.transformer.Transformer" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3.7/library/functions.html#object" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
-<p>Base Class of Transformer Classes.</p>
-<dl class="attribute">
-<dt id="spooq2.transformer.transformer.Transformer.name">
-<code class="descname">name</code><a class="headerlink" href="#spooq2.transformer.transformer.Transformer.name" title="Permalink to this definition">¶</a></dt>
-<dd><p>Sets the <cite>__name__</cite> of the class’ type as <cite>name</cite>, which is essentially the Class’ Name.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/3.7/library/stdtypes.html#str" title="(in Python v3.7)"><code class="xref any docutils literal notranslate"><span class="pre">str</span></code></a></td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="spooq2.transformer.transformer.Transformer.logger">
-<code class="descname">logger</code><a class="headerlink" href="#spooq2.transformer.transformer.Transformer.logger" title="Permalink to this definition">¶</a></dt>
-<dd><p>Shared, class level logger for all instances.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/3.7/library/logging.html#logging.Logger" title="(in Python v3.7)"><code class="xref any docutils literal notranslate"><span class="pre">logging.Logger</span></code></a></td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
-<dt id="spooq2.transformer.transformer.Transformer.transform">
-<code class="descname">transform</code><span class="sig-paren">(</span><em>input_df</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/spooq2/transformer/transformer.html#Transformer.transform"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spooq2.transformer.transformer.Transformer.transform" title="Permalink to this definition">¶</a></dt>
-<dd><p>Performs a transformation on a DataFrame.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>input_df</strong> (<a class="reference external" href="https://spark.apache.org/docs/2.4.3/api/python/pyspark.sql.html#pyspark.sql.DataFrame" title="(in PySpark vmaster)"><code class="xref py py-class docutils literal notranslate"><span class="pre">pyspark.sql.DataFrame</span></code></a>) – Input DataFrame</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Transformed DataFrame.</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference external" href="https://spark.apache.org/docs/2.4.3/api/python/pyspark.sql.html#pyspark.sql.DataFrame" title="(in PySpark vmaster)"><code class="xref py py-class docutils literal notranslate"><span class="pre">pyspark.sql.DataFrame</span></code></a></td>
-</tr>
-</tbody>
-</table>
-<div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p class="last">This method does only take the Input DataFrame as a parameters. All other needed parameters
-are defined in the initialization of the Transformator Object.</p>
-</div>
-</dd></dl>
-
-</dd></dl>
-
 <div class="section" id="create-your-own-transformer">
 <span id="custom-transformer"></span><h2>Create your own Transformer<a class="headerlink" href="#create-your-own-transformer" title="Permalink to this headline">¶</a></h2>
 <p>Let your transformer class inherit from the transformer base class.

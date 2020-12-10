@@ -2,6 +2,7 @@ from builtins import object
 import json
 import pytest
 import datetime
+import pandas as pd
 from pyspark.sql import functions as F
 from pyspark.sql import Row
 from pyspark.sql import types as T
@@ -16,11 +17,16 @@ from ...data.test_fixtures.mapper_custom_data_types_fixtures import (
     fixtures_for_extended_string_to_float,
     fixtures_for_extended_string_to_double,
     fixtures_for_extended_string_to_boolean,
+    fixtures_for_extended_string_to_timestamp_spark2,
+    fixtures_for_extended_string_unix_timestamp_ms_to_timestamp_spark2,
+    fixtures_for_extended_string_to_date_spark2,
+    fixtures_for_extended_string_unix_timestamp_ms_to_date_spark2,
     fixtures_for_extended_string_to_timestamp,
     fixtures_for_extended_string_unix_timestamp_ms_to_timestamp,
     fixtures_for_extended_string_to_date,
-    fixtures_for_extended_string_unix_timestamp_ms_to_date
+    fixtures_for_extended_string_unix_timestamp_ms_to_date,
 )
+from ...helpers.skip_conditions import only_spark2, only_spark3
 
 
 def get_spark_data_type(input_value):
@@ -302,11 +308,12 @@ class TestExtendedStringConversions(object):
         assert output_df.first().output_key == expected_value
         assert isinstance(output_df.schema["output_key"].dataType, T.BooleanType)
 
+    @only_spark2
     @pytest.mark.parametrize(
         argnames=("input_value", "expected_value"),
-        argvalues=fixtures_for_extended_string_to_timestamp,
-        ids=[parameters_to_string_id(actual, expected) for actual, expected in fixtures_for_extended_string_to_timestamp])
-    def test_extended_string_to_timestamp(self, spark_session, input_value, expected_value):
+        argvalues=fixtures_for_extended_string_to_timestamp_spark2,
+        ids=[parameters_to_string_id(actual, expected) for actual, expected in fixtures_for_extended_string_to_timestamp_spark2])
+    def test_extended_string_to_timestamp_spark2(self, spark_session, input_value, expected_value):
         # test uses timezone set to GMT / UTC (pytest.ini)!
         input_df = self.create_input_df(input_value, spark_session)
         output_df = Mapper(mapping=[("output_key", "input_key", "extended_string_to_timestamp")]).transform(input_df)
@@ -324,11 +331,32 @@ class TestExtendedStringConversions(object):
         assert actual_value == expected_value
         assert isinstance(output_df.schema["output_key"].dataType, T.TimestampType)
 
+    @only_spark3
     @pytest.mark.parametrize(
         argnames=("input_value", "expected_value"),
-        argvalues=fixtures_for_extended_string_unix_timestamp_ms_to_timestamp,
-        ids=[parameters_to_string_id(actual, expected) for actual, expected in fixtures_for_extended_string_unix_timestamp_ms_to_timestamp])
-    def test_extended_string_unix_timestamp_ms_to_timestamp(self, spark_session, input_value, expected_value):
+        argvalues=fixtures_for_extended_string_to_timestamp,
+        ids=[parameters_to_string_id(actual, expected) for actual, expected in fixtures_for_extended_string_to_timestamp])
+    def test_extended_string_to_timestamp(self, spark_session, input_value, expected_value):
+        # test uses timezone set to GMT / UTC (pytest.ini)!
+        input_df = self.create_input_df(input_value, spark_session)
+        output_df = Mapper(mapping=[("output_key", "input_key", "extended_string_to_timestamp")]).transform(input_df)
+        # workaround via pandas necessary due to bug with direct conversion
+        # to python datetime wrt timezone conversions (https://issues.apache.org/jira/browse/SPARK-32123)
+        output_pd_df = output_df.toPandas()
+        output_value = output_pd_df.iloc[0]["output_key"]
+        if isinstance(output_value, type(pd.NaT)):
+            actual_value = None
+        else:
+            actual_value = output_value.to_pydatetime()
+        assert actual_value == expected_value
+        assert isinstance(output_df.schema["output_key"].dataType, T.TimestampType)
+
+    @only_spark2
+    @pytest.mark.parametrize(
+        argnames=("input_value", "expected_value"),
+        argvalues=fixtures_for_extended_string_unix_timestamp_ms_to_timestamp_spark2,
+        ids=[parameters_to_string_id(actual, expected) for actual, expected in fixtures_for_extended_string_unix_timestamp_ms_to_timestamp_spark2])
+    def test_extended_string_unix_timestamp_ms_to_timestamp_spark2(self, spark_session, input_value, expected_value):
         # test uses timezone set to GMT / UTC (pytest.ini)!
         input_df = self.create_input_df(input_value, spark_session)
         output_df = Mapper(mapping=[("output_key", "input_key", "extended_string_unix_timestamp_ms_to_timestamp")]).transform(input_df)
@@ -345,13 +373,35 @@ class TestExtendedStringConversions(object):
             assert expected_value is None
         assert isinstance(output_df.schema["output_key"].dataType, T.TimestampType)
 
+    @only_spark3
     @pytest.mark.parametrize(
         argnames=("input_value", "expected_value"),
-        argvalues=fixtures_for_extended_string_to_date,
+        argvalues=fixtures_for_extended_string_unix_timestamp_ms_to_timestamp,
+        ids=[parameters_to_string_id(actual, expected) for actual, expected in fixtures_for_extended_string_unix_timestamp_ms_to_timestamp])
+    def test_extended_string_unix_timestamp_ms_to_timestamp(self, spark_session, input_value, expected_value):
+        # test uses timezone set to GMT / UTC (pytest.ini)!
+        input_df = self.create_input_df(input_value, spark_session)
+        output_df = Mapper(mapping=[("output_key", "input_key", "extended_string_unix_timestamp_ms_to_timestamp")]).transform(input_df)
+        # workaround via pandas necessary due to bug with direct conversion
+        # to python datetime wrt timezone conversions (https://issues.apache.org/jira/browse/SPARK-32123)
+        output_pd_df = output_df.toPandas()
+        output_value = output_pd_df.iloc[0]["output_key"]
+        if isinstance(output_value, type(pd.NaT)):
+            actual_value = None
+        else:
+            actual_value = output_value.to_pydatetime().toordinal()
+            expected_value = expected_value.toordinal()
+        assert actual_value == expected_value
+        assert isinstance(output_df.schema["output_key"].dataType, T.TimestampType)
+
+    @only_spark2
+    @pytest.mark.parametrize(
+        argnames=("input_value", "expected_value"),
+        argvalues=fixtures_for_extended_string_to_date_spark2,
         ids=[parameters_to_string_id(actual, expected)
              for actual, expected
-             in fixtures_for_extended_string_to_date])
-    def test_extended_string_to_date(self, spark_session, input_value, expected_value):
+             in fixtures_for_extended_string_to_date_spark2])
+    def test_extended_string_to_date_spark2(self, spark_session, input_value, expected_value):
         input_df = self.create_input_df(input_value, spark_session)
         output_df = Mapper(mapping=[("output_key", "input_key", "extended_string_to_date")]).transform(input_df)
         try:
@@ -362,6 +412,35 @@ class TestExtendedStringConversions(object):
         assert actual_value == expected_value
         assert isinstance(output_df.schema["output_key"].dataType, T.DateType)
 
+    @only_spark3
+    @pytest.mark.parametrize(
+        argnames=("input_value", "expected_value"),
+        argvalues=fixtures_for_extended_string_to_date,
+        ids=[parameters_to_string_id(actual, expected)
+             for actual, expected
+             in fixtures_for_extended_string_to_date])
+    def test_extended_string_to_date(self, spark_session, input_value, expected_value):
+        input_df = self.create_input_df(input_value, spark_session)
+        output_df = Mapper(mapping=[("output_key", "input_key", "extended_string_to_date")]).transform(input_df)
+        actual_value = output_df.first().output_key
+        assert actual_value == expected_value
+        assert isinstance(output_df.schema["output_key"].dataType, T.DateType)
+
+    @only_spark2
+    @pytest.mark.parametrize(
+        argnames=("input_value", "expected_value"),
+        argvalues=fixtures_for_extended_string_unix_timestamp_ms_to_date_spark2,
+        ids=[parameters_to_string_id(actual, expected)
+             for actual, expected
+             in fixtures_for_extended_string_unix_timestamp_ms_to_date_spark2])
+    def test_extended_string_unix_timestamp_ms_to_date_spark2(self, spark_session, input_value, expected_value):
+        input_df = self.create_input_df(input_value, spark_session)
+        output_df = Mapper(mapping=[("output_key", "input_key", "extended_string_unix_timestamp_ms_to_date")]).transform(input_df)
+        actual_value = output_df.first().output_key
+        assert actual_value == expected_value
+        assert isinstance(output_df.schema["output_key"].dataType, T.DateType)
+
+    @only_spark3
     @pytest.mark.parametrize(
         argnames=("input_value", "expected_value"),
         argvalues=fixtures_for_extended_string_unix_timestamp_ms_to_date,
@@ -374,6 +453,7 @@ class TestExtendedStringConversions(object):
         actual_value = output_df.first().output_key
         assert actual_value == expected_value
         assert isinstance(output_df.schema["output_key"].dataType, T.DateType)
+
 
 class TestAnonymizingMethods(object):
     # fmt: off
@@ -488,6 +568,45 @@ class TestAnonymizingMethods(object):
         assert output_df.first()[name] == value, "Processing of column value"
 
     # fmt: off
+    @only_spark2
+    @pytest.mark.parametrize(("input_value", "value"), [
+        (None,         None),
+        ("1955-09-41", None),
+        ("1969-04-03", "1969-04-01"),
+        ("1985-03-07", "1985-03-01"),
+        ("1998-06-10", "1998-06-01"),
+        ("1967-05-16", "1967-05-01"),
+        ("1953-01-01", "1953-01-01"),
+        ("1954-11-06", "1954-11-01"),
+        ("1978-09-05", "1978-09-01"),
+        ("1999-05-23", "1999-05-01"),
+    ])
+    # fmt: on
+    def test_generate_select_expression_for_TimestampMonth_spark2(
+            self, input_value, value, spark_session, spark_context):
+        source_key, name = "day_of_birth", "birthday"
+        input_df = get_input_df(spark_session, spark_context, source_key, input_value)
+        input_df = input_df.withColumn(
+            source_key,
+            F.to_utc_timestamp(input_df["attributes"]["data"][source_key],
+                               "yyyy-MM-dd"))
+        result_column = custom_types._generate_select_expression_for_TimestampMonth(
+            source_column=input_df[source_key], name=name)
+        output_df = input_df.select(result_column)
+
+        assert output_df.schema.fieldNames() == [name], "Renaming of column"
+        assert output_df.schema[name].dataType.typeName(
+        ) == "timestamp", "Casting of column"
+        output_value = output_df.first()[name]
+        if output_value:
+            output_value = datetime.date.strftime(output_value,
+                                                  format("%Y-%m-%d"))
+        else:
+            output_value = None
+        assert output_value == value, "Processing of column value"
+
+    # fmt: off
+    @only_spark3
     @pytest.mark.parametrize(("input_value", "value"), [
         (None,         None),
         ("1955-09-41", None),
@@ -507,12 +626,10 @@ class TestAnonymizingMethods(object):
         input_df = get_input_df(spark_session, spark_context, source_key, input_value)
         input_df = input_df.withColumn(
             source_key,
-            F.to_utc_timestamp(input_df["attributes"]["data"][source_key],
-                               "yyyy-MM-dd"))
+            input_df["attributes"]["data"][source_key].cast(T.DateType()))
         result_column = custom_types._generate_select_expression_for_TimestampMonth(
             source_column=input_df[source_key], name=name)
         output_df = input_df.select(result_column)
-
         assert output_df.schema.fieldNames() == [name], "Renaming of column"
         assert output_df.schema[name].dataType.typeName(
         ) == "timestamp", "Casting of column"

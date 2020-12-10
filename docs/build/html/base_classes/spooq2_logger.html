@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Global Logger &mdash; Spooq2 2.2.0 documentation</title>
+  <title>Global Logger &mdash; Spooq2 3.0.0b documentation</title>
   
 
   
@@ -21,10 +21,10 @@
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
-        <script type="text/javascript" src="../_static/jquery.js"></script>
-        <script type="text/javascript" src="../_static/underscore.js"></script>
-        <script type="text/javascript" src="../_static/doctools.js"></script>
-        <script type="text/javascript" src="../_static/language_data.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/language_data.js"></script>
     
     <script type="text/javascript" src="../_static/js/theme.js"></script>
 
@@ -86,7 +86,9 @@
             
             
               <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../changelog.html">Changelog</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation / Deployment</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../setup_development_testing.html">Setup for Development, Testing, Documenting</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../examples.html">Examples</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../extractor/overview.html">Extractors</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../transformer/overview.html">Transformers</a></li>
@@ -99,7 +101,6 @@
 <li class="toctree-l2"><a class="reference internal" href="loader.html">Loader Base Class</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../setup_development_testing.html">Setup for Development, Testing, Documenting</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../architecture.html">Architecture Overview</a></li>
 </ul>
 
@@ -171,23 +172,22 @@
 <span id="global-logger"></span><h1>Global Logger<a class="headerlink" href="#module-spooq2.spooq2_logger" title="Permalink to this headline">¶</a></h1>
 <p>Global Logger instance used by Spooq2.</p>
 <p class="rubric">Example</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">logging</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">logging</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">logga</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s2">&quot;spooq2&quot;</span><span class="p">)</span>
 <span class="go">&lt;logging.Logger at 0x7f5dc8eb2890&gt;</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">logga</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Hello World&quot;</span><span class="p">)</span>
 <span class="go">[spooq2] 2020-03-21 23:55:48,253 INFO logging_example::&lt;module&gt;::4: Hello World</span>
 </pre></div>
 </div>
-<dl class="function">
+<dl class="py function">
 <dt id="spooq2.spooq2_logger.initialize">
-<code class="descname">initialize</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/spooq2/spooq2_logger.html#initialize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spooq2.spooq2_logger.initialize" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">initialize</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/spooq2/spooq2_logger.html#initialize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spooq2.spooq2_logger.initialize" title="Permalink to this definition">¶</a></dt>
 <dd><p>Initializes the global logger for Spooq with pre-defined levels for <code class="docutils literal notranslate"><span class="pre">stdout</span></code> and <code class="docutils literal notranslate"><span class="pre">stderr</span></code>.
 No input parameters are needed, as the configuration is received via <a class="reference internal" href="#spooq2.spooq2_logger.get_logging_level" title="spooq2.spooq2_logger.get_logging_level"><code class="xref py py-meth docutils literal notranslate"><span class="pre">get_logging_level()</span></code></a>.</p>
 <div class="admonition note">
-<p class="first admonition-title">Note</p>
-<dl class="last docutils">
-<dt>The output format is defined as:</dt>
-<dd><div class="first last line-block">
+<p class="admonition-title">Note</p>
+<dl>
+<dt>The output format is defined as:</dt><dd><div class="line-block">
 <div class="line">“[%(name)s] %(asctime)s %(levelname)s %(module)s::%(funcName)s::%(lineno)d: %(message)s”</div>
 <div class="line">For example “[spooq2] 2020-03-11 15:40:59,313 DEBUG newest_by_group::__init__::53: group by columns: [u’user_id’]”</div>
 </div>
@@ -195,38 +195,35 @@ No input parameters are needed, as the configuration is received via <a class="r
 </dl>
 </div>
 <div class="admonition warning">
-<p class="first admonition-title">Warning</p>
-<p class="last">The <code class="docutils literal notranslate"><span class="pre">root</span></code> logger of python is also affected as it has to have a level at least as
+<p class="admonition-title">Warning</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">root</span></code> logger of python is also affected as it has to have a level at least as
 fine grained as the logger of Spooq, to be able to produce an output.</p>
 </div>
 </dd></dl>
 
-<dl class="function">
+<dl class="py function">
 <dt id="spooq2.spooq2_logger.get_logging_level">
-<code class="descname">get_logging_level</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/spooq2/spooq2_logger.html#get_logging_level"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spooq2.spooq2_logger.get_logging_level" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_logging_level</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/spooq2/spooq2_logger.html#get_logging_level"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spooq2.spooq2_logger.get_logging_level" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the logging level depending on the environment variable <cite>SPOOQ_ENV</cite>.</p>
 <div class="admonition note">
-<p class="first admonition-title">Note</p>
-<dl class="last docutils">
-<dt>If SPOOQ_ENV is</dt>
-<dd><ul class="first last simple">
-<li><strong>dev</strong>        -&gt; “DEBUG”</li>
-<li><strong>test</strong>       -&gt; “ERROR”</li>
-<li>something else -&gt; “INFO”</li>
+<p class="admonition-title">Note</p>
+<dl class="simple">
+<dt>If SPOOQ_ENV is</dt><dd><ul class="simple">
+<li><p><strong>dev</strong>        -&gt; “DEBUG”</p></li>
+<li><p><strong>test</strong>       -&gt; “ERROR”</p></li>
+<li><p>something else -&gt; “INFO”</p></li>
 </ul>
 </dd>
 </dl>
 </div>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">Logging level</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/3.7/library/stdtypes.html#str" title="(in Python v3.7)"><code class="xref any docutils literal notranslate"><span class="pre">str</span></code></a></td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Logging level</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3.7/library/stdtypes.html#str" title="(in Python v3.7)"><code class="xref any docutils literal notranslate"><span class="pre">str</span></code></a></p>
+</dd>
+</dl>
 </dd></dl>
 
 </div>
