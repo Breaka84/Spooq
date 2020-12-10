@@ -19,6 +19,7 @@ Changelog
 * [MOD] add support for custom spark sql functions in mapper without injecting methods
 * [MOD] add support for "on"/"off" and "enabled"/"disabled" in extended_string_to_boolean custom mapper transformations
 * [ADD] new custom mapper transformations:
+
     - extended_string_to_date
     - extended_string_unix_timestamp_ms_to_date
     - has_value
@@ -29,6 +30,7 @@ Changelog
 * [MOD] additional test-cases for extended_string mappings (non string inputs)
 * [FIX] remove STDERR logging, don't touch root logging level anymore (needs to be done outside spooq to see some lower log levels)
 * [ADD] new custom mapper transformations:
+
     - extended_string_unix_timestamp_ms_to_timestamp
 
 2.1.0 (2020-08-17)
@@ -37,6 +39,7 @@ Changelog
 * [MOD] `ignore_missing_columns` flag to fail on missing input columns with Mapper transformer (https://github.com/Breaka84/Spooq/pull/6)
 * [MOD] timestamp support for threshold cleaner
 * [ADD] new custom mapper transformations:
+
     - meters_to_cm
     - unix_timestamp_ms_to_spark_timestamp
     - extended_string_to_int
