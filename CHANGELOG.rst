@@ -1,6 +1,18 @@
-=======
-History
-=======
+=========
+Changelog
+=========
+
+3.0.0b (2020-12-09)
+-------------------
+* [ADD] Spark 3 support (different handling in tests via `only_sparkX` decorators)
+* [FIX] fix null types in schema for custom transformations on missing columns
+* [MOD] (BREAKING CHANGE!) set default for `ignore_missing_columns` of Mapper to False (fails on missing input columns)
+
+2.3.0 (2020-11-23)
+------------------
+* [MOD] extended_string_to_timestamp: it can now handle unix timestamps in seconds and in milliseconds
+* [MOD] extended_string_to_date: it can now handle unix timestamps in seconds and in milliseconds
+
 2.2.0 (2020-10-02)
 ------------------
 * [MOD] add support for prepending and appending mappings on input dataframe (Mapper)

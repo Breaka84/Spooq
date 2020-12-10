@@ -85,7 +85,7 @@ class Mapper(Transformer):
     Attention: Decimal is NOT SUPPORTED by Hive! Please use Double instead!
     """
 
-    def __init__(self, mapping, ignore_missing_columns=True, mode="replace"):
+    def __init__(self, mapping, ignore_missing_columns=False, mode="replace"):
         super(Mapper, self).__init__()
         self.mapping = mapping
         self.ignore_missing_columns = ignore_missing_columns
@@ -104,11 +104,9 @@ class Mapper(Transformer):
                 "generating Select statement for attribute: {nm}".format(nm=name)
             )
 
-            source_column, source_column_is_missing = self._get_spark_column(source_column, name, input_df)
+            source_column = self._get_spark_column(source_column, name, input_df)
             data_type, data_type_is_spark_builtin = self._get_spark_data_type(data_type)
-            select_expression = self._get_select_expression(name, source_column, data_type,
-                                                            source_column_is_missing,
-                                                            data_type_is_spark_builtin)
+            select_expression = self._get_select_expression(name, source_column, data_type, data_type_is_spark_builtin)
 
             self.logger.debug("Select-Expression for Attribute {nm}: {sql_expr}"
                               .format(nm=name, sql_expr=str(select_expression)))
@@ -144,20 +142,18 @@ class Mapper(Transformer):
         """
         try:
             input_df.select(source_column)
-            source_column_is_missing = False
             if isinstance(source_column, str):
                 source_column = F.col(source_column)
 
         except AnalysisException as e:
             if isinstance(source_column, str) and self.ignore_missing_columns:
                 source_column = F.lit(None)
-                source_column_is_missing = True
             else:
                 self.logger.exception(
                     "Column: \"{}\" cannot be resolved ".format(str(source_column)) +
                     "but is referenced in the mapping by column: \"{}\".\n".format(name))
                 raise e
-        return source_column, source_column_is_missing
+        return source_column
 
     @staticmethod
     def _get_spark_data_type(data_type):
@@ -182,7 +178,7 @@ class Mapper(Transformer):
         return data_type, data_type_is_spark_builtin
 
     @staticmethod
-    def _get_select_expression(name, source_column, data_type, source_column_is_missing,
+    def _get_select_expression(name, source_column, data_type,
                                data_type_is_spark_builtin):
         """
         Returns a valid pyspark sql select-expression with cast and alias, depending on the input parameters.

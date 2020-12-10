@@ -38,7 +38,8 @@ class TestPipeline(object):
             ("university",         "attributes.university",    "StringType"),
             ("friends",            "attributes.friends",       "no_change"),
             ("friends_json",       "attributes.friends",       "json_string"),
-        ]
+        ],
+            "ignore_missing_columns": True
         }
         # fmt: on
 

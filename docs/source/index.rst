@@ -16,6 +16,7 @@ Table of Content
     :maxdepth: 3
     :name: contents
 
+    changelog
     installation
     examples
     extractor/overview
