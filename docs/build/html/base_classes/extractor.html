@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Extractor Base Class &mdash; Spooq2 2.2.0 documentation</title>
+  <title>Extractor Base Class &mdash; Spooq2 3.0.0b documentation</title>
   
 
   
@@ -21,10 +21,10 @@
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
-        <script type="text/javascript" src="../_static/jquery.js"></script>
-        <script type="text/javascript" src="../_static/underscore.js"></script>
-        <script type="text/javascript" src="../_static/doctools.js"></script>
-        <script type="text/javascript" src="../_static/language_data.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/language_data.js"></script>
     
     <script type="text/javascript" src="../_static/js/theme.js"></script>
 
@@ -86,7 +86,9 @@
             
             
               <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../changelog.html">Changelog</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation / Deployment</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../setup_development_testing.html">Setup for Development, Testing, Documenting</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../examples.html">Examples</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../extractor/overview.html">Extractors</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../transformer/overview.html">Transformers</a></li>
@@ -108,7 +110,6 @@
 <li class="toctree-l2"><a class="reference internal" href="loader.html">Loader Base Class</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../setup_development_testing.html">Setup for Development, Testing, Documenting</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../architecture.html">Architecture Overview</a></li>
 </ul>
 
@@ -176,67 +177,11 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="module-spooq2.extractor.extractor">
-<span id="extractor-base-class"></span><h1>Extractor Base Class<a class="headerlink" href="#module-spooq2.extractor.extractor" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="extractor-base-class">
+<h1>Extractor Base Class<a class="headerlink" href="#extractor-base-class" title="Permalink to this headline">¶</a></h1>
 <p>Extractors are used to fetch, extract and convert a source data set into a PySpark DataFrame.
 Exemplary extraction sources are <strong>JSON Files</strong> on file systems like HDFS, DBFS or EXT4
 and relational database systems via <strong>JDBC</strong>.</p>
-<dl class="class">
-<dt id="spooq2.extractor.extractor.Extractor">
-<em class="property">class </em><code class="descname">Extractor</code><a class="reference internal" href="../_modules/spooq2/extractor/extractor.html#Extractor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spooq2.extractor.extractor.Extractor" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3.7/library/functions.html#object" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
-<p>Base Class of Extractor Classes.</p>
-<dl class="attribute">
-<dt id="spooq2.extractor.extractor.Extractor.name">
-<code class="descname">name</code><a class="headerlink" href="#spooq2.extractor.extractor.Extractor.name" title="Permalink to this definition">¶</a></dt>
-<dd><p>Sets the <cite>__name__</cite> of the class’ type as <cite>name</cite>, which is essentially the Class’ Name.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/3.7/library/stdtypes.html#str" title="(in Python v3.7)"><code class="xref any docutils literal notranslate"><span class="pre">str</span></code></a></td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="spooq2.extractor.extractor.Extractor.logger">
-<code class="descname">logger</code><a class="headerlink" href="#spooq2.extractor.extractor.Extractor.logger" title="Permalink to this definition">¶</a></dt>
-<dd><p>Shared, class level logger for all instances.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/3.7/library/logging.html#logging.Logger" title="(in Python v3.7)"><code class="xref any docutils literal notranslate"><span class="pre">logging.Logger</span></code></a></td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
-<dt id="spooq2.extractor.extractor.Extractor.extract">
-<code class="descname">extract</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/spooq2/extractor/extractor.html#Extractor.extract"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spooq2.extractor.extractor.Extractor.extract" title="Permalink to this definition">¶</a></dt>
-<dd><p>Extracts Data from a Source and converts it into a PySpark DataFrame.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"></td>
-</tr>
-<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference external" href="https://spark.apache.org/docs/2.4.3/api/python/pyspark.sql.html#pyspark.sql.DataFrame" title="(in PySpark vmaster)"><code class="xref py py-class docutils literal notranslate"><span class="pre">pyspark.sql.DataFrame</span></code></a></td>
-</tr>
-</tbody>
-</table>
-<div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p class="last">This method does not take ANY input parameters. All needed parameters are defined
-in the initialization of the Extractor Object.</p>
-</div>
-</dd></dl>
-
-</dd></dl>
-
 <div class="section" id="create-your-own-extractor">
 <span id="custom-extractor"></span><h2>Create your own Extractor<a class="headerlink" href="#create-your-own-extractor" title="Permalink to this headline">¶</a></h2>
 <p>Let your extractor class inherit from the extractor base class.

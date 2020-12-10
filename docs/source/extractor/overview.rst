@@ -2,7 +2,7 @@ Extractors
 ==========
 
 .. automodule:: spooq2.extractor.extractor
-    :no-members:
+    :members:
 
 .. toctree::
 

@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>JDBC Source &mdash; Spooq2 2.2.0 documentation</title>
+  <title>JDBC Source &mdash; Spooq2 3.0.0b documentation</title>
   
 
   
@@ -21,10 +21,10 @@
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
-        <script type="text/javascript" src="../_static/jquery.js"></script>
-        <script type="text/javascript" src="../_static/underscore.js"></script>
-        <script type="text/javascript" src="../_static/doctools.js"></script>
-        <script type="text/javascript" src="../_static/language_data.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/language_data.js"></script>
     
     <script type="text/javascript" src="../_static/js/theme.js"></script>
 
@@ -86,7 +86,9 @@
             
             
               <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../changelog.html">Changelog</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation / Deployment</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../setup_development_testing.html">Setup for Development, Testing, Documenting</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../examples.html">Examples</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="overview.html">Extractors</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="json.html">JSON Files</a></li>
@@ -99,7 +101,6 @@
 <li class="toctree-l1"><a class="reference internal" href="../loader/overview.html">Loaders</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../pipeline/overview.html">Pipeline</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../base_classes/overview.html">Spooq Base</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../setup_development_testing.html">Setup for Development, Testing, Documenting</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../architecture.html">Architecture Overview</a></li>
 </ul>
 
@@ -169,19 +170,17 @@
             
   <div class="section" id="module-spooq2.extractor.jdbc">
 <span id="jdbc-source"></span><h1>JDBC Source<a class="headerlink" href="#module-spooq2.extractor.jdbc" title="Permalink to this headline">¶</a></h1>
-<dl class="class">
+<dl class="py class">
 <dt id="spooq2.extractor.jdbc.JDBCExtractor">
-<em class="property">class </em><code class="descname">JDBCExtractor</code><span class="sig-paren">(</span><em>jdbc_options</em>, <em>cache=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/spooq2/extractor/jdbc.html#JDBCExtractor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spooq2.extractor.jdbc.JDBCExtractor" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="../base_classes/extractor.html#spooq2.extractor.extractor.Extractor" title="spooq2.extractor.extractor.Extractor"><code class="xref py py-class docutils literal notranslate"><span class="pre">spooq2.extractor.extractor.Extractor</span></code></a></p>
-</dd></dl>
+<em class="property">class </em><code class="sig-name descname">JDBCExtractor</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">jdbc_options</span></em>, <em class="sig-param"><span class="n">cache</span><span class="o">=</span><span class="default_value">True</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/spooq2/extractor/jdbc.html#JDBCExtractor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spooq2.extractor.jdbc.JDBCExtractor" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
-<dl class="class">
+<dl class="py class">
 <dt id="spooq2.extractor.jdbc.JDBCExtractorFullLoad">
-<em class="property">class </em><code class="descname">JDBCExtractorFullLoad</code><span class="sig-paren">(</span><em>query</em>, <em>jdbc_options</em>, <em>cache=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/spooq2/extractor/jdbc.html#JDBCExtractorFullLoad"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spooq2.extractor.jdbc.JDBCExtractorFullLoad" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#spooq2.extractor.jdbc.JDBCExtractor" title="spooq2.extractor.jdbc.JDBCExtractor"><code class="xref py py-class docutils literal notranslate"><span class="pre">spooq2.extractor.jdbc.JDBCExtractor</span></code></a></p>
-<p>Connects to a JDBC Source and fetches the data defined by the provided Query.</p>
+<em class="property">class </em><code class="sig-name descname">JDBCExtractorFullLoad</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">query</span></em>, <em class="sig-param"><span class="n">jdbc_options</span></em>, <em class="sig-param"><span class="n">cache</span><span class="o">=</span><span class="default_value">True</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/spooq2/extractor/jdbc.html#JDBCExtractorFullLoad"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spooq2.extractor.jdbc.JDBCExtractorFullLoad" title="Permalink to this definition">¶</a></dt>
+<dd><p>Connects to a JDBC Source and fetches the data defined by the provided Query.</p>
 <p class="rubric">Examples</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">spooq2.extractor</span> <span class="k">as</span> <span class="nn">E</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">spooq2.extractor</span> <span class="k">as</span> <span class="nn">E</span>
 <span class="go">&gt;&gt;&gt;</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">extractor</span> <span class="o">=</span> <span class="n">E</span><span class="o">.</span><span class="n">JDBCExtractorFullLoad</span><span class="p">(</span>
 <span class="gp">&gt;&gt;&gt; </span>    <span class="n">query</span><span class="o">=</span><span class="s2">&quot;select id, first_name, last_name, gender, created_at test_db.from users&quot;</span><span class="p">,</span>
@@ -198,65 +197,57 @@
 <span class="go">pyspark.sql.dataframe.DataFrame</span>
 </pre></div>
 </div>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>query</strong> (<a class="reference external" href="https://docs.python.org/3.7/library/stdtypes.html#str" title="(in Python v3.7)"><code class="xref any docutils literal notranslate"><span class="pre">str</span></code></a>) – Defines the actual query sent to the JDBC Source. This has to be a valid SQL query
-with respect to the source system (e.g., T-SQL for Microsoft SQL Server).</li>
-<li><strong>jdbc_options</strong> (<a class="reference external" href="https://docs.python.org/3.7/library/stdtypes.html#dict" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a>, optional) – <dl class="docutils">
-<dt>A set of parameters to configure the connection to the source:</dt>
-<dd><ul class="first last">
-<li><strong>url</strong> (<a class="reference external" href="https://docs.python.org/3.7/library/stdtypes.html#str" title="(in Python v3.7)"><code class="xref any docutils literal notranslate"><span class="pre">str</span></code></a>) - A JDBC URL of the form <a class="reference external" href="jdbc:subprotocol:subname">jdbc:subprotocol:subname</a>.
-e.g., <a class="reference external" href="jdbc:postgresql://localhost:5432/dbname">jdbc:postgresql://localhost:5432/dbname</a></li>
-<li><strong>driver</strong> (<a class="reference external" href="https://docs.python.org/3.7/library/stdtypes.html#str" title="(in Python v3.7)"><code class="xref any docutils literal notranslate"><span class="pre">str</span></code></a>) - The class name of the JDBC driver to use to connect to this URL.</li>
-<li><strong>user</strong> (<a class="reference external" href="https://docs.python.org/3.7/library/stdtypes.html#str" title="(in Python v3.7)"><code class="xref any docutils literal notranslate"><span class="pre">str</span></code></a>) - Username to authenticate with the source database.</li>
-<li><strong>password</strong> (<a class="reference external" href="https://docs.python.org/3.7/library/stdtypes.html#str" title="(in Python v3.7)"><code class="xref any docutils literal notranslate"><span class="pre">str</span></code></a>) - Password to authenticate with the source database.</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>query</strong> (<a class="reference external" href="https://docs.python.org/3.7/library/stdtypes.html#str" title="(in Python v3.7)"><code class="xref any docutils literal notranslate"><span class="pre">str</span></code></a>) – Defines the actual query sent to the JDBC Source. This has to be a valid SQL query
+with respect to the source system (e.g., T-SQL for Microsoft SQL Server).</p></li>
+<li><p><strong>jdbc_options</strong> (<a class="reference external" href="https://docs.python.org/3.7/library/stdtypes.html#dict" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a>, optional) – <dl class="simple">
+<dt>A set of parameters to configure the connection to the source:</dt><dd><ul>
+<li><p><strong>url</strong> (<a class="reference external" href="https://docs.python.org/3.7/library/stdtypes.html#str" title="(in Python v3.7)"><code class="xref any docutils literal notranslate"><span class="pre">str</span></code></a>) - A JDBC URL of the form <a class="reference external" href="jdbc:subprotocol:subname">jdbc:subprotocol:subname</a>.
+e.g., <a class="reference external" href="jdbc:postgresql://localhost:5432/dbname">jdbc:postgresql://localhost:5432/dbname</a></p></li>
+<li><p><strong>driver</strong> (<a class="reference external" href="https://docs.python.org/3.7/library/stdtypes.html#str" title="(in Python v3.7)"><code class="xref any docutils literal notranslate"><span class="pre">str</span></code></a>) - The class name of the JDBC driver to use to connect to this URL.</p></li>
+<li><p><strong>user</strong> (<a class="reference external" href="https://docs.python.org/3.7/library/stdtypes.html#str" title="(in Python v3.7)"><code class="xref any docutils literal notranslate"><span class="pre">str</span></code></a>) - Username to authenticate with the source database.</p></li>
+<li><p><strong>password</strong> (<a class="reference external" href="https://docs.python.org/3.7/library/stdtypes.html#str" title="(in Python v3.7)"><code class="xref any docutils literal notranslate"><span class="pre">str</span></code></a>) - Password to authenticate with the source database.</p></li>
 </ul>
 </dd>
 </dl>
-<p>See <a class="reference external" href="https://spark.apache.org/docs/2.4.3/api/python/pyspark.sql.html#pyspark.sql.DataFrameReader.jdbc" title="(in PySpark vmaster)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">pyspark.sql.DataFrameReader.jdbc()</span></code></a> and
+<p>See <a class="reference external" href="https://spark.apache.org/docs/3.0.1/api/python/pyspark.sql.html#pyspark.sql.DataFrameReader.jdbc" title="(in PySpark vmaster)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">pyspark.sql.DataFrameReader.jdbc()</span></code></a> and
 <a class="reference external" href="https://spark.apache.org/docs/2.4.3/sql-data-sources-jdbc.html">https://spark.apache.org/docs/2.4.3/sql-data-sources-jdbc.html</a> for more information.</p>
-</li>
-<li><strong>cache</strong> (<a class="reference external" href="https://docs.python.org/3.7/library/functions.html#bool" title="(in Python v3.7)"><code class="xref any docutils literal notranslate"><span class="pre">bool</span></code></a>, defaults to <a class="reference external" href="https://docs.python.org/3.7/library/constants.html#True" title="(in Python v3.7)"><code class="xref any docutils literal notranslate"><span class="pre">True</span></code></a>) – Defines, weather to <a class="reference external" href="https://spark.apache.org/docs/2.4.3/api/python/pyspark.sql.html#pyspark.sql.DataFrame.cache" title="(in PySpark vmaster)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">cache()</span></code></a> the dataframe, after it is loaded.
+</p></li>
+<li><p><strong>cache</strong> (<a class="reference external" href="https://docs.python.org/3.7/library/functions.html#bool" title="(in Python v3.7)"><code class="xref any docutils literal notranslate"><span class="pre">bool</span></code></a>, defaults to <a class="reference external" href="https://docs.python.org/3.7/library/constants.html#True" title="(in Python v3.7)"><code class="xref any docutils literal notranslate"><span class="pre">True</span></code></a>) – Defines, weather to <a class="reference external" href="https://spark.apache.org/docs/3.0.1/api/python/pyspark.sql.html#pyspark.sql.DataFrame.cache" title="(in PySpark vmaster)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">cache()</span></code></a> the dataframe, after it is loaded.
 Otherwise the Extractor will reload all data from the source system eachtime an action is
-performed on the DataFrame.</li>
+performed on the DataFrame.</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><p class="first last"><code class="xref any docutils literal notranslate"><span class="pre">exceptions.AssertionError</span></code>: – All jdbc_options values need to be present as string variables.</p>
-</td>
-</tr>
-</tbody>
-</table>
-<dl class="method">
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><strong>exceptions.AssertionError</strong> – All jdbc_options values need to be present as string variables.</p>
+</dd>
+</dl>
+<dl class="py method">
 <dt id="spooq2.extractor.jdbc.JDBCExtractorFullLoad.extract">
-<code class="descname">extract</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/spooq2/extractor/jdbc.html#JDBCExtractorFullLoad.extract"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spooq2.extractor.jdbc.JDBCExtractorFullLoad.extract" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">extract</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/spooq2/extractor/jdbc.html#JDBCExtractorFullLoad.extract"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spooq2.extractor.jdbc.JDBCExtractorFullLoad.extract" title="Permalink to this definition">¶</a></dt>
 <dd><p>This is the Public API Method to be called for all classes of Extractors</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">PySpark dataframe from the input JDBC connection.</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference external" href="https://spark.apache.org/docs/2.4.3/api/python/pyspark.sql.html#pyspark.sql.DataFrame" title="(in PySpark vmaster)"><code class="xref py py-class docutils literal notranslate"><span class="pre">pyspark.sql.DataFrame</span></code></a></td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>PySpark dataframe from the input JDBC connection.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference external" href="https://spark.apache.org/docs/3.0.1/api/python/pyspark.sql.html#pyspark.sql.DataFrame" title="(in PySpark vmaster)"><code class="xref py py-class docutils literal notranslate"><span class="pre">pyspark.sql.DataFrame</span></code></a></p>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>
 
-<dl class="class">
+<dl class="py class">
 <dt id="spooq2.extractor.jdbc.JDBCExtractorIncremental">
-<em class="property">class </em><code class="descname">JDBCExtractorIncremental</code><span class="sig-paren">(</span><em>partition</em>, <em>jdbc_options</em>, <em>source_table</em>, <em>spooq2_values_table</em>, <em>spooq2_values_db='spooq2_values'</em>, <em>spooq2_values_partition_column='updated_at'</em>, <em>cache=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/spooq2/extractor/jdbc.html#JDBCExtractorIncremental"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spooq2.extractor.jdbc.JDBCExtractorIncremental" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#spooq2.extractor.jdbc.JDBCExtractor" title="spooq2.extractor.jdbc.JDBCExtractor"><code class="xref py py-class docutils literal notranslate"><span class="pre">spooq2.extractor.jdbc.JDBCExtractor</span></code></a></p>
-<p>Connects to a JDBC Source and fetches the data with respect to boundaries.
+<em class="property">class </em><code class="sig-name descname">JDBCExtractorIncremental</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">partition</span></em>, <em class="sig-param"><span class="n">jdbc_options</span></em>, <em class="sig-param"><span class="n">source_table</span></em>, <em class="sig-param"><span class="n">spooq2_values_table</span></em>, <em class="sig-param"><span class="n">spooq2_values_db</span><span class="o">=</span><span class="default_value">'spooq2_values'</span></em>, <em class="sig-param"><span class="n">spooq2_values_partition_column</span><span class="o">=</span><span class="default_value">'updated_at'</span></em>, <em class="sig-param"><span class="n">cache</span><span class="o">=</span><span class="default_value">True</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/spooq2/extractor/jdbc.html#JDBCExtractorIncremental"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spooq2.extractor.jdbc.JDBCExtractorIncremental" title="Permalink to this definition">¶</a></dt>
+<dd><p>Connects to a JDBC Source and fetches the data with respect to boundaries.
 The boundaries are inferred from the partition to load and logs from previous loads
 stored in the <code class="docutils literal notranslate"><span class="pre">spooq2_values_table</span></code>.</p>
 <p class="rubric">Examples</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">spooq2.extractor</span> <span class="k">as</span> <span class="nn">E</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">spooq2.extractor</span> <span class="k">as</span> <span class="nn">E</span>
 <span class="go">&gt;&gt;&gt;</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="c1"># Boundaries derived from previously logged extractions =&gt; (&quot;2020-01-31 03:29:59&quot;, False)</span>
 <span class="go">&gt;&gt;&gt;</span>
@@ -280,63 +271,56 @@ stored in the <code class="docutils literal notranslate"><span class="pre">spooq
 <span class="go">pyspark.sql.dataframe.DataFrame</span>
 </pre></div>
 </div>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>partition</strong> (<a class="reference external" href="https://docs.python.org/3.7/library/functions.html#int" title="(in Python v3.7)"><code class="xref any docutils literal notranslate"><span class="pre">int</span></code></a> or <a class="reference external" href="https://docs.python.org/3.7/library/stdtypes.html#str" title="(in Python v3.7)"><code class="xref any docutils literal notranslate"><span class="pre">str</span></code></a>) – Partition to extract. Needed for logging the incremental load in
-the <code class="docutils literal notranslate"><span class="pre">spooq2_values_table</span></code>.</li>
-<li><strong>jdbc_options</strong> (<a class="reference external" href="https://docs.python.org/3.7/library/stdtypes.html#dict" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a>, optional) – <dl class="docutils">
-<dt>A set of parameters to configure the connection to the source:</dt>
-<dd><ul class="first last">
-<li><strong>url</strong> (<a class="reference external" href="https://docs.python.org/3.7/library/stdtypes.html#str" title="(in Python v3.7)"><code class="xref any docutils literal notranslate"><span class="pre">str</span></code></a>) - A JDBC URL of the form <a class="reference external" href="jdbc:subprotocol:subname">jdbc:subprotocol:subname</a>.
-e.g., <a class="reference external" href="jdbc:postgresql://localhost:5432/dbname">jdbc:postgresql://localhost:5432/dbname</a></li>
-<li><strong>driver</strong> (<a class="reference external" href="https://docs.python.org/3.7/library/stdtypes.html#str" title="(in Python v3.7)"><code class="xref any docutils literal notranslate"><span class="pre">str</span></code></a>) - The class name of the JDBC driver to use to connect to this URL.</li>
-<li><strong>user</strong> (<a class="reference external" href="https://docs.python.org/3.7/library/stdtypes.html#str" title="(in Python v3.7)"><code class="xref any docutils literal notranslate"><span class="pre">str</span></code></a>) - Username to authenticate with the source database.</li>
-<li><strong>password</strong> (<a class="reference external" href="https://docs.python.org/3.7/library/stdtypes.html#str" title="(in Python v3.7)"><code class="xref any docutils literal notranslate"><span class="pre">str</span></code></a>) - Password to authenticate with the source database.</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>partition</strong> (<a class="reference external" href="https://docs.python.org/3.7/library/functions.html#int" title="(in Python v3.7)"><code class="xref any docutils literal notranslate"><span class="pre">int</span></code></a> or <a class="reference external" href="https://docs.python.org/3.7/library/stdtypes.html#str" title="(in Python v3.7)"><code class="xref any docutils literal notranslate"><span class="pre">str</span></code></a>) – Partition to extract. Needed for logging the incremental load in
+the <code class="docutils literal notranslate"><span class="pre">spooq2_values_table</span></code>.</p></li>
+<li><p><strong>jdbc_options</strong> (<a class="reference external" href="https://docs.python.org/3.7/library/stdtypes.html#dict" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a>, optional) – <dl class="simple">
+<dt>A set of parameters to configure the connection to the source:</dt><dd><ul>
+<li><p><strong>url</strong> (<a class="reference external" href="https://docs.python.org/3.7/library/stdtypes.html#str" title="(in Python v3.7)"><code class="xref any docutils literal notranslate"><span class="pre">str</span></code></a>) - A JDBC URL of the form <a class="reference external" href="jdbc:subprotocol:subname">jdbc:subprotocol:subname</a>.
+e.g., <a class="reference external" href="jdbc:postgresql://localhost:5432/dbname">jdbc:postgresql://localhost:5432/dbname</a></p></li>
+<li><p><strong>driver</strong> (<a class="reference external" href="https://docs.python.org/3.7/library/stdtypes.html#str" title="(in Python v3.7)"><code class="xref any docutils literal notranslate"><span class="pre">str</span></code></a>) - The class name of the JDBC driver to use to connect to this URL.</p></li>
+<li><p><strong>user</strong> (<a class="reference external" href="https://docs.python.org/3.7/library/stdtypes.html#str" title="(in Python v3.7)"><code class="xref any docutils literal notranslate"><span class="pre">str</span></code></a>) - Username to authenticate with the source database.</p></li>
+<li><p><strong>password</strong> (<a class="reference external" href="https://docs.python.org/3.7/library/stdtypes.html#str" title="(in Python v3.7)"><code class="xref any docutils literal notranslate"><span class="pre">str</span></code></a>) - Password to authenticate with the source database.</p></li>
 </ul>
 </dd>
 </dl>
-<p>See <a class="reference external" href="https://spark.apache.org/docs/2.4.3/api/python/pyspark.sql.html#pyspark.sql.DataFrameReader.jdbc" title="(in PySpark vmaster)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">pyspark.sql.DataFrameReader.jdbc()</span></code></a> and
+<p>See <a class="reference external" href="https://spark.apache.org/docs/3.0.1/api/python/pyspark.sql.html#pyspark.sql.DataFrameReader.jdbc" title="(in PySpark vmaster)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">pyspark.sql.DataFrameReader.jdbc()</span></code></a> and
 <a class="reference external" href="https://spark.apache.org/docs/2.4.3/sql-data-sources-jdbc.html">https://spark.apache.org/docs/2.4.3/sql-data-sources-jdbc.html</a> for more information.</p>
-</li>
-<li><strong>source_table</strong> (<a class="reference external" href="https://docs.python.org/3.7/library/stdtypes.html#str" title="(in Python v3.7)"><code class="xref any docutils literal notranslate"><span class="pre">str</span></code></a>) – Defines the tablename of the source to be loaded from. For example ‘purchases’.
-This is necessary to build the query.</li>
-<li><strong>spooq2_values_table</strong> (<a class="reference external" href="https://docs.python.org/3.7/library/stdtypes.html#str" title="(in Python v3.7)"><code class="xref any docutils literal notranslate"><span class="pre">str</span></code></a>) – Defines the Hive table where previous and future loads of a specific source table
-are logged. This is necessary to derive boundaries for the current partition.</li>
-<li><strong>spooq2_values_db</strong> (<a class="reference external" href="https://docs.python.org/3.7/library/stdtypes.html#str" title="(in Python v3.7)"><code class="xref any docutils literal notranslate"><span class="pre">str</span></code></a>, optional) – Defines the Database where the <code class="docutils literal notranslate"><span class="pre">spooq2_values_table</span></code> is stored.
-Defaults to <cite>‘spooq2_values’</cite>.</li>
-<li><strong>spooq2_values_partition_column</strong> (<a class="reference external" href="https://docs.python.org/3.7/library/stdtypes.html#str" title="(in Python v3.7)"><code class="xref any docutils literal notranslate"><span class="pre">str</span></code></a>, optional) – The column name which is used for the boundaries.
-Defaults to <cite>‘updated_at’</cite>.</li>
-<li><strong>cache</strong> (<a class="reference external" href="https://docs.python.org/3.7/library/functions.html#bool" title="(in Python v3.7)"><code class="xref any docutils literal notranslate"><span class="pre">bool</span></code></a>, defaults to <a class="reference external" href="https://docs.python.org/3.7/library/constants.html#True" title="(in Python v3.7)"><code class="xref any docutils literal notranslate"><span class="pre">True</span></code></a>) – Defines, weather to <a class="reference external" href="https://spark.apache.org/docs/2.4.3/api/python/pyspark.sql.html#pyspark.sql.DataFrame.cache" title="(in PySpark vmaster)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">cache()</span></code></a> the dataframe, after it is loaded. Otherwise the Extractor
+</p></li>
+<li><p><strong>source_table</strong> (<a class="reference external" href="https://docs.python.org/3.7/library/stdtypes.html#str" title="(in Python v3.7)"><code class="xref any docutils literal notranslate"><span class="pre">str</span></code></a>) – Defines the tablename of the source to be loaded from. For example ‘purchases’.
+This is necessary to build the query.</p></li>
+<li><p><strong>spooq2_values_table</strong> (<a class="reference external" href="https://docs.python.org/3.7/library/stdtypes.html#str" title="(in Python v3.7)"><code class="xref any docutils literal notranslate"><span class="pre">str</span></code></a>) – Defines the Hive table where previous and future loads of a specific source table
+are logged. This is necessary to derive boundaries for the current partition.</p></li>
+<li><p><strong>spooq2_values_db</strong> (<a class="reference external" href="https://docs.python.org/3.7/library/stdtypes.html#str" title="(in Python v3.7)"><code class="xref any docutils literal notranslate"><span class="pre">str</span></code></a>, optional) – Defines the Database where the <code class="docutils literal notranslate"><span class="pre">spooq2_values_table</span></code> is stored.
+Defaults to <cite>‘spooq2_values’</cite>.</p></li>
+<li><p><strong>spooq2_values_partition_column</strong> (<a class="reference external" href="https://docs.python.org/3.7/library/stdtypes.html#str" title="(in Python v3.7)"><code class="xref any docutils literal notranslate"><span class="pre">str</span></code></a>, optional) – The column name which is used for the boundaries.
+Defaults to <cite>‘updated_at’</cite>.</p></li>
+<li><p><strong>cache</strong> (<a class="reference external" href="https://docs.python.org/3.7/library/functions.html#bool" title="(in Python v3.7)"><code class="xref any docutils literal notranslate"><span class="pre">bool</span></code></a>, defaults to <a class="reference external" href="https://docs.python.org/3.7/library/constants.html#True" title="(in Python v3.7)"><code class="xref any docutils literal notranslate"><span class="pre">True</span></code></a>) – Defines, weather to <a class="reference external" href="https://spark.apache.org/docs/3.0.1/api/python/pyspark.sql.html#pyspark.sql.DataFrame.cache" title="(in PySpark vmaster)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">cache()</span></code></a> the dataframe, after it is loaded. Otherwise the Extractor
 will reload all data from the source system again, if a second action upon the dataframe
-is performed.</li>
+is performed.</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><p class="first last"><code class="xref any docutils literal notranslate"><span class="pre">exceptions.AssertionError</span></code>: – All jdbc_options values need to be present as string variables.</p>
-</td>
-</tr>
-</tbody>
-</table>
-<dl class="method">
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><strong>exceptions.AssertionError</strong> – All jdbc_options values need to be present as string variables.</p>
+</dd>
+</dl>
+<dl class="py method">
 <dt id="spooq2.extractor.jdbc.JDBCExtractorIncremental.extract">
-<code class="descname">extract</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/spooq2/extractor/jdbc.html#JDBCExtractorIncremental.extract"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spooq2.extractor.jdbc.JDBCExtractorIncremental.extract" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">extract</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/spooq2/extractor/jdbc.html#JDBCExtractorIncremental.extract"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spooq2.extractor.jdbc.JDBCExtractorIncremental.extract" title="Permalink to this definition">¶</a></dt>
 <dd><p>Extracts Data from a Source and converts it into a PySpark DataFrame.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"></td>
-</tr>
-<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference external" href="https://spark.apache.org/docs/2.4.3/api/python/pyspark.sql.html#pyspark.sql.DataFrame" title="(in PySpark vmaster)"><code class="xref py py-class docutils literal notranslate"><span class="pre">pyspark.sql.DataFrame</span></code></a></td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p></p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference external" href="https://spark.apache.org/docs/3.0.1/api/python/pyspark.sql.html#pyspark.sql.DataFrame" title="(in PySpark vmaster)"><code class="xref py py-class docutils literal notranslate"><span class="pre">pyspark.sql.DataFrame</span></code></a></p>
+</dd>
+</dl>
 <div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p class="last">This method does not take ANY input parameters. All needed parameters are defined
+<p class="admonition-title">Note</p>
+<p>This method does not take ANY input parameters. All needed parameters are defined
 in the initialization of the Extractor Object.</p>
 </div>
 </dd></dl>

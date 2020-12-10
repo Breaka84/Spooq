@@ -18,13 +18,13 @@ Table of Content
 
     changelog
     installation
+    setup_development_testing
     examples
     extractor/overview
     transformer/overview
     loader/overview
     pipeline/overview
     base_classes/overview
-    setup_development_testing
     architecture
 
 Indices and tables

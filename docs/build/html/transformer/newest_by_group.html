@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Newest by Group (Most current record per ID) &mdash; Spooq2 2.2.0 documentation</title>
+  <title>Newest by Group (Most current record per ID) &mdash; Spooq2 3.0.0b documentation</title>
   
 
   
@@ -21,10 +21,10 @@
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
-        <script type="text/javascript" src="../_static/jquery.js"></script>
-        <script type="text/javascript" src="../_static/underscore.js"></script>
-        <script type="text/javascript" src="../_static/doctools.js"></script>
-        <script type="text/javascript" src="../_static/language_data.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/language_data.js"></script>
     
     <script type="text/javascript" src="../_static/js/theme.js"></script>
 
@@ -86,15 +86,15 @@
             
             
               <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../changelog.html">Changelog</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation / Deployment</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../setup_development_testing.html">Setup for Development, Testing, Documenting</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../examples.html">Examples</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../extractor/overview.html">Extractors</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="overview.html">Transformers</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="exploder.html">Exploder</a></li>
 <li class="toctree-l2"><a class="reference internal" href="sieve.html">Sieve (Filter)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="mapper.html">Mapper</a></li>
-<li class="toctree-l2"><a class="reference internal" href="mapper.html#a">a</a></li>
-<li class="toctree-l2"><a class="reference internal" href="mapper.html#b">b</a></li>
 <li class="toctree-l2"><a class="reference internal" href="threshold_cleaner.html">Threshold-based Cleaner</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">Newest by Group (Most current record per ID)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="overview.html#class-diagram-of-transformer-subpackage">Class Diagram of Transformer Subpackage</a></li>
@@ -104,7 +104,6 @@
 <li class="toctree-l1"><a class="reference internal" href="../loader/overview.html">Loaders</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../pipeline/overview.html">Pipeline</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../base_classes/overview.html">Spooq Base</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../setup_development_testing.html">Setup for Development, Testing, Documenting</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../architecture.html">Architecture Overview</a></li>
 </ul>
 
@@ -174,59 +173,53 @@
             
   <div class="section" id="module-spooq2.transformer.newest_by_group">
 <span id="newest-by-group-most-current-record-per-id"></span><h1>Newest by Group (Most current record per ID)<a class="headerlink" href="#module-spooq2.transformer.newest_by_group" title="Permalink to this headline">¶</a></h1>
-<dl class="class">
+<dl class="py class">
 <dt id="spooq2.transformer.newest_by_group.NewestByGroup">
-<em class="property">class </em><code class="descname">NewestByGroup</code><span class="sig-paren">(</span><em>group_by=['id'], order_by=['updated_at', 'deleted_at']</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/spooq2/transformer/newest_by_group.html#NewestByGroup"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spooq2.transformer.newest_by_group.NewestByGroup" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="../base_classes/transformer.html#spooq2.transformer.transformer.Transformer" title="spooq2.transformer.transformer.Transformer"><code class="xref py py-class docutils literal notranslate"><span class="pre">spooq2.transformer.transformer.Transformer</span></code></a></p>
-<p>Groups, orders and selects first element per group.</p>
+<em class="property">class </em><code class="sig-name descname">NewestByGroup</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">group_by</span><span class="o">=</span><span class="default_value">['id']</span></em>, <em class="sig-param"><span class="n">order_by</span><span class="o">=</span><span class="default_value">['updated_at', 'deleted_at']</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/spooq2/transformer/newest_by_group.html#NewestByGroup"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spooq2.transformer.newest_by_group.NewestByGroup" title="Permalink to this definition">¶</a></dt>
+<dd><p>Groups, orders and selects first element per group.</p>
 <p class="rubric">Example</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">transformer</span> <span class="o">=</span> <span class="n">NewestByGroup</span><span class="p">(</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">transformer</span> <span class="o">=</span> <span class="n">NewestByGroup</span><span class="p">(</span>
 <span class="gp">&gt;&gt;&gt; </span>    <span class="n">group_by</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;first_name&quot;</span><span class="p">,</span> <span class="s2">&quot;last_name&quot;</span><span class="p">],</span>
 <span class="gp">&gt;&gt;&gt; </span>    <span class="n">order_by</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;created_at_ms&quot;</span><span class="p">,</span> <span class="s2">&quot;version&quot;</span><span class="p">]</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="p">)</span>
 </pre></div>
 </div>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>group_by</strong> (<a class="reference external" href="https://docs.python.org/3.7/library/stdtypes.html#str" title="(in Python v3.7)"><code class="xref any docutils literal notranslate"><span class="pre">str</span></code></a> or <a class="reference external" href="https://docs.python.org/3.7/library/stdtypes.html#list" title="(in Python v3.7)"><code class="xref any docutils literal notranslate"><span class="pre">list</span></code></a> of <a class="reference external" href="https://docs.python.org/3.7/library/stdtypes.html#str" title="(in Python v3.7)"><code class="xref any docutils literal notranslate"><span class="pre">str</span></code></a>, (Defaults to [‘id’])) – List of attributes to be used within the Window Function as Grouping Arguments.</li>
-<li><strong>order_by</strong> (<a class="reference external" href="https://docs.python.org/3.7/library/stdtypes.html#str" title="(in Python v3.7)"><code class="xref any docutils literal notranslate"><span class="pre">str</span></code></a> or <a class="reference external" href="https://docs.python.org/3.7/library/stdtypes.html#list" title="(in Python v3.7)"><code class="xref any docutils literal notranslate"><span class="pre">list</span></code></a> of <a class="reference external" href="https://docs.python.org/3.7/library/stdtypes.html#str" title="(in Python v3.7)"><code class="xref any docutils literal notranslate"><span class="pre">str</span></code></a>, (Defaults to [‘updated_at’, ‘deleted_at’])) – List of attributes to be used within the Window Function as Ordering Arguments.
-All columns will be sorted in <strong>descending</strong> order.</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>group_by</strong> (<a class="reference external" href="https://docs.python.org/3.7/library/stdtypes.html#str" title="(in Python v3.7)"><code class="xref any docutils literal notranslate"><span class="pre">str</span></code></a> or <a class="reference external" href="https://docs.python.org/3.7/library/stdtypes.html#list" title="(in Python v3.7)"><code class="xref any docutils literal notranslate"><span class="pre">list</span></code></a> of <a class="reference external" href="https://docs.python.org/3.7/library/stdtypes.html#str" title="(in Python v3.7)"><code class="xref any docutils literal notranslate"><span class="pre">str</span></code></a>, (Defaults to [‘id’])) – List of attributes to be used within the Window Function as Grouping Arguments.</p></li>
+<li><p><strong>order_by</strong> (<a class="reference external" href="https://docs.python.org/3.7/library/stdtypes.html#str" title="(in Python v3.7)"><code class="xref any docutils literal notranslate"><span class="pre">str</span></code></a> or <a class="reference external" href="https://docs.python.org/3.7/library/stdtypes.html#list" title="(in Python v3.7)"><code class="xref any docutils literal notranslate"><span class="pre">list</span></code></a> of <a class="reference external" href="https://docs.python.org/3.7/library/stdtypes.html#str" title="(in Python v3.7)"><code class="xref any docutils literal notranslate"><span class="pre">str</span></code></a>, (Defaults to [‘updated_at’, ‘deleted_at’])) – List of attributes to be used within the Window Function as Ordering Arguments.
+All columns will be sorted in <strong>descending</strong> order.</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><p class="first last"><code class="xref any docutils literal notranslate"><span class="pre">exceptions.AttributeError</span></code> – If any Attribute in <code class="xref py py-data docutils literal notranslate"><span class="pre">group_by</span></code> or <code class="xref py py-data docutils literal notranslate"><span class="pre">order_by</span></code> is not contained in the
-input DataFrame.</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><strong>exceptions.AttributeError</strong> – If any Attribute in <code class="xref py py-data docutils literal notranslate"><span class="pre">group_by</span></code> or <code class="xref py py-data docutils literal notranslate"><span class="pre">order_by</span></code> is not contained in the
+    input DataFrame.</p>
+</dd>
+</dl>
 <div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p class="last">PySpark’s <a class="reference external" href="https://spark.apache.org/docs/2.4.3/api/python/pyspark.sql.html#pyspark.sql.Window" title="(in PySpark vmaster)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Window</span></code></a> function is used internally
+<p class="admonition-title">Note</p>
+<p>PySpark’s <a class="reference external" href="https://spark.apache.org/docs/3.0.1/api/python/pyspark.sql.html#pyspark.sql.Window" title="(in PySpark vmaster)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Window</span></code></a> function is used internally
 The first row (<code class="xref py py-meth docutils literal notranslate"><span class="pre">row_number()</span></code>) per window will be selected and returned.</p>
 </div>
-<dl class="method">
+<dl class="py method">
 <dt id="spooq2.transformer.newest_by_group.NewestByGroup.transform">
-<code class="descname">transform</code><span class="sig-paren">(</span><em>input_df</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/spooq2/transformer/newest_by_group.html#NewestByGroup.transform"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spooq2.transformer.newest_by_group.NewestByGroup.transform" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">transform</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">input_df</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/spooq2/transformer/newest_by_group.html#NewestByGroup.transform"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spooq2.transformer.newest_by_group.NewestByGroup.transform" title="Permalink to this definition">¶</a></dt>
 <dd><p>Performs a transformation on a DataFrame.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>input_df</strong> (<a class="reference external" href="https://spark.apache.org/docs/2.4.3/api/python/pyspark.sql.html#pyspark.sql.DataFrame" title="(in PySpark vmaster)"><code class="xref py py-class docutils literal notranslate"><span class="pre">pyspark.sql.DataFrame</span></code></a>) – Input DataFrame</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Transformed DataFrame.</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference external" href="https://spark.apache.org/docs/2.4.3/api/python/pyspark.sql.html#pyspark.sql.DataFrame" title="(in PySpark vmaster)"><code class="xref py py-class docutils literal notranslate"><span class="pre">pyspark.sql.DataFrame</span></code></a></td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>input_df</strong> (<a class="reference external" href="https://spark.apache.org/docs/3.0.1/api/python/pyspark.sql.html#pyspark.sql.DataFrame" title="(in PySpark vmaster)"><code class="xref py py-class docutils literal notranslate"><span class="pre">pyspark.sql.DataFrame</span></code></a>) – Input DataFrame</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Transformed DataFrame.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://spark.apache.org/docs/3.0.1/api/python/pyspark.sql.html#pyspark.sql.DataFrame" title="(in PySpark vmaster)"><code class="xref py py-class docutils literal notranslate"><span class="pre">pyspark.sql.DataFrame</span></code></a></p>
+</dd>
+</dl>
 <div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p class="last">This method does only take the Input DataFrame as a parameters. All other needed parameters
+<p class="admonition-title">Note</p>
+<p>This method does only take the Input DataFrame as a parameters. All other needed parameters
 are defined in the initialization of the Transformator Object.</p>
 </div>
 </dd></dl>

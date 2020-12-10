@@ -45,7 +45,7 @@ class JSONExtractor(Extractor):
 
     Raises
     ------
-    :any:`exceptions.AttributeError`
+    :any:`AttributeError`
         Please define either ``input_path`` or ``base_path`` and ``partition``
 
     Warning
@@ -65,7 +65,7 @@ class JSONExtractor(Extractor):
         and returns the combined string as the final ``input_path``
 
     Else:
-        Raises an :any:`exceptions.AttributeError`
+        Raises an :any:`AttributeError`
 
     """
 

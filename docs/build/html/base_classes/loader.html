@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Loader Base Class &mdash; Spooq2 2.2.0 documentation</title>
+  <title>Loader Base Class &mdash; Spooq2 3.0.0b documentation</title>
   
 
   
@@ -21,10 +21,10 @@
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
-        <script type="text/javascript" src="../_static/jquery.js"></script>
-        <script type="text/javascript" src="../_static/underscore.js"></script>
-        <script type="text/javascript" src="../_static/doctools.js"></script>
-        <script type="text/javascript" src="../_static/language_data.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/language_data.js"></script>
     
     <script type="text/javascript" src="../_static/js/theme.js"></script>
 
@@ -36,7 +36,7 @@
   <link rel="stylesheet" href="../_static/theme_overrides.css" type="text/css" />
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Setup for Development, Testing, Documenting" href="../setup_development_testing.html" />
+    <link rel="next" title="Architecture Overview" href="../architecture.html" />
     <link rel="prev" title="Transformer Base Class" href="transformer.html" /> 
 </head>
 
@@ -86,7 +86,9 @@
             
             
               <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../changelog.html">Changelog</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation / Deployment</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../setup_development_testing.html">Setup for Development, Testing, Documenting</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../examples.html">Examples</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../extractor/overview.html">Extractors</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../transformer/overview.html">Transformers</a></li>
@@ -108,7 +110,6 @@
 </li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../setup_development_testing.html">Setup for Development, Testing, Documenting</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../architecture.html">Architecture Overview</a></li>
 </ul>
 
@@ -176,66 +177,12 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="module-spooq2.loader.loader">
-<span id="loader-base-class"></span><h1>Loader Base Class<a class="headerlink" href="#module-spooq2.loader.loader" title="Permalink to this headline">¶</a></h1>
-<p>Loaders take a <a class="reference external" href="https://spark.apache.org/docs/2.4.3/api/python/pyspark.sql.html#pyspark.sql.DataFrame" title="(in PySpark vmaster)"><code class="xref py py-class docutils literal notranslate"><span class="pre">pyspark.sql.DataFrame</span></code></a> as an input and save it to a sink.</p>
+  <div class="section" id="loader-base-class">
+<h1>Loader Base Class<a class="headerlink" href="#loader-base-class" title="Permalink to this headline">¶</a></h1>
+<p>Loaders take a <a class="reference external" href="https://spark.apache.org/docs/3.0.1/api/python/pyspark.sql.html#pyspark.sql.DataFrame" title="(in PySpark vmaster)"><code class="xref py py-class docutils literal notranslate"><span class="pre">pyspark.sql.DataFrame</span></code></a> as an input and save it to a sink.</p>
 <p>Each Loader class has to have a <cite>load</cite> method which takes a DataFrame as single paremter.</p>
 <p>Possible Loader sinks can be <strong>Hive Tables</strong>, <strong>Kudu Tables</strong>, <strong>HBase Tables</strong>, <strong>JDBC
 Sinks</strong> or <strong>ParquetFiles</strong>.</p>
-<dl class="class">
-<dt id="spooq2.loader.loader.Loader">
-<em class="property">class </em><code class="descname">Loader</code><a class="reference internal" href="../_modules/spooq2/loader/loader.html#Loader"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spooq2.loader.loader.Loader" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3.7/library/functions.html#object" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
-<p>Base Class of Loader Objects.</p>
-<dl class="attribute">
-<dt id="spooq2.loader.loader.Loader.name">
-<code class="descname">name</code><a class="headerlink" href="#spooq2.loader.loader.Loader.name" title="Permalink to this definition">¶</a></dt>
-<dd><p>Sets the <cite>__name__</cite> of the class’ type as <cite>name</cite>, which is essentially the Class’ Name.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/3.7/library/stdtypes.html#str" title="(in Python v3.7)"><code class="xref any docutils literal notranslate"><span class="pre">str</span></code></a></td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="spooq2.loader.loader.Loader.logger">
-<code class="descname">logger</code><a class="headerlink" href="#spooq2.loader.loader.Loader.logger" title="Permalink to this definition">¶</a></dt>
-<dd><p>Shared, class level logger for all instances.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/3.7/library/logging.html#logging.Logger" title="(in Python v3.7)"><code class="xref any docutils literal notranslate"><span class="pre">logging.Logger</span></code></a></td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
-<dt id="spooq2.loader.loader.Loader.load">
-<code class="descname">load</code><span class="sig-paren">(</span><em>input_df</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/spooq2/loader/loader.html#Loader.load"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spooq2.loader.loader.Loader.load" title="Permalink to this definition">¶</a></dt>
-<dd><p>Persists data from a PySpark DataFrame to a target table.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>input_df</strong> (<a class="reference external" href="https://spark.apache.org/docs/2.4.3/api/python/pyspark.sql.html#pyspark.sql.DataFrame" title="(in PySpark vmaster)"><code class="xref any docutils literal notranslate"><span class="pre">pyspark.sql.DataFrame</span></code></a>) – Input DataFrame which has to be loaded to a target destination.</td>
-</tr>
-</tbody>
-</table>
-<div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p class="last">This method takes only a single DataFrame as an input parameter. All other needed
-parameters are defined in the initialization of the Loader object.</p>
-</div>
-</dd></dl>
-
-</dd></dl>
-
 <div class="section" id="create-your-own-loader">
 <span id="custom-loader"></span><h2>Create your own Loader<a class="headerlink" href="#create-your-own-loader" title="Permalink to this headline">¶</a></h2>
 <p>Let your loader class inherit from the loader base class.
@@ -472,7 +419,7 @@ you need to add it to a <cite>toctree</cite> directive. Just refer to your newly
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="../setup_development_testing.html" class="btn btn-neutral float-right" title="Setup for Development, Testing, Documenting" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="../architecture.html" class="btn btn-neutral float-right" title="Architecture Overview" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
         <a href="transformer.html" class="btn btn-neutral float-left" title="Transformer Base Class" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>

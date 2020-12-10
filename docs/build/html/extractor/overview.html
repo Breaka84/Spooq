@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Extractors &mdash; Spooq2 2.2.0 documentation</title>
+  <title>Extractors &mdash; Spooq2 3.0.0b documentation</title>
   
 
   
@@ -21,10 +21,10 @@
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
-        <script type="text/javascript" src="../_static/jquery.js"></script>
-        <script type="text/javascript" src="../_static/underscore.js"></script>
-        <script type="text/javascript" src="../_static/doctools.js"></script>
-        <script type="text/javascript" src="../_static/language_data.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/language_data.js"></script>
     
     <script type="text/javascript" src="../_static/js/theme.js"></script>
 
@@ -86,7 +86,9 @@
             
             
               <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../changelog.html">Changelog</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation / Deployment</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../setup_development_testing.html">Setup for Development, Testing, Documenting</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../examples.html">Examples</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Extractors</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="json.html">JSON Files</a></li>
@@ -99,7 +101,6 @@
 <li class="toctree-l1"><a class="reference internal" href="../loader/overview.html">Loaders</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../pipeline/overview.html">Pipeline</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../base_classes/overview.html">Spooq Base</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../setup_development_testing.html">Setup for Development, Testing, Documenting</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../architecture.html">Architecture Overview</a></li>
 </ul>
 
@@ -170,6 +171,53 @@
 <p>Extractors are used to fetch, extract and convert a source data set into a PySpark DataFrame.
 Exemplary extraction sources are <strong>JSON Files</strong> on file systems like HDFS, DBFS or EXT4
 and relational database systems via <strong>JDBC</strong>.</p>
+<dl class="py class">
+<dt id="spooq2.extractor.extractor.Extractor">
+<em class="property">class </em><code class="sig-name descname">Extractor</code><a class="reference internal" href="../_modules/spooq2/extractor/extractor.html#Extractor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spooq2.extractor.extractor.Extractor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Base Class of Extractor Classes.</p>
+<dl class="py attribute">
+<dt id="spooq2.extractor.extractor.Extractor.name">
+<code class="sig-name descname">name</code><a class="headerlink" href="#spooq2.extractor.extractor.Extractor.name" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets the <cite>__name__</cite> of the class’ type as <cite>name</cite>, which is essentially the Class’ Name.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3.7/library/stdtypes.html#str" title="(in Python v3.7)"><code class="xref any docutils literal notranslate"><span class="pre">str</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="spooq2.extractor.extractor.Extractor.logger">
+<code class="sig-name descname">logger</code><a class="headerlink" href="#spooq2.extractor.extractor.Extractor.logger" title="Permalink to this definition">¶</a></dt>
+<dd><p>Shared, class level logger for all instances.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3.7/library/logging.html#logging.Logger" title="(in Python v3.7)"><code class="xref any docutils literal notranslate"><span class="pre">logging.Logger</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="spooq2.extractor.extractor.Extractor.extract">
+<code class="sig-name descname">extract</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/spooq2/extractor/extractor.html#Extractor.extract"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spooq2.extractor.extractor.Extractor.extract" title="Permalink to this definition">¶</a></dt>
+<dd><p>Extracts Data from a Source and converts it into a PySpark DataFrame.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p></p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference external" href="https://spark.apache.org/docs/3.0.1/api/python/pyspark.sql.html#pyspark.sql.DataFrame" title="(in PySpark vmaster)"><code class="xref py py-class docutils literal notranslate"><span class="pre">pyspark.sql.DataFrame</span></code></a></p>
+</dd>
+</dl>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This method does not take ANY input parameters. All needed parameters are defined
+in the initialization of the Extractor Object.</p>
+</div>
+</dd></dl>
+
+</dd></dl>
+
 <div class="toctree-wrapper compound">
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="json.html">JSON Files</a></li>

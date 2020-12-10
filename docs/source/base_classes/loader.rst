@@ -2,6 +2,8 @@ Loader Base Class
 ==============================
 
 .. automodule:: spooq2.loader.loader
+    :no-members:
+    :noindex:
 
 .. _custom_loader:
 
@@ -11,7 +13,7 @@ Create your own Loader
 Let your loader class inherit from the loader base class.
 This includes the name, string representation and logger attributes from the superclass.
 
-| The only mandatory thing is to provide a `load()` method which 
+| The only mandatory thing is to provide a `load()` method which
 | **takes** a
 | => *PySpark DataFrame!*
 | and **returns**
@@ -31,8 +33,8 @@ Exemplary Sample Code
 References to include
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
-This makes it possible to import the new loader class directly 
-from `spooq2.loader` instead of `spooq2.loader.parquet`. 
+This makes it possible to import the new loader class directly
+from `spooq2.loader` instead of `spooq2.loader.parquet`.
 It will also be imported if you use `from spooq2.loader import *`.
 
 .. literalinclude:: create_loader/init.diff
@@ -42,14 +44,14 @@ It will also be imported if you use `from spooq2.loader import *`.
 Tests
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
-One of Spooq2's features is to provide tested code for multiple data pipelines. 
+One of Spooq2's features is to provide tested code for multiple data pipelines.
 Please take your time to write sufficient unit tests!
 You can reuse test data from `tests/data` or create a new schema / data set if needed.
 A SparkSession is provided as a global fixture called `spark_session`.
 
 .. literalinclude:: create_loader/test_parquet.py
     :caption: tests/unit/loader/test_parquet.py:
-    :language: python 
+    :language: python
 
 Documentation
 ^^^^^^^^^^^^^^^^^^^^^^^^
@@ -61,8 +63,8 @@ which needs to contain at minimum the `automodule` or the `autoclass` directive.
     :caption: docs/source/loader/parquet.rst:
     :language: RST
 
-To automatically include your new loader in the HTML / PDF documentation 
-you need to add it to a `toctree` directive. Just refer to your newly created 
+To automatically include your new loader in the HTML / PDF documentation
+you need to add it to a `toctree` directive. Just refer to your newly created
 `parquet.rst` file within the loader overview page.
 
 .. literalinclude:: create_loader/overview.diff

@@ -15,55 +15,76 @@ class Mapper(Transformer):
 
     Examples
     --------
+    >>> from pyspark.sql import functions as F
+    >>> from spooq2.transformer import Mapper
+    >>>
     >>> mapping = [
-    >>>     ('id',              'data.relationships.food.data.id',     'StringType'),
-    >>>     ('message_id',      'data.id',                             'StringType'),
-    >>>     ('type',            'data.relationships.food.data.type',   'StringType'),
-    >>>     ('created_at',      'elem.attributes.created_at',          'timestamp_ms_to_s'),
-    >>>     ('updated_at',      'elem.attributes.updated_at',          'timestamp_ms_to_s'),
-    >>>     ('deleted_at',      'elem.attributes.deleted_at',          'timestamp_ms_to_s'),
-    >>>     ('brand',           'elem.attributes.brand',               'StringType')
+    >>>     ("id",            "data.relationships.food.data.id",  "StringType"),
+    >>>     ("version",       "data.version",                     "extended_string_to_int"),
+    >>>     ("type",          "elem.attributes.type",             "StringType"),
+    >>>     ("created_at",    "elem.attributes.created_at",       "extended_string_to_timestamp"),
+    >>>     ("created_on",    "elem.attributes.created_at",       "extended_string_to_date"),
+    >>>     ("process_date",  F.current_timestamp(),              "DateType"),
     >>> ]
-    >>> transformer = Mapper(mapping=mapping)
+    >>> mapper = Mapper(mapping=mapping)
+    >>> mapper.transform(input_df).printSchema()
+    root
+     |-- id: string (nullable = true)
+     |-- version: integer (nullable = true)
+     |-- type: string (nullable = true)
+     |-- created_at: timestamp (nullable = true)
+     |-- created_on: date (nullable = true)
+     |-- process_date: date (nullable = false)
 
-    >>> mapping = [
-    >>>     ('id',          'data.relationships.food.data.id',   'StringType'),
-    >>>     ('updated_at',  'elem.attributes.updated_at',        'timestamp_ms_to_s'),
-    >>>     ('deleted_at',  'elem.attributes.deleted_at',        'timestamp_ms_to_s'),
-    >>>     ('name',        'elem.attributes.name',              'array')
-    >>> ]
-    >>> transformer = Mapper(mapping=mapping)
 
     Parameters
     ----------
-    mapping  : :class:`list` of :any:`tuple` containing three :any:`str`
-        This is the main parameter for this transformation. It essentially gives information
+    mapping  : :class:`list` of :any:`tuple` containing three :any:`str` or :class:`~pyspark.sql.Column` or :mod:`~pyspark.sql.functions`
+        This is the main parameter for this transformation. It gives information
         about the column names for the output DataFrame, the column names (paths)
         from the input DataFrame, and their data types. Custom data types are also supported, which can
         clean, pivot, anonymize, ... the data itself. Please have a look at the
         :py:mod:`spooq2.transformer.mapper_custom_data_types` module for more information.
 
-    ignore_missing_columns : :any:`bool`, Defaults to True
-        Specifies if the mapping transformation should raise an exception if a referenced input
-        column is missing in the provided DataFrame.
+    ignore_missing_columns : :any:`bool`, Defaults to False
+        Specifies if the mapping transformation should use NULL if a referenced input
+        column is missing in the provided DataFrame. If set to False, it will raise an exception.
+
+    mode : :any:`str`, Defaults to "replace"
+        Defines weather the mapping should fully replace the schema of the input DataFrame or just add to it.
+        Following modes are supported:
+
+            * replace
+                The output schema is the same as the provided mapping.
+                => output schema: new columns
+            * append
+                The columns provided in the mapping are added at the end of the input schema. If a column already
+                exists in the input DataFrame, its position is kept.
+                => output schema: input columns + new columns
+            * prepend
+                The columns provided in the mapping are added at the beginning of the input schema. If a column already
+                exists in the input DataFrame, its position is kept.
+                => output schema: new columns + input columns
 
     Note
     ----
     Let's talk about Mappings:
 
-    The mapping should be a list of tuples which are containing all information per column.
+    The mapping should be a list of tuples that contain all necessary information per column.
 
-    * Column Name : :any:`str`
+    * Column Name: :any:`str`
         Sets the name of the column in the resulting output DataFrame.
-    * Source Path / Name : :any:`str`
+    * Source Path / Name / Column / Function: :any:`str` or :class:`~pyspark.sql.Column` or :mod:`~pyspark.sql.functions`
         Points to the name of the column in the input DataFrame. If the input
         is a flat DataFrame, it will essentially be the column name. If it is of complex
-        type, it will point to the path of the actual value. For example:
-        ``data.relationships.sample.data.id``, where id is the value we want.
-    * DataType : :any:`str`
+        type, it will point to the path of the actual value. For example: ``data.relationships.sample.data.id``,
+        where id is the value we want. It is also possible to directly pass
+        a PySpark Column which will get evaluated. This can contain arbitrary logic supported by Spark. For example:
+        ``F.current_date()`` or ``F.when(F.col("size") == 180, F.lit("tall")).otherwise(F.lit("tiny"))``.
+    * DataType: :any:`str` or :class:`~pyspark.sql.types.DataType`
         DataTypes can be types from :any:`pyspark.sql.types`, selected custom datatypes or
         injected, ad-hoc custom datatypes.
-        The datatype will be interpreted as a PySpark built-in if it is a member of ``pyspark.sql.types``.
+        The datatype will be interpreted as a PySpark built-in if it is a member of ``pyspark.sql.types`` module.
         If it is not an importable PySpark data type, a method to construct the statement will be
         called by the data type's name.
 

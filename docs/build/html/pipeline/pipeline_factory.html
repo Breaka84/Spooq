@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Pipeline Factory &mdash; Spooq2 2.2.0 documentation</title>
+  <title>Pipeline Factory &mdash; Spooq2 3.0.0b documentation</title>
   
 
   
@@ -21,10 +21,10 @@
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
-        <script type="text/javascript" src="../_static/jquery.js"></script>
-        <script type="text/javascript" src="../_static/underscore.js"></script>
-        <script type="text/javascript" src="../_static/doctools.js"></script>
-        <script type="text/javascript" src="../_static/language_data.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/language_data.js"></script>
     
     <script type="text/javascript" src="../_static/js/theme.js"></script>
 
@@ -86,7 +86,9 @@
             
             
               <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../changelog.html">Changelog</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation / Deployment</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../setup_development_testing.html">Setup for Development, Testing, Documenting</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../examples.html">Examples</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../extractor/overview.html">Extractors</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../transformer/overview.html">Transformers</a></li>
@@ -98,7 +100,6 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../base_classes/overview.html">Spooq Base</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../setup_development_testing.html">Setup for Development, Testing, Documenting</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../architecture.html">Architecture Overview</a></li>
 </ul>
 
@@ -171,13 +172,12 @@
 <p>To decrease the complexity of building data pipelines for data engineers, an expert system or
 business rules engine can be used to automatically build and configure a data pipeline based on
 context variables, groomed metadata, and relevant rules.</p>
-<dl class="class">
+<dl class="py class">
 <dt id="spooq2.pipeline.factory.PipelineFactory">
-<em class="property">class </em><code class="descname">PipelineFactory</code><span class="sig-paren">(</span><em>url='http://localhost:5000/pipeline/get'</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/spooq2/pipeline/factory.html#PipelineFactory"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spooq2.pipeline.factory.PipelineFactory" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3.7/library/functions.html#object" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
-<p>Provides an interface to automatically construct pipelines for Spooq.</p>
+<em class="property">class </em><code class="sig-name descname">PipelineFactory</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">url</span><span class="o">=</span><span class="default_value">'http://localhost:5000/pipeline/get'</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/spooq2/pipeline/factory.html#PipelineFactory"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spooq2.pipeline.factory.PipelineFactory" title="Permalink to this definition">¶</a></dt>
+<dd><p>Provides an interface to automatically construct pipelines for Spooq.</p>
 <p class="rubric">Example</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">pipeline_factory</span> <span class="o">=</span> <span class="n">PipelineFactory</span><span class="p">()</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">pipeline_factory</span> <span class="o">=</span> <span class="n">PipelineFactory</span><span class="p">()</span>
 <span class="go">&gt;&gt;&gt;</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="c1">#  Fetch user data set with applied mapping, filtering,</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="c1">#  and cleaning transformers</span>
@@ -194,26 +194,23 @@ context variables, groomed metadata, and relevant rules.</p>
 <span class="gp">&gt;&gt;&gt; </span>     <span class="s2">&quot;batch_size&quot;</span><span class="p">:</span> <span class="s2">&quot;daily&quot;</span><span class="p">})</span>
 </pre></div>
 </div>
-<dl class="attribute">
+<dl class="py attribute">
 <dt id="spooq2.pipeline.factory.PipelineFactory.url">
-<code class="descname">url</code><a class="headerlink" href="#spooq2.pipeline.factory.PipelineFactory.url" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">url</code><a class="headerlink" href="#spooq2.pipeline.factory.PipelineFactory.url" title="Permalink to this definition">¶</a></dt>
 <dd><p>The end point of an expert system which will be called to infer names and parameters.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/3.7/library/stdtypes.html#str" title="(in Python v3.7)"><code class="xref any docutils literal notranslate"><span class="pre">str</span></code></a>, (Defaults to “<a class="reference external" href="http://localhost:5000/pipeline/get">http://localhost:5000/pipeline/get</a>”)</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3.7/library/stdtypes.html#str" title="(in Python v3.7)"><code class="xref any docutils literal notranslate"><span class="pre">str</span></code></a>, (Defaults to “<a class="reference external" href="http://localhost:5000/pipeline/get">http://localhost:5000/pipeline/get</a>”)</p>
+</dd>
+</dl>
 </dd></dl>
 
 <div class="admonition note">
-<p class="first admonition-title">Note</p>
+<p class="admonition-title">Note</p>
 <p>PipelineFactory is only responsible for querying an expert system with provided parameters
 and constructing a Spooq pipeline out of the response. It does not have any reasoning capabilities
 itself! It requires therefore a HTTP service responding with a JSON object containing following structure:</p>
-<div class="last highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
     <span class="s2">&quot;extractor&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Type1Extractor&quot;</span><span class="p">,</span> <span class="s2">&quot;params&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;key 1&quot;</span><span class="p">:</span> <span class="s2">&quot;val 1&quot;</span><span class="p">,</span> <span class="s2">&quot;key N&quot;</span><span class="p">:</span> <span class="s2">&quot;val N&quot;</span><span class="p">}},</span>
     <span class="s2">&quot;transformers&quot;</span><span class="p">:</span> <span class="p">[</span>
         <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Type1Transformer&quot;</span><span class="p">,</span> <span class="s2">&quot;params&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;key 1&quot;</span><span class="p">:</span> <span class="s2">&quot;val 1&quot;</span><span class="p">,</span> <span class="s2">&quot;key N&quot;</span><span class="p">:</span> <span class="s2">&quot;val N&quot;</span><span class="p">}},</span>
@@ -228,74 +225,70 @@ itself! It requires therefore a HTTP service responding with a JSON object conta
 </div>
 </div>
 <div class="admonition hint">
-<p class="first admonition-title">Hint</p>
-<p class="last">There is an experimental implementation of an expert system which complies with the requirements
+<p class="admonition-title">Hint</p>
+<p>There is an experimental implementation of an expert system which complies with the requirements
 of PipelineFactory called <cite>spooq_rules</cite>. If you are interested, please ask the author of Spooq about it.</p>
 </div>
-<dl class="method">
+<dl class="py method">
 <dt id="spooq2.pipeline.factory.PipelineFactory.execute">
-<code class="descname">execute</code><span class="sig-paren">(</span><em>context_variables</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/spooq2/pipeline/factory.html#PipelineFactory.execute"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spooq2.pipeline.factory.PipelineFactory.execute" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">execute</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">context_variables</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/spooq2/pipeline/factory.html#PipelineFactory.execute"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spooq2.pipeline.factory.PipelineFactory.execute" title="Permalink to this definition">¶</a></dt>
 <dd><p>Fetches a ready-to-go pipeline instance via <a class="reference internal" href="#spooq2.pipeline.factory.PipelineFactory.get_pipeline" title="spooq2.pipeline.factory.PipelineFactory.get_pipeline"><code class="xref py py-meth docutils literal notranslate"><span class="pre">get_pipeline()</span></code></a>
 and executes it.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>context_variables</strong> (<a class="reference external" href="https://docs.python.org/3.7/library/stdtypes.html#dict" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a>) – These collection of parameters should describe the current context about the use case
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>context_variables</strong> (<a class="reference external" href="https://docs.python.org/3.7/library/stdtypes.html#dict" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a>) – These collection of parameters should describe the current context about the use case
 of the pipeline. Please see the examples of the PipelineFactory class’
-documentation.</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><ul class="simple">
-<li><a class="reference external" href="https://spark.apache.org/docs/2.4.3/api/python/pyspark.sql.html#pyspark.sql.DataFrame" title="(in PySpark vmaster)"><code class="xref py py-class docutils literal notranslate"><span class="pre">pyspark.sql.DataFrame</span></code></a> – If the loader component is by-passed (in the case of ad_hoc use cases).</li>
-<li><a class="reference external" href="https://docs.python.org/3.7/library/constants.html#None" title="(in Python v3.7)"><code class="xref any docutils literal notranslate"><span class="pre">None</span></code></a> – If the loader component does not return a value (in the case of persisting data).</li>
+documentation.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><a class="reference external" href="https://spark.apache.org/docs/3.0.1/api/python/pyspark.sql.html#pyspark.sql.DataFrame" title="(in PySpark vmaster)"><code class="xref py py-class docutils literal notranslate"><span class="pre">pyspark.sql.DataFrame</span></code></a> – If the loader component is by-passed (in the case of ad_hoc use cases).</p></li>
+<li><p><a class="reference external" href="https://docs.python.org/3.7/library/constants.html#None" title="(in Python v3.7)"><code class="xref any docutils literal notranslate"><span class="pre">None</span></code></a> – If the loader component does not return a value (in the case of persisting data).</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</p>
+</dd>
+</dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="spooq2.pipeline.factory.PipelineFactory.get_metadata">
-<code class="descname">get_metadata</code><span class="sig-paren">(</span><em>context_variables</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/spooq2/pipeline/factory.html#PipelineFactory.get_metadata"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spooq2.pipeline.factory.PipelineFactory.get_metadata" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_metadata</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">context_variables</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/spooq2/pipeline/factory.html#PipelineFactory.get_metadata"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spooq2.pipeline.factory.PipelineFactory.get_metadata" title="Permalink to this definition">¶</a></dt>
 <dd><p>Sends a POST request to the defined endpoint (<cite>url</cite>) containing the
 supplied context variables.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>context_variables</strong> (<a class="reference external" href="https://docs.python.org/3.7/library/stdtypes.html#dict" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a>) – These collection of parameters should describe the current context about the use case
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>context_variables</strong> (<a class="reference external" href="https://docs.python.org/3.7/library/stdtypes.html#dict" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a>) – These collection of parameters should describe the current context about the use case
 of the pipeline. Please see the examples of the PipelineFactory class’
-documentation.</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Names and parameters of each ETL component to construct a Spooq pipeline</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/3.7/library/stdtypes.html#dict" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a></td>
-</tr>
-</tbody>
-</table>
+documentation.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Names and parameters of each ETL component to construct a Spooq pipeline</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3.7/library/stdtypes.html#dict" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a></p>
+</dd>
+</dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="spooq2.pipeline.factory.PipelineFactory.get_pipeline">
-<code class="descname">get_pipeline</code><span class="sig-paren">(</span><em>context_variables</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/spooq2/pipeline/factory.html#PipelineFactory.get_pipeline"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spooq2.pipeline.factory.PipelineFactory.get_pipeline" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_pipeline</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">context_variables</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/spooq2/pipeline/factory.html#PipelineFactory.get_pipeline"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spooq2.pipeline.factory.PipelineFactory.get_pipeline" title="Permalink to this definition">¶</a></dt>
 <dd><p>Fetches the necessary metadata via <a class="reference internal" href="#spooq2.pipeline.factory.PipelineFactory.get_metadata" title="spooq2.pipeline.factory.PipelineFactory.get_metadata"><code class="xref py py-meth docutils literal notranslate"><span class="pre">get_metadata()</span></code></a> and
 returns a ready-to-go pipeline instance.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>context_variables</strong> (<a class="reference external" href="https://docs.python.org/3.7/library/stdtypes.html#dict" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a>) – These collection of parameters should describe the current context about the use case
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>context_variables</strong> (<a class="reference external" href="https://docs.python.org/3.7/library/stdtypes.html#dict" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a>) – These collection of parameters should describe the current context about the use case
 of the pipeline. Please see the examples of the PipelineFactory class’
-documentation.</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A Spooq pipeline instance which is fully configured and can still be
-adapted and consequently executed.</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><code class="xref py py-class docutils literal notranslate"><span class="pre">Pipeline</span></code></td>
-</tr>
-</tbody>
-</table>
+documentation.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A Spooq pipeline instance which is fully configured and can still be
+adapted and consequently executed.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Pipeline</span></code></p>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>

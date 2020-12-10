@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Hive Database &mdash; Spooq2 2.2.0 documentation</title>
+  <title>Hive Database &mdash; Spooq2 3.0.0b documentation</title>
   
 
   
@@ -21,10 +21,10 @@
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
-        <script type="text/javascript" src="../_static/jquery.js"></script>
-        <script type="text/javascript" src="../_static/underscore.js"></script>
-        <script type="text/javascript" src="../_static/doctools.js"></script>
-        <script type="text/javascript" src="../_static/language_data.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/language_data.js"></script>
     
     <script type="text/javascript" src="../_static/js/theme.js"></script>
 
@@ -86,7 +86,9 @@
             
             
               <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../changelog.html">Changelog</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation / Deployment</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../setup_development_testing.html">Setup for Development, Testing, Documenting</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../examples.html">Examples</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../extractor/overview.html">Extractors</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../transformer/overview.html">Transformers</a></li>
@@ -101,7 +103,6 @@
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../pipeline/overview.html">Pipeline</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../base_classes/overview.html">Spooq Base</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../setup_development_testing.html">Setup for Development, Testing, Documenting</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../architecture.html">Architecture Overview</a></li>
 </ul>
 
@@ -171,13 +172,12 @@
             
   <div class="section" id="module-spooq2.loader.hive_loader">
 <span id="hive-database"></span><h1>Hive Database<a class="headerlink" href="#module-spooq2.loader.hive_loader" title="Permalink to this headline">¶</a></h1>
-<dl class="class">
+<dl class="py class">
 <dt id="spooq2.loader.hive_loader.HiveLoader">
-<em class="property">class </em><code class="descname">HiveLoader</code><span class="sig-paren">(</span><em>db_name, table_name, partition_definitions=[{'column_name': 'dt', 'column_type': 'IntegerType', 'default_value': None}], clear_partition=True, repartition_size=40, auto_create_table=True, overwrite_partition_value=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/spooq2/loader/hive_loader.html#HiveLoader"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spooq2.loader.hive_loader.HiveLoader" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="../base_classes/loader.html#spooq2.loader.loader.Loader" title="spooq2.loader.loader.Loader"><code class="xref py py-class docutils literal notranslate"><span class="pre">spooq2.loader.loader.Loader</span></code></a></p>
-<p>Persists a PySpark DataFrame into a Hive Table.</p>
+<em class="property">class </em><code class="sig-name descname">HiveLoader</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">db_name</span></em>, <em class="sig-param"><span class="n">table_name</span></em>, <em class="sig-param"><span class="n">partition_definitions</span><span class="o">=</span><span class="default_value">[{'column_name': 'dt', 'column_type': 'IntegerType', 'default_value': None}]</span></em>, <em class="sig-param"><span class="n">clear_partition</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">repartition_size</span><span class="o">=</span><span class="default_value">40</span></em>, <em class="sig-param"><span class="n">auto_create_table</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">overwrite_partition_value</span><span class="o">=</span><span class="default_value">True</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/spooq2/loader/hive_loader.html#HiveLoader"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spooq2.loader.hive_loader.HiveLoader" title="Permalink to this definition">¶</a></dt>
+<dd><p>Persists a PySpark DataFrame into a Hive Table.</p>
 <p class="rubric">Examples</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">HiveLoader</span><span class="p">(</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">HiveLoader</span><span class="p">(</span>
 <span class="gp">&gt;&gt;&gt; </span>    <span class="n">db_name</span><span class="o">=</span><span class="s2">&quot;users_and_friends&quot;</span><span class="p">,</span>
 <span class="gp">&gt;&gt;&gt; </span>    <span class="n">table_name</span><span class="o">=</span><span class="s2">&quot;friends_partitioned&quot;</span><span class="p">,</span>
 <span class="gp">&gt;&gt;&gt; </span>    <span class="n">partition_definitions</span><span class="o">=</span><span class="p">[{</span>
@@ -191,7 +191,7 @@
 <span class="gp">&gt;&gt;&gt; </span><span class="p">)</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">input_df</span><span class="p">)</span>
 </pre></div>
 </div>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">HiveLoader</span><span class="p">(</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">HiveLoader</span><span class="p">(</span>
 <span class="gp">&gt;&gt;&gt; </span>    <span class="n">db_name</span><span class="o">=</span><span class="s2">&quot;users_and_friends&quot;</span><span class="p">,</span>
 <span class="gp">&gt;&gt;&gt; </span>    <span class="n">table_name</span><span class="o">=</span><span class="s2">&quot;all_friends&quot;</span><span class="p">,</span>
 <span class="gp">&gt;&gt;&gt; </span>    <span class="n">partition_definitions</span><span class="o">=</span><span class="p">[],</span>
@@ -200,66 +200,59 @@
 <span class="gp">&gt;&gt;&gt; </span><span class="p">)</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">input_df</span><span class="p">)</span>
 </pre></div>
 </div>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>db_name</strong> (<a class="reference external" href="https://docs.python.org/3.7/library/stdtypes.html#str" title="(in Python v3.7)"><code class="xref any docutils literal notranslate"><span class="pre">str</span></code></a>) – The database name to load the data into.</li>
-<li><strong>table_name</strong> (<a class="reference external" href="https://docs.python.org/3.7/library/stdtypes.html#str" title="(in Python v3.7)"><code class="xref any docutils literal notranslate"><span class="pre">str</span></code></a>) – The table name to load the data into. The database name must not be included in this
-parameter as it is already defined in the <cite>db_name</cite> parameter.</li>
-<li><strong>partition_definitions</strong> (<a class="reference external" href="https://docs.python.org/3.7/library/stdtypes.html#list" title="(in Python v3.7)"><code class="xref any docutils literal notranslate"><span class="pre">list</span></code></a> of <a class="reference external" href="https://docs.python.org/3.7/library/stdtypes.html#dict" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a>) – <p>(Defaults to <cite>[{“column_name”: “dt”, “column_type”: “IntegerType”, “default_value”: None}]</cite>).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>db_name</strong> (<a class="reference external" href="https://docs.python.org/3.7/library/stdtypes.html#str" title="(in Python v3.7)"><code class="xref any docutils literal notranslate"><span class="pre">str</span></code></a>) – The database name to load the data into.</p></li>
+<li><p><strong>table_name</strong> (<a class="reference external" href="https://docs.python.org/3.7/library/stdtypes.html#str" title="(in Python v3.7)"><code class="xref any docutils literal notranslate"><span class="pre">str</span></code></a>) – The table name to load the data into. The database name must not be included in this
+parameter as it is already defined in the <cite>db_name</cite> parameter.</p></li>
+<li><p><strong>partition_definitions</strong> (<a class="reference external" href="https://docs.python.org/3.7/library/stdtypes.html#list" title="(in Python v3.7)"><code class="xref any docutils literal notranslate"><span class="pre">list</span></code></a> of <a class="reference external" href="https://docs.python.org/3.7/library/stdtypes.html#dict" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a>) – <p>(Defaults to <cite>[{“column_name”: “dt”, “column_type”: “IntegerType”, “default_value”: None}]</cite>).</p>
 <blockquote>
 <div><ul>
-<li><strong>column_name</strong> (<a class="reference external" href="https://docs.python.org/3.7/library/stdtypes.html#str" title="(in Python v3.7)"><code class="xref any docutils literal notranslate"><span class="pre">str</span></code></a>) - The Column’s Name to partition by.</li>
-<li><strong>column_type</strong> (<a class="reference external" href="https://docs.python.org/3.7/library/stdtypes.html#str" title="(in Python v3.7)"><code class="xref any docutils literal notranslate"><span class="pre">str</span></code></a>) - The PySpark SQL DataType for the Partition Value as
-a String. This should normally either be ‘IntegerType()’ or ‘StringType()’</li>
-<li><strong>default_value</strong> (<a class="reference external" href="https://docs.python.org/3.7/library/stdtypes.html#str" title="(in Python v3.7)"><code class="xref any docutils literal notranslate"><span class="pre">str</span></code></a> or <a class="reference external" href="https://docs.python.org/3.7/library/functions.html#int" title="(in Python v3.7)"><code class="xref any docutils literal notranslate"><span class="pre">int</span></code></a>) - If <cite>column_name</cite> does not contain
+<li><p><strong>column_name</strong> (<a class="reference external" href="https://docs.python.org/3.7/library/stdtypes.html#str" title="(in Python v3.7)"><code class="xref any docutils literal notranslate"><span class="pre">str</span></code></a>) - The Column’s Name to partition by.</p></li>
+<li><p><strong>column_type</strong> (<a class="reference external" href="https://docs.python.org/3.7/library/stdtypes.html#str" title="(in Python v3.7)"><code class="xref any docutils literal notranslate"><span class="pre">str</span></code></a>) - The PySpark SQL DataType for the Partition Value as
+a String. This should normally either be ‘IntegerType()’ or ‘StringType()’</p></li>
+<li><p><strong>default_value</strong> (<a class="reference external" href="https://docs.python.org/3.7/library/stdtypes.html#str" title="(in Python v3.7)"><code class="xref any docutils literal notranslate"><span class="pre">str</span></code></a> or <a class="reference external" href="https://docs.python.org/3.7/library/functions.html#int" title="(in Python v3.7)"><code class="xref any docutils literal notranslate"><span class="pre">int</span></code></a>) - If <cite>column_name</cite> does not contain
 a value or <cite>overwrite_partition_value</cite> is set, this value will be used for the
-partitioning</li>
+partitioning</p></li>
 </ul>
 </div></blockquote>
-</li>
-<li><strong>clear_partition</strong> (<a class="reference external" href="https://docs.python.org/3.7/library/functions.html#bool" title="(in Python v3.7)"><code class="xref any docutils literal notranslate"><span class="pre">bool</span></code></a>, (Defaults to True)) – This flag tells the Loader to delete the defined partitions before
+</p></li>
+<li><p><strong>clear_partition</strong> (<a class="reference external" href="https://docs.python.org/3.7/library/functions.html#bool" title="(in Python v3.7)"><code class="xref any docutils literal notranslate"><span class="pre">bool</span></code></a>, (Defaults to True)) – This flag tells the Loader to delete the defined partitions before
 inserting the input DataFrame into the target table. Has no effect if no partitions are
-defined.</li>
-<li><strong>repartition_size</strong> (<a class="reference external" href="https://docs.python.org/3.7/library/functions.html#int" title="(in Python v3.7)"><code class="xref any docutils literal notranslate"><span class="pre">int</span></code></a>, (Defaults to 40)) – The DataFrame will be repartitioned on Spark level before inserting into the table.
-This effects the number of output files on which the Hive table is based.</li>
-<li><strong>auto_create_table</strong> (<a class="reference external" href="https://docs.python.org/3.7/library/functions.html#bool" title="(in Python v3.7)"><code class="xref any docutils literal notranslate"><span class="pre">bool</span></code></a>, (Defaults to True)) – Whether the target table will be created if it does not yet exist.</li>
-<li><strong>overwrite_partition_value</strong> (<a class="reference external" href="https://docs.python.org/3.7/library/functions.html#bool" title="(in Python v3.7)"><code class="xref any docutils literal notranslate"><span class="pre">bool</span></code></a>, (Defaults to True)) – Defines whether the values of columns defined in <cite>partition_definitions</cite> should
-explicitly set by default_values.</li>
+defined.</p></li>
+<li><p><strong>repartition_size</strong> (<a class="reference external" href="https://docs.python.org/3.7/library/functions.html#int" title="(in Python v3.7)"><code class="xref any docutils literal notranslate"><span class="pre">int</span></code></a>, (Defaults to 40)) – The DataFrame will be repartitioned on Spark level before inserting into the table.
+This effects the number of output files on which the Hive table is based.</p></li>
+<li><p><strong>auto_create_table</strong> (<a class="reference external" href="https://docs.python.org/3.7/library/functions.html#bool" title="(in Python v3.7)"><code class="xref any docutils literal notranslate"><span class="pre">bool</span></code></a>, (Defaults to True)) – Whether the target table will be created if it does not yet exist.</p></li>
+<li><p><strong>overwrite_partition_value</strong> (<a class="reference external" href="https://docs.python.org/3.7/library/functions.html#bool" title="(in Python v3.7)"><code class="xref any docutils literal notranslate"><span class="pre">bool</span></code></a>, (Defaults to True)) – Defines whether the values of columns defined in <cite>partition_definitions</cite> should
+explicitly set by default_values.</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><ul class="first last simple">
-<li><code class="xref any docutils literal notranslate"><span class="pre">exceptions.AssertionError</span></code>: – partition_definitions has to be a list containing dicts. Expected dict content:
-‘column_name’, ‘column_type’, ‘default_value’ per partition_definitions item.</li>
-<li><code class="xref any docutils literal notranslate"><span class="pre">exceptions.AssertionError</span></code>: – Items of partition_definitions have to be dictionaries.</li>
-<li><code class="xref any docutils literal notranslate"><span class="pre">exceptions.AssertionError</span></code>: – No column name set!</li>
-<li><code class="xref any docutils literal notranslate"><span class="pre">exceptions.AssertionError</span></code>: – Not a valid (PySpark) datatype for the partition column {name} | {type}.</li>
-<li><code class="xref any docutils literal notranslate"><span class="pre">exceptions.AssertionError</span></code>: – <cite>clear_partition</cite> is only supported if <cite>overwrite_partition_value</cite> is also enabled.
-This would otherwise result in clearing partitions on basis of dynamically values
-(from DataFrame) instead of explicitly defining the partition(s) to clear.</li>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>exceptions.AssertionError</strong> – partition_definitions has to be a list containing dicts. Expected dict content:
+    ‘column_name’, ‘column_type’, ‘default_value’ per partition_definitions item.</p></li>
+<li><p><strong>exceptions.AssertionError</strong> – Items of partition_definitions have to be dictionaries.</p></li>
+<li><p><strong>exceptions.AssertionError</strong> – No column name set!</p></li>
+<li><p><strong>exceptions.AssertionError</strong> – Not a valid (PySpark) datatype for the partition column {name} | {type}.</p></li>
+<li><p><strong>exceptions.AssertionError</strong> – <cite>clear_partition</cite> is only supported if <cite>overwrite_partition_value</cite> is also enabled.
+    This would otherwise result in clearing partitions on basis of dynamically values
+    (from DataFrame) instead of explicitly defining the partition(s) to clear.</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
-<dl class="method">
+</dd>
+</dl>
+<dl class="py method">
 <dt id="spooq2.loader.hive_loader.HiveLoader.load">
-<code class="descname">load</code><span class="sig-paren">(</span><em>input_df</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/spooq2/loader/hive_loader.html#HiveLoader.load"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spooq2.loader.hive_loader.HiveLoader.load" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">load</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">input_df</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/spooq2/loader/hive_loader.html#HiveLoader.load"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spooq2.loader.hive_loader.HiveLoader.load" title="Permalink to this definition">¶</a></dt>
 <dd><p>Persists data from a PySpark DataFrame to a target table.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>input_df</strong> (<a class="reference external" href="https://spark.apache.org/docs/2.4.3/api/python/pyspark.sql.html#pyspark.sql.DataFrame" title="(in PySpark vmaster)"><code class="xref any docutils literal notranslate"><span class="pre">pyspark.sql.DataFrame</span></code></a>) – Input DataFrame which has to be loaded to a target destination.</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>input_df</strong> (<a class="reference external" href="https://spark.apache.org/docs/3.0.1/api/python/pyspark.sql.html#pyspark.sql.DataFrame" title="(in PySpark vmaster)"><code class="xref any docutils literal notranslate"><span class="pre">pyspark.sql.DataFrame</span></code></a>) – Input DataFrame which has to be loaded to a target destination.</p>
+</dd>
+</dl>
 <div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p class="last">This method takes only a single DataFrame as an input parameter. All other needed
+<p class="admonition-title">Note</p>
+<p>This method takes only a single DataFrame as an input parameter. All other needed
 parameters are defined in the initialization of the Loader object.</p>
 </div>
 </dd></dl>

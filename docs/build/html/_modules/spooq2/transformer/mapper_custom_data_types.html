@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>spooq2.transformer.mapper_custom_data_types &mdash; Spooq2 2.2.0 documentation</title>
+  <title>spooq2.transformer.mapper_custom_data_types &mdash; Spooq2 3.0.0b documentation</title>
   
 
   
@@ -21,10 +21,10 @@
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
-        <script type="text/javascript" src="../../../_static/jquery.js"></script>
-        <script type="text/javascript" src="../../../_static/underscore.js"></script>
-        <script type="text/javascript" src="../../../_static/doctools.js"></script>
-        <script type="text/javascript" src="../../../_static/language_data.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/language_data.js"></script>
     
     <script type="text/javascript" src="../../../_static/js/theme.js"></script>
 
@@ -84,14 +84,15 @@
             
             
               <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../changelog.html">Changelog</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation / Deployment</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../setup_development_testing.html">Setup for Development, Testing, Documenting</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../examples.html">Examples</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../extractor/overview.html">Extractors</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../transformer/overview.html">Transformers</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../loader/overview.html">Loaders</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../pipeline/overview.html">Pipeline</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../base_classes/overview.html">Spooq Base</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../setup_development_testing.html">Setup for Development, Testing, Documenting</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../architecture.html">Architecture Overview</a></li>
 </ul>
 
@@ -693,6 +694,46 @@
     <span class="k">return</span> <span class="p">(</span><span class="n">source_column</span> <span class="o">*</span> <span class="mi">100</span><span class="p">)</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">T</span><span class="o">.</span><span class="n">IntegerType</span><span class="p">())</span><span class="o">.</span><span class="n">alias</span><span class="p">(</span><span class="n">name</span><span class="p">)</span></div>
 
 
+<div class="viewcode-block" id="_generate_select_expression_for_has_value"><a class="viewcode-back" href="../../../transformer/mapper.html#spooq2.transformer.mapper_custom_data_types._generate_select_expression_for_has_value">[docs]</a><span class="k">def</span> <span class="nf">_generate_select_expression_for_has_value</span><span class="p">(</span><span class="n">source_column</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Returns True if the source_column is</span>
+<span class="sd">        - not NULL and</span>
+<span class="sd">        - not &quot;&quot; (empty string)</span>
+
+<span class="sd">    otherwise it returns False</span>
+
+<span class="sd">    Warning</span>
+<span class="sd">    -------</span>
+<span class="sd">    This means that it will return True for values which would indicate a False value. Like &quot;false&quot; or 0!!!</span>
+
+<span class="sd">    Example</span>
+<span class="sd">    -------</span>
+<span class="sd">    &gt;&gt;&gt; from pyspark.sql import Row</span>
+<span class="sd">    &gt;&gt;&gt; from spooq2.transformer import Mapper</span>
+<span class="sd">    &gt;&gt;&gt;</span>
+<span class="sd">    &gt;&gt;&gt; input_df = spark.createDataFrame(</span>
+<span class="sd">    &gt;&gt;&gt;     [Row(input_key=1.80),</span>
+<span class="sd">    &gt;&gt;&gt;      Row(input_key=None),</span>
+<span class="sd">    &gt;&gt;&gt;      Row(input_key=&quot;some text&quot;),</span>
+<span class="sd">    &gt;&gt;&gt;      Row(input_key=&quot;&quot;)]</span>
+<span class="sd">    &gt;&gt;&gt; )</span>
+<span class="sd">    &gt;&gt;&gt;</span>
+<span class="sd">    &gt;&gt;&gt; mapping = [(&quot;input_key&quot;, &quot;result&quot;, &quot;has_value&quot;)]</span>
+<span class="sd">    &gt;&gt;&gt; output_df = Mapper(mapping).transform(input_df)</span>
+<span class="sd">    &gt;&gt;&gt; output_df.head(4)</span>
+<span class="sd">    [Row(result=True),</span>
+<span class="sd">     Row(result=False),</span>
+<span class="sd">     Row(result=True),</span>
+<span class="sd">     Row(result=False)]</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="p">(</span>
+        <span class="n">F</span><span class="o">.</span><span class="n">when</span><span class="p">((</span><span class="n">source_column</span><span class="o">.</span><span class="n">isNotNull</span><span class="p">())</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">source_column</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">T</span><span class="o">.</span><span class="n">StringType</span><span class="p">())</span> <span class="o">!=</span> <span class="s2">&quot;&quot;</span><span class="p">),</span> <span class="n">F</span><span class="o">.</span><span class="n">lit</span><span class="p">(</span><span class="kc">True</span><span class="p">))</span>
+        <span class="o">.</span><span class="n">otherwise</span><span class="p">(</span><span class="n">F</span><span class="o">.</span><span class="n">lit</span><span class="p">(</span><span class="kc">False</span><span class="p">))</span>
+        <span class="o">.</span><span class="n">alias</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+    <span class="p">)</span></div>
+
+
 <div class="viewcode-block" id="_generate_select_expression_for_unix_timestamp_ms_to_spark_timestamp"><a class="viewcode-back" href="../../../transformer/mapper.html#spooq2.transformer.mapper_custom_data_types._generate_select_expression_for_unix_timestamp_ms_to_spark_timestamp">[docs]</a><span class="k">def</span> <span class="nf">_generate_select_expression_for_unix_timestamp_ms_to_spark_timestamp</span><span class="p">(</span><span class="n">source_column</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Convert unix timestamps in milliseconds to a Spark TimeStampType. It is assumed that the</span>
@@ -730,7 +771,7 @@
 <span class="sd">        * underscores as thousand separators</span>
 
 <span class="sd">    Hint</span>
-<span class="sd">    ---</span>
+<span class="sd">    ----</span>
 <span class="sd">    Please have a look at the tests to get a better feeling how it behaves under</span>
 <span class="sd">    tests/unit/transformer/test_mapper_custom_data_types.py::TestExtendedStringConversions and</span>
 <span class="sd">    tests/data/test_fixtures/mapper_custom_data_types_fixtures.py</span>
@@ -764,7 +805,7 @@
 <span class="sd">    * underscores as thousand separators</span>
 
 <span class="sd">    Hint</span>
-<span class="sd">    ---</span>
+<span class="sd">    ----</span>
 <span class="sd">    Please have a look at the tests to get a better feeling how it behaves under</span>
 <span class="sd">    tests/unit/transformer/test_mapper_custom_data_types.py::TestExtendedStringConversions and</span>
 <span class="sd">    tests/data/test_fixtures/mapper_custom_data_types_fixtures.py</span>
@@ -798,7 +839,7 @@
 <span class="sd">    * underscores as thousand separators</span>
 
 <span class="sd">    Hint</span>
-<span class="sd">    ---</span>
+<span class="sd">    ----</span>
 <span class="sd">    Please have a look at the tests to get a better feeling how it behaves under</span>
 <span class="sd">    tests/unit/transformer/test_mapper_custom_data_types.py::TestExtendedStringConversions and</span>
 <span class="sd">    tests/data/test_fixtures/mapper_custom_data_types_fixtures.py</span>
@@ -832,7 +873,7 @@
 <span class="sd">    * underscores as thousand separators</span>
 
 <span class="sd">    Hint</span>
-<span class="sd">    ---</span>
+<span class="sd">    ----</span>
 <span class="sd">    Please have a look at the tests to get a better feeling how it behaves under</span>
 <span class="sd">    tests/unit/transformer/test_mapper_custom_data_types.py::TestExtendedStringConversions and</span>
 <span class="sd">    tests/data/test_fixtures/mapper_custom_data_types_fixtures.py</span>
@@ -864,8 +905,17 @@
 <span class="sd">    * Trailing whitespace</span>
 <span class="sd">    * Preceeding and trailing whitespace</span>
 
+<span class="sd">    Warning</span>
+<span class="sd">    ---------</span>
+<span class="sd">    This does not handle numbers (cast as string) the same way as numbers (cast as number) to boolean conversion!</span>
+<span class="sd">    F.e.</span>
+
+<span class="sd">    * 100 to boolean =&gt; True</span>
+<span class="sd">    * &quot;100&quot; to extended_string_to_boolean =&gt; False</span>
+<span class="sd">    * &quot;100&quot; to boolean =&gt; False</span>
+
 <span class="sd">    Hint</span>
-<span class="sd">    ---</span>
+<span class="sd">    ----</span>
 <span class="sd">    Please have a look at the tests to get a better feeling how it behaves under</span>
 <span class="sd">    tests/unit/transformer/test_mapper_custom_data_types.py::TestExtendedStringConversions and</span>
 <span class="sd">    tests/data/test_fixtures/mapper_custom_data_types_fixtures.py</span>
@@ -898,15 +948,21 @@
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    More robust conversion from StringType to TimestampType. It is assumed that the</span>
 <span class="sd">    timezone is already set to UTC in spark / java to avoid implicit timezone conversions.</span>
-<span class="sd">    Is able to additionally handle (compared to implicit Spark conversion):</span>
 
-<span class="sd">    * Unix timestamps in seconds</span>
+<span class="sd">    The conversion can handle unix timestamps in seconds and in milliseconds:</span>
+<span class="sd">        - Timestamps in the range [-MAX_TIMESTAMP_S, MAX_TIMESTAMP_S] are treated as seconds</span>
+<span class="sd">        - Timestamps in the range [-inf, -MAX_TIMESTAMP_S) and (MAX_TIMESTAMP_S, inf] are treated as milliseconds</span>
+<span class="sd">        - There is a time interval (1970-01-01 +- ~2.5 months)where we can not distinguish correctly between s and ms</span>
+<span class="sd">          (e.g. 3974400000 would be treated as seconds (2095-12-11T00:00:00) as the value is smaller than</span>
+<span class="sd">          MAX_TIMESTAMP_S, but it could also be a valid date in Milliseconds (1970-02-16T00:00:00)</span>
+
+<span class="sd">    Is able to additionally handle (compared to implicit Spark conversion):</span>
 <span class="sd">    * Preceding whitespace</span>
 <span class="sd">    * Trailing whitespace</span>
 <span class="sd">    * Preceeding and trailing whitespace</span>
 
 <span class="sd">    Hint</span>
-<span class="sd">    ---</span>
+<span class="sd">    ----</span>
 <span class="sd">    Please have a look at the tests to get a better feeling how it behaves under</span>
 <span class="sd">    tests/unit/transformer/test_mapper_custom_data_types.py::TestExtendedStringConversions and</span>
 <span class="sd">    tests/data/test_fixtures/mapper_custom_data_types_fixtures.py</span>
@@ -928,8 +984,11 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="p">(</span>
         <span class="n">F</span><span class="o">.</span><span class="n">when</span><span class="p">(</span>
-            <span class="n">F</span><span class="o">.</span><span class="n">trim</span><span class="p">(</span><span class="n">source_column</span><span class="p">)</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">T</span><span class="o">.</span><span class="n">LongType</span><span class="p">())</span><span class="o">.</span><span class="n">isNotNull</span><span class="p">(),</span>
+            <span class="n">F</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">F</span><span class="o">.</span><span class="n">trim</span><span class="p">(</span><span class="n">source_column</span><span class="p">)</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">T</span><span class="o">.</span><span class="n">LongType</span><span class="p">()))</span><span class="o">.</span><span class="n">between</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">MAX_TIMESTAMP_SEC</span><span class="p">),</span>
             <span class="n">F</span><span class="o">.</span><span class="n">trim</span><span class="p">(</span><span class="n">source_column</span><span class="p">)</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">T</span><span class="o">.</span><span class="n">LongType</span><span class="p">())</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">T</span><span class="o">.</span><span class="n">TimestampType</span><span class="p">())</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">when</span><span class="p">(</span>
+            <span class="n">F</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">F</span><span class="o">.</span><span class="n">trim</span><span class="p">(</span><span class="n">source_column</span><span class="p">)</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">T</span><span class="o">.</span><span class="n">LongType</span><span class="p">()))</span> <span class="o">&gt;</span> <span class="n">MAX_TIMESTAMP_SEC</span><span class="p">,</span>
+            <span class="p">(</span><span class="n">F</span><span class="o">.</span><span class="n">trim</span><span class="p">(</span><span class="n">source_column</span><span class="p">)</span> <span class="o">/</span> <span class="mi">1000</span><span class="p">)</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">T</span><span class="o">.</span><span class="n">LongType</span><span class="p">())</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">T</span><span class="o">.</span><span class="n">TimestampType</span><span class="p">())</span>
         <span class="p">)</span><span class="o">.</span><span class="n">otherwise</span><span class="p">(</span><span class="n">F</span><span class="o">.</span><span class="n">trim</span><span class="p">(</span><span class="n">source_column</span><span class="p">)</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">T</span><span class="o">.</span><span class="n">TimestampType</span><span class="p">()))</span><span class="o">.</span><span class="n">alias</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
     <span class="p">)</span></div>
 
@@ -937,11 +996,22 @@
 <div class="viewcode-block" id="_generate_select_expression_for_extended_string_to_date"><a class="viewcode-back" href="../../../transformer/mapper.html#spooq2.transformer.mapper_custom_data_types._generate_select_expression_for_extended_string_to_date">[docs]</a><span class="k">def</span> <span class="nf">_generate_select_expression_for_extended_string_to_date</span><span class="p">(</span><span class="n">source_column</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    More robust conversion from StringType to DateType. It is assumed that the</span>
-<span class="sd">    timezone is already set to UTC in spark / java to avoid implicit timezone conversions and that</span>
-<span class="sd">    unix timestamps are in **seconds**</span>
+<span class="sd">    timezone is already set to UTC in spark / java to avoid implicit timezone conversions.</span>
+
+<span class="sd">    The conversion can handle unix timestamps in seconds and in milliseconds:</span>
+<span class="sd">        - Timestamps in the range [-MAX_TIMESTAMP_S, MAX_TIMESTAMP_S] are treated as seconds</span>
+<span class="sd">        - Timestamps in the range [-inf, -MAX_TIMESTAMP_S) and (MAX_TIMESTAMP_S, inf] are treated as milliseconds</span>
+<span class="sd">        - There is a time interval (1970-01-01 +- ~2.5 months)where we can not distinguish correctly between s and ms</span>
+<span class="sd">          (e.g. 3974400000 would be treated as seconds (2095-12-11T00:00:00) as the value is smaller than</span>
+<span class="sd">          MAX_TIMESTAMP_S, but it could also be a valid date in Milliseconds (1970-02-16T00:00:00)</span>
+
+<span class="sd">    Is able to additionally handle (compared to implicit Spark conversion):</span>
+<span class="sd">    * Preceding whitespace</span>
+<span class="sd">    * Trailing whitespace</span>
+<span class="sd">    * Preceeding and trailing whitespace</span>
 
 <span class="sd">    Hint</span>
-<span class="sd">    ---</span>
+<span class="sd">    ----</span>
 <span class="sd">    Please have a look at the tests to get a better feeling how it behaves under</span>
 <span class="sd">    tests/unit/transformer/test_mapper_custom_data_types.py::TestExtendedStringConversions and</span>
 <span class="sd">    tests/data/test_fixtures/mapper_custom_data_types_fixtures.py</span>
@@ -976,7 +1046,7 @@
 <span class="sd">    * Preceeding and trailing whitespace</span>
 
 <span class="sd">    Hint</span>
-<span class="sd">    ---</span>
+<span class="sd">    ----</span>
 <span class="sd">    Please have a look at the tests to get a better feeling how it behaves under</span>
 <span class="sd">    tests/unit/transformer/test_mapper_custom_data_types.py::TestExtendedStringConversions and</span>
 <span class="sd">    tests/data/test_fixtures/mapper_custom_data_types_fixtures.py</span>
@@ -1011,7 +1081,7 @@
 <span class="sd">    unix timestamps are in **milli seconds**</span>
 
 <span class="sd">    Hint</span>
-<span class="sd">    ---</span>
+<span class="sd">    ----</span>
 <span class="sd">    Please have a look at the tests to get a better feeling how it behaves under</span>
 <span class="sd">    tests/unit/transformer/test_mapper_custom_data_types.py::TestExtendedStringConversions and</span>
 <span class="sd">    tests/data/test_fixtures/mapper_custom_data_types_fixtures.py</span>
