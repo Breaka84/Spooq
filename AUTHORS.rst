@@ -5,7 +5,7 @@ Credits
 Development Lead
 ----------------
 
-* David Eigenstuhler <breaka@gmx.at>, <david.eigenstuhler@runtastic.com>
+* David Hohensinn <breaka@gmx.at>, <dae@runtastic.com>
 
 Contributors
 ------------

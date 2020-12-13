@@ -15,6 +15,7 @@ Transformers
 Class Diagram of Transformer Subpackage
 ------------------------------------------------
 .. uml:: ../diagrams/from_thesis/class_diagram/transformers.puml
+    :caption: Class Diagram of Transformer Subpackage
 
 Create your own Transformer
 ------------------------------------------------------------------------------

@@ -9,6 +9,7 @@ Class
 Activity Diagram
 ---------------------------------------------
 .. uml:: ../diagrams/from_thesis/activity/mapper_1.puml
+    :caption: Activity Diagram for Mapper Transformer
 
 Custom Mapping Methods
 ----------------------

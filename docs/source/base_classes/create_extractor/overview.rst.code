@@ -13,6 +13,7 @@ Extractors
 Class Diagram of Extractor Subpackage
 ------------------------------------------------
 .. uml:: ../diagrams/from_thesis/class_diagram/extractors.puml
+    :caption: Class Diagram of Extractor Subpackage
 
 Create your own Extractor
 ------------------------------------------------------------------------------

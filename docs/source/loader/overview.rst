@@ -10,6 +10,9 @@ Loaders
 Class Diagram of Loader Subpackage
 ------------------------------------------------
 .. uml:: ../diagrams/from_thesis/class_diagram/loaders.puml
+    :align: center
+    :width: 50 %
+    :caption: Class Diagram of Loader Subpackage
 
 Create your own Loader
 ------------------------------------------------------------------------------

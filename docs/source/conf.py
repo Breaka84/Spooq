@@ -27,8 +27,8 @@ from spooq2._version import __version__ as version_number
 # -- Project information -----------------------------------------------------
 
 project = u'Spooq2'
-copyright = u'2020, David Eigenstuhler'
-author = u'David Eigenstuhler'
+copyright = u'2020, David Hohensinn'
+author = u'David Hohensinn'
 
 # The short X.Y version
 version = u'2'
@@ -183,11 +183,12 @@ latex_elements = {
     #
     'preamble': r"""
         \usepackage[columns=1]{idxlayout}
-        \usepackage{geometry}
+        \geometry{margin=1.70cm, bmargin=2cm, tmargin=2cm}
+        
     """,
     # Latex figure (float) alignment
     #
-    'figure_align': 'h!tbp',
+    'figure_align': 'H',
     'classoptions': ', twoside',
     'babel': r'\usepackage[english]{babel}',
     'printindex': r'\raggedright\printindex',
@@ -198,7 +199,7 @@ latex_elements = {
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
     (master_doc, 'Spooq2.tex', u'Spooq2 Documentation',
-     u'David Eigenstuhler', 'manual'),
+     u'David Hohensinn', 'manual'),
 ]
 # latex_docclass = {'manual': 'scrbook'}
 

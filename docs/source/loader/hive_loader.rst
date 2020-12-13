@@ -6,3 +6,4 @@ Hive Database
 Activity Diagram
 ---------------------------------------------
 .. uml:: ../diagrams/from_thesis/activity/hive_loader_1.puml
+    :caption: Activity Diagram for Hive Loader
