@@ -19,15 +19,13 @@ Sample Output Tables
     :widths: auto
     :class: longtable
 
-    +----+---------------+-------------+-------------+----------+-----------+----------------+------------+
-    | id |  guid         |  forename   | surname     |  gender  | has_email | has_university | created_at |
-    +====+===============+=============+=============+==========+===========+================+============+
-    | 18 | "b12b59ba..." | "Jeannette" | "O"Loghlen" | "F"      | "1"       | NULL           | 1547204429 |
-    +----+---------------+-------------+-------------+----------+-----------+----------------+------------+
-    | ...| ...           | ...         | ...         | ...      | ...       | ...            | ...        |
-    +----+---------------+-------------+-------------+----------+-----------+----------------+------------+
-
-|
+    +----+---------------+-------------+-------------+----------+-----------+------------+
+    | id |  guid         |  forename   | surname     |  gender  | has_email | created_at |
+    +====+===============+=============+=============+==========+===========+============+
+    | 18 | "b12b59ba..." | "Jeannette" | "O"Loghlen" | "F"      | "1"       | 1547204429 |
+    +----+---------------+-------------+-------------+----------+-----------+------------+
+    | ...| ...           | ...         | ...         | ...      | ...       | ...        |
+    +----+---------------+-------------+-------------+----------+-----------+------------+
 
 .. table:: Table **"friends_mapping"**
     :align: center
@@ -70,7 +68,6 @@ Application Code for Updating the Users Table
         ("surename",        "attributes.last_name",   "StringType"),
         ("gender",          "attributes.gender",      "StringType"),
         ("has_email",       "attributes.email",       "StringBoolean"),
-        ("has_university",  "attributes.university",  "StringBoolean"),
         ("created_at",      "meta.created_at_ms",     "timestamp_ms_to_s"),
     ]
 
@@ -170,7 +167,6 @@ Spooq2 for activities and steps which are not directly supported.
         ("surename",        "attributes.last_name",   "StringType"),
         ("gender",          "attributes.gender",      "StringType"),
         ("has_email",       "attributes.email",       "StringBoolean"),
-        ("has_university",  "attributes.university",  "StringBoolean"),
         ("created_at",      "meta.created_at_ms",     "timestamp_ms_to_s"),
         ("friends",         "attributes.friends",     "as_is"),
     ]

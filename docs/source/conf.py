@@ -183,8 +183,9 @@ latex_elements = {
     #
     'preamble': r"""
         \usepackage[columns=1]{idxlayout}
-        \geometry{margin=1.70cm, bmargin=2cm, tmargin=2cm}
-        
+        % \geometry{twoside,bindingoffset=20mm,left=14mm,right=28mm,top=19.8mm,bottom=39.6mm}% 210/15= 14 (28); 297/15= 19,8 (39,6)
+        \geometry{twoside,bindingoffset=20mm,left=14mm,right=14mm,top=20mm,bottom=20mm} 
+        % \usepackage[a4paper,BCOR=2cmmm,DIV=calc]{typearea}
     """,
     # Latex figure (float) alignment
     #
