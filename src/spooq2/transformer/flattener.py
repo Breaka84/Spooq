@@ -12,20 +12,21 @@ class Flattener(Transformer):
     """
 
     def transform(self, input_df):
-        preliminary_mapping = self._get_preliminary_mapping(input_df.schema.jsonValue(), [], [])
-        # exploded_df, mapping = self._magic(input_df, input_df.schema.jsonValue(),
-        #                                    mapping=[], current_path=[])
+        exploded_df, preliminary_mapping = self._get_preliminary_mapping(input_df, input_df.schema.jsonValue(), [], [], [])
         fixed_mapping = self._convert_python_to_spark_data_types(preliminary_mapping)
-        mapped_df = Mapper(mapping=fixed_mapping).transform(input_df)
+        mapped_df = Mapper(mapping=fixed_mapping).transform(exploded_df)
         # import IPython; IPython.embed()
         return mapped_df
 
-    def _get_preliminary_mapping(self, json_schema, mapping, current_path):
+    def _get_preliminary_mapping(self, input_df, json_schema, mapping, current_path, exploded_arrays):
         for field in json_schema["fields"]:
+            print(json.dumps(field, indent=2))
+            # import IPython;IPython.embed()
             if self._is_atomic_data_type(field):
                 print("Atomic Field:")
                 print(json.dumps(field, indent=2))
                 # base case (no more children)
+                # import IPython; IPython.embed()
                 mapping = self._add_mapping(mapping, current_path, field)
             elif self._is_struct(field):
                 print("Struct Field:")
@@ -35,11 +36,24 @@ class Flattener(Transformer):
                 print(f"struct_name: {struct_name}")
                 print(f"current_path: {current_path}")
                 print(f"new_path: {new_path}")
-                mapping = self._get_preliminary_mapping(field["type"], mapping, new_path)
-            # elif self._is_array(field):
-            #     current_path = self._add_star_to_path()
-            #     self._get_preliminary_mapping(field, mapping, current_path)
-        return mapping
+                input_df, mapping = self._get_preliminary_mapping(input_df, field["type"], mapping, new_path, exploded_arrays)
+            elif self._is_array(field):
+                print("Array Field:")
+                print(json.dumps(field, indent=2))
+                array_name = field.get("name")
+                array_path = ".".join(current_path + [array_name])
+                print(f"array_name: {array_name}")
+                print(f"current_path: {current_path}")
+                print(f"array_path: {array_path}")
+                print(f"exploded_arrays: {str(exploded_arrays)}")
+                if array_path in exploded_arrays:
+                    continue
+                else:
+                    exploded_df = Exploder(path_to_array=array_path, exploded_elem_name=f"{array_path}_exploded").transform(input_df)
+                    exploded_arrays.append(array_path)
+                    mapping = []
+                    return self._get_preliminary_mapping(exploded_df, exploded_df.schema.jsonValue(), mapping, [], exploded_arrays)
+        return (input_df, mapping)
 
     def _is_atomic_data_type(self, field):
         return isinstance(field["type"], str)
@@ -57,12 +71,12 @@ class Flattener(Transformer):
                 len(field_type.get("fields", [])) > 0 and
                 field_type.get("type", "") == "struct")
 
-    # def _is_array(self, field):
-    #     field_type = field["type"]
-    #     return (isinstance(field_type, dict) and
-    #             "fields" not in field_type.keys() and
-    #             field_type.get("type", "") == "array")
-    #
+    def _is_array(self, field):
+        field_type = field["type"]
+        return (isinstance(field_type, dict) and
+                "fields" not in field_type.keys() and
+                field_type.get("type", "") == "array")
+
     # def _explode_array(self, input_df, ):
 
     # def _get_children(self, json_schema):
