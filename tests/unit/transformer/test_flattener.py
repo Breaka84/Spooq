@@ -158,10 +158,10 @@ class TestDataFrameContainingArrays:
         )])
         output_df = flattener.transform(input_df)
         expected_output_df = spark_session.createDataFrame([
-            (4789, "How are you?"),
-            (4790, "How are you?"),
-            (4791, "How are you?")],
-            schema=["struct_val_array_val_exploded", "string_val"])
+            ("How are you?", 4789),
+            ("How are you?", 4790),
+            ("How are you?", 4791)],
+            schema=["struct_val_string_val", "struct_val_array_val_exploded"])
 
         assert_df_equality(expected_output_df, output_df)
 
