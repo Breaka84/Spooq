@@ -206,7 +206,7 @@ class TestDataFrameContainingStructs:
 
         assert_df_equality(expected_output_df, output_df)
 
-    def test_heavily_nested_struct_attributes(self, spark_session, flattener):
+    def test_nested_struct_attributes(self, spark_session, flattener):
         input_df = spark_session.createDataFrame([Row(
             struct_val_1=Row(
                 struct_val_2=Row(
@@ -229,63 +229,63 @@ class TestDataFrameContainingStructs:
         assert_df_equality(expected_output_df, output_df)
 
 
-#
-# class TestExploding(object):
-#     @pytest.fixture(scope="module")
-#     def input_df(self, spark_session):
-#         return spark_session.read.parquet("data/schema_v1/parquetFiles")
-#
-#     @pytest.fixture()
-#     def default_params(self):
-#         return {"path_to_array": "attributes.friends", "exploded_elem_name": "friend"}
-#
-#     @pytest.mark.slow
-#     def test_count(self, input_df, default_params):
-#         expected_count = input_df.select(sql_funcs.explode(input_df[default_params["path_to_array"]])).count()
-#         actual_count = Exploder(**default_params).transform(input_df).count()
-#         assert expected_count == actual_count
-#
-#     @pytest.mark.slow
-#     def test_exploded_array_is_added(self, input_df, default_params):
-#         transformer = Exploder(**default_params)
-#         expected_columns = set(input_df.columns + [default_params["exploded_elem_name"]])
-#         actual_columns = set(transformer.transform(input_df).columns)
-#
-#         assert expected_columns == actual_columns
-#
-#     @pytest.mark.slow
-#     def test_array_is_converted_to_struct(self, input_df, default_params):
-#         def get_data_type_of_column(df, path=["attributes"]):
-#             record = df.first().asDict(recursive=True)
-#             for p in path:
-#                 record = record[p]
-#             return type(record)
-#
-#         current_data_type_friend = get_data_type_of_column(input_df, path=["attributes", "friends"])
-#         assert issubclass(current_data_type_friend, list)
-#
-#         transformed_df = Exploder(**default_params).transform(input_df)
-#         transformed_data_type = get_data_type_of_column(transformed_df, path=["friend"])
-#
-#         assert issubclass(transformed_data_type, dict)
-#
-#     def test_records_with_empty_arrays_are_dropped_by_default(self, spark_session):
-#         input_df = spark_session.createDataFrame([
-#             Row(id=1, array_to_explode=[]),
-#             Row(id=2, array_to_explode=[Row(elem_id="a"), Row(elem_id="b"), Row(elem_id="c")]),
-#             Row(id=3, array_to_explode=[]),
-#         ])
-#         transformed_df = Exploder(path_to_array="array_to_explode", exploded_elem_name="elem").transform(input_df)
-#         assert transformed_df.count() == 3
-#
-#     def test_records_with_empty_arrays_are_kept_via_setting(self, spark_session):
-#         input_df = spark_session.createDataFrame([
-#             Row(id=1, array_to_explode=[]),
-#             Row(id=2, array_to_explode=[Row(elem_id="a"), Row(elem_id="b"), Row(elem_id="c")]),
-#             Row(id=3, array_to_explode=[]),
-#         ])
-#         transformed_df = Exploder(path_to_array="array_to_explode",
-#                                   exploded_elem_name="elem",
-#                                   drop_rows_with_empty_array=False).transform(input_df)
-#         assert transformed_df.count() == 5
-#
+class TestComplexRecipes:
+    @pytest.fixture()
+    def input_df(self, spark_session):
+        return spark_session.createDataFrame([Row(
+            batters=Row(
+                batter=[Row(id="1001", type="Regular"),
+                        Row(id="1002", type="Chocolate"),
+                        Row(id="1003", type="Blueberry"),
+                        Row(id="1004", type="Devil's Food")]),
+            id="0001",
+            name="Cake",
+            ppu=0.55,
+            topping=[Row(id="5001", type="None"),
+                     Row(id="5002", type="Glazed"),
+                     Row(id="5005", type="Sugar"),
+                     Row(id="5007", type="Powdered Sugar"),
+                     Row(id="5006", type="Chocolate with Sprinkles"),
+                     Row(id="5003", type="Chocolate"),
+                     Row(id="5004", type="Maple")],
+            type="donut",
+        )])
+
+    @pytest.fixture()
+    def expected_output_df(self, spark_session):
+        return spark_session.createDataFrame([
+            ("0001", "Cake", 0.55, "donut", "1001", "Regular",      "5001", "None"                     ),
+            ("0001", "Cake", 0.55, "donut", "1001", "Regular",      "5002", "Glazed"                   ),
+            ("0001", "Cake", 0.55, "donut", "1001", "Regular",      "5005", "Sugar"                    ),
+            ("0001", "Cake", 0.55, "donut", "1001", "Regular",      "5007", "Powdered Sugar"           ),
+            ("0001", "Cake", 0.55, "donut", "1001", "Regular",      "5006", "Chocolate with Sprinkles" ),
+            ("0001", "Cake", 0.55, "donut", "1001", "Regular",      "5003", "Chocolate"                ),
+            ("0001", "Cake", 0.55, "donut", "1001", "Regular",      "5004", "Maple"                    ),
+            ("0001", "Cake", 0.55, "donut", "1002", "Chocolate",    "5001", "None"                     ),
+            ("0001", "Cake", 0.55, "donut", "1002", "Chocolate",    "5002", "Glazed"                   ),
+            ("0001", "Cake", 0.55, "donut", "1002", "Chocolate",    "5005", "Sugar"                    ),
+            ("0001", "Cake", 0.55, "donut", "1002", "Chocolate",    "5007", "Powdered Sugar"           ),
+            ("0001", "Cake", 0.55, "donut", "1002", "Chocolate",    "5006", "Chocolate with Sprinkles" ),
+            ("0001", "Cake", 0.55, "donut", "1002", "Chocolate",    "5003", "Chocolate"                ),
+            ("0001", "Cake", 0.55, "donut", "1002", "Chocolate",    "5004", "Maple"                    ),
+            ("0001", "Cake", 0.55, "donut", "1003", "Blueberry",    "5001", "None"                     ),
+            ("0001", "Cake", 0.55, "donut", "1003", "Blueberry",    "5002", "Glazed"                   ),
+            ("0001", "Cake", 0.55, "donut", "1003", "Blueberry",    "5005", "Sugar"                    ),
+            ("0001", "Cake", 0.55, "donut", "1003", "Blueberry",    "5007", "Powdered Sugar"           ),
+            ("0001", "Cake", 0.55, "donut", "1003", "Blueberry",    "5006", "Chocolate with Sprinkles" ),
+            ("0001", "Cake", 0.55, "donut", "1003", "Blueberry",    "5003", "Chocolate"                ),
+            ("0001", "Cake", 0.55, "donut", "1003", "Blueberry",    "5004", "Maple"                    ),
+            ("0001", "Cake", 0.55, "donut", "1004", "Devil's Food", "5001", "None"                     ),
+            ("0001", "Cake", 0.55, "donut", "1004", "Devil's Food", "5002", "Glazed"                   ),
+            ("0001", "Cake", 0.55, "donut", "1004", "Devil's Food", "5005", "Sugar"                    ),
+            ("0001", "Cake", 0.55, "donut", "1004", "Devil's Food", "5007", "Powdered Sugar"           ),
+            ("0001", "Cake", 0.55, "donut", "1004", "Devil's Food", "5006", "Chocolate with Sprinkles" ),
+            ("0001", "Cake", 0.55, "donut", "1004", "Devil's Food", "5003", "Chocolate"                ),
+            ("0001", "Cake", 0.55, "donut", "1004", "Devil's Food", "5004", "Maple"                    )],
+            schema=["id", "name", "ppu", "type", "batters_batter_exploded_id", "batters_batter_exploded_type",
+                    "topping_exploded_id", "topping_exploded_type", ]
+        )
+
+    def test_donut(self, input_df, expected_output_df):
+        output_df = Flattener().transform(input_df)
+        assert_df_equality(expected_output_df, output_df)
