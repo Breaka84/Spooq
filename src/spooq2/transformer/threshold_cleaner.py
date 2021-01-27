@@ -8,6 +8,7 @@ if sys.version_info.major > 2:
     from builtins import str
 import pyspark.sql.functions as F
 import pyspark.sql.types as sql_types
+from pyspark.sql.column import Column
 
 from .transformer import Transformer
 
@@ -24,7 +25,7 @@ class ThresholdCleaner(Transformer):
     >>>         "created_at": {
     >>>             "min": 0,
     >>>             "max": 1580737513,
-    >>>             "default": None
+    >>>             "default": pyspark.sql.functions.current_date()
     >>>         },
     >>>         "size_cm": {
     >>>             "min": 70,
@@ -67,6 +68,10 @@ class ThresholdCleaner(Transformer):
         for column_name, value_range in list(self.thresholds.items()):
 
             data_type = input_df.schema[str(column_name)].dataType
+            substitute = value_range.get("default", None)
+            if not isinstance(substitute, Column):
+                substitute = F.lit(substitute)
+
             if not isinstance(data_type, (sql_types.NumericType,
                                           sql_types.DateType,
                                           sql_types.TimestampType)):
@@ -89,7 +94,7 @@ class ThresholdCleaner(Transformer):
                     ),
                     input_df[column_name],
                 )
-                .otherwise(F.lit(value_range.get("default", None)))
+                .otherwise(substitute)
                 .cast(data_type),
             )
 

@@ -1,7 +1,10 @@
 from builtins import str
 from builtins import object
 import pytest
+from chispa.dataframe_comparer import assert_df_equality
 from pyspark.sql import types as sql_types
+from pyspark.sql import functions as F
+from pyspark.sql import Row
 import datetime as dt
 
 from spooq2.transformer import ThresholdCleaner
@@ -85,3 +88,22 @@ class TestCleaning(object):
 
         with pytest.raises(ValueError):
             transformer.transform(input_df).count()
+
+    def test_dynamic_default_value(self, spark_session):
+        input_df = spark_session.createDataFrame([
+            Row(id=1, num=1),
+            Row(id=2, num=2),
+            Row(id=3, num=100),
+            Row(id=4, num=4),
+            Row(id=5, num=-1024),
+        ])
+        thresholds_to_test = dict(num=dict(min=0, max=99, default=F.col("id") * -1))
+        output_df = ThresholdCleaner(thresholds_to_test).transform(input_df)
+        expected_output_df = spark_session.createDataFrame([
+            Row(id=1, num=1),
+            Row(id=2, num=2),
+            Row(id=3, num=-3),
+            Row(id=4, num=4),
+            Row(id=5, num=-5),
+        ])
+        assert_df_equality(expected_output_df, output_df)

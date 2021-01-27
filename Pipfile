@@ -30,6 +30,8 @@ rope = "*"
 ansi2html = "*"
 pylint = "*"
 pyarrow = "*"
+chispa = "*"
+jedi = "==0.17.2"
 
 [packages]
 pandas = "*"
