@@ -111,33 +111,3 @@ class EnumCleaner(Transformer):
                 )
 
         return input_df
-        # for column_name, value_range in list(self.thresholds.items()):
-        #
-        #     data_type = input_df.schema[str(column_name)].dataType
-        #     if not isinstance(data_type, (sql_types.NumericType,
-        #                                   sql_types.DateType,
-        #                                   sql_types.TimestampType)):
-        #         raise ValueError(
-        #             "Threshold-based cleaning only supports Numeric, Date and Timestamp Types!\n",
-        #             "Column with name: {col_name} and type of: {col_type} was provided".format(
-        #                 col_name=column_name, col_type=data_type
-        #             ),
-        #         )
-        #
-        #     self.logger.debug(
-        #         "Ranges for column " + column_name + ": " + str(value_range)
-        #     )
-        #
-        #     input_df = input_df.withColumn(
-        #         column_name,
-        #         F.when(
-        #             input_df[column_name].between(
-        #                 value_range["min"], value_range["max"]
-        #             ),
-        #             input_df[column_name],
-        #         )
-        #         .otherwise(F.lit(value_range.get("default", None)))
-        #         .cast(data_type),
-        #     )
-        #
-        # return input_df.select(ordered_column_names)
