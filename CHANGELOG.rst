@@ -2,6 +2,11 @@
 Changelog
 =========
 
+3.1.0 (2021-01-27)
+-------------------
+* [ADD] EnumCleaner Transformer
+* [MOD] add support for dynamic default values with the ThresholdCleaner
+
 3.0.1 (2021-01-22)
 -------------------
 * [MOD] extended_string_to_timestamp: now keeps milli seconds (no more cast to LongType) for conversion to Timestamp
