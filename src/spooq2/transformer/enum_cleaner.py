@@ -37,8 +37,8 @@ class EnumCleaner(Transformer):
         * elements, mandatory - :class:`list`
             A list of elements which will be used to allow or reject (based on mode) values from the input DataFrame.
         * mode, allow|disallow, defaults to 'allow' - :any:`str`
-            "allow" will set all values which are not in the list (including None) to the (provided) default value.
-            "disallow" will set all values which are not in the list (excluding! None) to the (provided) default value.
+            "allow" will set all values which are NOT in the list (ignoring NULL) to the default value.
+            "disallow" will set all values which ARE in the list (ignoring NULL) to the default value.
         * default, defaults to None - :class:`~pyspark.sql.column.Column` or any primitive Python value
             If a value gets cleansed it gets replaced with the provided default value.
 
