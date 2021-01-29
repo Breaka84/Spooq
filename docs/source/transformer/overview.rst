@@ -10,6 +10,7 @@ Transformers
     sieve
     mapper
     threshold_cleaner
+    enum_cleaner
     newest_by_group
 
 Class Diagram of Transformer Subpackage

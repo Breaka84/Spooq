@@ -8,20 +8,20 @@ from spooq2.transformer import Flattener
 
 @pytest.fixture
 def flattener():
-    return Flattener()
+    return Flattener(pretty_names=False)
 
 
 class TestBasicAttributes:
     """Mapper for Flattening DataFrames"""
 
-    def test_logger_should_be_accessible(self):
-        assert hasattr(Flattener(), "logger")
+    def test_logger_should_be_accessible(self, flattener):
+        assert hasattr(flattener, "logger")
 
-    def test_name_is_set(self):
-        assert Flattener().name == "Flattener"
+    def test_name_is_set(self, flattener):
+        assert flattener.name == "Flattener"
 
-    def test_str_representation_is_correct(self):
-        assert str(Flattener()) == "Transformer Object of Class Flattener"
+    def test_str_representation_is_correct(self, flattener):
+        assert str(flattener) == "Transformer Object of Class Flattener"
 
 
 class TestAlreadyFlatDataFrames:
@@ -252,7 +252,7 @@ class TestComplexRecipes:
         )])
 
     @pytest.fixture()
-    def expected_output_df(self, spark_session):
+    def expected_output_df(self, spark_session, flattener):
         return spark_session.createDataFrame([
             ("0001", "Cake", 0.55, "donut", "1001", "Regular",      "5001", "None"                     ),
             ("0001", "Cake", 0.55, "donut", "1001", "Regular",      "5002", "Glazed"                   ),
@@ -287,5 +287,28 @@ class TestComplexRecipes:
         )
 
     def test_donut(self, input_df, expected_output_df):
-        output_df = Flattener().transform(input_df)
+        output_df = flattener.transform(input_df)
         assert_df_equality(expected_output_df, output_df)
+
+
+class TestPrettyColumnNames:
+
+    @pytest.fixture
+    def flattener(self):
+        return Flattener(pretty_names=True)
+
+    def test_simple_renames(self, flattener):
+        input_mapping = [
+            ("double_val",                      "double_val",                       "double"),
+            ("array_val_exploded_int_val",      "array_val_exploded_int_val",       "int"),
+            ("array_val_exploded_string_val",   "array_val_exploded_string_val",    "double"),
+            ("array_val_exploded_date_val",     "array_val_exploded_date_val",      "date"),
+        ]
+        expected_output_mapping = [
+            ("double_val",   "double_val",                       "double"),
+            ("int_val",      "array_val_exploded_int_val",       "int"),
+            ("string_val",   "array_val_exploded_string_val",    "double"),
+            ("date_val",     "array_val_exploded_date_val",      "date"),
+        ]
+        output_mapping = flattener._prettify_column_names(input_mapping)
+        assert output_mapping == expected_output_mapping

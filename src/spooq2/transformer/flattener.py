@@ -11,9 +11,15 @@ class Flattener(Transformer):
     Flattens input DataFrame schema and applies it to the DataFrame.
     """
 
+    def init(self, pretty_names=True):
+        super().__init__()
+        self.pretty_names = pretty_names
+
     def transform(self, input_df):
         exploded_df, preliminary_mapping = self._get_preliminary_mapping(input_df, input_df.schema.jsonValue(), [], [], [])
         fixed_mapping = self._convert_python_to_spark_data_types(preliminary_mapping)
+        if self.pretty_names:
+            fixed_mapping = self._prettify_column_names(fixed_mapping)
         mapped_df = Mapper(mapping=fixed_mapping).transform(exploded_df)
         return mapped_df
 
@@ -80,3 +86,7 @@ class Flattener(Transformer):
             return [(name, source, data_type_matrix[data_type]) for (name, source, data_type) in mapping]
         except Exception as e:
             import IPython; IPython.embed()
+
+    def _prettify_column_names(self, mapping):
+
+        return mapping

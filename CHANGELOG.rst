@@ -2,6 +2,15 @@
 Changelog
 =========
 
+3.1.0 (2021-01-27)
+-------------------
+* [ADD] EnumCleaner Transformer
+* [MOD] add support for dynamic default values with the ThresholdCleaner
+
+3.0.1 (2021-01-22)
+-------------------
+* [MOD] extended_string_to_timestamp: now keeps milli seconds (no more cast to LongType) for conversion to Timestamp
+
 3.0.0b (2020-12-09)
 -------------------
 * [ADD] Spark 3 support (different handling in tests via `only_sparkX` decorators)
