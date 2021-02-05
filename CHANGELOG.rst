@@ -2,6 +2,13 @@
 Changelog
 =========
 
+3.2.0 (2021)
+-------------------
+* [ADD] Flattener Transformer (explodes and de-nests complex dataframes)
+* [MOD] add ignore_ambiguous_columns to Mapper (and Flattener)
+* [MOD] log spooq version when importing
+* [FIX] re-added missing lib folders for spark package (bin)
+
 3.1.0 (2021-01-27)
 -------------------
 * [ADD] EnumCleaner Transformer
