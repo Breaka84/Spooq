@@ -7,11 +7,12 @@ Transformers
 .. toctree::
 
     exploder
-    sieve
+    newest_by_group
     mapper
+    flattener
     threshold_cleaner
     enum_cleaner
-    newest_by_group
+    sieve
 
 Class Diagram of Transformer Subpackage
 ------------------------------------------------

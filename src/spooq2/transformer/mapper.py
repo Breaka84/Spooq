@@ -50,6 +50,11 @@ class Mapper(Transformer):
         Specifies if the mapping transformation should use NULL if a referenced input
         column is missing in the provided DataFrame. If set to False, it will raise an exception.
 
+    ignore_ambiguous_columns : :any:`bool`, Defaults to False
+        It can happen that the input DataFrame has ambiguous column names (like "Key" vs "key") which will
+        raise an exception with Spark when reading. This flag surpresses this exception and skips the those affected
+        columns.
+
     mode : :any:`str`, Defaults to "replace"
         Defines weather the mapping should fully replace the schema of the input DataFrame or just add to it.
         Following modes are supported:
