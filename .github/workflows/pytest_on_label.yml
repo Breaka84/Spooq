@@ -18,19 +18,27 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
+
+    - name: Set up Java 1.8
+    - uses: actions/setup-java@v1
+      with:
+        java-version: '8'
+    
     - name: Set up Python 3.7
       uses: actions/setup-python@v2
       with:
         python-version: 3.7
+    - name: Install pipenv
+      run: pip install pipenv
+    - name: Run tests
+      run: |
+        pipenv install --dev
+        pipenv run pytest tests
 
-    - uses: actions/setup-java@v1
-      with:
-        java-version: '8'
-
-    - name: Install Pipenv dependecies
-      uses: VaultVulp/action-pipenv@v2.0.1
-      with:
-        command: install --dev -v # Install all dependencies, including development ones, verbose mode
+#    - name: Install Pipenv dependecies
+#      uses: VaultVulp/action-pipenv@v2.0.1
+#      with:
+#        command: install --dev # Install all dependencies, including development ones
 
 #     - name: Lint with flake8
 #       run: |
@@ -38,6 +46,6 @@ jobs:
 #         flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
 #         # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
 #         flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
-    - name: Test with pytest
-      run: |
-        pipenv run pytest tests
+#    - name: Test with pytest
+#      run: |
+#        pipenv run pytest tests
