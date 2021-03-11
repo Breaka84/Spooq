@@ -26,12 +26,12 @@ jobs:
     - uses: actions/setup-java@v1
       with:
         java-version: '8'
-    
+
     - name: Install Pipenv dependecies
       uses: VaultVulp/action-pipenv@v2.0.1
       with:
-        command: install -d # Install all dependencies, including development ones
-    
+        command: install --dev -v # Install all dependencies, including development ones, verbose mode
+
 #     - name: Lint with flake8
 #       run: |
 #         # stop the build if there are Python syntax errors or undefined names
@@ -40,4 +40,5 @@ jobs:
 #         flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
     - name: Test with pytest
       run: |
+        pip install pytest
         pytest tests
