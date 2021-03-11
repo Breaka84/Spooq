@@ -9,7 +9,7 @@ from spooq2.transformer import Exploder, Mapper
 
 class Flattener(Transformer):
     """
-    Flattens and explodes an input DataFrame and applies it to the DataFrame.
+    Flattens and explodes an input DataFrame.
 
     Example
     -------
@@ -58,6 +58,10 @@ class Flattener(Transformer):
         Defines if Spooq should try to use the shortest name possible
         (starting from the deepest key / rightmost in the path)
 
+    keep_original_columns : :any:`bool`, Defaults to False
+        Whether the original columns should be kept under the ``original_columns`` struct next to the
+	flattenend columns.
+
     convert_timestamps : :any:`bool`, Defaults to True
         Defines if Spooq should use special timestamp and datetime transformation on column names
         with specific suffixes (_at, _time, _date)
@@ -66,9 +70,10 @@ class Flattener(Transformer):
         This flag is forwarded to the Mapper Transformer.
     """
 
-    def __init__(self, pretty_names=True, convert_timestamps=True, ignore_ambiguous_columns=True):
+    def __init__(self, pretty_names=True, keep_original_columns=False, convert_timestamps=True, ignore_ambiguous_columns=True):
         super().__init__()
         self.pretty_names = pretty_names
+        self.keep_original_columns = keep_original_columns
         self.convert_timestamps = convert_timestamps
         self.ignore_ambiguous_columns = ignore_ambiguous_columns
         self.python_script = []
@@ -129,17 +134,24 @@ class Flattener(Transformer):
 
     def _explode_and_get_mapping(self, input_df):
         self.logger.info("Exploding Input DataFrame and Generating Mapping (This can take some time depending on the complexity of the input DataFrame)")
+        initial_mapping = []
+        if self.keep_original_columns:
+            input_df = input_df.withColumn("original_columns", F.struct(*input_df.columns))
         self._script_set_imports()
         self._script_add_input_statement(input_df)
-        exploded_df, preliminary_mapping = self._get_preliminary_mapping(input_df, input_df.schema.jsonValue(), [], [], [])
+        exploded_df, preliminary_mapping = self._get_preliminary_mapping(input_df, input_df.schema.jsonValue(), initial_mapping, [], [])
         fixed_mapping = self._convert_python_to_spark_data_types(preliminary_mapping)
+        if self.keep_original_columns:
+            fixed_mapping.insert(0, ("original_columns", "original_columns", "as_is"))
         self._script_apply_mapping(mapping=fixed_mapping)
         return exploded_df, fixed_mapping
 
     def _get_preliminary_mapping(self, input_df, json_schema, mapping, current_path, exploded_arrays):
         for field in json_schema["fields"]:
             self.logger.debug(json.dumps(field, indent=2))
-            if self._field_is_atomic(field):
+            if self._field_is_original_columns_struct(field) and self.keep_original_columns:
+                continue
+            elif self._field_is_atomic(field):
                 self.logger.debug(f"Atomic Field found: {field['name']}")
                 mapping = self._add_field_to_mapping(mapping, current_path, field)
             elif self._field_is_struct(field):
@@ -174,6 +186,9 @@ class Flattener(Transformer):
                     exploded_arrays.append(array_path)
                     return self._get_preliminary_mapping(input_df=exploded_df, json_schema=exploded_df.schema.jsonValue(), mapping=[], current_path=[], exploded_arrays=exploded_arrays)
         return (input_df, mapping)
+
+    def _field_is_original_columns_struct(self, field):
+        return self._field_is_struct(field) and field["name"] == "original_columns"
 
     def _field_is_atomic(self, field):
         return isinstance(field["type"], str)
@@ -242,7 +257,11 @@ class Flattener(Transformer):
             "timestamp": "TimestampType"
         }
 
-        fixed_mapping = [(name, source, data_type_matrix[data_type]) for (name, source, data_type) in mapping]
+        fixed_mapping = [
+            (name, source, data_type_matrix.get(data_type, data_type))
+            for (name, source, data_type)
+            in mapping
+        ]
 
         if self.convert_timestamps:
             fixed_mapping_with_timestamps = []
@@ -269,10 +288,11 @@ class Flattener(Transformer):
 
     def _script_add_input_statement(self, input_df):
         input_file_names_string = ",".join([row.filename for row in input_df.select(F.input_file_name().alias("filename")).distinct().collect()])
-        self.python_script.extend([
-            f"input_df = spark.read.load('{input_file_names_string}')",
-            ""
-        ])
+        self.python_script.append(f"input_df = spark.read.load('{input_file_names_string}')")
+        if self.keep_original_columns:
+            self.python_script.append("input_df = input_df.withColumn('original_columns', F.struct(*input_df.columns))")
+        self.python_script.append("")
+
         self.logger.debug("\n".join(self.python_script))
 
     def _script_add_explode_transformation(self, path_to_array, exploded_elem_name):

@@ -52,7 +52,7 @@ class Mapper(Transformer):
 
     ignore_ambiguous_columns : :any:`bool`, Defaults to False
         It can happen that the input DataFrame has ambiguous column names (like "Key" vs "key") which will
-        raise an exception with Spark when reading. This flag surpresses this exception and skips the those affected
+        raise an exception with Spark when reading. This flag surpresses this exception and skips those affected
         columns.
 
     mode : :any:`str`, Defaults to "replace"
@@ -89,7 +89,7 @@ class Mapper(Transformer):
     * DataType: :any:`str` or :class:`~pyspark.sql.types.DataType`
         DataTypes can be types from :any:`pyspark.sql.types`, selected custom datatypes or
         injected, ad-hoc custom datatypes.
-        The datatype will be interpreted as a PySpark built-in if it is a member of ``pyspark.sql.types`` module.
+        The datatype will be interpreted as a PySpark built-in if it is a member of :any:`pyspark.sql.types` module.
         If it is not an importable PySpark data type, a method to construct the statement will be
         called by the data type's name.
 

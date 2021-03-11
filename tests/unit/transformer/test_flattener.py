@@ -69,6 +69,20 @@ class TestAlreadyFlatDataFrames:
 
         assert_df_equality(expected_output_df, output_df)
 
+    def test_multiple_columns_of_different_datatype_keeping_original_columns(self, spark_session):
+        input_df = spark_session.createDataFrame([Row(
+            int_val=4789,
+            string_val="Hello World",
+            date_val=datetime.date(2021, 1, 14)
+        )])
+        flattener = Flattener(keep_original_columns=True)
+        output_df = flattener.transform(input_df)
+        expected_output_df = spark_session.createDataFrame([
+            Row(original_columns=Row(int_val=4789, string_val="Hello World", date_val=datetime.date(2021, 1, 14)),
+                int_val=4789, string_val="Hello World", date_val=datetime.date(2021, 1, 14))])
+        expected_output_df.schema["original_columns"].nullable = False
+        assert_df_equality(output_df, expected_output_df)
+
 
 class TestDataFrameContainingArrays:
     def test_single_array(self, spark_session, flattener):
@@ -93,6 +107,24 @@ class TestDataFrameContainingArrays:
             (datetime.datetime(2021, 1, 14, 8, 10, 14), 4791)],
             schema=["timestamp_val", "array_val"])
 
+        assert_df_equality(expected_output_df, output_df)
+
+    def test_single_array_with_other_columns_keeping_original_columns(self, spark_session):
+        input_df = spark_session.createDataFrame([Row(
+            array_val=[4789, 4790, 4791],
+            timestamp_val=datetime.datetime(2021, 1, 14, 8, 10, 14)
+        )])
+        flattener = Flattener(keep_original_columns=True)
+        output_df = flattener.transform(input_df)
+        expected_output_df = spark_session.createDataFrame([
+            Row(original_columns=Row(array_val=[4789, 4790, 4791], timestamp_val=datetime.datetime(2021, 1, 14, 8, 10, 14)),
+                timestamp_val=datetime.datetime(2021, 1, 14, 8, 10, 14), array_val=4789),
+            Row(original_columns=Row(array_val=[4789, 4790, 4791], timestamp_val=datetime.datetime(2021, 1, 14, 8, 10, 14)),
+                timestamp_val=datetime.datetime(2021, 1, 14, 8, 10, 14), array_val=4790),
+            Row(original_columns=Row(array_val=[4789, 4790, 4791], timestamp_val=datetime.datetime(2021, 1, 14, 8, 10, 14)),
+                timestamp_val=datetime.datetime(2021, 1, 14, 8, 10, 14), array_val=4791),
+        ])
+        expected_output_df.schema["original_columns"].nullable = False
         assert_df_equality(expected_output_df, output_df)
 
     def test_multiple_arrays(self, spark_session, flattener):
@@ -309,14 +341,34 @@ class TestComplexRecipes:
             schema=["id", "name", "ppu", "type", "batter_id", "batter_type",
                     "topping_id", "topping_type"])
 
+    @pytest.fixture(scope="class")
+    def expected_output_df_pretty_with_original_columns(self, expected_output_data, input_df, spark_session):
+        original_columns = input_df.first()
+        expected_output_data_with_original_columns = [
+            (original_columns, *row)
+            for row
+            in expected_output_data
+        ]
+        output_df = spark_session.createDataFrame(
+            expected_output_data_with_original_columns,
+            schema=["original_columns", "id", "name", "ppu", "type", "batter_id", "batter_type",
+                    "topping_id", "topping_type"])
+        output_df.schema["original_columns"].nullable = False
+        return output_df
+
     def test_donut(self, input_df, expected_output_df, flattener):
         output_df = flattener.transform(input_df)
         assert_df_equality(expected_output_df, output_df)
 
-    def test_pretty_donut(self, input_df, expected_output_df_pretty, flattener):
-        flattener.pretty_names = True
+    def test_pretty_donut(self, input_df, expected_output_df_pretty):
+        flattener = Flattener(pretty_names=True)
         output_df = flattener.transform(input_df)
         assert_df_equality(expected_output_df_pretty, output_df)
+
+    def test_pretty_donut_with_original_columns(self, input_df, expected_output_df_pretty_with_original_columns):
+        flattener = Flattener(pretty_names=True, keep_original_columns=True)
+        output_df = flattener.transform(input_df)
+        assert_df_equality(expected_output_df_pretty_with_original_columns, output_df)
 
 
 class TestPrettyColumnNames:
@@ -417,7 +469,6 @@ class TestPrettyColumnNames:
             ("How are you?", 4791)],
             schema=["string_val", "array_val"])
 
-
         assert_df_equality(expected_output_df, output_df)
 
     def test_struct_nested_in_array(self, spark_session, flattener):
@@ -437,3 +488,23 @@ class TestPrettyColumnNames:
             schema=["double_val", "int_val", "string_val", "date_val"])
 
         assert_df_equality(expected_output_df, output_df)
+
+
+class TestKeepOriginalColumns:
+
+    @pytest.fixture
+    def flattener(self):
+        return Flattener(keep_original_columns=True)
+
+    def test_simple_struct(self, flattener, spark_session):
+        input_df = spark_session.createDataFrame([Row(
+            struct_val=Row(int_val=4789, string_val="Hello World")
+        )])
+        expected_output_df = spark_session.createDataFrame([Row(
+            original_columns=Row(struct_val=Row(int_val=4789, string_val="Hello World")),
+            int_val=4789,
+            string_val="Hello World"
+        )])
+        expected_output_df.schema["original_columns"].nullable = False
+        output_df = flattener.transform(input_df)
+        assert_df_equality(output_df, expected_output_df)
