@@ -21,6 +21,7 @@ jobs:
       with:
         python-version: 3.7
     - name: Install pipenv
+      working-directory: ./tests
       run: pip install pipenv
     - name: Run tests
       working-directory: ./tests
