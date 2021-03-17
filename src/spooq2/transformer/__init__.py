@@ -4,6 +4,7 @@ from .exploder import Exploder
 from .threshold_cleaner import ThresholdCleaner
 from .enum_cleaner import EnumCleaner
 from .sieve import Sieve
+from .flattener import Flattener
 
 __all__ = [
     "NewestByGroup",
@@ -12,4 +13,5 @@ __all__ = [
     "ThresholdCleaner",
     "EnumCleaner",
     "Sieve",
+    "Flattener",
 ]

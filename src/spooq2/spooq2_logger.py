@@ -15,6 +15,8 @@ import os
 import sys
 import logging
 
+from spooq2._version import __version__ as version_number
+
 initialized = False
 
 
@@ -62,6 +64,8 @@ def initialize():
         # logger.addHandler(ch_err)
 
         initialized = True
+
+    logger.info(f"Thank you for choosing Spooq {version_number}!")
 
 
 def get_logging_level():
