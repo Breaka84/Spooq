@@ -13,10 +13,12 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: Set up Java 1.8
+      working-directory: ./tests
       uses: actions/setup-java@v1
       with:
         java-version: '8'
     - name: Set up Python 3.7
+      working-directory: ./tests
       uses: actions/setup-python@v2
       with:
         python-version: 3.7
