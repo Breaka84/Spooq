@@ -23,7 +23,7 @@ jobs:
     - name: Install pipenv
       run: pip install pipenv
     - name: Run tests
-      #working-directory: ./tests
+      working-directory: ./tests
       run: |
         pipenv install --dev
         pipenv run pytest
