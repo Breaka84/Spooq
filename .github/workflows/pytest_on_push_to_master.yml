@@ -27,4 +27,5 @@ jobs:
       working-directory: ./tests
       run: |
         pipenv install --dev
+        echo "starting tests"
         pipenv run pytest
