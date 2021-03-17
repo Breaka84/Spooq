@@ -31,4 +31,4 @@ jobs:
       working-directory: ./tests
       run: |
         pipenv install --dev
-        pipenv run pytest tests
+        pipenv run pytest
