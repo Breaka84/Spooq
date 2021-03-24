@@ -30,5 +30,7 @@ jobs:
     - name: Run tests
       working-directory: ./tests
       run: |
+        echo "running on new branch"
         pipenv install --dev
         pipenv run pytest
+
