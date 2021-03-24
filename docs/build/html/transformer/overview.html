@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Transformers &mdash; Spooq2 3.0.0b documentation</title>
+  <title>Transformers &mdash; Spooq2 3.2.0 documentation</title>
   
 
   
@@ -24,7 +24,6 @@
         <script src="../_static/jquery.js"></script>
         <script src="../_static/underscore.js"></script>
         <script src="../_static/doctools.js"></script>
-        <script src="../_static/language_data.js"></script>
     
     <script type="text/javascript" src="../_static/js/theme.js"></script>
 
@@ -93,10 +92,12 @@
 <li class="toctree-l1"><a class="reference internal" href="../extractor/overview.html">Extractors</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Transformers</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="exploder.html">Exploder</a></li>
-<li class="toctree-l2"><a class="reference internal" href="sieve.html">Sieve (Filter)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="mapper.html">Mapper</a></li>
-<li class="toctree-l2"><a class="reference internal" href="threshold_cleaner.html">Threshold-based Cleaner</a></li>
 <li class="toctree-l2"><a class="reference internal" href="newest_by_group.html">Newest by Group (Most current record per ID)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mapper.html">Mapper</a></li>
+<li class="toctree-l2"><a class="reference internal" href="flattener.html">Flattener</a></li>
+<li class="toctree-l2"><a class="reference internal" href="threshold_cleaner.html">Threshold-based Cleaner</a></li>
+<li class="toctree-l2"><a class="reference internal" href="enum_cleaner.html">Enumeration-based Cleaner</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sieve.html">Sieve (Filter)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#class-diagram-of-transformer-subpackage">Class Diagram of Transformer Subpackage</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#create-your-own-transformer">Create your own Transformer</a></li>
 </ul>
@@ -181,7 +182,7 @@ and returns a PySpark DataFrame.</p>
 <div class="toctree-wrapper compound">
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="exploder.html">Exploder</a></li>
-<li class="toctree-l1"><a class="reference internal" href="sieve.html">Sieve (Filter)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="newest_by_group.html">Newest by Group (Most current record per ID)</a></li>
 <li class="toctree-l1"><a class="reference internal" href="mapper.html">Mapper</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="mapper.html#class">Class</a></li>
 <li class="toctree-l2"><a class="reference internal" href="mapper.html#activity-diagram">Activity Diagram</a></li>
@@ -214,8 +215,10 @@ and returns a PySpark DataFrame.</p>
 <li class="toctree-l2"><a class="reference internal" href="mapper.html#module-spooq2.transformer.mapper_custom_data_types">Custom Mapping Methods Details</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="flattener.html">Flattener</a></li>
 <li class="toctree-l1"><a class="reference internal" href="threshold_cleaner.html">Threshold-based Cleaner</a></li>
-<li class="toctree-l1"><a class="reference internal" href="newest_by_group.html">Newest by Group (Most current record per ID)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="enum_cleaner.html">Enumeration-based Cleaner</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sieve.html">Sieve (Filter)</a></li>
 </ul>
 </div>
 <div class="section" id="class-diagram-of-transformer-subpackage">

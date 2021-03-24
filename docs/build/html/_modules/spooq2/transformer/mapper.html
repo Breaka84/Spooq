@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>spooq2.transformer.mapper &mdash; Spooq2 3.0.0b documentation</title>
+  <title>spooq2.transformer.mapper &mdash; Spooq2 3.2.0 documentation</title>
   
 
   
@@ -24,7 +24,6 @@
         <script src="../../../_static/jquery.js"></script>
         <script src="../../../_static/underscore.js"></script>
         <script src="../../../_static/doctools.js"></script>
-        <script src="../../../_static/language_data.js"></script>
     
     <script type="text/javascript" src="../../../_static/js/theme.js"></script>
 
@@ -209,6 +208,11 @@
 <span class="sd">        Specifies if the mapping transformation should use NULL if a referenced input</span>
 <span class="sd">        column is missing in the provided DataFrame. If set to False, it will raise an exception.</span>
 
+<span class="sd">    ignore_ambiguous_columns : :any:`bool`, Defaults to False</span>
+<span class="sd">        It can happen that the input DataFrame has ambiguous column names (like &quot;Key&quot; vs &quot;key&quot;) which will</span>
+<span class="sd">        raise an exception with Spark when reading. This flag surpresses this exception and skips those affected</span>
+<span class="sd">        columns.</span>
+
 <span class="sd">    mode : :any:`str`, Defaults to &quot;replace&quot;</span>
 <span class="sd">        Defines weather the mapping should fully replace the schema of the input DataFrame or just add to it.</span>
 <span class="sd">        Following modes are supported:</span>
@@ -243,7 +247,7 @@
 <span class="sd">    * DataType: :any:`str` or :class:`~pyspark.sql.types.DataType`</span>
 <span class="sd">        DataTypes can be types from :any:`pyspark.sql.types`, selected custom datatypes or</span>
 <span class="sd">        injected, ad-hoc custom datatypes.</span>
-<span class="sd">        The datatype will be interpreted as a PySpark built-in if it is a member of ``pyspark.sql.types`` module.</span>
+<span class="sd">        The datatype will be interpreted as a PySpark built-in if it is a member of :any:`pyspark.sql.types` module.</span>
 <span class="sd">        If it is not an importable PySpark data type, a method to construct the statement will be</span>
 <span class="sd">        called by the data type&#39;s name.</span>
 
@@ -265,15 +269,17 @@
 <span class="sd">    Attention: Decimal is NOT SUPPORTED by Hive! Please use Double instead!</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mapping</span><span class="p">,</span> <span class="n">ignore_missing_columns</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;replace&quot;</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mapping</span><span class="p">,</span> <span class="n">ignore_missing_columns</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">ignore_ambiguous_columns</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;replace&quot;</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">Mapper</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">mapping</span> <span class="o">=</span> <span class="n">mapping</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">ignore_missing_columns</span> <span class="o">=</span> <span class="n">ignore_missing_columns</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ignore_ambiguous_columns</span> <span class="o">=</span> <span class="n">ignore_ambiguous_columns</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">mode</span> <span class="o">=</span> <span class="n">mode</span>
 
     <span class="k">def</span> <span class="nf">transform</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_df</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Generating SQL Select-Expression for Mapping...&quot;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Input Schema/Mapping: </span><span class="si">{mp}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">mp</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mapping</span><span class="p">)))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Input Schema/Mapping:&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">mapping_line</span><span class="p">))</span> <span class="k">for</span> <span class="n">mapping_line</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">mapping</span><span class="p">]))</span>
 
         <span class="n">input_columns</span> <span class="o">=</span> <span class="n">input_df</span><span class="o">.</span><span class="n">columns</span>
         <span class="n">select_expressions</span> <span class="o">=</span> <span class="p">[]</span>
@@ -285,6 +291,8 @@
             <span class="p">)</span>
 
             <span class="n">source_column</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_spark_column</span><span class="p">(</span><span class="n">source_column</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">input_df</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">source_column</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">continue</span>
             <span class="n">data_type</span><span class="p">,</span> <span class="n">data_type_is_spark_builtin</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_spark_data_type</span><span class="p">(</span><span class="n">data_type</span><span class="p">)</span>
             <span class="n">select_expression</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_select_expression</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">source_column</span><span class="p">,</span> <span class="n">data_type</span><span class="p">,</span> <span class="n">data_type_is_spark_builtin</span><span class="p">)</span>
 
@@ -296,7 +304,7 @@
                 <span class="n">select_expressions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">select_expression</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;SQL Select-Expression for new mapping generated!&quot;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;SQL Select-Expressions for new mapping: &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">select_expressions</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;SQL Select-Expressions for new mapping:</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">select_expressions</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">)))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;SQL WithColumn-Expressions for new mapping: &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">with_column_expressions</span><span class="p">))</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">mode</span> <span class="o">==</span> <span class="s2">&quot;prepend&quot;</span><span class="p">:</span>
             <span class="n">df_to_return</span> <span class="o">=</span> <span class="n">input_df</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">select_expressions</span> <span class="o">+</span> <span class="p">[</span><span class="s2">&quot;*&quot;</span><span class="p">])</span>
@@ -327,7 +335,11 @@
 
         <span class="k">except</span> <span class="n">AnalysisException</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">source_column</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">ignore_missing_columns</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Missing column (</span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">source_column</span><span class="p">)</span><span class="si">}</span><span class="s2">) replaced with NULL (via ignore_missing_columns=True): </span><span class="si">{</span><span class="n">e</span><span class="o">.</span><span class="n">desc</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
                 <span class="n">source_column</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">lit</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">e</span><span class="o">.</span><span class="n">desc</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;Ambiguous reference to fields&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">ignore_ambiguous_columns</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Exception ignored (via ignore_ambiguous_columns=True) for column </span><span class="se">\&quot;</span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">source_column</span><span class="p">)</span><span class="si">}</span><span class="se">\&quot;</span><span class="s2">: </span><span class="si">{</span><span class="n">e</span><span class="o">.</span><span class="n">desc</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="k">return</span> <span class="kc">None</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span>
                     <span class="s2">&quot;Column: </span><span class="se">\&quot;</span><span class="si">{}</span><span class="se">\&quot;</span><span class="s2"> cannot be resolved &quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">source_column</span><span class="p">))</span> <span class="o">+</span>

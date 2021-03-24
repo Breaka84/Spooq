@@ -8,6 +8,7 @@ Changelog
 * [MOD] add ignore_ambiguous_columns to Mapper (and Flattener)
 * [MOD] log spooq version when importing
 * [REM] Drop separate spark package (bin-folder) as pip package can now handle all tests as well
+* [ADD] Github action to test on label (test-it) or merge into master
 
 3.1.0 (2021-01-27)
 -------------------

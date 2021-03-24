@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Index &mdash; Spooq2 3.0.0b documentation</title>
+  <title>Index &mdash; Spooq2 3.2.0 documentation</title>
   
 
   
@@ -24,7 +24,6 @@
         <script src="_static/jquery.js"></script>
         <script src="_static/underscore.js"></script>
         <script src="_static/doctools.js"></script>
-        <script src="_static/language_data.js"></script>
     
     <script type="text/javascript" src="_static/js/theme.js"></script>
 
@@ -163,6 +162,7 @@
  <a href="#_"><strong>_</strong></a>
  | <a href="#A"><strong>A</strong></a>
  | <a href="#E"><strong>E</strong></a>
+ | <a href="#F"><strong>F</strong></a>
  | <a href="#G"><strong>G</strong></a>
  | <a href="#H"><strong>H</strong></a>
  | <a href="#I"><strong>I</strong></a>
@@ -249,10 +249,16 @@
 <h2 id="E">E</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="transformer/enum_cleaner.html#spooq2.transformer.enum_cleaner.EnumCleaner">EnumCleaner (class in spooq2.transformer.enum_cleaner)</a>
+</li>
       <li><a href="pipeline/pipeline_factory.html#spooq2.pipeline.factory.PipelineFactory.execute">execute() (PipelineFactory method)</a>
 </li>
       <li><a href="transformer/exploder.html#spooq2.transformer.exploder.Exploder">Exploder (class in spooq2.transformer.exploder)</a>
 </li>
+      <li><a href="transformer/flattener.html#spooq2.transformer.flattener.Flattener.export_script">export_script() (Flattener method)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="extractor/overview.html#spooq2.extractor.extractor.Extractor.extract">extract() (Extractor method)</a>
 
       <ul>
@@ -263,9 +269,15 @@
         <li><a href="extractor/json.html#spooq2.extractor.json_files.JSONExtractor.extract">(JSONExtractor method)</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="extractor/overview.html#spooq2.extractor.extractor.Extractor">Extractor (class in spooq2.extractor.extractor)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="F">F</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="transformer/flattener.html#spooq2.transformer.flattener.Flattener">Flattener (class in spooq2.transformer.flattener)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -275,11 +287,13 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="base_classes/spooq2_logger.html#spooq2.spooq2_logger.get_logging_level">get_logging_level() (in module spooq2.spooq2_logger)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="pipeline/pipeline_factory.html#spooq2.pipeline.factory.PipelineFactory.get_metadata">get_metadata() (PipelineFactory method)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="pipeline/pipeline_factory.html#spooq2.pipeline.factory.PipelineFactory.get_pipeline">get_pipeline() (PipelineFactory method)</a>
+</li>
+      <li><a href="transformer/flattener.html#spooq2.transformer.flattener.Flattener.get_script">get_script() (Flattener method)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -353,7 +367,11 @@
 </li>
         <li><a href="base_classes/spooq2_logger.html#module-spooq2.spooq2_logger">spooq2.spooq2_logger</a>
 </li>
+        <li><a href="transformer/enum_cleaner.html#module-spooq2.transformer.enum_cleaner">spooq2.transformer.enum_cleaner</a>
+</li>
         <li><a href="transformer/exploder.html#module-spooq2.transformer.exploder">spooq2.transformer.exploder</a>
+</li>
+        <li><a href="transformer/flattener.html#module-spooq2.transformer.flattener">spooq2.transformer.flattener</a>
 </li>
         <li><a href="transformer/mapper.html#module-spooq2.transformer.mapper_custom_data_types">spooq2.transformer.mapper_custom_data_types</a>
 </li>
@@ -443,8 +461,6 @@
         <li><a href="pipeline/pipeline.html#module-spooq2.pipeline.pipeline">module</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li>
     spooq2.spooq2_logger
 
@@ -452,11 +468,27 @@
         <li><a href="base_classes/spooq2_logger.html#module-spooq2.spooq2_logger">module</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li>
+    spooq2.transformer.enum_cleaner
+
+      <ul>
+        <li><a href="transformer/enum_cleaner.html#module-spooq2.transformer.enum_cleaner">module</a>
+</li>
+      </ul></li>
       <li>
     spooq2.transformer.exploder
 
       <ul>
         <li><a href="transformer/exploder.html#module-spooq2.transformer.exploder">module</a>
+</li>
+      </ul></li>
+      <li>
+    spooq2.transformer.flattener
+
+      <ul>
+        <li><a href="transformer/flattener.html#module-spooq2.transformer.flattener">module</a>
 </li>
       </ul></li>
       <li>
@@ -502,9 +534,13 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="transformer/threshold_cleaner.html#spooq2.transformer.threshold_cleaner.ThresholdCleaner">ThresholdCleaner (class in spooq2.transformer.threshold_cleaner)</a>
 </li>
-      <li><a href="transformer/exploder.html#spooq2.transformer.exploder.Exploder.transform">transform() (Exploder method)</a>
+      <li><a href="transformer/enum_cleaner.html#spooq2.transformer.enum_cleaner.EnumCleaner.transform">transform() (EnumCleaner method)</a>
 
       <ul>
+        <li><a href="transformer/exploder.html#spooq2.transformer.exploder.Exploder.transform">(Exploder method)</a>
+</li>
+        <li><a href="transformer/flattener.html#spooq2.transformer.flattener.Flattener.transform">(Flattener method)</a>
+</li>
         <li><a href="transformer/newest_by_group.html#spooq2.transformer.newest_by_group.NewestByGroup.transform">(NewestByGroup method)</a>
 </li>
         <li><a href="transformer/sieve.html#spooq2.transformer.sieve.Sieve.transform">(Sieve method)</a>

@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Mapper &mdash; Spooq2 3.0.0b documentation</title>
+  <title>Mapper &mdash; Spooq2 3.2.0 documentation</title>
   
 
   
@@ -24,7 +24,6 @@
         <script src="../_static/jquery.js"></script>
         <script src="../_static/underscore.js"></script>
         <script src="../_static/doctools.js"></script>
-        <script src="../_static/language_data.js"></script>
     
     <script type="text/javascript" src="../_static/js/theme.js"></script>
 
@@ -36,8 +35,8 @@
   <link rel="stylesheet" href="../_static/theme_overrides.css" type="text/css" />
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Threshold-based Cleaner" href="threshold_cleaner.html" />
-    <link rel="prev" title="Sieve (Filter)" href="sieve.html" /> 
+    <link rel="next" title="Flattener" href="flattener.html" />
+    <link rel="prev" title="Newest by Group (Most current record per ID)" href="newest_by_group.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
@@ -93,7 +92,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../extractor/overview.html">Extractors</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="overview.html">Transformers</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="exploder.html">Exploder</a></li>
-<li class="toctree-l2"><a class="reference internal" href="sieve.html">Sieve (Filter)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="newest_by_group.html">Newest by Group (Most current record per ID)</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">Mapper</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#class">Class</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#activity-diagram">Activity Diagram</a></li>
@@ -126,8 +125,10 @@
 <li class="toctree-l3"><a class="reference internal" href="#module-spooq2.transformer.mapper_custom_data_types">Custom Mapping Methods Details</a></li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="flattener.html">Flattener</a></li>
 <li class="toctree-l2"><a class="reference internal" href="threshold_cleaner.html">Threshold-based Cleaner</a></li>
-<li class="toctree-l2"><a class="reference internal" href="newest_by_group.html">Newest by Group (Most current record per ID)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="enum_cleaner.html">Enumeration-based Cleaner</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sieve.html">Sieve (Filter)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="overview.html#class-diagram-of-transformer-subpackage">Class Diagram of Transformer Subpackage</a></li>
 <li class="toctree-l2"><a class="reference internal" href="overview.html#create-your-own-transformer">Create your own Transformer</a></li>
 </ul>
@@ -208,7 +209,7 @@
 <h2>Class<a class="headerlink" href="#class" title="Permalink to this headline">¶</a></h2>
 <dl class="py class">
 <dt id="spooq2.transformer.mapper.Mapper">
-<em class="property">class </em><code class="sig-name descname">Mapper</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">mapping</span></em>, <em class="sig-param"><span class="n">ignore_missing_columns</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">mode</span><span class="o">=</span><span class="default_value">'replace'</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/spooq2/transformer/mapper.html#Mapper"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spooq2.transformer.mapper.Mapper" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">Mapper</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">mapping</span></em>, <em class="sig-param"><span class="n">ignore_missing_columns</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">ignore_ambiguous_columns</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">mode</span><span class="o">=</span><span class="default_value">'replace'</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/spooq2/transformer/mapper.html#Mapper"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spooq2.transformer.mapper.Mapper" title="Permalink to this definition">¶</a></dt>
 <dd><p>Constructs and applies a PySpark SQL expression, based on the provided mapping.</p>
 <p class="rubric">Examples</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pyspark.sql</span> <span class="kn">import</span> <span class="n">functions</span> <span class="k">as</span> <span class="n">F</span>
@@ -243,6 +244,9 @@ clean, pivot, anonymize, … the data itself. Please have a look at the
 <a class="reference internal" href="#module-spooq2.transformer.mapper_custom_data_types" title="spooq2.transformer.mapper_custom_data_types"><code class="xref py py-mod docutils literal notranslate"><span class="pre">spooq2.transformer.mapper_custom_data_types</span></code></a> module for more information.</p></li>
 <li><p><strong>ignore_missing_columns</strong> (<a class="reference external" href="https://docs.python.org/3.7/library/functions.html#bool" title="(in Python v3.7)"><code class="xref any docutils literal notranslate"><span class="pre">bool</span></code></a>, Defaults to False) – Specifies if the mapping transformation should use NULL if a referenced input
 column is missing in the provided DataFrame. If set to False, it will raise an exception.</p></li>
+<li><p><strong>ignore_ambiguous_columns</strong> (<a class="reference external" href="https://docs.python.org/3.7/library/functions.html#bool" title="(in Python v3.7)"><code class="xref any docutils literal notranslate"><span class="pre">bool</span></code></a>, Defaults to False) – It can happen that the input DataFrame has ambiguous column names (like “Key” vs “key”) which will
+raise an exception with Spark when reading. This flag surpresses this exception and skips those affected
+columns.</p></li>
 <li><p><strong>mode</strong> (<a class="reference external" href="https://docs.python.org/3.7/library/stdtypes.html#str" title="(in Python v3.7)"><code class="xref any docutils literal notranslate"><span class="pre">str</span></code></a>, Defaults to “replace”) – <p>Defines weather the mapping should fully replace the schema of the input DataFrame or just add to it.
 Following modes are supported:</p>
 <blockquote>
@@ -296,7 +300,7 @@ a PySpark Column which will get evaluated. This can contain arbitrary logic supp
 <li><dl class="simple">
 <dt>DataType: <a class="reference external" href="https://docs.python.org/3.7/library/stdtypes.html#str" title="(in Python v3.7)"><code class="xref any docutils literal notranslate"><span class="pre">str</span></code></a> or <a class="reference external" href="https://spark.apache.org/docs/3.0.1/api/python/pyspark.sql.html#pyspark.sql.types.DataType" title="(in PySpark vmaster)"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataType</span></code></a></dt><dd><p>DataTypes can be types from <a class="reference external" href="https://spark.apache.org/docs/3.0.1/api/python/pyspark.sql.html#module-pyspark.sql.types" title="(in PySpark vmaster)"><code class="xref any docutils literal notranslate"><span class="pre">pyspark.sql.types</span></code></a>, selected custom datatypes or
 injected, ad-hoc custom datatypes.
-The datatype will be interpreted as a PySpark built-in if it is a member of <code class="docutils literal notranslate"><span class="pre">pyspark.sql.types</span></code> module.
+The datatype will be interpreted as a PySpark built-in if it is a member of <a class="reference external" href="https://spark.apache.org/docs/3.0.1/api/python/pyspark.sql.html#module-pyspark.sql.types" title="(in PySpark vmaster)"><code class="xref any docutils literal notranslate"><span class="pre">pyspark.sql.types</span></code></a> module.
 If it is not an importable PySpark data type, a method to construct the statement will be
 called by the data type’s name.</p>
 </dd>
@@ -1305,10 +1309,10 @@ tests/data/test_fixtures/mapper_custom_data_types_fixtures.py</p>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="threshold_cleaner.html" class="btn btn-neutral float-right" title="Threshold-based Cleaner" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="flattener.html" class="btn btn-neutral float-right" title="Flattener" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="sieve.html" class="btn btn-neutral float-left" title="Sieve (Filter)" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="newest_by_group.html" class="btn btn-neutral float-left" title="Newest by Group (Most current record per ID)" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
