@@ -6,7 +6,6 @@ name = "pypi"
 [dev-packages]
 # Developing / Debugging
 ipython = "*"
-pyspark = "==3.0.1"
 #Testing
 doubles = "*"
 Faker = "*"
@@ -41,4 +40,3 @@ pyspark = "==3.0.1"
 
 [requires]
 python_version = "3.7"
-
