@@ -12,8 +12,11 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        pyspark-version: ["3.0.1", "2.4.3"]
-
+        include:
+          - pyspark-version: 3.0.1
+            pyspark-pip-package: "pyspark==3.0.1"
+          - pyspark-version: 2.4.3
+            pyspark-pip-package: "pyspark==2.4.3"
     steps:
     - uses: actions/checkout@v2
     - name: Set up Java 1.8
@@ -27,8 +30,12 @@ jobs:
     - name: Install pipenv
       run: pip install pipenv
     - name: Run tests with Pyspark ${{ matrix.python-version }}
+      env:
+        PYSPARK_VERSION_NUMBER: ${{ matrix.pyspark-version }}
+        PYSPARK_PIP_PACKAGE: ${{ matrix.pyspark-pip-package }}
       working-directory: ./tests
       run: |
+        echo "Installing Pyspark ${PYSPARK_VERSION_NUMBER} from pip package ${PYSPARK_PIP_PACKAGE}"
         pipenv install --dev
-        pipenv install ${{ matrix.python-version }}
+        pipenv install $PYSPARK_PIP_PACKAGE
         pipenv run pytest
