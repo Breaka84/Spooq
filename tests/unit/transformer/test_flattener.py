@@ -1,9 +1,11 @@
 import pytest
-from chispa.dataframe_comparer import assert_df_equality
+from chispa.dataframe_comparer import assert_df_equality as chispa_assert_df_equality
 from pyspark.sql import Row
 import datetime
+import json
 
 from spooq2.transformer import Flattener
+from ...helpers.skip_conditions import only_spark3
 
 
 @pytest.fixture
@@ -19,6 +21,27 @@ def assert_mapping_equality(mapping_1, mapping_2, spark):
             spark.createDataFrame(mapping_1, ["name", "source", "type"]),
             spark.createDataFrame(mapping_2, ["name", "source", "type"])
         )
+
+
+def assert_df_equality(df1, df2, ignore_nullable=True, reorder_dataframes=False):
+    spark_session = df1.sql_ctx
+
+    def order_dict(dictionary):
+        result = {}
+        for k, v in sorted(dictionary.items()):
+            if isinstance(v, dict):
+                result[k] = order_dict(v)
+            else:
+                result[k] = v
+        return result
+
+    if reorder_dataframes:
+        df1_json_list = [json.dumps(order_dict(json.loads(json_string))) for json_string in df1.toJSON().collect()]
+        df2_json_list = [json.dumps(order_dict(json.loads(json_string))) for json_string in df2.toJSON().collect()]
+        df1 = spark_session.read.json(spark_session._sc.parallelize(df1_json_list))
+        df2 = spark_session.read.json(spark_session._sc.parallelize(df2_json_list))
+
+    return chispa_assert_df_equality(df1, df2, ignore_nullable)
 
 
 class TestBasicAttributes:
@@ -57,7 +80,7 @@ class TestAlreadyFlatDataFrames:
 
         assert_df_equality(expected_output_df, output_df)
 
-    def test_multiple_columns_of_different_datatype(self, spark_session, flattener):
+    def test_multiple_columns_of_different_datatype(self, spark_session, spark_major_version, flattener):
         input_df = spark_session.createDataFrame([Row(
             int_val=4789,
             string_val="Hello World",
@@ -67,9 +90,13 @@ class TestAlreadyFlatDataFrames:
         expected_output_df = spark_session.createDataFrame([
             (4789, "Hello World", datetime.date(2021, 1, 14))], schema=["int_val", "string_val", "date_val"])
 
-        assert_df_equality(expected_output_df, output_df)
+        if spark_major_version == "2":
+            reorder_dataframes = True
+        else:
+            reorder_dataframes = False
+        assert_df_equality(expected_output_df, output_df, reorder_dataframes=reorder_dataframes)
 
-    def test_multiple_columns_of_different_datatype_keeping_original_columns(self, spark_session):
+    def test_multiple_columns_of_different_datatype_keeping_original_columns(self, spark_session, spark_major_version):
         input_df = spark_session.createDataFrame([Row(
             int_val=4789,
             string_val="Hello World",
@@ -81,7 +108,11 @@ class TestAlreadyFlatDataFrames:
             Row(original_columns=Row(int_val=4789, string_val="Hello World", date_val=datetime.date(2021, 1, 14)),
                 int_val=4789, string_val="Hello World", date_val=datetime.date(2021, 1, 14))])
         expected_output_df.schema["original_columns"].nullable = False
-        assert_df_equality(output_df, expected_output_df)
+        if spark_major_version == "2":
+            reorder_dataframes = True
+        else:
+            reorder_dataframes = False
+        assert_df_equality(expected_output_df, output_df, reorder_dataframes=reorder_dataframes)
 
 
 class TestDataFrameContainingArrays:
@@ -109,7 +140,7 @@ class TestDataFrameContainingArrays:
 
         assert_df_equality(expected_output_df, output_df)
 
-    def test_single_array_with_other_columns_keeping_original_columns(self, spark_session):
+    def test_single_array_with_other_columns_keeping_original_columns(self, spark_session, spark_major_version):
         input_df = spark_session.createDataFrame([Row(
             array_val=[4789, 4790, 4791],
             timestamp_val=datetime.datetime(2021, 1, 14, 8, 10, 14)
@@ -125,7 +156,11 @@ class TestDataFrameContainingArrays:
                 timestamp_val=datetime.datetime(2021, 1, 14, 8, 10, 14), array_val=4791),
         ])
         expected_output_df.schema["original_columns"].nullable = False
-        assert_df_equality(expected_output_df, output_df)
+        if spark_major_version == "2":
+            reorder_dataframes = True
+        else:
+            reorder_dataframes = False
+        assert_df_equality(expected_output_df, output_df, reorder_dataframes=reorder_dataframes)
 
     def test_multiple_arrays(self, spark_session, flattener):
         input_df = spark_session.createDataFrame([Row(
@@ -207,7 +242,7 @@ class TestDataFrameContainingArrays:
 
         assert_df_equality(expected_output_df, output_df)
 
-    def test_struct_nested_in_array(self, spark_session, flattener):
+    def test_struct_nested_in_array(self, spark_session, flattener, spark_major_version):
         input_df = spark_session.createDataFrame([Row(
             array_val=[Row(int_val=4789,
                            string_val="Hello Darkness",
@@ -224,7 +259,11 @@ class TestDataFrameContainingArrays:
             schema=["double_val", "array_val_int_val",
                     "array_val_string_val", "array_val_date_val"])
 
-        assert_df_equality(expected_output_df, output_df)
+        if spark_major_version == "2":
+            reorder_dataframes = True
+        else:
+            reorder_dataframes = False
+        assert_df_equality(expected_output_df, output_df, reorder_dataframes=reorder_dataframes)
 
 
 class TestDataFrameContainingStructs:
@@ -248,7 +287,7 @@ class TestDataFrameContainingStructs:
 
         assert_df_equality(expected_output_df, output_df)
 
-    def test_nested_struct_attributes(self, spark_session, flattener):
+    def test_nested_struct_attributes(self, spark_session, flattener, spark_major_version):
         input_df = spark_session.createDataFrame([Row(
             struct_val_1=Row(
                 struct_val_2=Row(
@@ -268,7 +307,11 @@ class TestDataFrameContainingStructs:
                     "struct_val_1_double_val",
                     "timestamp_val"]
         )
-        assert_df_equality(expected_output_df, output_df)
+        if spark_major_version == "2":
+            reorder_dataframes = True
+        else:
+            reorder_dataframes = False
+        assert_df_equality(expected_output_df, output_df, reorder_dataframes=reorder_dataframes)
 
 
 class TestComplexRecipes:
@@ -396,6 +439,7 @@ class TestPrettyColumnNames:
         output_df = flattener.transform(input_df)
         assert_df_equality(output_df, expected_output_df)
 
+    @only_spark3
     def test_nested_struct_attributes(self, flattener, spark_session):
         input_df = spark_session.createDataFrame([Row(
             struct_val_1=Row(
@@ -471,7 +515,7 @@ class TestPrettyColumnNames:
 
         assert_df_equality(expected_output_df, output_df)
 
-    def test_struct_nested_in_array(self, spark_session, flattener):
+    def test_struct_nested_in_array(self, spark_session, flattener, spark_major_version):
         input_df = spark_session.createDataFrame([Row(
             array_val=[Row(int_val=4789,
                            string_val="Hello Darkness",
@@ -487,7 +531,11 @@ class TestPrettyColumnNames:
             (43.102, 4790, "My Old Friend", datetime.date(2021, 1, 15))],
             schema=["double_val", "int_val", "string_val", "date_val"])
 
-        assert_df_equality(expected_output_df, output_df)
+        if spark_major_version == "2":
+            reorder_dataframes = True
+        else:
+            reorder_dataframes = False
+        assert_df_equality(expected_output_df, output_df, reorder_dataframes=reorder_dataframes)
 
 
 class TestKeepOriginalColumns:
@@ -496,7 +544,7 @@ class TestKeepOriginalColumns:
     def flattener(self):
         return Flattener(keep_original_columns=True)
 
-    def test_simple_struct(self, flattener, spark_session):
+    def test_simple_struct(self, flattener, spark_session, spark_major_version):
         input_df = spark_session.createDataFrame([Row(
             struct_val=Row(int_val=4789, string_val="Hello World")
         )])
@@ -507,4 +555,8 @@ class TestKeepOriginalColumns:
         )])
         expected_output_df.schema["original_columns"].nullable = False
         output_df = flattener.transform(input_df)
-        assert_df_equality(output_df, expected_output_df)
+        if spark_major_version == "2":
+            reorder_dataframes = True
+        else:
+            reorder_dataframes = False
+        assert_df_equality(expected_output_df, output_df, reorder_dataframes=reorder_dataframes)
