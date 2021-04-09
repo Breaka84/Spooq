@@ -10,10 +10,10 @@ import pyspark.sql.functions as F
 import pyspark.sql.types as sql_types
 from pyspark.sql.column import Column
 
-from .transformer import Transformer
+from .base_cleaner import BaseCleaner
 
 
-class ThresholdCleaner(Transformer):
+class ThresholdCleaner(BaseCleaner):
     """
     Sets outiers within a DataFrame to a default value.
     Takes a dictionary with valid value ranges for each column to be cleaned.
@@ -40,6 +40,10 @@ class ThresholdCleaner(Transformer):
     thresholds : :py:class:`dict`
         Dictionary containing column names and respective valid ranges
 
+    column_to_log_cleansed_values : :any:`str`, Defaults to None
+        Defines a column in which the original (uncleansed) value will be stored in case of cleansing. If no column
+        name is given, nothing will be logged.
+
     Returns
     -------
     :any:`pyspark.sql.DataFrame`
@@ -56,16 +60,22 @@ class ThresholdCleaner(Transformer):
     Only Numeric, TimestampType, and DateType data types are supported!
     """
 
-    def __init__(self, thresholds={}):
-        super(ThresholdCleaner, self).__init__()
-        self.thresholds = thresholds
-        self.logger.debug("Range Definitions: " + str(self.thresholds))
+    def __init__(self, thresholds={}, column_to_log_cleansed_values=None):
+        super().__init__(cleaning_definitions=thresholds, column_to_log_cleansed_values=column_to_log_cleansed_values)
+        self.logger.debug("Range Definitions: " + str(self.cleaning_definitions))
+        self.TEMPORARY_COLUMNS_PREFIX = "dac28b56d8055953a7038bfe3b5097e7"  # SHA1 hash of "ThresholdCleaner"
 
     def transform(self, input_df):
         self.logger.debug("input_df Schema: " + input_df._jdf.schema().treeString())
-
         ordered_column_names = input_df.columns
-        for column_name, value_range in list(self.thresholds.items()):
+
+        if self.column_to_log_cleansed_values:
+            column_names_to_clean = self.cleaning_definitions.keys()
+            temporary_column_names = self._get_temporary_column_names(column_names_to_clean)
+            input_df = self._add_temporary_columns(input_df, column_names_to_clean, temporary_column_names)
+
+        cleansing_expressions = []
+        for column_name, value_range in list(self.cleaning_definitions.items()):
 
             data_type = input_df.schema[str(column_name)].dataType
             substitute = value_range.get("default", None)
@@ -86,16 +96,31 @@ class ThresholdCleaner(Transformer):
                 "Ranges for column " + column_name + ": " + str(value_range)
             )
 
-            input_df = input_df.withColumn(
-                column_name,
-                F.when(
-                    input_df[column_name].between(
-                        value_range["min"], value_range["max"]
-                    ),
-                    input_df[column_name],
-                )
-                .otherwise(substitute)
-                .cast(data_type),
+            cleansing_expression = (F.when(
+                input_df[column_name].between(
+                    value_range["min"], value_range["max"]
+                ),
+                input_df[column_name],
             )
+            .otherwise(substitute)
+            .cast(data_type)
+            )
+            self.logger.debug(
+                "Cleansing Expression for " + column_name + ": " + str(cleansing_expression)
+            )
+            cleansing_expressions.append((column_name, cleansing_expression))
+
+        self.logger.info("Full treshold cleansing expression:")
+        self.logger.info(".".join([f"withColumn({column_name}, {str(cleansing_expr)})"
+                                   for (column_name, cleansing_expr)
+                                   in cleansing_expressions
+                                   ])
+                         )
+        for (column_name, cleansing_expr) in cleansing_expressions:
+            input_df = input_df.withColumn(column_name, cleansing_expr)
+
+        if self.column_to_log_cleansed_values:
+            input_df = self._log_cleansed_values(input_df, column_names_to_clean, temporary_column_names)
+            ordered_column_names.append(self.column_to_log_cleansed_values)
 
         return input_df.select(ordered_column_names)

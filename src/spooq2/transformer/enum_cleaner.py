@@ -69,14 +69,14 @@ class EnumCleaner(BaseCleaner):
     def __init__(self, cleaning_definitions={}, column_to_log_cleansed_values=None):
         super().__init__(cleaning_definitions, column_to_log_cleansed_values)
         self.logger.debug("Enumeration List: " + str(self.cleaning_definitions))
-        self.TEMPORARY_COLUMNS_PREFIX = "fb5fb853a2d135f4922a1c606df41ea5"
+        self.TEMPORARY_COLUMNS_PREFIX = "9b7798529fef529c8f2586be7ca43a66"  # SHA1 hash of "EnumCleaner"
 
     def transform(self, input_df):
         self.logger.debug("input_df Schema: " + input_df._jdf.schema().treeString())
-        column_names = self.cleaning_definitions.keys()
+        column_names_to_clean = self.cleaning_definitions.keys()
         if self.column_to_log_cleansed_values:
-            temporary_column_names = self._get_temporary_column_names(column_names)
-            input_df = self._add_temporary_columns(input_df, column_names, temporary_column_names)
+            temporary_column_names = self._get_temporary_column_names(column_names_to_clean)
+            input_df = self._add_temporary_columns(input_df, column_names_to_clean, temporary_column_names)
 
         for column_name, cleaning_definition in list(self.cleaning_definitions.items()):
             self.logger.debug(f"Cleaning Definition for Column {column_name}: {str(cleaning_definition)}")
@@ -118,6 +118,6 @@ class EnumCleaner(BaseCleaner):
                 )
 
         if self.column_to_log_cleansed_values:
-            input_df = self._log_cleansed_values(input_df, column_name, temporary_column_names)
+            input_df = self._log_cleansed_values(input_df, column_names_to_clean, temporary_column_names)
 
         return input_df
