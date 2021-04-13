@@ -130,7 +130,6 @@ class TestJDBCExtractorIncremental(object):
             ) == tuple(boundaries)
 
 
-        @pytest.mark.slow
         def test__get_previous_boundaries_table(self, extractor, spooq2_values_pd_df):
             """Getting boundaries from previously loaded partitions"""
             try:

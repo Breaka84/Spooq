@@ -2,8 +2,9 @@
 Changelog
 =========
 
-3.2.0 (2021-04-02)
+3.2.0 (2021-04-13)
 -------------------
+* [MOD] add functionality to log cleansed values into separate struct column (column_to_log_cleansed_values)
 * [MOD] add ignore_ambiguous_columns to Mapper
 * [MOD] log spooq version when importing
 * [REM] Drop separate spark package (bin-folder) as pip package can now handle all tests as well

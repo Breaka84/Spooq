@@ -9,8 +9,10 @@ class EnumCleaner(BaseCleaner):
     """
     Cleanses a dataframe based on lists of allowed|disallowed values.
 
-    Example
-    -------
+    Examples
+    --------
+    >>> from spooq2.transformer import EnumCleaner
+    >>>
     >>> transformer = EnumCleaner(
     >>>     cleaning_definitions={
     >>>         "status": {
@@ -19,10 +21,43 @@ class EnumCleaner(BaseCleaner):
     >>>         "version": {
     >>>             "elements": ["", "None", "none", "null", "NULL"],
     >>>             "mode": "disallow",
-    >>>             "default": None
+    >>>             "default": None,
     >>>         },
     >>>     }
     >>> )
+
+    >>> from spooq2.transformer import EnumCleaner
+    >>> from pyspark.sql import Row
+    >>>
+    >>> input_df = spark.createDataFrame([
+    >>>     Row(a="stay", b="positive"),
+    >>>     Row(a="stay", b="negative"),
+    >>>     Row(a="stay", b="positive"),
+    >>> ])
+    >>> transformer = EnumCleaner(
+    >>>     cleaning_definitions={
+    >>>         "b": {
+    >>>             "elements": ["positive"],
+    >>>             "mode": "allow",
+    >>>         }
+    >>>     },
+    >>>     column_to_log_cleansed_values="cleansed_values_enum"
+    >>> )
+    >>> output_df = transformer.transform(input_df)
+    >>> output_df.show()
+    +----+--------+--------------------+
+    |   a|       b|cleansed_values_enum|
+    +----+--------+--------------------+
+    |stay|positive|                  []|
+    |stay|    null|          [negative]|
+    |stay|positive|                  []|
+    +----+--------+--------------------+
+    >>> output_df.printSchema()
+    root
+     |-- a: string (nullable = true)
+     |-- b: string (nullable = true)
+     |-- cleansed_values_enum: struct (nullable = false)
+     |    |-- b: string (nullable = true)
 
     Parameters
     ----------
@@ -73,8 +108,8 @@ class EnumCleaner(BaseCleaner):
 
     def transform(self, input_df):
         self.logger.debug("input_df Schema: " + input_df._jdf.schema().treeString())
-        column_names_to_clean = self.cleaning_definitions.keys()
         if self.column_to_log_cleansed_values:
+            column_names_to_clean = self.cleaning_definitions.keys()
             temporary_column_names = self._get_temporary_column_names(column_names_to_clean)
             input_df = self._add_temporary_columns(input_df, column_names_to_clean, temporary_column_names)
 

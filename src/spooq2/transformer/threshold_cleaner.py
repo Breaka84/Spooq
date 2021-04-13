@@ -18,8 +18,9 @@ class ThresholdCleaner(BaseCleaner):
     Sets outiers within a DataFrame to a default value.
     Takes a dictionary with valid value ranges for each column to be cleaned.
 
-    Example
-    -------
+    Examples
+    --------
+    >>> from spooq2.transformer import ThresholdCleaner
     >>> transformer = ThresholdCleaner(
     >>>     thresholds={
     >>>         "created_at": {
@@ -35,6 +36,40 @@ class ThresholdCleaner(BaseCleaner):
     >>>     }
     >>> )
 
+    >>> from spooq2.transformer import ThresholdCleaner
+    >>> from pyspark.sql import Row
+    >>>
+    >>> input_df = spark.createDataFrame([
+    >>>     Row(id=0, integers=-5, some_factor=-0.75),
+    >>>     Row(id=1, integers= 5, some_factor= 1.25),
+    >>>     Row(id=2, integers=15, some_factor= 0.67),
+    >>> ])
+    >>> transformer = ThresholdCleaner(
+    >>>     thresholds={
+    >>>         "integers":    {"min":  0, "max": 10},
+    >>>         "some_factor": {"min": -1, "max":  1}
+    >>>     },
+    >>>     column_to_log_cleansed_values="cleansed_values_threshold"
+    >>> )
+    >>> output_df = transformer.transform(input_df)
+    >>> output_df.show()
+    +---+--------+-----------+-------------------------+
+    | id|integers|some_factor|cleansed_values_threshold|
+    +---+--------+-----------+-------------------------+
+    |  0|    null|      -0.75|                    [-5,]|
+    |  1|       5|       null|                 [, 1.25]|
+    |  2|    null|       0.67|                    [15,]|
+    +---+--------+-----------+-------------------------+
+    >>> output_df.printSchema()
+    root
+     |-- id: long (nullable = true)
+     |-- integers: long (nullable = true)
+     |-- some_factor: double (nullable = true)
+     |-- cleansed_values_threshold: struct (nullable = false)
+     |    |-- integers: long (nullable = true)
+     |    |-- some_factor: double (nullable = true)
+
+
     Parameters
     ----------
     thresholds : :py:class:`dict`
@@ -43,6 +78,21 @@ class ThresholdCleaner(BaseCleaner):
     column_to_log_cleansed_values : :any:`str`, Defaults to None
         Defines a column in which the original (uncleansed) value will be stored in case of cleansing. If no column
         name is given, nothing will be logged.
+
+    Note
+    ----
+    Following cleansing rule attributes per column are supported:
+
+        * min, mandatory - any
+            A number or timestamp/date which serves as the lower limit for allowed values. Values
+            below this threshold will be cleansed.
+        * max, mandatory - any
+            A number or timestamp/date which serves as the upper limit for allowed values. Values
+            above this threshold will be cleansed.
+        * default, defaults to None - :class:`~pyspark.sql.column.Column` or any primitive Python value
+            If a value gets cleansed it gets replaced with the provided default value.
+
+    The :meth:`pyspark.sql.functions.between` method is used internally.
 
     Returns
     -------
