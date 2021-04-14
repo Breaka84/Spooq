@@ -351,7 +351,7 @@ class TestExtendedStringConversions(object):
         assert actual_value == expected_value
         assert isinstance(output_df.schema["output_key"].dataType, T.TimestampType)
 
-    # @only_spark2
+    @only_spark2
     @pytest.mark.parametrize(
         argnames=("input_value", "expected_value"),
         argvalues=fixtures_for_extended_string_unix_timestamp_ms_to_timestamp_spark2,
@@ -365,7 +365,6 @@ class TestExtendedStringConversions(object):
         try:
             output_pd_df = output_df.toPandas()
             actual_value = output_pd_df.iloc[0]["output_key"].to_pydatetime()
-            import pudb; pu.db
             assert (actual_value.toordinal() == expected_value.toordinal(),
                     "actual_value: {act_val}, expected value: {expected_val}".format(
                         act_val=actual_value, expected_val=expected_value))

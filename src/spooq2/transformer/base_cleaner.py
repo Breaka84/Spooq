@@ -40,6 +40,3 @@ class BaseCleaner(Transformer):
                       for col_name, temp_col_name
                       in zip(column_names, temporary_column_names)])
         ).drop(*temporary_column_names)
-
-    def __str__(self):
-        return "Transformer Object of Class {nm}".format(nm=self.name)
