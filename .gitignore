@@ -139,4 +139,4 @@ tests/assets/
 for_thesis/yelp_data_set/
 
 # Sphinx Build
-/docs/build/
+docs/build
