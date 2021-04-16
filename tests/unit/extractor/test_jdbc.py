@@ -70,12 +70,12 @@ def sqlite_url(spark_session, tmp_path):
 class TestJDBCExtractorIncremental(object):
     """Testing of spooq2.extractor.JDBCExtractorIncremental
 
-        spooq2_values_pd_df:
+    spooq2_values_pd_df:
 
-            partition_column        dt          first_value           last_value
-        0         updated_at  20180515  2018-01-01 03:30:00  2018-05-16 03:29:59
-        1         updated_at  20180516  2018-05-16 03:30:00  2018-05-17 03:29:59
-        2         updated_at  20180517  2018-05-17 03:30:00  2018-05-18 03:29:59
+        partition_column        dt          first_value           last_value
+    0         updated_at  20180515  2018-01-01 03:30:00  2018-05-16 03:29:59
+    1         updated_at  20180516  2018-05-16 03:30:00  2018-05-17 03:29:59
+    2         updated_at  20180517  2018-05-17 03:30:00  2018-05-18 03:29:59
 
     """
 
@@ -88,7 +88,6 @@ class TestJDBCExtractorIncremental(object):
 
         def test_str_representation_is_correct(self, extractor):
             assert str(extractor) == "Extractor Object of Class JDBCExtractorIncremental"
-
 
     class TestBoundaries(object):
         """Deriving boundaries from previous loads logs (spooq2_values_pd_df)"""
@@ -128,7 +127,6 @@ class TestJDBCExtractorIncremental(object):
             assert extractor._get_lower_and_upper_bounds_from_current_partition(
                 spooq2_values_pd_df, partition
             ) == tuple(boundaries)
-
 
         def test__get_previous_boundaries_table(self, extractor, spooq2_values_pd_df):
             """Getting boundaries from previously loaded partitions"""
@@ -191,7 +189,6 @@ class TestJDBCExtractorIncremental(object):
 
     @pytest.mark.parametrize("key", ["url", "driver", "user", "password"])
     class TestJDBCOptions(object):
-
         def test_missing_jdbc_option_raises_error(self, key, default_params):
             del default_params["jdbc_options"][key]
             with pytest.raises(AssertionError) as excinfo:

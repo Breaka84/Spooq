@@ -84,7 +84,7 @@ def get_logging_level():
     :any:`str`
         Logging level
     """
-    spooq_env = os.getenv('SPOOQ_ENV', "default").lower()
+    spooq_env = os.getenv("SPOOQ_ENV", "default").lower()
     if spooq_env.startswith("dev"):
         return "DEBUG"
     elif spooq_env.startswith("test"):

@@ -18,7 +18,7 @@ class Sieve(Transformer):
     ----------
     filter_expression  : :any:`str`
         A valid PySpark SQL expression which returns a boolean
-        
+
     Raises
     ------
     :any:`exceptions.ValueError`

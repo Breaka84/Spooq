@@ -167,11 +167,13 @@ class TestCleansedValuesAreLogged:
 
     @pytest.fixture(scope="class")
     def input_df_integers(self, spark_session):
-        return spark_session.createDataFrame([
-            Row(id=0, integers=-5),
-            Row(id=1, integers=5),
-            Row(id=2, integers=15),
-        ])
+        return spark_session.createDataFrame(
+            [
+                Row(id=0, integers=-5),
+                Row(id=1, integers=5),
+                Row(id=2, integers=15),
+            ]
+        )
 
     def test_single_cleansed_value_is_stored_in_separate_column(self, transformer, input_df_integers, spark_session):
         thresholds = dict(integers=dict(min=0, max=10))
@@ -179,25 +181,30 @@ class TestCleansedValuesAreLogged:
         expected_output_df = spark_session.createDataFrame(
             [
                 Row(id=0, integers=None, cleansed_values_threshold=Row(integers=-5)),
-                Row(id=1, integers=5,  cleansed_values_threshold=Row(integers=None)),
+                Row(id=1, integers=5, cleansed_values_threshold=Row(integers=None)),
                 Row(id=2, integers=None, cleansed_values_threshold=Row(integers=15)),
             ]
         )
-        output_df = ThresholdCleaner(thresholds, column_to_log_cleansed_values="cleansed_values_threshold").transform(input_df_integers)
+        output_df = ThresholdCleaner(thresholds, column_to_log_cleansed_values="cleansed_values_threshold").transform(
+            input_df_integers
+        )
         assert_df_equality(expected_output_df, output_df, ignore_nullable=True)
 
-
-    def test_single_cleansed_value_is_stored_in_separate_column_with_default_substitute(self, transformer, input_df_integers, spark_session):
+    def test_single_cleansed_value_is_stored_in_separate_column_with_default_substitute(
+        self, transformer, input_df_integers, spark_session
+    ):
         thresholds = dict(integers=dict(min=0, max=10, default=-1))
 
         expected_output_df = spark_session.createDataFrame(
             [
                 Row(id=0, integers=-1, cleansed_values_threshold=Row(integers=-5)),
-                Row(id=1, integers=5,  cleansed_values_threshold=Row(integers=None)),
+                Row(id=1, integers=5, cleansed_values_threshold=Row(integers=None)),
                 Row(id=2, integers=-1, cleansed_values_threshold=Row(integers=15)),
             ]
         )
-        output_df = ThresholdCleaner(thresholds, column_to_log_cleansed_values="cleansed_values_threshold").transform(input_df_integers)
+        output_df = ThresholdCleaner(thresholds, column_to_log_cleansed_values="cleansed_values_threshold").transform(
+            input_df_integers
+        )
         assert_df_equality(expected_output_df, output_df, ignore_nullable=True)
 
     def test_multiple_cleansing_rules(self, spark_session, transformer, input_df):

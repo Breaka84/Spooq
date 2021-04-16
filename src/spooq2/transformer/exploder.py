@@ -69,6 +69,6 @@ class Exploder(Transformer):
         else:
             explode_function = f.explode_outer
 
-        return input_df.withColumn(
-            self.exploded_elem_name, explode_function(self.path_to_array)
-        ).drop(self.path_to_array)
+        return input_df.withColumn(self.exploded_elem_name, explode_function(self.path_to_array)).drop(
+            self.path_to_array
+        )

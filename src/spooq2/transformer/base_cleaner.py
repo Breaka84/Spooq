@@ -6,18 +6,13 @@ from .transformer import Transformer
 
 
 class BaseCleaner(Transformer):
-
     def __init__(self, cleaning_definitions, column_to_log_cleansed_values):
         super().__init__()
         self.cleaning_definitions = cleaning_definitions
         self.column_to_log_cleansed_values = column_to_log_cleansed_values
 
     def _get_temporary_column_names(self, column_names):
-        return [
-            f"{self.TEMPORARY_COLUMNS_PREFIX}_{column_name}"
-            for column_name
-            in column_names
-        ]
+        return [f"{self.TEMPORARY_COLUMNS_PREFIX}_{column_name}" for column_name in column_names]
 
     def _add_temporary_columns(self, input_df, column_names, temporary_column_names):
         for column_name, temporary_column_name in zip(column_names, temporary_column_names):
@@ -27,16 +22,22 @@ class BaseCleaner(Transformer):
 
     def _log_cleansed_values(self, input_df, column_names, temporary_column_names):
         def _only_keep_cleansed_values(column_name, temporary_column_name):
-            return F.when(F.col(temporary_column_name) == F.col(column_name),
-                          F.lit(None)).otherwise(F.col(temporary_column_name))
+            return F.when(F.col(temporary_column_name) == F.col(column_name), F.lit(None)).otherwise(
+                F.col(temporary_column_name)
+            )
 
         for column_name, temporary_column_name in zip(column_names, temporary_column_names):
             # Only keep cleansed values in temporary columns
-            input_df = input_df.withColumn(temporary_column_name, _only_keep_cleansed_values(column_name, temporary_column_name))
+            input_df = input_df.withColumn(
+                temporary_column_name, _only_keep_cleansed_values(column_name, temporary_column_name)
+            )
 
         return input_df.withColumn(
             self.column_to_log_cleansed_values,
-            F.struct([F.col(temp_col_name).alias(col_name)
-                      for col_name, temp_col_name
-                      in zip(column_names, temporary_column_names)])
+            F.struct(
+                [
+                    F.col(temp_col_name).alias(col_name)
+                    for col_name, temp_col_name in zip(column_names, temporary_column_names)
+                ]
+            ),
         ).drop(*temporary_column_names)

@@ -1,5 +1,6 @@
 from __future__ import absolute_import
 import sys
+
 if sys.version_info.major > 2:
     # This is needed for python 2 as otherwise pyspark raises an exception for following command:
     # data_type = input_df.schema[str(column_name)].dataType
@@ -132,9 +133,7 @@ class ThresholdCleaner(BaseCleaner):
             if not isinstance(substitute, Column):
                 substitute = F.lit(substitute)
 
-            if not isinstance(data_type, (sql_types.NumericType,
-                                          sql_types.DateType,
-                                          sql_types.TimestampType)):
+            if not isinstance(data_type, (sql_types.NumericType, sql_types.DateType, sql_types.TimestampType)):
                 raise ValueError(
                     "Threshold-based cleaning only supports Numeric, Date and Timestamp Types!\n",
                     "Column with name: {col_name} and type of: {col_type} was provided".format(
@@ -142,30 +141,28 @@ class ThresholdCleaner(BaseCleaner):
                     ),
                 )
 
-            self.logger.debug(
-                "Ranges for column " + column_name + ": " + str(value_range)
-            )
+            self.logger.debug("Ranges for column " + column_name + ": " + str(value_range))
 
-            cleansing_expression = (F.when(
-                input_df[column_name].between(
-                    value_range["min"], value_range["max"]
-                ),
-                input_df[column_name],
+            cleansing_expression = (
+                F.when(
+                    input_df[column_name].between(value_range["min"], value_range["max"]),
+                    input_df[column_name],
+                )
+                .otherwise(substitute)
+                .cast(data_type)
             )
-            .otherwise(substitute)
-            .cast(data_type)
-            )
-            self.logger.debug(
-                "Cleansing Expression for " + column_name + ": " + str(cleansing_expression)
-            )
+            self.logger.debug("Cleansing Expression for " + column_name + ": " + str(cleansing_expression))
             cleansing_expressions.append((column_name, cleansing_expression))
 
         self.logger.info("Full treshold cleansing expression:")
-        self.logger.info(".".join([f"withColumn({column_name}, {str(cleansing_expr)})"
-                                   for (column_name, cleansing_expr)
-                                   in cleansing_expressions
-                                   ])
-                         )
+        self.logger.info(
+            ".".join(
+                [
+                    f"withColumn({column_name}, {str(cleansing_expr)})"
+                    for (column_name, cleansing_expr) in cleansing_expressions
+                ]
+            )
+        )
         for (column_name, cleansing_expr) in cleansing_expressions:
             input_df = input_df.withColumn(column_name, cleansing_expr)
 

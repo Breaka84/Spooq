@@ -10,6 +10,7 @@ For injecting your **own custom data types**, please have a visit to the
 """
 from __future__ import division
 import sys
+
 if sys.version_info.major > 2:
     # This is needed for python 2 as otherwise pyspark raises an exception for following method:
     # _to_json
@@ -474,12 +475,7 @@ def _generate_select_expression_for_IntBoolean(source_column, name):  # noqa: N8
     ----
     `0` (zero) or negative numbers are still considered as valid values and therefore converted to `1`.
     """
-    return (
-        F.when(source_column.isNull(), F.lit(None))
-        .otherwise(1)
-        .cast(T.IntegerType())
-        .alias(name)
-    )
+    return F.when(source_column.isNull(), F.lit(None)).otherwise(1).cast(T.IntegerType()).alias(name)
 
 
 def _generate_select_expression_for_TimestampMonth(source_column, name):  # noqa: N802
@@ -826,11 +822,14 @@ def _generate_select_expression_for_extended_string_to_timestamp(source_column, 
     return (
         F.when(
             F.abs(F.trim(source_column).cast(T.LongType())).between(0, MAX_TIMESTAMP_SEC),
-            F.trim(source_column).cast(T.LongType()).cast(T.TimestampType())
-        ).when(
+            F.trim(source_column).cast(T.LongType()).cast(T.TimestampType()),
+        )
+        .when(
             F.abs(F.trim(source_column).cast(T.LongType())) > MAX_TIMESTAMP_SEC,
-            (F.trim(source_column) / 1000).cast(T.TimestampType())
-        ).otherwise(F.trim(source_column).cast(T.TimestampType())).alias(name)
+            (F.trim(source_column) / 1000).cast(T.TimestampType()),
+        )
+        .otherwise(F.trim(source_column).cast(T.TimestampType()))
+        .alias(name)
     )
 
 
@@ -909,9 +908,10 @@ def _generate_select_expression_for_extended_string_unix_timestamp_ms_to_timesta
     """
     return (
         F.when(
-            F.trim(source_column).cast(T.LongType()).isNotNull(),
-            (F.trim(source_column) / 1000).cast(T.TimestampType())
-        ).otherwise(F.trim(source_column).cast(T.TimestampType())).alias(name)
+            F.trim(source_column).cast(T.LongType()).isNotNull(), (F.trim(source_column) / 1000).cast(T.TimestampType())
+        )
+        .otherwise(F.trim(source_column).cast(T.TimestampType()))
+        .alias(name)
     )
 
 
@@ -942,6 +942,6 @@ def _generate_select_expression_for_extended_string_unix_timestamp_ms_to_date(so
      Row(input_string=datetime.datetime(2020, 8, 10)),
      Row(input_string=datetime.datetime(2020, 8, 12))]
     """
-    return _generate_select_expression_for_extended_string_unix_timestamp_ms_to_timestamp(source_column, name).cast(T.DateType())
-
-
+    return _generate_select_expression_for_extended_string_unix_timestamp_ms_to_timestamp(source_column, name).cast(
+        T.DateType()
+    )

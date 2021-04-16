@@ -119,7 +119,7 @@ class EnumCleaner(BaseCleaner):
             if not elements:
                 raise ValueError(
                     f"Enumeration-based cleaning requires a non-empty list of elements per cleaning rule!",
-                    f"\nSpooq did not find such a list for column: {column_name}"
+                    f"\nSpooq did not find such a list for column: {column_name}",
                 )
             mode = cleaning_definition.get("mode", "allow")
             substitute = cleaning_definition.get("default", None)
@@ -131,26 +131,18 @@ class EnumCleaner(BaseCleaner):
                 input_df = input_df.withColumn(
                     column_name,
                     F.when(F.col(column_name).isNull(), F.lit(None))
-                    .otherwise(
-                        F.when(F.col(column_name).isin(elements), F.col(column_name))
-                        .otherwise(substitute)
-                    )
-                    .cast(data_type)
+                    .otherwise(F.when(F.col(column_name).isin(elements), F.col(column_name)).otherwise(substitute))
+                    .cast(data_type),
                 )
             elif mode == "disallow":
                 input_df = input_df.withColumn(
                     column_name,
                     F.when(F.col(column_name).isNull(), F.lit(None))
-                    .otherwise(
-                        F.when(F.col(column_name).isin(elements), substitute)
-                        .otherwise(F.col(column_name))
-                    )
-                    .cast(data_type)
+                    .otherwise(F.when(F.col(column_name).isin(elements), substitute).otherwise(F.col(column_name)))
+                    .cast(data_type),
                 )
             else:
-                raise ValueError(
-                    f"Only the following modes are supported by EnumCleaner: 'allow' and 'disallow'."
-                )
+                raise ValueError(f"Only the following modes are supported by EnumCleaner: 'allow' and 'disallow'.")
 
         if self.column_to_log_cleansed_values:
             input_df = self._log_cleansed_values(input_df, column_names_to_clean, temporary_column_names)

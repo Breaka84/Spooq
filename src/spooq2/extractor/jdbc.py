@@ -14,7 +14,6 @@ from .extractor import Extractor
 
 
 class JDBCExtractor(Extractor):
-
     def __init__(self, jdbc_options, cache=True):
         super(JDBCExtractor, self).__init__()
         self._assert_jdbc_options(jdbc_options)
@@ -26,7 +25,6 @@ class JDBCExtractor(Extractor):
             .appName("spooq2.extractor: {nm}".format(nm=self.name))
             .getOrCreate()
         )
-
 
     def _load_from_jdbc(self, query, jdbc_options, cache=True):
         jdbc_options = copy(self.jdbc_options)
@@ -41,6 +39,7 @@ class JDBCExtractor(Extractor):
         for key in ["url", "driver", "user", "password"]:
             assert key in jdbc_options, key + " is missing from the jdbc_options."
             assert isinstance(jdbc_options[key], basestring), key + " has to be provided as a string object."
+
 
 class JDBCExtractorFullLoad(JDBCExtractor):
     """
@@ -255,11 +254,13 @@ class JDBCExtractorIncremental(JDBCExtractor):
             )
         elif lower_bound:
             where_clause = "where {chk_col} > {low_bnd}".format(
-                chk_col=self.spooq2_values_partition_column, low_bnd=_fix_boundary_value_syntax(lower_bound),
+                chk_col=self.spooq2_values_partition_column,
+                low_bnd=_fix_boundary_value_syntax(lower_bound),
             )
         elif upper_bound:
             where_clause = "where {chk_col} <= {up_bnd}".format(
-                chk_col=self.spooq2_values_partition_column, up_bnd=_fix_boundary_value_syntax(upper_bound),
+                chk_col=self.spooq2_values_partition_column,
+                up_bnd=_fix_boundary_value_syntax(upper_bound),
             )
 
         query = "{select} from {tbl} {where}".format(select=select_statement, tbl=self.source_table, where=where_clause)

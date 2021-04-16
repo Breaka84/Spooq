@@ -5,6 +5,7 @@ from py4j.protocol import Py4JJavaError
 from .extractor import Extractor
 from .tools import remove_hdfs_prefix, fix_suffix, infer_input_path_from_partition
 
+
 class JSONExtractor(Extractor):
     """
     The JSONExtractor class provides an API to extract data stored as JSON format,
@@ -71,15 +72,15 @@ class JSONExtractor(Extractor):
 
     def __init__(self, input_path=None, base_path=None, partition=None):
         super(JSONExtractor, self).__init__()
-        self.input_path = self._get_path(input_path=input_path,
-                                         base_path=base_path,
-                                         partition=partition)
-        self.base_path  = base_path
-        self.partition  = partition
-        self.spark = SparkSession.Builder()\
-            .enableHiveSupport()\
-            .appName('spooq2.extractor: {nm}'.format(nm=self.name))\
+        self.input_path = self._get_path(input_path=input_path, base_path=base_path, partition=partition)
+        self.base_path = base_path
+        self.partition = partition
+        self.spark = (
+            SparkSession.Builder()
+            .enableHiveSupport()
+            .appName("spooq2.extractor: {nm}".format(nm=self.name))
             .getOrCreate()
+        )
 
     def extract(self):
         """
@@ -94,8 +95,8 @@ class JSONExtractor(Extractor):
             Complex PySpark DataFrame deserialized from the input JSON Files
 
         """
-        self.logger.info('Loading Raw RDD from: ' + self.input_path)
-        rdd_raw     = self._get_raw_rdd(self.input_path)
+        self.logger.info("Loading Raw RDD from: " + self.input_path)
+        rdd_raw = self._get_raw_rdd(self.input_path)
         rdd_strings = self._get_values_as_string_rdd(rdd_raw)
         return self._convert_rdd_to_df(rdd_strings)
 
@@ -145,11 +146,9 @@ class JSONExtractor(Extractor):
         if input_path:
             return fix_suffix(remove_hdfs_prefix(input_path))
         elif base_path and partition:
-            return infer_input_path_from_partition(
-                base_path=base_path,
-                partition=partition)
+            return infer_input_path_from_partition(base_path=base_path, partition=partition)
         else:
-            error_msg = 'Please define either (input_path) or (base_path and partition)'
+            error_msg = "Please define either (input_path) or (base_path and partition)"
             self.logger.error(error_msg)
             raise AttributeError(error_msg)
 
@@ -178,14 +177,12 @@ class JSONExtractor(Extractor):
             return self._get_raw_text_rdd(input_path)
 
     def _get_raw_text_rdd(self, input_path):
-        self.logger.debug('Fetching TextFile containing JSON')
+        self.logger.debug("Fetching TextFile containing JSON")
         return self.spark.sparkContext.textFile(input_path)
 
-
     def _get_raw_sequence_rdd(self, input_path):
-        self.logger.debug('Fetching SequenceFile containing JSON')
+        self.logger.debug("Fetching SequenceFile containing JSON")
         return self.spark.sparkContext.sequenceFile(input_path).map(lambda k_v: k_v[1].decode("utf-8"))
-
 
     def _convert_rdd_to_df(self, rdd_strings):
         """
@@ -207,7 +204,7 @@ class JSONExtractor(Extractor):
         pyspark.sql.DataFrameReader.json
 
         """
-        self.logger.debug('Deserializing JSON from String RDD to DataFrame')
+        self.logger.debug("Deserializing JSON from String RDD to DataFrame")
         return self.spark.read.json(rdd_strings)
 
     def _get_values_as_string_rdd(self, rdd_raw):
@@ -224,6 +221,5 @@ class JSONExtractor(Extractor):
             Output RDD with one JSON String per Record
 
         """
-        self.logger.debug('Cleaning JSON String RDD (selecting values, ' +
-                          'removing newline and carriage return)')
-        return rdd_raw.map(lambda v: v.replace('\\n', ' ').replace('\\r', ''))
+        self.logger.debug("Cleaning JSON String RDD (selecting values, " + "removing newline and carriage return)")
+        return rdd_raw.map(lambda v: v.replace("\\n", " ").replace("\\r", ""))

@@ -6,6 +6,7 @@ from pyspark.sql.functions import lit
 
 from .loader import Loader
 
+
 class HiveLoader(Loader):
     """
     Persists a PySpark DataFrame into a Hive Table.
@@ -105,7 +106,7 @@ class HiveLoader(Loader):
             raise ValueError(
                 "clear_partition is only supported if overwrite_partition_value is also enabled. ",
                 "This would otherwise result in clearing partitions on basis of dynamically values",
-                "(from dataframe) instead of explicitly defining the partition(s) to clear"
+                "(from dataframe) instead of explicitly defining the partition(s) to clear",
             )
         self.clear_partition = clear_partition
         self.overwrite_partition_value = overwrite_partition_value
@@ -159,8 +160,8 @@ class HiveLoader(Loader):
     def _add_partition_definition_to_dataframe(self, input_df):
         for partition_definition in self.partition_definitions:
             if partition_definition["column_name"] not in input_df.columns or self.overwrite_partition_value:
-                assert ("default_value" in list(partition_definition.keys()) and
-                    (partition_definition["default_value"] or partition_definition["default_value"] == 0)
+                assert "default_value" in list(partition_definition.keys()) and (
+                    partition_definition["default_value"] or partition_definition["default_value"] == 0
                 ), "No default partition value set for partition column: {name}!\n".format(
                     name=partition_definition["column_name"]
                 )
@@ -182,7 +183,9 @@ class HiveLoader(Loader):
         def _construct_partition_query_string(partition_definitions):
             partition_queries = []
             for dct in partition_definitions:
-                assert "default_value" in list(dct.keys()), "clear_partitions needs a default_value per partition definition!"
+                assert "default_value" in list(
+                    dct.keys()
+                ), "clear_partitions needs a default_value per partition definition!"
                 if issubclass(dct["column_type"], sql_types.NumericType):
                     partition_queries.append("{part} = {dt}".format(part=dct["column_name"], dt=dct["default_value"]))
                 else:

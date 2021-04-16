@@ -1,7 +1,9 @@
 from builtins import str
 import os
 import logging
+
 spooq_logger = logging.getLogger("spooq2")
+
 
 def remove_hdfs_prefix(path):
     """Replaces references to HDFS from the input path
@@ -11,11 +13,10 @@ def remove_hdfs_prefix(path):
     >>> _remove_hdfs_prefix(u'hdfs://nameservice-ha:8020/user/furia_salamandra_faerfax/data')
     u'/user/furia_salamandra_faerfax/data'
     """
-    cleaned_path = path\
-        .replace('hdfs://nameservice-ha', '') \
-        .replace(':8020', '')
+    cleaned_path = path.replace("hdfs://nameservice-ha", "").replace(":8020", "")
     spooq_logger.debug("remove_hdfs_prefix: input: {inp}, output: {outp}".format(inp=path, outp=cleaned_path))
     return cleaned_path
+
 
 def fix_suffix(path):
     """
@@ -27,12 +28,13 @@ def fix_suffix(path):
     u'/user/furia_salamandra_faerfax/data/18/01/01/*'
 
     """
-    if path[-2:] == '/*':
+    if path[-2:] == "/*":
         cleaned_path = path
     else:
-        cleaned_path = os.path.join(path, '*')
+        cleaned_path = os.path.join(path, "*")
     spooq_logger.debug("fix_suffix: input: {inp}, output: {outp}".format(inp=path, outp=cleaned_path))
     return cleaned_path
+
 
 def infer_input_path_from_partition(base_path=None, partition=None):
     """
@@ -55,11 +57,10 @@ def infer_input_path_from_partition(base_path=None, partition=None):
     """
     base_path = remove_hdfs_prefix(base_path)
     partition = str(partition)
-    inferred_path = '{base_path}/{yy}/{mm}/{dd}/*'.format(base_path=base_path,
-                                                          yy=partition[2:4],
-                                                          mm=partition[4:6],
-                                                          dd=partition[6:8])
-    spooq_logger.debug("infer_input_path_from_partition: input: {inp}, output: {outp}"
-        .format(inp=base_path, outp=inferred_path)
+    inferred_path = "{base_path}/{yy}/{mm}/{dd}/*".format(
+        base_path=base_path, yy=partition[2:4], mm=partition[4:6], dd=partition[6:8]
+    )
+    spooq_logger.debug(
+        "infer_input_path_from_partition: input: {inp}, output: {outp}".format(inp=base_path, outp=inferred_path)
     )
     return inferred_path

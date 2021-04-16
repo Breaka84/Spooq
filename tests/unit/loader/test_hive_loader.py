@@ -41,6 +41,7 @@ def default_loader(default_params):
 def convert_int_to_ascii_char(input):
     return chr(input)
 
+
 def construct_partition_query(partition_definitions):
     partition_queries = []
     for dct in partition_definitions:
@@ -76,7 +77,6 @@ class TestSinglePartitionColumn(object):
         yield df
         spark_session.sql("DROP DATABASE IF EXISTS {db} CASCADE".format(db=default_params["db_name"]))
 
-
     class TestWarnings(object):
         def test_more_columns_than_expected(self, input_df, default_loader):
             df_to_load = input_df.withColumn("5th_wheel", lit(12345))
@@ -95,7 +95,6 @@ class TestSinglePartitionColumn(object):
             with pytest.raises(AssertionError) as excinfo:
                 default_loader.load(df_to_load)
             assert "Input columns don't match the columns of the Hive table" in str(excinfo.value)
-
 
     class TestClearPartition(object):
         """Clearing the Hive Table Partition before inserting"""
@@ -335,6 +334,7 @@ class TestMultiplePartitionColumn(object):
 
     class TestClearPartition(object):
         """Clearing the Hive Table Partition before inserting"""
+
         # input_df.groupBy("partition_key_int", "partition_key_str").count().orderBy("partition_key_int", "partition_key_str").show(200)
 
         @pytest.mark.parametrize("partition", [[0, "d"], [2, "f"], [3, "g"], [6, "j"], [9, "m"]])
@@ -382,21 +382,30 @@ class TestMultiplePartitionColumn(object):
             assert "Items of partition_definitions have to be dictionaries" in str(excinfo.value)
 
         def test_column_name_is_missing(self, default_params):
-            default_params["partition_definitions"][0]["column_name"], default_params["partition_definitions"][1]["column_name"] = None, "f"
+            (
+                default_params["partition_definitions"][0]["column_name"],
+                default_params["partition_definitions"][1]["column_name"],
+            ) = (None, "f")
             with pytest.raises(AssertionError) as excinfo:
                 HiveLoader(**default_params)
             assert "No column name set!" in str(excinfo.value)
 
         @pytest.mark.parametrize("data_type", [13, "no_spark_type", "arrray", "INT", ["IntegerType", "StringType"]])
         def test_column_type_not_a_valid_spark_sql_type(self, data_type, default_params):
-            default_params["partition_definitions"][0]["column_type"], default_params["partition_definitions"][0]["column_type"] = "IntegerType", data_type
+            (
+                default_params["partition_definitions"][0]["column_type"],
+                default_params["partition_definitions"][0]["column_type"],
+            ) = ("IntegerType", data_type)
             with pytest.raises(AssertionError) as excinfo:
                 HiveLoader(**default_params)
             assert "Not a valid (PySpark) datatype for the partition column" in str(excinfo.value)
 
         @pytest.mark.parametrize("default_value", [None, "", [], {}])
         def test_default_value_is_empty(self, default_value, default_params, input_df):
-            default_params["partition_definitions"][0]["default_value"], default_params["partition_definitions"][0]["default_value"] = 3, default_value
+            (
+                default_params["partition_definitions"][0]["default_value"],
+                default_params["partition_definitions"][0]["default_value"],
+            ) = (3, default_value)
             with pytest.raises(AssertionError) as excinfo:
                 loader = HiveLoader(**default_params)
                 loader.load(input_df)
@@ -478,7 +487,7 @@ class TestMultiplePartitionColumn(object):
             default_params["clear_partition"] = False
             loader = HiveLoader(**default_params)
             where_clause = construct_partition_query(loader.partition_definitions).replace(", ", " and ")
-# 
+            #
             df_to_load = input_df.where(where_clause)
 
             count_pre_total = spark_session.table(full_table_name).count()

@@ -6,13 +6,13 @@ from pyspark.sql.dataframe import DataFrame
 from spooq2.extractor import JSONExtractor
 from spooq2.extractor.tools import infer_input_path_from_partition
 
+
 @pytest.fixture()
 def default_extractor():
     return JSONExtractor(input_path="some/path")
 
 
 class TestBasicAttributes(object):
-
     def test_logger_should_be_accessible(self, default_extractor):
         assert hasattr(default_extractor, "logger")
 
@@ -27,33 +27,35 @@ class TestPathManipulation(object):
     """Path manipulating Methods"""
 
     #  fmt: off
-    @pytest.mark.parametrize(("input_params", "expected_path"), [
-    (('base',                                  20170601),  'base/17/06/01/*'),
-    (('/base',                                '20170601'), '/base/17/06/01/*'),
-    (('hdfs://nameservice-ha/base/path',      '20170601'), '/base/path/17/06/01/*'),
-    (('hdfs://nameservice-ha:8020/base/path', '20170601'), '/base/path/17/06/01/*')])
+    @pytest.mark.parametrize(
+        ("input_params", "expected_path"),
+        [
+            (("base", 20170601), "base/17/06/01/*"),
+            (("/base", "20170601"), "/base/17/06/01/*"),
+            (("hdfs://nameservice-ha/base/path", "20170601"), "/base/path/17/06/01/*"),
+            (("hdfs://nameservice-ha:8020/base/path", "20170601"), "/base/path/17/06/01/*"),
+        ],
+    )
     #  fmt: on
     def test_infer_input_path_from_partition(self, input_params, expected_path):
         assert expected_path == infer_input_path_from_partition(*input_params)
 
     #  fmt: off
-    @pytest.mark.parametrize(("input_params", "expected_path"), [
-    (('hdfs://nameservice-ha:8020/full/input/path/provided', None, None),
-     '/full/input/path/provided/*'),
-    ((None, '/base/path/to/file', 20180723),
-     '/base/path/to/file/18/07/23/*'),
-    ((None, 'hdfs://nameservice-ha/base/path/to/file', 20180723),
-     '/base/path/to/file/18/07/23/*')])
+    @pytest.mark.parametrize(
+        ("input_params", "expected_path"),
+        [
+            (("hdfs://nameservice-ha:8020/full/input/path/provided", None, None), "/full/input/path/provided/*"),
+            ((None, "/base/path/to/file", 20180723), "/base/path/to/file/18/07/23/*"),
+            ((None, "hdfs://nameservice-ha/base/path/to/file", 20180723), "/base/path/to/file/18/07/23/*"),
+        ],
+    )
     #  fmt: on
     def test__get_path(self, input_params, expected_path, default_extractor):
         """Chooses whether to use Full Input Path or derive it from Base Path and Partition"""
         assert expected_path == default_extractor._get_path(*input_params)
 
 
-@pytest.mark.parametrize(
-    "input_path",
-    ["data/schema_v1/sequenceFiles", "data/schema_v1/textFiles"]
-)
+@pytest.mark.parametrize("input_path", ["data/schema_v1/sequenceFiles", "data/schema_v1/textFiles"])
 class TestExtraction(object):
     """Extraction of JSON Files"""
 

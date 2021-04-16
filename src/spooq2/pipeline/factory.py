@@ -9,9 +9,9 @@ from builtins import object
 import requests
 import json
 from spooq2.pipeline import Pipeline
-import spooq2.extractor as   E
+import spooq2.extractor as E
 import spooq2.transformer as T
-import spooq2.loader as      L
+import spooq2.loader as L
 
 
 class PipelineFactory(object):

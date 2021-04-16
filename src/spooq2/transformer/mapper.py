@@ -128,9 +128,7 @@ class Mapper(Transformer):
         with_column_expressions = []
 
         for (name, source_column, data_type) in self.mapping:
-            self.logger.debug(
-                "generating Select statement for attribute: {nm}".format(nm=name)
-            )
+            self.logger.debug("generating Select statement for attribute: {nm}".format(nm=name))
 
             source_column = self._get_spark_column(source_column, name, input_df)
             if source_column is None:
@@ -138,8 +136,9 @@ class Mapper(Transformer):
             data_type, data_type_is_spark_builtin = self._get_spark_data_type(data_type)
             select_expression = self._get_select_expression(name, source_column, data_type, data_type_is_spark_builtin)
 
-            self.logger.debug("Select-Expression for Attribute {nm}: {sql_expr}"
-                              .format(nm=name, sql_expr=str(select_expression)))
+            self.logger.debug(
+                "Select-Expression for Attribute {nm}: {sql_expr}".format(nm=name, sql_expr=str(select_expression))
+            )
             if self.mode != "replace" and name in input_columns:
                 with_column_expressions.append((name, select_expression))
             else:
@@ -155,8 +154,10 @@ class Mapper(Transformer):
         elif self.mode == "replace":
             df_to_return = input_df.select(select_expressions)
         else:
-            exception_message = ("Only 'prepend', 'append' and 'replace' are allowed for Mapper mode!"
-                                 "Value: '{val}' was used as mode for the Mapper transformer.")
+            exception_message = (
+                "Only 'prepend', 'append' and 'replace' are allowed for Mapper mode!"
+                "Value: '{val}' was used as mode for the Mapper transformer."
+            )
             self.logger.exception(exception_message)
             raise ValueError(exception_message)
 
@@ -177,15 +178,20 @@ class Mapper(Transformer):
 
         except AnalysisException as e:
             if isinstance(source_column, str) and self.ignore_missing_columns:
-                self.logger.warn(f"Missing column ({str(source_column)}) replaced with NULL (via ignore_missing_columns=True): {e.desc}")
+                self.logger.warn(
+                    f"Missing column ({str(source_column)}) replaced with NULL (via ignore_missing_columns=True): {e.desc}"
+                )
                 source_column = F.lit(None)
             elif "ambiguous" in e.desc.lower() and self.ignore_ambiguous_columns:
-                self.logger.warn(f"Exception ignored (via ignore_ambiguous_columns=True) for column \"{str(source_column)}\": {e.desc}")
+                self.logger.warn(
+                    f'Exception ignored (via ignore_ambiguous_columns=True) for column "{str(source_column)}": {e.desc}'
+                )
                 return None
             else:
                 self.logger.exception(
-                    "Column: \"{}\" cannot be resolved ".format(str(source_column)) +
-                    "but is referenced in the mapping by column: \"{}\".\n".format(name))
+                    'Column: "{}" cannot be resolved '.format(str(source_column))
+                    + 'but is referenced in the mapping by column: "{}".\n'.format(name)
+                )
                 raise e
         return source_column
 
@@ -207,13 +213,12 @@ class Mapper(Transformer):
                 data_type_is_spark_builtin = False
         else:
             raise ValueError(
-                "data_type not supported! class: \"{}\", name: \"{}\"".format(
-                    type(data_type).__name__, str(data_type)))
+                'data_type not supported! class: "{}", name: "{}"'.format(type(data_type).__name__, str(data_type))
+            )
         return data_type, data_type_is_spark_builtin
 
     @staticmethod
-    def _get_select_expression(name, source_column, data_type,
-                               data_type_is_spark_builtin):
+    def _get_select_expression(name, source_column, data_type, data_type_is_spark_builtin):
         """
         Returns a valid pyspark sql select-expression with cast and alias, depending on the input parameters.
         """
@@ -221,4 +226,3 @@ class Mapper(Transformer):
             return source_column.cast(data_type).alias(name)
         else:  # Custom Data Type
             return _get_select_expression_for_custom_type(source_column, name, data_type)
-

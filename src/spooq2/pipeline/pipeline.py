@@ -32,7 +32,7 @@ class Pipeline(object):
     >>> import spooq2.extractor as   E
     >>> import spooq2.transformer as T
     >>> import spooq2.loader as      L
-    >>> 
+    >>>
     >>> #  Definition how the output table should look like and where the attributes come from:
     >>> users_mapping = [
     >>>     ("id",              "id",                     "IntegerType"),
@@ -44,15 +44,15 @@ class Pipeline(object):
     >>>     ("has_university",  "attributes.university",  "StringBoolean"),
     >>>     ("created_at",      "meta.created_at_ms",     "timestamp_ms_to_s"),
     >>> ]
-    >>> 
+    >>>
     >>> #  The main object where all steps are defined:
     >>> users_pipeline = Pipeline()
-    >>> 
+    >>>
     >>> #  Defining the EXTRACTION:
     >>> users_pipeline.set_extractor(E.JSONExtractor(
     >>>     input_path="tests/data/schema_v1/sequenceFiles"
     >>> ))
-    >>> 
+    >>>
     >>> #  Defining the TRANSFORMATION:
     >>> users_pipeline.add_transformers([
     >>>     T.Mapper(mapping=users_mapping),
@@ -62,7 +62,7 @@ class Pipeline(object):
     >>>                                                 "default": None}}),
     >>>     T.NewestByGroup(group_by="id", order_by="created_at")
     >>> ])
-    >>> 
+    >>>
     >>> #  Defining the LOAD:
     >>> users_pipeline.set_loader(L.HiveLoader(
     >>>     db_name="users_and_friends",
@@ -73,7 +73,7 @@ class Pipeline(object):
     >>>         "default_value": 20200201}],
     >>>     repartition_size=10,
     >>> ))
-    >>> 
+    >>>
     >>> #  Executing the whole ETL pipeline
     >>> users_pipeline.execute()
     """
@@ -92,10 +92,7 @@ class Pipeline(object):
 
         self.name = type(self).__name__
         self.logger = logging.getLogger("spooq2")
-        self.logger.info(
-            "New {cls_name} Instance created\n".format(cls_name=str(self.name))
-            + str(self)
-        )
+        self.logger.info("New {cls_name} Instance created\n".format(cls_name=str(self.name)) + str(self))
 
     def execute(self):
         """
@@ -106,7 +103,7 @@ class Pipeline(object):
         Returns
         -------
         input_df : :any:`pyspark.sql.DataFrame`
-            **If** the ``bypass_loader`` attribute was set to True in the Pipeline class, 
+            **If** the ``bypass_loader`` attribute was set to True in the Pipeline class,
             the output DataFrame from the Transformer(s) will be directly returned.
 
         Note
@@ -165,7 +162,7 @@ class Pipeline(object):
         Returns
         -------
         input_df : :any:`pyspark.sql.DataFrame`
-            **If** the ``bypass_loader`` attribute was set to True in the Pipeline class, 
+            **If** the ``bypass_loader`` attribute was set to True in the Pipeline class,
             the output DataFrame from the Transformer(s) will be directly returned.
         """
         if self.bypass_loader:
@@ -181,10 +178,10 @@ class Pipeline(object):
         ----------
         extractor : Subclass of :py:class:`spooq2.extractor.Extractor`
             An already initialized Object of any Subclass of spooq2.extractor.Extractor.
-        
+
         Raises
         ------
-        :any:`exceptions.AssertionError`: 
+        :any:`exceptions.AssertionError`:
             An input_df was already provided which bypasses the extraction action
         """
         assert not self.bypass_extractor, "An input_df was already provided which bypasses the extraction action"
@@ -219,10 +216,10 @@ class Pipeline(object):
         ----------
         loader : Subclass of :py:class:`spooq2.loader.Loader`
             An already initialized Object of any Subclass of spooq2.loader.Loader.
-            
+
         Raises
         ------
-        :any:`exceptions.AssertionError`: 
+        :any:`exceptions.AssertionError`:
             You can not set a loader if the `bypass_loader` parameter is set.
         """
         assert not self.bypass_loader, "You can not set a loader if the `bypass_loader` parameter is set."

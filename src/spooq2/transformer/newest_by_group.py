@@ -13,7 +13,7 @@ class NewestByGroup(Transformer):
     Example
     -------
     >>> transformer = NewestByGroup(
-    >>>     group_by=["first_name", "last_name"], 
+    >>>     group_by=["first_name", "last_name"],
     >>>     order_by=["created_at_ms", "version"]
     >>> )
 
@@ -21,7 +21,7 @@ class NewestByGroup(Transformer):
     ----------
     group_by : :any:`str` or :any:`list` of :any:`str`, (Defaults to ['id'])
         List of attributes to be used within the Window Function as Grouping Arguments.
-     
+
     order_by : :any:`str` or :any:`list` of :any:`str`, (Defaults to ['updated_at', 'deleted_at'])
         List of attributes to be used within the Window Function as Ordering Arguments.
         All columns will be sorted in **descending** order.
@@ -64,11 +64,7 @@ class NewestByGroup(Transformer):
 
         window = self._construct_window_function(input_df, self.group_by, self.order_by)
 
-        return (
-            input_df.select("*", row_number().over(window).alias("row_nr"))
-            .where("row_nr = 1")
-            .drop("row_nr")
-        )
+        return input_df.select("*", row_number().over(window).alias("row_nr")).where("row_nr = 1").drop("row_nr")
 
     def _construct_window_function(self, input_df, group_by, order_by):
         """Constructs a window function based on the given input params"""

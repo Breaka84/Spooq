@@ -6,7 +6,8 @@ from pyspark.sql import types as sql_types
 
 from spooq2.transformer import NewestByGroup
 
-@pytest.fixture(scope='module')
+
+@pytest.fixture(scope="module")
 def input_df(spark_session):
     # fmt: off
     input_data = [
