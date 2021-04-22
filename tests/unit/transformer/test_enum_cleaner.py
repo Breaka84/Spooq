@@ -238,3 +238,95 @@ class TestDynamicDefaultValues:
         ])
         output_df = EnumCleaner(cleaning_definitions=cleaning_definitions).transform(input_df)
         assert_df_equality(expected_output_df, output_df)
+
+
+class TestCleansedValuesAreLogged:
+
+    @pytest.fixture(scope="class")
+    def cleaning_definition_b_positive(self):
+        return dict(b=dict(elements=["positive"], default=None))
+
+    @pytest.fixture(scope="class")
+    def transformer(self, cleaning_definition_b_positive):
+        return EnumCleaner(cleaning_definition_b_positive, column_to_log_cleansed_values="cleansed_values_enum")
+
+    @pytest.fixture(scope="class")
+    def input_df(self, spark_session):
+        return spark_session.createDataFrame([
+            Row(b="positive"),
+            Row(b="negative"),
+            Row(b="positive")
+        ])
+
+    def test_single_cleansed_value_is_stored_in_separate_column(self, input_df, spark_session):
+        expected_output_df = spark_session.createDataFrame([
+            Row(b="positive", cleansed_values_enum=Row(b=None)),
+            Row(b=None, cleansed_values_enum=Row(b="negative")),
+            Row(b="positive", cleansed_values_enum=Row(b=None))
+        ])
+        cleansing_definitions = {
+            "b": {
+                "elements": ["positive"],
+                "default": None
+            }
+        }
+        output_df = EnumCleaner(cleansing_definitions, column_to_log_cleansed_values="cleansed_values_enum").transform(input_df)
+        assert_df_equality(expected_output_df, output_df, ignore_nullable=True)
+
+    def test_single_cleansed_value_is_stored_in_separate_column_with_default_substitute(self, input_df, spark_session):
+        expected_output_df = spark_session.createDataFrame([
+            Row(b="positive", cleansed_values_enum=Row(b=None)),
+            Row(b="cleansed_value", cleansed_values_enum=Row(b="negative")),
+            Row(b="positive", cleansed_values_enum=Row(b=None))
+        ])
+        cleansing_definitions = {
+            "b": {
+                "elements": ["positive"],
+                "default": "cleansed_value"
+            }
+        }
+        transformer = EnumCleaner(cleansing_definitions, column_to_log_cleansed_values="cleansed_values_enum")
+        output_df = transformer.transform(input_df)
+        assert_df_equality(expected_output_df, output_df, ignore_nullable=True)
+
+    def test_only_cleansed_values_are_stored_in_separate_column(self, spark_session):
+        input_df = spark_session.createDataFrame([
+            Row(a="stay", b="positive"),
+            Row(a="stay", b="negative"),
+            Row(a="stay", b="positive")
+        ])
+        expected_output_df = spark_session.createDataFrame([
+            Row(a="stay", b="positive", cleansed_values_enum=Row(b=None)),
+            Row(a="stay", b=None, cleansed_values_enum=Row(b="negative")),
+            Row(a="stay", b="positive", cleansed_values_enum=Row(b=None))
+        ])
+        cleansing_definitions = {
+            "b": {
+                "elements": ["positive"],
+                "default": None
+            }
+        }
+        output_df = EnumCleaner(cleansing_definitions, column_to_log_cleansed_values="cleansed_values_enum").transform(input_df)
+        assert_df_equality(expected_output_df, output_df, ignore_nullable=True)
+
+    def test_multiple_cleansing_rules(self, spark_session):
+        input_df = spark_session.createDataFrame([
+            Row(a="stay", b="positive", c="or", d="healthy"),
+            Row(a="stay", b="negative", c="and", d="healthy"),
+            Row(a="stay", b="positive", c="xor", d="healthy")
+        ])
+
+        cleansing_definitions = dict(
+            b=dict(elements=["positive"]),
+            c=dict(elements=["xor"], mode="disallow", default="or"),
+        )
+
+        expected_output_df = spark_session.createDataFrame([
+            Row(a="stay", b="positive", c="or", d="healthy", cleansed_values_enum=Row(b=None, c=None)),
+            Row(a="stay", b=None, c="and", d="healthy", cleansed_values_enum=Row(b="negative", c=None)),
+            Row(a="stay", b="positive", c="or", d="healthy", cleansed_values_enum=Row(b=None, c="xor")),
+        ])
+
+        output_df = EnumCleaner(cleansing_definitions, column_to_log_cleansed_values="cleansed_values_enum").transform(input_df)
+        assert_df_equality(expected_output_df, output_df, ignore_nullable=True)
+

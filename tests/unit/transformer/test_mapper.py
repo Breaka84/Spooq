@@ -3,7 +3,11 @@ from builtins import object
 import pytest
 from pyspark.sql import functions as F
 from pyspark.sql import types as T
+from pyspark.sql import Row
 from pyspark.sql.utils import AnalysisException
+from chispa.dataframe_comparer import assert_df_equality
+
+
 from spooq2.transformer import Mapper
 
 
@@ -214,3 +218,34 @@ class TestDataTypesOfMappedDataFrame(object):
         ) == expected_data_type
 
 
+class TestAmbiguousColumnNames:
+    @pytest.fixture(scope="class")
+    def input_df(self, spark_session):
+        return spark_session.createDataFrame([
+            Row(int_val=123, Key="Hello", key="World"),
+            Row(int_val=124, Key="Nice to", key="meet you")
+        ])
+
+    @pytest.fixture(scope="class")
+    def expected_output_df(self, spark_session):
+        return spark_session.createDataFrame([
+            Row(int_val=123),
+            Row(int_val=124)
+        ])
+
+    @pytest.fixture(scope="class")
+    def mapping(self):
+        return [
+            ("int_val", "int_val", "LongType"),
+            ("key",     "Key",     "StringType"),
+        ]
+
+    def test_ambiguous_column_names_raise_exception(self, input_df, mapping):
+        transformer = Mapper(mapping)
+        with pytest.raises(AnalysisException):
+            transformer.transform(input_df)
+
+    def test_ambiguous_column_names_exception_is_ignored(self, input_df, mapping, expected_output_df):
+        transformer = Mapper(mapping, ignore_ambiguous_columns=True)
+        output_df = transformer.transform(input_df)
+        assert_df_equality(expected_output_df, output_df)

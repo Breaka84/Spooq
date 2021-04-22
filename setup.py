@@ -36,8 +36,8 @@ setup(
         All extractors, transformers, and loaders are single components which can be mixed to one's liking.
     """,
     long_description=readme + '\n\n' + history,
-    author="David Eigenstuhler",
-    author_email=['david.eigenstuhler@runtastic.com', 'breaka@gmx.at'],
+    author="David Hohensinn",
+    author_email=['david.hohensinn@runtastic.com', 'breaka@gmx.at'],
     url='https://github.com/Breaka84/Spooq',
     packages=find_packages(where='src'),
     package_dir={'': 'src'},

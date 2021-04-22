@@ -1,6 +1,6 @@
 # For more information see: https://help.github.com/actions/language-and-framework-guides/using-python-with-github-actions
 
-name: Tests Python 3.7, Spark 3.0.1
+name: Tests Python 3.7
 
 on:
   push:
@@ -9,7 +9,13 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-
+    strategy:
+      matrix:
+        include:
+          - pyspark-version: 3.0.1
+            pyspark-pip-package: "pyspark==3.0.1"
+#          - pyspark-version: 2.4.3
+#            pyspark-pip-package: "pyspark==2.4.3"
     steps:
     - uses: actions/checkout@v2
     - name: Set up Java 1.8
@@ -22,8 +28,13 @@ jobs:
         python-version: 3.7
     - name: Install pipenv
       run: pip install pipenv
-    - name: Run tests
+    - name: Run tests with Pyspark ${{ matrix.python-version }}
+      env:
+        PYSPARK_VERSION_NUMBER: ${{ matrix.pyspark-version }}
+        PYSPARK_PIP_PACKAGE: ${{ matrix.pyspark-pip-package }}
       working-directory: ./tests
       run: |
+        echo "Installing Pyspark ${PYSPARK_VERSION_NUMBER} from pip package ${PYSPARK_PIP_PACKAGE}"
         pipenv install --dev
+        pipenv install $PYSPARK_PIP_PACKAGE
         pipenv run pytest

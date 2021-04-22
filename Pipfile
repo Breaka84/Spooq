@@ -6,7 +6,6 @@ name = "pypi"
 [dev-packages]
 # Developing / Debugging
 ipython = "*"
-pyspark = "==3.0.1"
 #Testing
 doubles = "*"
 Faker = "*"
@@ -32,6 +31,8 @@ pylint = "*"
 pyarrow = "*"
 chispa = "*"
 jedi = "==0.17.2"
+pudb = "*"
+pytest-pudb = "*"
 
 [packages]
 pandas = "*"

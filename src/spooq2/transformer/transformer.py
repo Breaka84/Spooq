@@ -1,13 +1,13 @@
 """
-Transformers take a :py:class:`pyspark.sql.DataFrame` as an input, transform it accordingly 
-and return a PySpark DataFrame.   
+Transformers take a :py:class:`pyspark.sql.DataFrame` as an input, transform it accordingly
+and return a :py:class:`pyspark.sql.DataFrame`.
 
-Each Transformer class has to have a `transform` method which takes no arguments 
-and returns a PySpark DataFrame.
+Each Transformer class has to have a `transform` method which takes no arguments
+and returns a :py:class:`pyspark.sql.DataFrame`.
 
-Possible transformation methods can be **Selecting the most up to date record by id**,
-**Exploding an array**, **Filter (on an exploded array)**, **Apply basic threshold cleansing** or 
-**Map the incoming DataFrame to at provided structure**.
+Possible transformation methods can be Selecting the most up to date record by id,
+Exploding an array, Filter (on an exploded array), Apply basic threshold cleansing or
+Map the incoming DataFrame to at provided structure.
 """
 
 from builtins import object

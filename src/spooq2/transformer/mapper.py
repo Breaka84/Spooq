@@ -50,6 +50,11 @@ class Mapper(Transformer):
         Specifies if the mapping transformation should use NULL if a referenced input
         column is missing in the provided DataFrame. If set to False, it will raise an exception.
 
+    ignore_ambiguous_columns : :any:`bool`, Defaults to False
+        It can happen that the input DataFrame has ambiguous column names (like "Key" vs "key") which will
+        raise an exception with Spark when reading. This flag surpresses this exception and skips those affected
+        columns.
+
     mode : :any:`str`, Defaults to "replace"
         Defines weather the mapping should fully replace the schema of the input DataFrame or just add to it.
         Following modes are supported:
@@ -84,7 +89,7 @@ class Mapper(Transformer):
     * DataType: :any:`str` or :class:`~pyspark.sql.types.DataType`
         DataTypes can be types from :any:`pyspark.sql.types`, selected custom datatypes or
         injected, ad-hoc custom datatypes.
-        The datatype will be interpreted as a PySpark built-in if it is a member of ``pyspark.sql.types`` module.
+        The datatype will be interpreted as a PySpark built-in if it is a member of :any:`pyspark.sql.types` module.
         If it is not an importable PySpark data type, a method to construct the statement will be
         called by the data type's name.
 
@@ -106,15 +111,17 @@ class Mapper(Transformer):
     Attention: Decimal is NOT SUPPORTED by Hive! Please use Double instead!
     """
 
-    def __init__(self, mapping, ignore_missing_columns=False, mode="replace"):
+    def __init__(self, mapping, ignore_missing_columns=False, ignore_ambiguous_columns=False, mode="replace"):
         super(Mapper, self).__init__()
         self.mapping = mapping
         self.ignore_missing_columns = ignore_missing_columns
+        self.ignore_ambiguous_columns = ignore_ambiguous_columns
         self.mode = mode
 
     def transform(self, input_df):
         self.logger.info("Generating SQL Select-Expression for Mapping...")
-        self.logger.debug("Input Schema/Mapping: {mp}".format(mp=str(self.mapping)))
+        self.logger.debug("Input Schema/Mapping:")
+        self.logger.debug("\n" + "\n".join(["\t".join(map(str, mapping_line)) for mapping_line in self.mapping]))
 
         input_columns = input_df.columns
         select_expressions = []
@@ -126,6 +133,8 @@ class Mapper(Transformer):
             )
 
             source_column = self._get_spark_column(source_column, name, input_df)
+            if source_column is None:
+                continue
             data_type, data_type_is_spark_builtin = self._get_spark_data_type(data_type)
             select_expression = self._get_select_expression(name, source_column, data_type, data_type_is_spark_builtin)
 
@@ -137,7 +146,7 @@ class Mapper(Transformer):
                 select_expressions.append(select_expression)
 
         self.logger.info("SQL Select-Expression for new mapping generated!")
-        self.logger.debug("SQL Select-Expressions for new mapping: " + str(select_expressions))
+        self.logger.debug("SQL Select-Expressions for new mapping:\n" + "\n".join(str(select_expressions).split(",")))
         self.logger.debug("SQL WithColumn-Expressions for new mapping: " + str(with_column_expressions))
         if self.mode == "prepend":
             df_to_return = input_df.select(select_expressions + ["*"])
@@ -168,7 +177,11 @@ class Mapper(Transformer):
 
         except AnalysisException as e:
             if isinstance(source_column, str) and self.ignore_missing_columns:
+                self.logger.warn(f"Missing column ({str(source_column)}) replaced with NULL (via ignore_missing_columns=True): {e.desc}")
                 source_column = F.lit(None)
+            elif "ambiguous" in e.desc.lower() and self.ignore_ambiguous_columns:
+                self.logger.warn(f"Exception ignored (via ignore_ambiguous_columns=True) for column \"{str(source_column)}\": {e.desc}")
+                return None
             else:
                 self.logger.exception(
                     "Column: \"{}\" cannot be resolved ".format(str(source_column)) +
