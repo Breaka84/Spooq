@@ -1,7 +1,7 @@
 Loaders
 =======
 
-.. automodule:: spooq2.loader.loader
+.. automodule:: spooq.loader.loader
     :no-members:
 
 .. toctree::

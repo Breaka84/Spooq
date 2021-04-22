@@ -1,6 +1,6 @@
 import pytest
 
-from spooq2.extractor import CSVExtractor
+from spooq.extractor import CSVExtractor
 
 @pytest.fixture()
 def default_extractor():

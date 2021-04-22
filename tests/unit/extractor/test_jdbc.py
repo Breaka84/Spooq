@@ -7,7 +7,7 @@ import sqlite3
 import pandas as pd
 from doubles import allow
 
-from spooq2.extractor import JDBCExtractorIncremental
+from spooq.extractor import JDBCExtractorIncremental
 
 
 @pytest.fixture()
@@ -21,9 +21,9 @@ def default_params():
         },
         "partition": 20180518,
         "source_table": "MOCK_DATA",
-        "spooq2_values_table": "test_spooq2_values_tbl",
-        "spooq2_values_db": "test_spooq2_values_db",
-        "spooq2_values_partition_column": "updated_at",
+        "spooq_values_table": "test_spooq_values_tbl",
+        "spooq_values_db": "test_spooq_values_db",
+        "spooq_values_partition_column": "updated_at",
         "cache": True,
     }
 
@@ -34,7 +34,7 @@ def extractor(default_params):
 
 
 @pytest.fixture()
-def spooq2_values_pd_df(spark_session, default_params):
+def spooq_values_pd_df(spark_session, default_params):
     # fmt: off
     input_data = {
         'partition_column': ['updated_at',          'updated_at',          'updated_at'],
@@ -46,13 +46,13 @@ def spooq2_values_pd_df(spark_session, default_params):
     pd_df = pd.DataFrame(input_data)
     spark_session.conf.set("hive.exec.dynamic.partition", "true")
     spark_session.conf.set("hive.exec.dynamic.partition.mode", "nonstrict")
-    spark_session.sql("DROP DATABASE IF EXISTS {db} CASCADE".format(db=default_params["spooq2_values_db"]))
-    spark_session.sql("CREATE DATABASE {db}".format(db=default_params["spooq2_values_db"]))
+    spark_session.sql("DROP DATABASE IF EXISTS {db} CASCADE".format(db=default_params["spooq_values_db"]))
+    spark_session.sql("CREATE DATABASE {db}".format(db=default_params["spooq_values_db"]))
     spark_session.createDataFrame(pd_df).write.partitionBy("dt").saveAsTable(
-        "{db}.{tbl}".format(db=default_params["spooq2_values_db"], tbl=default_params["spooq2_values_table"])
+        "{db}.{tbl}".format(db=default_params["spooq_values_db"], tbl=default_params["spooq_values_table"])
     )
     yield pd_df
-    spark_session.sql("DROP DATABASE IF EXISTS {db} CASCADE".format(db=default_params["spooq2_values_db"]))
+    spark_session.sql("DROP DATABASE IF EXISTS {db} CASCADE".format(db=default_params["spooq_values_db"]))
 
 
 @pytest.fixture()
@@ -68,14 +68,14 @@ def sqlite_url(spark_session, tmp_path):
 
 
 class TestJDBCExtractorIncremental(object):
-    """Testing of spooq2.extractor.JDBCExtractorIncremental
+    """Testing of spooq.extractor.JDBCExtractorIncremental
 
-        spooq2_values_pd_df:
+    spooq_values_pd_df:
 
-            partition_column        dt          first_value           last_value
-        0         updated_at  20180515  2018-01-01 03:30:00  2018-05-16 03:29:59
-        1         updated_at  20180516  2018-05-16 03:30:00  2018-05-17 03:29:59
-        2         updated_at  20180517  2018-05-17 03:30:00  2018-05-18 03:29:59
+        partition_column        dt          first_value           last_value
+    0         updated_at  20180515  2018-01-01 03:30:00  2018-05-16 03:29:59
+    1         updated_at  20180516  2018-05-16 03:30:00  2018-05-17 03:29:59
+    2         updated_at  20180517  2018-05-17 03:30:00  2018-05-18 03:29:59
 
     """
 
@@ -89,17 +89,16 @@ class TestJDBCExtractorIncremental(object):
         def test_str_representation_is_correct(self, extractor):
             assert str(extractor) == "Extractor Object of Class JDBCExtractorIncremental"
 
-
     class TestBoundaries(object):
-        """Deriving boundaries from previous loads logs (spooq2_values_pd_df)"""
+        """Deriving boundaries from previous loads logs (spooq_values_pd_df)"""
 
         @pytest.mark.parametrize(
             ("partition", "value"),
             [(20180510, "2018-01-01 03:30:00"), (20180515, "2018-05-16 03:30:00"), (20180516, "2018-05-17 03:30:00")],
         )
-        def test__get_lower_bound_from_succeeding_partition(self, partition, value, spooq2_values_pd_df, extractor):
+        def test__get_lower_bound_from_succeeding_partition(self, partition, value, spooq_values_pd_df, extractor):
             """Getting the upper boundary partition to load"""
-            assert extractor._get_lower_bound_from_succeeding_partition(spooq2_values_pd_df, partition) == value
+            assert extractor._get_lower_bound_from_succeeding_partition(spooq_values_pd_df, partition) == value
 
         @pytest.mark.parametrize(
             ("partition", "value"),
@@ -110,9 +109,9 @@ class TestJDBCExtractorIncremental(object):
                 (20180520, "2018-05-18 03:29:59"),
             ],
         )
-        def test__get_upper_bound_from_preceding_partition(self, partition, value, spooq2_values_pd_df, extractor):
+        def test__get_upper_bound_from_preceding_partition(self, partition, value, spooq_values_pd_df, extractor):
             """Getting the lower boundary partition to load"""
-            assert extractor._get_upper_bound_from_preceding_partition(spooq2_values_pd_df, partition) == value
+            assert extractor._get_upper_bound_from_preceding_partition(spooq_values_pd_df, partition) == value
 
         @pytest.mark.parametrize(
             ("partition", "boundaries"),
@@ -123,23 +122,22 @@ class TestJDBCExtractorIncremental(object):
             ],
         )
         def test__get_lower_and_upper_bounds_from_current_partition(
-            self, partition, boundaries, spooq2_values_pd_df, extractor
+            self, partition, boundaries, spooq_values_pd_df, extractor
         ):
             assert extractor._get_lower_and_upper_bounds_from_current_partition(
-                spooq2_values_pd_df, partition
+                spooq_values_pd_df, partition
             ) == tuple(boundaries)
 
-
-        def test__get_previous_boundaries_table(self, extractor, spooq2_values_pd_df):
+        def test__get_previous_boundaries_table(self, extractor, spooq_values_pd_df):
             """Getting boundaries from previously loaded partitions"""
             try:
-                del extractor.spooq2_values_partition_column
+                del extractor.spooq_values_partition_column
             except AttributeError:
                 pass
-            assert not hasattr(extractor, "spooq2_values_partition_column")
-            df = extractor._get_previous_boundaries_table(extractor.spooq2_values_db, extractor.spooq2_values_table)
+            assert not hasattr(extractor, "spooq_values_partition_column")
+            df = extractor._get_previous_boundaries_table(extractor.spooq_values_db, extractor.spooq_values_table)
             assert 3 == df.count()
-            assert extractor.spooq2_values_partition_column == "updated_at"
+            assert extractor.spooq_values_partition_column == "updated_at"
 
         # fmt: off
         @pytest.mark.parametrize(
@@ -152,7 +150,7 @@ class TestJDBCExtractorIncremental(object):
             (20180520,  ('2018-05-18 03:29:59', False))]
         )
         # fmt: on
-        def test__get_boundaries_for_import(self, extractor, spooq2_values_pd_df, partition, boundaries):
+        def test__get_boundaries_for_import(self, extractor, spooq_values_pd_df, partition, boundaries):
             assert extractor._get_boundaries_for_import(partition) == boundaries
 
     class TestQueryConstruction(object):
@@ -191,7 +189,6 @@ class TestJDBCExtractorIncremental(object):
 
     @pytest.mark.parametrize("key", ["url", "driver", "user", "password"])
     class TestJDBCOptions(object):
-
         def test_missing_jdbc_option_raises_error(self, key, default_params):
             del default_params["jdbc_options"][key]
             with pytest.raises(AssertionError) as excinfo:

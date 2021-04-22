@@ -14,7 +14,7 @@
 #
 import os
 import sys
-sys.path.insert(0, os.path.abspath('../../src/spooq2'))
+sys.path.insert(0, os.path.abspath('../../spooq'))
 # sys.path[0:0] = [os.path.abspath('_themes/foundation-sphinx-theme')]
 
 # import easydev
@@ -22,16 +22,16 @@ sys.path.insert(0, os.path.abspath('../../src/spooq2'))
 # from recommonmark.transform import AutoStructify
 # import sphinx_bootstrap_theme
 # import foundation_sphinx_theme
-from spooq2._version import __version__ as version_number
+from spooq._version import __version__ as version_number
 
 # -- Project information -----------------------------------------------------
 
-project = u'Spooq2'
-copyright = u'2020, David Eigenstuhler'
-author = u'David Eigenstuhler'
+project = u'Spooq'
+copyright = u'2020, David Hohensinn'
+author = u'David Hohensinn'
 
 # The short X.Y version
-version = u'2'
+version = u'3'
 # The full version, including alpha/beta/rc tags
 release = version_number
 
@@ -136,7 +136,7 @@ html_theme = 'sphinx_rtd_theme'
 # html_theme_path = foundation_sphinx_theme.HTML_THEME_PATH
 # html_theme_options = {
 #     'stylesheet': 'foundation/css/cards.css',
-#     'motto': 'Spooq2 - Extracting, Transforming, and Loading on PySpark',
+#     'motto': 'Spooq - Extracting, Transforming, and Loading on PySpark',
 #     'author': u'David Eigenstuhler',
 #     'copyright_year': '2020',
 #     # 'github_ribbon_image': 'github-ribbon.png',
@@ -167,7 +167,7 @@ html_css_files = [
 # -- Options for HTMLHelp output ---------------------------------------------
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = 'Spooq2_docs'
+htmlhelp_basename = 'Spooq_docs'
 
 
 # -- Options for LaTeX output ------------------------------------------------
@@ -197,7 +197,7 @@ latex_elements = {
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-    (master_doc, 'Spooq2.tex', u'Spooq2 Documentation',
+    (master_doc, 'Spooq.tex', u'Spooq Documentation',
      u'David Eigenstuhler', 'manual'),
 ]
 # latex_docclass = {'manual': 'scrbook'}
@@ -208,7 +208,7 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    (master_doc, 'spooq2', u'Spooq2 Documentation',
+    (master_doc, 'spooq', u'Spooq Documentation',
      [author], 1)
 ]
 
@@ -219,8 +219,8 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-    (master_doc, 'Spooq2', u'Spooq2 Documentation',
-     author, 'Spooq2', 'ETL library for Spark based Data Lakes.',
+    (master_doc, 'Spooq', u'Spooq Documentation',
+     author, 'Spooq', 'ETL library for Spark based Data Lakes.',
      'Miscellaneous'),
 ]
 

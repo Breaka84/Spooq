@@ -1,5 +1,5 @@
 Pipeline Factory
 ================
 
-.. automodule:: spooq2.pipeline.factory
+.. automodule:: spooq.pipeline.factory
     :members:

@@ -1,7 +1,8 @@
 Open
 ====
 \[~] Update Documentation for Mapper (functions in mapping, ignore_missing_column, flow-chart)
-\[ ] Update Documentation to setup Spark
+\[X] Update Documentation to setup Spark
+\[ ] upload to pypi via github action
 \[ ] Get some cookies
 
 Done

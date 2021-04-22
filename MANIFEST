@@ -1,0 +1,6 @@
+include LICENSE AUTHORS.rst CHANGELOG.rst CONTRIBUTING.rst README.rst requirements.txt
+recursive-exclude * __pycache__
+recursive-exclude * *.pyc
+recursive-exclude * *.pyo
+recursive-exclude * *.orig
+prune tests*

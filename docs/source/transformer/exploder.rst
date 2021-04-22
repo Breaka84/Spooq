@@ -1,6 +1,6 @@
 Exploder
 ========
 
-.. automodule:: spooq2.transformer.exploder
+.. automodule:: spooq.transformer.exploder
     :members:
 

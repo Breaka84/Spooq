@@ -4,7 +4,7 @@ skinparam monochrome true
 skinparam defaultFontname Bitstream Vera Sans Mono
 skinparam defaultFontSize 18
 
-'title Spooq2 - Interfaces / API
+'title Spooq - Interfaces / API
 
 ' left to right direction
 
@@ -44,7 +44,7 @@ Pipeline "*" *-- "1" Loader : contains
 footer
 
 <font color=green>Hint!</font>
-Extractors, Transformers, and Loaders can be used without a pipeline class as well, 
+Extractors, Transformers, and Loaders can be used without a pipeline class as well,
 if special use cases require additional transformation not covered by Spooq!
 endfooter
 

@@ -7,8 +7,8 @@ from pyspark.sql import functions as F
 from pyspark.sql import Row
 from pyspark.sql import types as T
 
-import spooq2.transformer.mapper_custom_data_types as custom_types
-from spooq2.transformer import Mapper
+import spooq.transformer.mapper_custom_data_types as custom_types
+from spooq.transformer import Mapper
 from ...data.test_fixtures.mapper_custom_data_types_fixtures import (
     fixtures_for_spark_sql_object,
     fixtures_for_has_value,
@@ -31,10 +31,10 @@ from ...helpers.skip_conditions import only_spark2, only_spark3
 
 def get_spark_data_type(input_value):
     return {
-        "str"     : T.StringType(),
-        "int"     : T.LongType(),
-        "bool"    : T.BooleanType(),
-        "float"   : T.DoubleType(),
+        "str": T.StringType(),
+        "int": T.LongType(),
+        "bool": T.BooleanType(),
+        "float": T.DoubleType(),
         "NoneType": T.NullType(),
     }[type(input_value).__name__]
 
@@ -44,19 +44,13 @@ def parameter_to_string_id(val):
 
 
 def parameters_to_string_id(actual_value, expected_value):
-    return " actual: <{a}> ({a_cls}) -> expected: <{e}>  ({e_cls})".format(a=actual_value,
-                                                                           a_cls=str(type(actual_value)),
-                                                                           e=expected_value,
-                                                                           e_cls=str(type(expected_value)))
+    return " actual: <{a}> ({a_cls}) -> expected: <{e}>  ({e_cls})".format(
+        a=actual_value, a_cls=str(type(actual_value)), e=expected_value, e_cls=str(type(expected_value))
+    )
 
 
 def get_input_df(spark_session, spark_context, source_key, input_value):
-    input_json = json.dumps(
-        {"attributes": {
-            "data": {
-                source_key: input_value
-            }
-        }})
+    input_json = json.dumps({"attributes": {"data": {source_key: input_value}}})
     return spark_session.read.json(spark_context.parallelize([input_json]))
 
 
@@ -101,27 +95,33 @@ class TestDynamicallyCallMethodsByDataTypeName(object):
         data_type = "NowhereToBeFound"
 
         with pytest.raises(AttributeError):
-            custom_types._get_select_expression_for_custom_type(
-                source_column, name, data_type)
+            custom_types._get_select_expression_for_custom_type(source_column, name, data_type)
 
 
 class TestAdHocSparkSqlFunctions(object):
-
     @staticmethod
     def create_input_df(input_value_1, input_value_2, spark_session):
-        spark_schema = T.StructType([
-            T.StructField("nested", T.StructType([
-                T.StructField("input_key_1", get_spark_data_type(input_value_1)),
-                T.StructField("input_key_2", get_spark_data_type(input_value_2))
-            ]))
-        ])
+        spark_schema = T.StructType(
+            [
+                T.StructField(
+                    "nested",
+                    T.StructType(
+                        [
+                            T.StructField("input_key_1", get_spark_data_type(input_value_1)),
+                            T.StructField("input_key_2", get_spark_data_type(input_value_2)),
+                        ]
+                    ),
+                )
+            ]
+        )
         return spark_session.createDataFrame(
-            data=[Row(nested=Row(input_key_1=input_value_1, input_key_2=input_value_2))],
-            schema=spark_schema)
+            data=[Row(nested=Row(input_key_1=input_value_1, input_key_2=input_value_2))], schema=spark_schema
+        )
 
     @pytest.mark.parametrize(
         argnames=("input_value_1", "input_value_2", "mapper_function", "expected_value"),
-        argvalues=fixtures_for_spark_sql_object)
+        argvalues=fixtures_for_spark_sql_object,
+    )
     def test_spark_sql_object(self, spark_session, input_value_1, input_value_2, mapper_function, expected_value):
         input_df = self.create_input_df(input_value_1, input_value_2, spark_session)
         output_df = Mapper(mapping=[("output_key", mapper_function, "as_is")]).transform(input_df)
@@ -153,14 +153,12 @@ class TestMiscConversions(object):
          Row(list_of_friend_ids=[Row(id=12), Row(id=75), Row(id=44), Row(id=76)])),
     ])
     # fmt: on
-    def test_generate_select_expression_without_casting(self, input_value, value,
-                                                        spark_session,
-                                                        spark_context):
+    def test_generate_select_expression_without_casting(self, input_value, value, spark_session, spark_context):
         source_key, name = "demographics", "statistics"
-        input_df = get_input_df(spark_session, spark_context, source_key,
-                                input_value)
+        input_df = get_input_df(spark_session, spark_context, source_key, input_value)
         result_column = custom_types._generate_select_expression_without_casting(
-            source_column=input_df["attributes"]["data"][source_key], name=name)
+            source_column=input_df["attributes"]["data"][source_key], name=name
+        )
         output_df = input_df.select(result_column)
         assert output_df.schema.fieldNames() == [name], "Renaming of column"
         assert output_df.first()[name] == value, "Processing of column value"
@@ -185,18 +183,15 @@ class TestMiscConversions(object):
          '{"list_of_friend_ids": [{"id": 12}, {"id": 75}, {"id": 44}, {"id": 76}]}')
     ])
     # fmt: on
-    def test_generate_select_expression_for_json_string(self, input_value, value,
-                                                        spark_session,
-                                                        spark_context):
+    def test_generate_select_expression_for_json_string(self, input_value, value, spark_session, spark_context):
         source_key, name = "demographics", "statistics"
-        input_df = get_input_df(spark_session, spark_context, source_key,
-                                input_value)
+        input_df = get_input_df(spark_session, spark_context, source_key, input_value)
         result_column = custom_types._generate_select_expression_for_json_string(
-            source_column=input_df["attributes"]["data"][source_key], name=name)
+            source_column=input_df["attributes"]["data"][source_key], name=name
+        )
         output_df = input_df.select(result_column)
         assert output_df.schema.fieldNames() == [name], "Renaming of column"
-        assert output_df.schema[name].dataType.typeName(
-        ) == "string", "Casting of column"
+        assert output_df.schema[name].dataType.typeName() == "string", "Casting of column"
         assert output_df.first()[name] == value, "Processing of column value"
 
     # fmt: off
@@ -221,20 +216,18 @@ class TestMiscConversions(object):
     def test_generate_select_expression_for_meters_to_cm(self, input_value, expected_value, spark_session):
         input_df = spark_session.createDataFrame(
             data=[Row(input_key=input_value)],
-            schema=T.StructType([T.StructField("input_key", get_spark_data_type(input_value), True)])
+            schema=T.StructType([T.StructField("input_key", get_spark_data_type(input_value), True)]),
         )
         output_df = Mapper(mapping=[("output_column", "input_key", "meters_to_cm")]).transform(input_df)
         assert output_df.first().output_column == expected_value, "Processing of column value"
         assert output_df.schema.fieldNames() == ["output_column"], "Renaming of column"
         assert output_df.schema["output_column"].dataType.typeName() == "integer", "Casting of column"
 
-    @pytest.mark.parametrize(
-        argnames=("input_value", "expected_value"),
-        argvalues=fixtures_for_has_value)
+    @pytest.mark.parametrize(argnames=("input_value", "expected_value"), argvalues=fixtures_for_has_value)
     def test_generate_select_expression_for_has_value(self, input_value, expected_value, spark_session):
         input_df = spark_session.createDataFrame(
             data=[Row(input_key=input_value)],
-            schema=T.StructType([T.StructField("input_key", get_spark_data_type(input_value), True)])
+            schema=T.StructType([T.StructField("input_key", get_spark_data_type(input_value), True)]),
         )
         output_df = Mapper(mapping=[("output_column", "input_key", "has_value")]).transform(input_df)
         assert output_df.first().output_column == expected_value, "Processing of column value"
@@ -243,17 +236,18 @@ class TestMiscConversions(object):
 
 
 class TestExtendedStringConversions(object):
-
     @staticmethod
     def create_input_df(input_value, spark_session):
         return spark_session.createDataFrame(
             data=[Row(input_key=input_value)],
-            schema=T.StructType([T.StructField("input_key", get_spark_data_type(input_value), True)]))
+            schema=T.StructType([T.StructField("input_key", get_spark_data_type(input_value), True)]),
+        )
 
     @pytest.mark.parametrize(
         argnames=("input_value", "expected_value"),
         argvalues=fixtures_for_extended_string_to_int,
-        ids=[parameters_to_string_id(actual, expected) for actual, expected in fixtures_for_extended_string_to_int])
+        ids=[parameters_to_string_id(actual, expected) for actual, expected in fixtures_for_extended_string_to_int],
+    )
     def test_extended_string_to_int(self, spark_session, input_value, expected_value):
         input_df = self.create_input_df(input_value, spark_session)
         output_df = Mapper(mapping=[("output_key", "input_key", "extended_string_to_int")]).transform(input_df)
@@ -263,7 +257,8 @@ class TestExtendedStringConversions(object):
     @pytest.mark.parametrize(
         argnames=("input_value", "expected_value"),
         argvalues=fixtures_for_extended_string_to_long,
-        ids=[parameters_to_string_id(actual, expected) for actual, expected in fixtures_for_extended_string_to_long])
+        ids=[parameters_to_string_id(actual, expected) for actual, expected in fixtures_for_extended_string_to_long],
+    )
     def test_extended_string_to_long(self, spark_session, input_value, expected_value):
         input_df = self.create_input_df(input_value, spark_session)
         output_df = Mapper(mapping=[("output_key", "input_key", "extended_string_to_long")]).transform(input_df)
@@ -273,7 +268,8 @@ class TestExtendedStringConversions(object):
     @pytest.mark.parametrize(
         argnames=("input_value", "expected_value"),
         argvalues=fixtures_for_extended_string_to_float,
-        ids=[parameters_to_string_id(actual, expected) for actual, expected in fixtures_for_extended_string_to_float])
+        ids=[parameters_to_string_id(actual, expected) for actual, expected in fixtures_for_extended_string_to_float],
+    )
     def test_extended_string_to_float(self, spark_session, input_value, expected_value):
         input_df = self.create_input_df(input_value, spark_session)
         output_df = Mapper(mapping=[("output_key", "input_key", "extended_string_to_float")]).transform(input_df)
@@ -287,7 +283,8 @@ class TestExtendedStringConversions(object):
     @pytest.mark.parametrize(
         argnames=("input_value", "expected_value"),
         argvalues=fixtures_for_extended_string_to_double,
-        ids=[parameters_to_string_id(actual, expected) for actual, expected in fixtures_for_extended_string_to_double])
+        ids=[parameters_to_string_id(actual, expected) for actual, expected in fixtures_for_extended_string_to_double],
+    )
     def test_extended_string_to_double(self, spark_session, input_value, expected_value):
         input_df = self.create_input_df(input_value, spark_session)
         output_df = Mapper(mapping=[("output_key", "input_key", "extended_string_to_double")]).transform(input_df)
@@ -301,7 +298,8 @@ class TestExtendedStringConversions(object):
     @pytest.mark.parametrize(
         argnames=("input_value", "expected_value"),
         argvalues=fixtures_for_extended_string_to_boolean,
-        ids=[parameters_to_string_id(actual, expected) for actual, expected in fixtures_for_extended_string_to_boolean])
+        ids=[parameters_to_string_id(actual, expected) for actual, expected in fixtures_for_extended_string_to_boolean],
+    )
     def test_extended_string_to_boolean(self, spark_session, input_value, expected_value):
         input_df = self.create_input_df(input_value, spark_session)
         output_df = Mapper(mapping=[("output_key", "input_key", "extended_string_to_boolean")]).transform(input_df)
@@ -312,7 +310,11 @@ class TestExtendedStringConversions(object):
     @pytest.mark.parametrize(
         argnames=("input_value", "expected_value"),
         argvalues=fixtures_for_extended_string_to_timestamp_spark2,
-        ids=[parameters_to_string_id(actual, expected) for actual, expected in fixtures_for_extended_string_to_timestamp_spark2])
+        ids=[
+            parameters_to_string_id(actual, expected)
+            for actual, expected in fixtures_for_extended_string_to_timestamp_spark2
+        ],
+    )
     def test_extended_string_to_timestamp_spark2(self, spark_session, input_value, expected_value):
         # test uses timezone set to GMT / UTC (pytest.ini)!
         input_df = self.create_input_df(input_value, spark_session)
@@ -335,7 +337,10 @@ class TestExtendedStringConversions(object):
     @pytest.mark.parametrize(
         argnames=("input_value", "expected_value"),
         argvalues=fixtures_for_extended_string_to_timestamp,
-        ids=[parameters_to_string_id(actual, expected) for actual, expected in fixtures_for_extended_string_to_timestamp])
+        ids=[
+            parameters_to_string_id(actual, expected) for actual, expected in fixtures_for_extended_string_to_timestamp
+        ],
+    )
     def test_extended_string_to_timestamp(self, spark_session, input_value, expected_value):
         # test uses timezone set to GMT / UTC (pytest.ini)!
         input_df = self.create_input_df(input_value, spark_session)
@@ -355,19 +360,28 @@ class TestExtendedStringConversions(object):
     @pytest.mark.parametrize(
         argnames=("input_value", "expected_value"),
         argvalues=fixtures_for_extended_string_unix_timestamp_ms_to_timestamp_spark2,
-        ids=[parameters_to_string_id(actual, expected) for actual, expected in fixtures_for_extended_string_unix_timestamp_ms_to_timestamp_spark2])
+        ids=[
+            parameters_to_string_id(actual, expected)
+            for actual, expected in fixtures_for_extended_string_unix_timestamp_ms_to_timestamp_spark2
+        ],
+    )
     def test_extended_string_unix_timestamp_ms_to_timestamp_spark2(self, spark_session, input_value, expected_value):
         # test uses timezone set to GMT / UTC (pytest.ini)!
         input_df = self.create_input_df(input_value, spark_session)
-        output_df = Mapper(mapping=[("output_key", "input_key", "extended_string_unix_timestamp_ms_to_timestamp")]).transform(input_df)
+        output_df = Mapper(
+            mapping=[("output_key", "input_key", "extended_string_unix_timestamp_ms_to_timestamp")]
+        ).transform(input_df)
         # workaround via pandas necessary due to bug with direct conversion
         # to python datetime wrt timezone conversions (https://issues.apache.org/jira/browse/SPARK-32123)
         try:
             output_pd_df = output_df.toPandas()
             actual_value = output_pd_df.iloc[0]["output_key"].to_pydatetime()
-            assert (actual_value.toordinal() == expected_value.toordinal(),
-                    "actual_value: {act_val}, expected value: {expected_val}".format(
-                        act_val=actual_value, expected_val=expected_value))
+            assert (
+                actual_value.toordinal() == expected_value.toordinal(),
+                "actual_value: {act_val}, expected value: {expected_val}".format(
+                    act_val=actual_value, expected_val=expected_value
+                ),
+            )
         except AttributeError:
             # `.to_pydatetime()` can only be used on datetimes and throws AttributeErrors on None
             assert expected_value is None
@@ -377,11 +391,17 @@ class TestExtendedStringConversions(object):
     @pytest.mark.parametrize(
         argnames=("input_value", "expected_value"),
         argvalues=fixtures_for_extended_string_unix_timestamp_ms_to_timestamp,
-        ids=[parameters_to_string_id(actual, expected) for actual, expected in fixtures_for_extended_string_unix_timestamp_ms_to_timestamp])
+        ids=[
+            parameters_to_string_id(actual, expected)
+            for actual, expected in fixtures_for_extended_string_unix_timestamp_ms_to_timestamp
+        ],
+    )
     def test_extended_string_unix_timestamp_ms_to_timestamp(self, spark_session, input_value, expected_value):
         # test uses timezone set to GMT / UTC (pytest.ini)!
         input_df = self.create_input_df(input_value, spark_session)
-        output_df = Mapper(mapping=[("output_key", "input_key", "extended_string_unix_timestamp_ms_to_timestamp")]).transform(input_df)
+        output_df = Mapper(
+            mapping=[("output_key", "input_key", "extended_string_unix_timestamp_ms_to_timestamp")]
+        ).transform(input_df)
         # workaround via pandas necessary due to bug with direct conversion
         # to python datetime wrt timezone conversions (https://issues.apache.org/jira/browse/SPARK-32123)
         output_pd_df = output_df.toPandas()
@@ -398,9 +418,11 @@ class TestExtendedStringConversions(object):
     @pytest.mark.parametrize(
         argnames=("input_value", "expected_value"),
         argvalues=fixtures_for_extended_string_to_date_spark2,
-        ids=[parameters_to_string_id(actual, expected)
-             for actual, expected
-             in fixtures_for_extended_string_to_date_spark2])
+        ids=[
+            parameters_to_string_id(actual, expected)
+            for actual, expected in fixtures_for_extended_string_to_date_spark2
+        ],
+    )
     def test_extended_string_to_date_spark2(self, spark_session, input_value, expected_value):
         input_df = self.create_input_df(input_value, spark_session)
         output_df = Mapper(mapping=[("output_key", "input_key", "extended_string_to_date")]).transform(input_df)
@@ -416,9 +438,8 @@ class TestExtendedStringConversions(object):
     @pytest.mark.parametrize(
         argnames=("input_value", "expected_value"),
         argvalues=fixtures_for_extended_string_to_date,
-        ids=[parameters_to_string_id(actual, expected)
-             for actual, expected
-             in fixtures_for_extended_string_to_date])
+        ids=[parameters_to_string_id(actual, expected) for actual, expected in fixtures_for_extended_string_to_date],
+    )
     def test_extended_string_to_date(self, spark_session, input_value, expected_value):
         input_df = self.create_input_df(input_value, spark_session)
         output_df = Mapper(mapping=[("output_key", "input_key", "extended_string_to_date")]).transform(input_df)
@@ -430,12 +451,16 @@ class TestExtendedStringConversions(object):
     @pytest.mark.parametrize(
         argnames=("input_value", "expected_value"),
         argvalues=fixtures_for_extended_string_unix_timestamp_ms_to_date_spark2,
-        ids=[parameters_to_string_id(actual, expected)
-             for actual, expected
-             in fixtures_for_extended_string_unix_timestamp_ms_to_date_spark2])
+        ids=[
+            parameters_to_string_id(actual, expected)
+            for actual, expected in fixtures_for_extended_string_unix_timestamp_ms_to_date_spark2
+        ],
+    )
     def test_extended_string_unix_timestamp_ms_to_date_spark2(self, spark_session, input_value, expected_value):
         input_df = self.create_input_df(input_value, spark_session)
-        output_df = Mapper(mapping=[("output_key", "input_key", "extended_string_unix_timestamp_ms_to_date")]).transform(input_df)
+        output_df = Mapper(
+            mapping=[("output_key", "input_key", "extended_string_unix_timestamp_ms_to_date")]
+        ).transform(input_df)
         actual_value = output_df.first().output_key
         assert actual_value == expected_value
         assert isinstance(output_df.schema["output_key"].dataType, T.DateType)
@@ -444,12 +469,16 @@ class TestExtendedStringConversions(object):
     @pytest.mark.parametrize(
         argnames=("input_value", "expected_value"),
         argvalues=fixtures_for_extended_string_unix_timestamp_ms_to_date,
-        ids=[parameters_to_string_id(actual, expected)
-             for actual, expected
-             in fixtures_for_extended_string_unix_timestamp_ms_to_date])
+        ids=[
+            parameters_to_string_id(actual, expected)
+            for actual, expected in fixtures_for_extended_string_unix_timestamp_ms_to_date
+        ],
+    )
     def test_extended_string_unix_timestamp_ms_to_date(self, spark_session, input_value, expected_value):
         input_df = self.create_input_df(input_value, spark_session)
-        output_df = Mapper(mapping=[("output_key", "input_key", "extended_string_unix_timestamp_ms_to_date")]).transform(input_df)
+        output_df = Mapper(
+            mapping=[("output_key", "input_key", "extended_string_unix_timestamp_ms_to_date")]
+        ).transform(input_df)
         actual_value = output_df.first().output_key
         assert actual_value == expected_value
         assert isinstance(output_df.schema["output_key"].dataType, T.DateType)
@@ -466,19 +495,16 @@ class TestAnonymizingMethods(object):
         (0,                           "1")],
     )
     # fmt: on
-    def test_generate_select_expression_for_StringBoolean(
-            self, input_value, value, spark_session, spark_context):
+    def test_generate_select_expression_for_StringBoolean(self, input_value, value, spark_session, spark_context):
         source_key, name = "email_address", "mail"
-        input_df = get_input_df(spark_session, spark_context, source_key,
-                                input_value)
+        input_df = get_input_df(spark_session, spark_context, source_key, input_value)
         result_column = custom_types._generate_select_expression_for_StringBoolean(
-            source_column=input_df["attributes"]["data"][source_key],
-            name=name)
+            source_column=input_df["attributes"]["data"][source_key], name=name
+        )
         output_df = input_df.select(result_column)
 
         assert output_df.schema.fieldNames() == [name], "Renaming of column"
-        assert output_df.schema[name].dataType.typeName(
-        ) == "string", "Casting of column"
+        assert output_df.schema[name].dataType.typeName() == "string", "Casting of column"
         assert output_df.first()[name] == value, "Processing of column value"
 
     # fmt: off
@@ -491,20 +517,16 @@ class TestAnonymizingMethods(object):
         (0,                           None)],
     )
     # fmt: on
-    def test_generate_select_expression_for_StringNull(self, input_value,
-                                                       value, spark_session,
-                                                       spark_context):
+    def test_generate_select_expression_for_StringNull(self, input_value, value, spark_session, spark_context):
         source_key, name = "email_address", "mail"
-        input_df = get_input_df(spark_session, spark_context, source_key,
-                                input_value)
+        input_df = get_input_df(spark_session, spark_context, source_key, input_value)
         result_column = custom_types._generate_select_expression_for_StringNull(
-            source_column=input_df["attributes"]["data"][source_key],
-            name=name)
+            source_column=input_df["attributes"]["data"][source_key], name=name
+        )
         output_df = input_df.select(result_column)
 
         assert output_df.schema.fieldNames() == [name], "Renaming of column"
-        assert output_df.schema[name].dataType.typeName(
-        ) == "string", "Casting of column"
+        assert output_df.schema[name].dataType.typeName() == "string", "Casting of column"
         assert output_df.first()[name] == value, "Processing of column value"
 
     # fmt: off
@@ -521,20 +543,16 @@ class TestAnonymizingMethods(object):
         (-1 * float("inf"), 1)
     ])
     # fmt: on
-    def test_generate_select_expression_for_IntBoolean(self, input_value,
-                                                       value, spark_session,
-                                                       spark_context):
+    def test_generate_select_expression_for_IntBoolean(self, input_value, value, spark_session, spark_context):
         source_key, name = "user_id", "id"
-        input_df = get_input_df(spark_session, spark_context, source_key,
-                                input_value)
+        input_df = get_input_df(spark_session, spark_context, source_key, input_value)
         result_column = custom_types._generate_select_expression_for_IntBoolean(
-            source_column=input_df["attributes"]["data"][source_key],
-            name=name)
+            source_column=input_df["attributes"]["data"][source_key], name=name
+        )
         output_df = input_df.select(result_column)
 
         assert output_df.schema.fieldNames() == [name], "Renaming of column"
-        assert output_df.schema[name].dataType.typeName(
-        ) == "integer", "Casting of column"
+        assert output_df.schema[name].dataType.typeName() == "integer", "Casting of column"
         assert output_df.first()[name] == value, "Processing of column value"
 
     # fmt: off
@@ -551,20 +569,16 @@ class TestAnonymizingMethods(object):
         (-1 * float("inf"), None),
     ])
     # fmt: on
-    def test_generate_select_expression_for_IntNull(self, input_value, value,
-                                                    spark_session,
-                                                    spark_context):
+    def test_generate_select_expression_for_IntNull(self, input_value, value, spark_session, spark_context):
         source_key, name = "user_id", "id"
-        input_df = get_input_df(spark_session, spark_context, source_key,
-                                input_value)
+        input_df = get_input_df(spark_session, spark_context, source_key, input_value)
         result_column = custom_types._generate_select_expression_for_IntNull(
-            source_column=input_df["attributes"]["data"][source_key],
-            name=name)
+            source_column=input_df["attributes"]["data"][source_key], name=name
+        )
         output_df = input_df.select(result_column)
 
         assert output_df.schema.fieldNames() == [name], "Renaming of column"
-        assert output_df.schema[name].dataType.typeName(
-        ) == "integer", "Casting of column"
+        assert output_df.schema[name].dataType.typeName() == "integer", "Casting of column"
         assert output_df.first()[name] == value, "Processing of column value"
 
     # fmt: off
@@ -583,24 +597,23 @@ class TestAnonymizingMethods(object):
     ])
     # fmt: on
     def test_generate_select_expression_for_TimestampMonth_spark2(
-            self, input_value, value, spark_session, spark_context):
+        self, input_value, value, spark_session, spark_context
+    ):
         source_key, name = "day_of_birth", "birthday"
         input_df = get_input_df(spark_session, spark_context, source_key, input_value)
         input_df = input_df.withColumn(
-            source_key,
-            F.to_utc_timestamp(input_df["attributes"]["data"][source_key],
-                               "yyyy-MM-dd"))
+            source_key, F.to_utc_timestamp(input_df["attributes"]["data"][source_key], "yyyy-MM-dd")
+        )
         result_column = custom_types._generate_select_expression_for_TimestampMonth(
-            source_column=input_df[source_key], name=name)
+            source_column=input_df[source_key], name=name
+        )
         output_df = input_df.select(result_column)
 
         assert output_df.schema.fieldNames() == [name], "Renaming of column"
-        assert output_df.schema[name].dataType.typeName(
-        ) == "timestamp", "Casting of column"
+        assert output_df.schema[name].dataType.typeName() == "timestamp", "Casting of column"
         output_value = output_df.first()[name]
         if output_value:
-            output_value = datetime.date.strftime(output_value,
-                                                  format("%Y-%m-%d"))
+            output_value = datetime.date.strftime(output_value, format("%Y-%m-%d"))
         else:
             output_value = None
         assert output_value == value, "Processing of column value"
@@ -620,23 +633,19 @@ class TestAnonymizingMethods(object):
         ("1999-05-23", "1999-05-01"),
     ])
     # fmt: on
-    def test_generate_select_expression_for_TimestampMonth(
-            self, input_value, value, spark_session, spark_context):
+    def test_generate_select_expression_for_TimestampMonth(self, input_value, value, spark_session, spark_context):
         source_key, name = "day_of_birth", "birthday"
         input_df = get_input_df(spark_session, spark_context, source_key, input_value)
-        input_df = input_df.withColumn(
-            source_key,
-            input_df["attributes"]["data"][source_key].cast(T.DateType()))
+        input_df = input_df.withColumn(source_key, input_df["attributes"]["data"][source_key].cast(T.DateType()))
         result_column = custom_types._generate_select_expression_for_TimestampMonth(
-            source_column=input_df[source_key], name=name)
+            source_column=input_df[source_key], name=name
+        )
         output_df = input_df.select(result_column)
         assert output_df.schema.fieldNames() == [name], "Renaming of column"
-        assert output_df.schema[name].dataType.typeName(
-        ) == "timestamp", "Casting of column"
+        assert output_df.schema[name].dataType.typeName() == "timestamp", "Casting of column"
         output_value = output_df.first()[name]
         if output_value:
-            output_value = datetime.date.strftime(output_value,
-                                                  format("%Y-%m-%d"))
+            output_value = datetime.date.strftime(output_value, format("%Y-%m-%d"))
         else:
             output_value = None
         assert output_value == value, "Processing of column value"
@@ -658,19 +667,16 @@ class TestTimestampMethods(object):
         (3412549669000,  3412549669000),
     ])
     # fmt: on
-    def test_generate_select_expression_for_timestamp_ms_to_ms(
-            self, input_value, value, spark_session, spark_context):
+    def test_generate_select_expression_for_timestamp_ms_to_ms(self, input_value, value, spark_session, spark_context):
         source_key, name = "updated_at", "updated_at_ms"
-        input_df = get_input_df(spark_session, spark_context, source_key,
-                                input_value)
+        input_df = get_input_df(spark_session, spark_context, source_key, input_value)
         result_column = custom_types._generate_select_expression_for_timestamp_ms_to_ms(
-            source_column=input_df["attributes"]["data"][source_key],
-            name=name)
+            source_column=input_df["attributes"]["data"][source_key], name=name
+        )
         output_df = input_df.select(result_column)
 
         assert output_df.schema.fieldNames() == [name], "Renaming of column"
-        assert output_df.schema[name].dataType.typeName(
-        ) == "long", "Casting of column"
+        assert output_df.schema[name].dataType.typeName() == "long", "Casting of column"
         assert output_df.first()[name] == value, "Processing of column value"
 
     # fmt: off
@@ -688,19 +694,16 @@ class TestTimestampMethods(object):
         (3412549669000,  3412549669),
     ])
     # fmt: on
-    def test_generate_select_expression_for_timestamp_ms_to_s(
-            self, input_value, value, spark_session, spark_context):
+    def test_generate_select_expression_for_timestamp_ms_to_s(self, input_value, value, spark_session, spark_context):
         source_key, name = "updated_at", "updated_at_ms"
-        input_df = get_input_df(spark_session, spark_context, source_key,
-                                input_value)
+        input_df = get_input_df(spark_session, spark_context, source_key, input_value)
         result_column = custom_types._generate_select_expression_for_timestamp_ms_to_s(
-            source_column=input_df["attributes"]["data"][source_key],
-            name=name)
+            source_column=input_df["attributes"]["data"][source_key], name=name
+        )
         output_df = input_df.select(result_column)
 
         assert output_df.schema.fieldNames() == [name], "Renaming of column"
-        assert output_df.schema[name].dataType.typeName(
-        ) == "long", "Casting of column"
+        assert output_df.schema[name].dataType.typeName() == "long", "Casting of column"
         assert output_df.first()[name] == value, "Processing of column value"
 
     # fmt: off
@@ -718,19 +721,16 @@ class TestTimestampMethods(object):
         (3412549669,  3412549669000),
     ])
     # fmt: on
-    def test_generate_select_expression_for_timestamp_s_to_ms(
-            self, input_value, value, spark_session, spark_context):
+    def test_generate_select_expression_for_timestamp_s_to_ms(self, input_value, value, spark_session, spark_context):
         source_key, name = "updated_at", "updated_at_ms"
-        input_df = get_input_df(spark_session, spark_context, source_key,
-                                input_value)
+        input_df = get_input_df(spark_session, spark_context, source_key, input_value)
         result_column = custom_types._generate_select_expression_for_timestamp_s_to_ms(
-            source_column=input_df["attributes"]["data"][source_key],
-            name=name)
+            source_column=input_df["attributes"]["data"][source_key], name=name
+        )
         output_df = input_df.select(result_column)
 
         assert output_df.schema.fieldNames() == [name], "Renaming of column"
-        assert output_df.schema[name].dataType.typeName(
-        ) == "long", "Casting of column"
+        assert output_df.schema[name].dataType.typeName() == "long", "Casting of column"
         assert output_df.first()[name] == value, "Processing of column value"
 
     # fmt: off
@@ -748,19 +748,16 @@ class TestTimestampMethods(object):
         (3412549669,  3412549669),
     ])
     # fmt: on
-    def test_generate_select_expression_for_timestamp_s_to_s(
-            self, input_value, value, spark_session, spark_context):
+    def test_generate_select_expression_for_timestamp_s_to_s(self, input_value, value, spark_session, spark_context):
         source_key, name = "updated_at", "updated_at_ms"
-        input_df = get_input_df(spark_session, spark_context, source_key,
-                                input_value)
+        input_df = get_input_df(spark_session, spark_context, source_key, input_value)
         result_column = custom_types._generate_select_expression_for_timestamp_s_to_s(
-            source_column=input_df["attributes"]["data"][source_key],
-            name=name)
+            source_column=input_df["attributes"]["data"][source_key], name=name
+        )
         output_df = input_df.select(result_column)
 
         assert output_df.schema.fieldNames() == [name], "Renaming of column"
-        assert output_df.schema[name].dataType.typeName(
-        ) == "long", "Casting of column"
+        assert output_df.schema[name].dataType.typeName() == "long", "Casting of column"
         assert output_df.first()[name] == value, "Processing of column value"
 
     # fmt: off
@@ -771,10 +768,11 @@ class TestTimestampMethods(object):
     # fmt: on
     def test_generate_select_expression_for_unix_timestamp_ms_to_spark_timestamp(self, input_value, spark_session):
         input_df = spark_session.createDataFrame(
-            [Row(input_column=input_value)],
-            schema=T.StructType([T.StructField("input_column", T.LongType(), True)])
+            [Row(input_column=input_value)], schema=T.StructType([T.StructField("input_column", T.LongType(), True)])
         )
-        output_df = Mapper(mapping=[("output_column", "input_column", "unix_timestamp_ms_to_spark_timestamp")]).transform(input_df)
+        output_df = Mapper(
+            mapping=[("output_column", "input_column", "unix_timestamp_ms_to_spark_timestamp")]
+        ).transform(input_df)
         expected_value = datetime.datetime.fromtimestamp(input_value / 1000.0)
         assert output_df.first().output_column == expected_value, "Processing of column value"
         assert output_df.schema.fieldNames() == ["output_column"], "Renaming of column"
@@ -782,7 +780,6 @@ class TestTimestampMethods(object):
 
 
 class TestAddCustomDataTypeInRuntime(object):
-
     @staticmethod
     def _generate_select_expression_for_HelloWorld(source_column, name):
         from pyspark.sql import types as sql_types
@@ -801,13 +798,11 @@ class TestAddCustomDataTypeInRuntime(object):
         source_column, name = "element.key", "element_key"
         custom_types.add_custom_data_type(
             function_name="_generate_select_expression_for_HelloWorld",
-            func=self._generate_select_expression_for_HelloWorld)
+            func=self._generate_select_expression_for_HelloWorld,
+        )
 
-        mocked_function = mocker.patch.object(custom_types,
-                                              "_generate_select_expression_for_HelloWorld")
-        custom_types._get_select_expression_for_custom_type(source_column,
-                                                           name,
-                                                           "HelloWorld")
+        mocked_function = mocker.patch.object(custom_types, "_generate_select_expression_for_HelloWorld")
+        custom_types._get_select_expression_for_custom_type(source_column, name, "HelloWorld")
 
         mocked_function.assert_called_once_with(source_column, name)
 
@@ -824,30 +819,30 @@ class TestAddCustomDataTypeInRuntime(object):
     def test_custom_data_type_is_applied(self, input_value, value, spark_session, spark_context):
         custom_types.add_custom_data_type(
             function_name="_generate_select_expression_for_HelloWorld",
-            func=self._generate_select_expression_for_HelloWorld)
+            func=self._generate_select_expression_for_HelloWorld,
+        )
 
         source_key, name, data_type = "key_name", "key", "HelloWorld"
         input_df = get_input_df(spark_session, spark_context, source_key, input_value)
 
         result_column = custom_types._get_select_expression_for_custom_type(
-            source_column=input_df["attributes"]["data"][source_key],
-            name=name,
-            data_type=data_type
+            source_column=input_df["attributes"]["data"][source_key], name=name, data_type=data_type
         )
 
         output_df = input_df.select(result_column)
 
         assert output_df.schema.fieldNames() == [name], "Renaming of column"
-        assert output_df.schema[name].dataType.typeName(
-        ) == "string", "Casting of column"
+        assert output_df.schema[name].dataType.typeName() == "string", "Casting of column"
         assert output_df.first()[name] == value, "Processing of column value"
 
     def test_multiple_columns_are_accessed(self, spark_session):
-        input_df = spark_session.createDataFrame([
-            Row(first_name="David", last_name="Eigenstuhler"),
-            Row(first_name="Katharina", last_name="Hohensinn"),
-            Row(first_name="Nora", last_name="Hohensinn"),
-        ])
+        input_df = spark_session.createDataFrame(
+            [
+                Row(first_name="David", last_name="Eigenstuhler"),
+                Row(first_name="Katharina", last_name="Hohensinn"),
+                Row(first_name="Nora", last_name="Hohensinn"),
+            ]
+        )
         input_values = input_df.rdd.map(lambda x: x.asDict()).collect()
         expected_values = [d["first_name"] + "_" + d["last_name"] for d in input_values]
 
@@ -863,11 +858,13 @@ class TestAddCustomDataTypeInRuntime(object):
         assert expected_values == output_values
 
     def test_function_name_is_shortened(self, spark_session):
-        input_df = spark_session.createDataFrame([
-            Row(first_name="David"),
-            Row(first_name="Katharina"),
-            Row(first_name="Nora"),
-        ])
+        input_df = spark_session.createDataFrame(
+            [
+                Row(first_name="David"),
+                Row(first_name="Katharina"),
+                Row(first_name="Nora"),
+            ]
+        )
         input_values = input_df.rdd.map(lambda x: x.asDict()["first_name"]).collect()
         expected_values = [fn.lower() for fn in input_values]
 

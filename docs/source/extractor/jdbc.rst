@@ -1,5 +1,5 @@
 JDBC Source
 ===========
 
-.. automodule:: spooq2.extractor.jdbc
+.. automodule:: spooq.extractor.jdbc
     :members:

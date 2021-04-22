@@ -3,28 +3,27 @@ from builtins import object
 import pytest
 from pyspark.sql import functions as F
 
-from spooq2.transformer import Sieve
+from spooq.transformer import Sieve
 
 
 class TestBasicAttributes(object):
     """Mapper for filtering desired Elements"""
-    
+
     @pytest.fixture(scope="class")
     def transformer(self):
         return Sieve(filter_expression="a == b")
 
     def test_logger_should_be_accessible(self, transformer):
-        assert hasattr(transformer, 'logger')
+        assert hasattr(transformer, "logger")
 
     def test_name_is_set(self, transformer):
-        assert transformer.name == 'Sieve'
+        assert transformer.name == "Sieve"
 
     def test_str_representation_is_correct(self, transformer):
-        assert str(transformer) == 'Transformer Object of Class Sieve'
+        assert str(transformer) == "Transformer Object of Class Sieve"
 
 
 class TestFiltering(object):
-
     @pytest.fixture(scope="class")
     def input_df(self, spark_session):
         return spark_session.read.parquet("data/schema_v1/parquetFiles")

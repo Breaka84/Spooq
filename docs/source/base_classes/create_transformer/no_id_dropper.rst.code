@@ -3,4 +3,4 @@ Record Dropper if Id is missing
 
 Some text if you like...
 
-.. automodule:: spooq2.transformer.no_id_dropper
+.. automodule:: spooq.transformer.no_id_dropper

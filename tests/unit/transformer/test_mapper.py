@@ -8,7 +8,7 @@ from pyspark.sql.utils import AnalysisException
 from chispa.dataframe_comparer import assert_df_equality
 
 
-from spooq2.transformer import Mapper
+from spooq.transformer import Mapper
 
 
 @pytest.fixture(scope="module")
@@ -56,38 +56,39 @@ def mapping():
     |-- birthday: timestamp (nullable = true)
     """
     return [
-        ("id",                 "id",                       "IntegerType"),
-        ("guid",               "guid",                     "StringType()"),
-        ("created_at",         "meta.created_at_sec",      "timestamp_s_to_s"),
-        ("created_at_ms",      "meta.created_at_ms",       "timestamp_ms_to_ms"),
-        ("version",            "meta.version",             "IntegerType()"),
-        ("birthday",           "birthday",                 "TimestampType"),
-        ("location_struct",    "location",                 "as_is"),
-        ("latitude",           "location.latitude",        "DoubleType"),
-        ("longitude",          "location.longitude",       "DoubleType"),
-        ("birthday_str",       "attributes.birthday",      "StringType"),
-        ("email",              "attributes.email",         "StringType"),
-        ("myspace",            "attributes.myspace",       "StringType"),
-        ("first_name",         "attributes.first_name",    "StringBoolean"),
-        ("last_name",          "attributes.last_name",     "StringBoolean"),
-        ("gender",             "attributes.gender",        "StringType"),
-        ("ip_address",         "attributes.ip_address",    "StringType"),
-        ("university",         "attributes.university",    "StringType"),
-        ("friends",            "attributes.friends",       "no_change"),
-        ("friends_json",       "attributes.friends",       "json_string"),
+        ("id", "id", "IntegerType"),
+        ("guid", "guid", "StringType()"),
+        ("created_at", "meta.created_at_sec", "timestamp_s_to_s"),
+        ("created_at_ms", "meta.created_at_ms", "timestamp_ms_to_ms"),
+        ("version", "meta.version", "IntegerType()"),
+        ("birthday", "birthday", "TimestampType"),
+        ("location_struct", "location", "as_is"),
+        ("latitude", "location.latitude", "DoubleType"),
+        ("longitude", "location.longitude", "DoubleType"),
+        ("birthday_str", "attributes.birthday", "StringType"),
+        ("email", "attributes.email", "StringType"),
+        ("myspace", "attributes.myspace", "StringType"),
+        ("first_name", "attributes.first_name", "StringBoolean"),
+        ("last_name", "attributes.last_name", "StringBoolean"),
+        ("gender", "attributes.gender", "StringType"),
+        ("ip_address", "attributes.ip_address", "StringType"),
+        ("university", "attributes.university", "StringType"),
+        ("friends", "attributes.friends", "no_change"),
+        ("friends_json", "attributes.friends", "json_string"),
     ]
 
 
 class TestBasicAttributes(object):
     """Basic attributes and parameters"""
+
     def test_logger(self, transformer):
-        assert hasattr(transformer, 'logger')
+        assert hasattr(transformer, "logger")
 
     def test_name(self, transformer):
-        assert transformer.name == 'Mapper'
+        assert transformer.name == "Mapper"
 
     def test_str_representation(self, transformer):
-        assert str(transformer) == 'Transformer Object of Class Mapper'
+        assert str(transformer) == "Transformer Object of Class Mapper"
 
 
 class TestShapeOfMappedDataFrame(object):
@@ -120,7 +121,6 @@ class TestShapeOfMappedDataFrame(object):
 
 
 class TestMultipleMappings(object):
-
     @pytest.fixture(scope="module")
     def input_columns(self, mapped_df):
         return mapped_df.columns
@@ -148,7 +148,7 @@ class TestMultipleMappings(object):
         that are also included in the input schema"""
         new_mapping = [
             ("created_date", "meta.created_at_sec", "DateType"),
-            ("birthday",     "birthday",            "DateType"),
+            ("birthday", "birthday", "DateType"),
         ]
         new_columns = [name for (name, path, data_type) in new_mapping]
         new_columns_deduplicated = [x for x in new_columns if x not in input_columns]
@@ -162,7 +162,7 @@ class TestMultipleMappings(object):
         that are also included in the input schema"""
         new_mapping = [
             ("created_date", "meta.created_at_sec", "DateType"),
-            ("birthday",     "birthday",            "DateType"),
+            ("birthday", "birthday", "DateType"),
         ]
         new_columns = [name for (name, path, data_type) in new_mapping]
         new_columns_deduplicated = [x for x in new_columns if x not in input_columns]
@@ -176,6 +176,7 @@ class TestExceptionForMissingInputColumns(object):
     """
     Raise a ValueError if a referenced input column is missing
     """
+
     @pytest.fixture(scope="class")
     def transformer(self, mapping):
         return Mapper(mapping=mapping, ignore_missing_columns=False)
@@ -192,52 +193,49 @@ class TestExceptionForMissingInputColumns(object):
 
 
 class TestDataTypesOfMappedDataFrame(object):
-    @pytest.mark.parametrize(("column", "expected_data_type"), [
-        ("id",                 "integer"),
-        ("guid",               "string"),
-        ("created_at",         "long"),
-        ("created_at_ms",      "long"),
-        ("birthday",           "timestamp"),
-        ("location_struct",    "struct"),
-        ("latitude",           "double"),
-        ("longitude",          "double"),
-        ("birthday_str",       "string"),
-        ("email",              "string"),
-        ("myspace",            "string"),
-        ("first_name",         "string"),
-        ("last_name",          "string"),
-        ("gender",             "string"),
-        ("ip_address",         "string"),
-        ("university",         "string"),
-        ("friends",            "array"),
-        ("friends_json",       "string"),
-    ])
-    def test_data_type_of_mapped_column(self, column, expected_data_type,
-                                        mapped_df):
-        assert mapped_df.schema[column].dataType.typeName(
-        ) == expected_data_type
+    @pytest.mark.parametrize(
+        ("column", "expected_data_type"),
+        [
+            ("id", "integer"),
+            ("guid", "string"),
+            ("created_at", "long"),
+            ("created_at_ms", "long"),
+            ("birthday", "timestamp"),
+            ("location_struct", "struct"),
+            ("latitude", "double"),
+            ("longitude", "double"),
+            ("birthday_str", "string"),
+            ("email", "string"),
+            ("myspace", "string"),
+            ("first_name", "string"),
+            ("last_name", "string"),
+            ("gender", "string"),
+            ("ip_address", "string"),
+            ("university", "string"),
+            ("friends", "array"),
+            ("friends_json", "string"),
+        ],
+    )
+    def test_data_type_of_mapped_column(self, column, expected_data_type, mapped_df):
+        assert mapped_df.schema[column].dataType.typeName() == expected_data_type
 
 
 class TestAmbiguousColumnNames:
     @pytest.fixture(scope="class")
     def input_df(self, spark_session):
-        return spark_session.createDataFrame([
-            Row(int_val=123, Key="Hello", key="World"),
-            Row(int_val=124, Key="Nice to", key="meet you")
-        ])
+        return spark_session.createDataFrame(
+            [Row(int_val=123, Key="Hello", key="World"), Row(int_val=124, Key="Nice to", key="meet you")]
+        )
 
     @pytest.fixture(scope="class")
     def expected_output_df(self, spark_session):
-        return spark_session.createDataFrame([
-            Row(int_val=123),
-            Row(int_val=124)
-        ])
+        return spark_session.createDataFrame([Row(int_val=123), Row(int_val=124)])
 
     @pytest.fixture(scope="class")
     def mapping(self):
         return [
             ("int_val", "int_val", "LongType"),
-            ("key",     "Key",     "StringType"),
+            ("key", "Key", "StringType"),
         ]
 
     def test_ambiguous_column_names_raise_exception(self, input_df, mapping):

@@ -58,10 +58,10 @@ Application Code for Updating the Users Table
 
 ::
 
-    from spooq2.pipeline import Pipeline
-    import spooq2.extractor as E
-    import spooq2.transformer as T
-    import spooq2.loader as L
+    from spooq.pipeline import Pipeline
+    import spooq.extractor as E
+    import spooq.transformer as T
+    import spooq.loader as L
 
     users_mapping = [
         ("id",              "id",                     "IntegerType"),
@@ -107,10 +107,10 @@ Application Code for Updating the Friends_Mapping Table
 
 ::
 
-    from spooq2.pipeline import Pipeline
-    import spooq2.extractor as E
-    import spooq2.transformer as T
-    import spooq2.loader as L
+    from spooq.pipeline import Pipeline
+    import spooq.extractor as E
+    import spooq.transformer as T
+    import spooq.loader as L
 
 
     friends_mapping = [
@@ -155,13 +155,13 @@ This script extracts and transforms the common activities for both tables as the
 Caching the dataframe avoids redundant processes and reloading when an action is executed (the load step f.e.).
 This could have been written with pipeline objects as well (by providing the Pipeline an ``input_df`` and/or ``output_df`` to bypass
 extractors and loaders) but would have led to unnecessary verbosity. This example should also show the flexibility of
-Spooq2 for activities and steps which are not directly supported.
+Spooq for activities and steps which are not directly supported.
 
 ::
 
-    import spooq2.extractor as E
-    import spooq2.transformer as T
-    import spooq2.loader as L
+    import spooq.extractor as E
+    import spooq.transformer as T
+    import spooq.loader as L
 
     mapping = [
         ("id",              "id",                     "IntegerType"),

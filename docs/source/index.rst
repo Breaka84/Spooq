@@ -1,4 +1,4 @@
-.. Spooq2 documentation master file, created by
+.. Spooq documentation master file, created by
    sphinx-quickstart on Tue Jul 31 21:34:32 2018.
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
@@ -19,6 +19,7 @@ Table of Content
     changelog
     installation
     setup_development_testing
+    release
     examples
     extractor/overview
     transformer/overview

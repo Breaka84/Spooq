@@ -1,7 +1,7 @@
 Loader Base Class
 ==============================
 
-.. automodule:: spooq2.loader.loader
+.. automodule:: spooq.loader.loader
     :no-members:
     :noindex:
 
@@ -27,24 +27,24 @@ Exemplary Sample Code
 ^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: create_loader/parquet.py
-    :caption: src/spooq2/loader/parquet.py:
+    :caption: spooq/loader/parquet.py:
     :language: python
 
 References to include
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
 This makes it possible to import the new loader class directly
-from `spooq2.loader` instead of `spooq2.loader.parquet`.
-It will also be imported if you use `from spooq2.loader import *`.
+from `spooq.loader` instead of `spooq.loader.parquet`.
+It will also be imported if you use `from spooq.loader import *`.
 
 .. literalinclude:: create_loader/init.diff
-    :caption: src/spooq2/loader/__init__.py:
+    :caption: spooq/loader/__init__.py:
     :language: udiff
 
 Tests
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
-One of Spooq2's features is to provide tested code for multiple data pipelines.
+One of Spooq's features is to provide tested code for multiple data pipelines.
 Please take your time to write sufficient unit tests!
 You can reuse test data from `tests/data` or create a new schema / data set if needed.
 A SparkSession is provided as a global fixture called `spark_session`.

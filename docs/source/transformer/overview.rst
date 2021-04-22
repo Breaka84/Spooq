@@ -1,7 +1,7 @@
 Transformers
 ============
 
-.. automodule:: spooq2.transformer.transformer
+.. automodule:: spooq.transformer.transformer
     :no-members:
 
 .. toctree::

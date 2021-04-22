@@ -2,13 +2,22 @@
 Changelog
 =========
 
+3.3.0 (2021-04-22)
+-------------------
+* [MOD] (BREAKING CHANGE!) rename package back to Spooq (dropping "2").
+  This means you need to update all imports from spooq2.xxx.yyy to spooq.xxx.yyy in your code!
+* [MOD] prepare for PyPi release
+* [MOD] drop official support for Spark 2.x (it most probably still works without issues,
+  but some tests fail on Spark2 due to different columns ordering and the effort is too high to
+  maintain both versions with respect to tests)
+
 3.2.0 (2021-04-13)
 -------------------
 * [MOD] add functionality to log cleansed values into separate struct column (column_to_log_cleansed_values)
 * [MOD] add ignore_ambiguous_columns to Mapper
 * [MOD] log spooq version when importing
-* [REM] Drop separate spark package (bin-folder) as pip package can now handle all tests as well
-* [ADD] Github action to test on label (test-it) or merge into master
+* [REM] drop separate spark package (bin-folder) as pip package can now handle all tests as well
+* [ADD] github action to test on label (test-it) or merge into master
 
 3.1.0 (2021-01-27)
 -------------------

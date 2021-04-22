@@ -5,7 +5,7 @@ import json
 from pyspark.sql import functions as sql_funcs
 from pyspark.sql import Row
 
-from spooq2.transformer import Exploder
+from spooq.transformer import Exploder
 
 
 class TestBasicAttributes(object):
@@ -58,22 +58,25 @@ class TestExploding(object):
         assert issubclass(transformed_data_type, dict)
 
     def test_records_with_empty_arrays_are_dropped_by_default(self, spark_session):
-        input_df = spark_session.createDataFrame([
-            Row(id=1, array_to_explode=[]),
-            Row(id=2, array_to_explode=[Row(elem_id="a"), Row(elem_id="b"), Row(elem_id="c")]),
-            Row(id=3, array_to_explode=[]),
-        ])
+        input_df = spark_session.createDataFrame(
+            [
+                Row(id=1, array_to_explode=[]),
+                Row(id=2, array_to_explode=[Row(elem_id="a"), Row(elem_id="b"), Row(elem_id="c")]),
+                Row(id=3, array_to_explode=[]),
+            ]
+        )
         transformed_df = Exploder(path_to_array="array_to_explode", exploded_elem_name="elem").transform(input_df)
         assert transformed_df.count() == 3
 
     def test_records_with_empty_arrays_are_kept_via_setting(self, spark_session):
-        input_df = spark_session.createDataFrame([
-            Row(id=1, array_to_explode=[]),
-            Row(id=2, array_to_explode=[Row(elem_id="a"), Row(elem_id="b"), Row(elem_id="c")]),
-            Row(id=3, array_to_explode=[]),
-        ])
-        transformed_df = Exploder(path_to_array="array_to_explode",
-                                  exploded_elem_name="elem",
-                                  drop_rows_with_empty_array=False).transform(input_df)
+        input_df = spark_session.createDataFrame(
+            [
+                Row(id=1, array_to_explode=[]),
+                Row(id=2, array_to_explode=[Row(elem_id="a"), Row(elem_id="b"), Row(elem_id="c")]),
+                Row(id=3, array_to_explode=[]),
+            ]
+        )
+        transformed_df = Exploder(
+            path_to_array="array_to_explode", exploded_elem_name="elem", drop_rows_with_empty_array=False
+        ).transform(input_df)
         assert transformed_df.count() == 5
-

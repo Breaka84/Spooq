@@ -1,7 +1,7 @@
 import pytest
 from pyspark.sql.dataframe import DataFrame
 
-from spooq2.transformer import NoIdDropper
+from spooq.transformer import NoIdDropper
 
 
 @pytest.fixture()

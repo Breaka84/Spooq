@@ -6,7 +6,7 @@ skinparam defaultFontSize 18
 
 hide empty members
 
-' title Spooq2 - Data Flow Diagram
+' title Spooq - Data Flow Diagram
 
 allow_mixing
 

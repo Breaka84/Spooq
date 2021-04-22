@@ -7,9 +7,9 @@ skinparam defaultFontSize 18
 ' left to right direction
 
 
-' namespace spooq2 {
+' namespace spooq {
   namespace extractor {
-      
+
       class Extractor {
         .. derived ..
         name : str
@@ -44,11 +44,11 @@ skinparam defaultFontSize 18
       }
       JDBCExtractor <|-- JDBCExtractorIncremental
       class JDBCExtractorIncremental {
-        partition : str 
-        source_table : str 
-        spooq2_values_table : str 
-        spooq2_values_db : str = "spooq2_values"
-        spooq2_values_partition_column : str = "updated_at"
+        partition : str
+        source_table : str
+        spooq_values_table : str
+        spooq_values_db : str = "spooq_values"
+        spooq_values_partition_column : str = "updated_at"
         __
         extract()
       }

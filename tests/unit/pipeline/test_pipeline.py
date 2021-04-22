@@ -2,10 +2,10 @@ from builtins import object
 import pytest
 from copy import deepcopy
 
-from spooq2 import extractor as E
-from spooq2 import transformer as T
-from spooq2 import loader as L
-from spooq2.pipeline import Pipeline
+from spooq import extractor as E
+from spooq import transformer as T
+from spooq import loader as L
+from spooq.pipeline import Pipeline
 
 
 class TestPipeline(object):

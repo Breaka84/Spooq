@@ -8,11 +8,10 @@ Setup for Development, Testing, Documenting
 Prerequisites
 -------------
 
-* python 2.7 or python 3.7/3.8
+* python 3.7
 * Java 8 (jdk8-openjdk)
 * pipenv
 * Latex (for PDF documentation)
-
 
 Setting up the Environment
 --------------------------
@@ -58,17 +57,10 @@ Please refer to following descriptions and examples to get an idea:
 * :ref:`custom_transformer`
 * :ref:`custom_loader`
 
-Configure Spark
-----------------
-The tests use per default the Spark 3 package in the ``bin/spark3`` folder.
-To use a different Spark installation for the tests, you have to either:
-
-* set ``spark_home`` in the ``pytest.ini`` (tests/pytest.ini) to the new location **or**
-* set the environment variable ``SPARK_HOME`` and comment out ``spark_home`` in pytest.ini
 
 Running Tests
 -------------
-The tests are implemented with the `pytest <https://docs.pytest.org/en/3.10.1/>`_ framework.
+The tests are implemented with the `pytest <https://docs.pytest.org>`_ framework.
 
 .. code-block:: bash
     :caption: Start all tests:
@@ -108,12 +100,12 @@ Generates an HTML for the test coverage
 .. code-block:: bash
     :caption: Get a test coverage report in the terminal:
 
-    $ pytest --cov-report term --cov=spooq2
+    $ pytest --cov-report term --cov=spooq
 
 .. code-block:: bash
     :caption: Get the test coverage report as HTML
 
-    $ pytest --cov-report html:cov_html --cov=spooq2
+    $ pytest --cov-report html:cov_html --cov=spooq
 
 
 `ipdb <https://github.com/gotcha/ipdb>`_
@@ -136,11 +128,7 @@ Graphs and diagrams are produced with PlantUML.
 
 The main documentation content is defined as docstrings within the source code.
 To view the current documentation open `docs/build/html/index.html`
-or `docs/build/latex/spooq2.pdf` in your application of choice.
-There are symlinks in the root folder for symplicity:
-
-* Documentation.html
-* Documentation.pdf
+or `docs/build/latex/spooq.pdf` in your application of choice.
 
 Although, if you are reading this, you have probably already found the documentation...
 
@@ -168,7 +156,7 @@ TeX Live - a compatible latex distribution. But beware, the download size is hug
 
     $ cd docs
     $ make latexpdf
-    $ evince build/latex/Spooq2.pdf
+    $ evince build/latex/Spooq.pdf
 
 
 Configuration
