@@ -14,7 +14,7 @@ class JSONExtractor(Extractor):
 
     Examples
     --------
-    >>> from spooq2 import extractor as E
+    >>> from spooq import extractor as E
 
     >>> extractor = E.JSONExtractor(input_path="tests/data/schema_v1/sequenceFiles")
     >>> extractor.input_path == "tests/data/schema_v1/sequenceFiles" + "/*"
@@ -78,7 +78,7 @@ class JSONExtractor(Extractor):
         self.spark = (
             SparkSession.Builder()
             .enableHiveSupport()
-            .appName("spooq2.extractor: {nm}".format(nm=self.name))
+            .appName("spooq.extractor: {nm}".format(nm=self.name))
             .getOrCreate()
         )
 

@@ -3,7 +3,7 @@ from builtins import object
 import pytest
 from pyspark.sql import functions as F
 
-from spooq2.transformer import Sieve
+from spooq.transformer import Sieve
 
 
 class TestBasicAttributes(object):

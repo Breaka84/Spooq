@@ -23,7 +23,7 @@ class Extractor(object):
 
     def __init__(self):
         self.name = type(self).__name__
-        self.logger = logging.getLogger("spooq2")
+        self.logger = logging.getLogger("spooq")
 
     def extract(self):
         """

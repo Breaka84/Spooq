@@ -5,7 +5,7 @@ import json
 from pyspark.sql import functions as sql_funcs
 from pyspark.sql import Row
 
-from spooq2.transformer import Exploder
+from spooq.transformer import Exploder
 
 
 class TestBasicAttributes(object):

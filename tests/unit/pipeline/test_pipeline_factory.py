@@ -3,7 +3,7 @@ from builtins import object
 import pytest
 import json
 
-from spooq2.pipeline import PipelineFactory, Pipeline
+from spooq.pipeline import PipelineFactory, Pipeline
 from . import etl_pipeline_user_params, elt_pipeline_business_params
 
 

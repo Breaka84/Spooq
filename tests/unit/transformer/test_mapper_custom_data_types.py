@@ -7,8 +7,8 @@ from pyspark.sql import functions as F
 from pyspark.sql import Row
 from pyspark.sql import types as T
 
-import spooq2.transformer.mapper_custom_data_types as custom_types
-from spooq2.transformer import Mapper
+import spooq.transformer.mapper_custom_data_types as custom_types
+from spooq.transformer import Mapper
 from ...data.test_fixtures.mapper_custom_data_types_fixtures import (
     fixtures_for_spark_sql_object,
     fixtures_for_has_value,

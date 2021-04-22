@@ -2,7 +2,7 @@
 PySpark DataFrame query for custom defined data types.
 
 These methods are not meant to be called directly but via the
-the :py:class:`~spooq2.transformer.mapper.Mapper` transformer.
+the :py:class:`~spooq.transformer.mapper.Mapper` transformer.
 Please see that particular class on how to apply custom data types.
 
 For injecting your **own custom data types**, please have a visit to the
@@ -34,12 +34,12 @@ MAX_TIMESTAMP_SEC = old_div(MAX_TIMESTAMP_MS, 1000)
 
 def add_custom_data_type(function_name, func):
     """
-    Registers a custom data type in runtime to be used with the :py:class:`~spooq2.transformer.mapper.Mapper` transformer.
+    Registers a custom data type in runtime to be used with the :py:class:`~spooq.transformer.mapper.Mapper` transformer.
 
     Example
     -------
-    >>> import spooq2.transformer.mapper_custom_data_types as custom_types
-    >>> import spooq2.transformer as T
+    >>> import spooq.transformer.mapper_custom_data_types as custom_types
+    >>> import spooq.transformer as T
     >>> from pyspark.sql import Row, functions as F, types as T
 
     >>> def hello_world(source_column, name):
@@ -153,7 +153,7 @@ def _generate_select_expression_without_casting(source_column, name):
     Returns a column without casting. This is especially useful if you need to
     keep a complex data type, like an array, list or a struct.
 
-    >>> from spooq2.transformer import Mapper
+    >>> from spooq.transformer import Mapper
     >>>
     >>> input_df.head(3)
     [Row(friends=[Row(first_name=None, id=3993, last_name=None), Row(first_name=u'Ru\xf2', id=17484, last_name=u'Trank')]),
@@ -179,7 +179,7 @@ def _generate_select_expression_for_json_string(source_column, name):
 
     Example
     -------
-    >>> from spooq2.transformer import Mapper
+    >>> from spooq.transformer import Mapper
     >>>
     >>> input_df.head(3)
     [Row(friends=[Row(first_name=None, id=3993, last_name=None), Row(first_name=u'Ru\xf2', id=17484, last_name=u'Trank')]),
@@ -219,7 +219,7 @@ def _generate_select_expression_for_timestamp_ms_to_ms(source_column, name):
     Example
     -------
     >>> from pyspark.sql import Row
-    >>> from spooq2.transformer import Mapper
+    >>> from spooq.transformer import Mapper
     >>>
     >>> input_df = spark.createDataFrame([
     >>>     Row(time_sec=1581540839000),  # 02/12/2020 @ 8:53pm (UTC)
@@ -257,7 +257,7 @@ def _generate_select_expression_for_timestamp_ms_to_s(source_column, name):
     Example
     -------
     >>> from pyspark.sql import Row
-    >>> from spooq2.transformer import Mapper
+    >>> from spooq.transformer import Mapper
     >>>
     >>> input_df = spark.createDataFrame([
     >>>     Row(time_sec=1581540839000),  # 02/12/2020 @ 8:53pm (UTC)
@@ -298,7 +298,7 @@ def _generate_select_expression_for_timestamp_s_to_ms(source_column, name):
     Example
     -------
     >>> from pyspark.sql import Row
-    >>> from spooq2.transformer import Mapper
+    >>> from spooq.transformer import Mapper
     >>>
     >>> input_df = spark.createDataFrame([
     >>>     Row(time_sec=1581540839),  # 02/12/2020 @ 8:53pm (UTC)
@@ -339,7 +339,7 @@ def _generate_select_expression_for_timestamp_s_to_s(source_column, name):
     Example
     -------
     >>> from pyspark.sql import Row
-    >>> from spooq2.transformer import Mapper
+    >>> from spooq.transformer import Mapper
     >>>
     >>> input_df = spark.createDataFrame([
     >>>     Row(time_sec=1581540839),  # 02/12/2020 @ 8:53pm (UTC)
@@ -374,7 +374,7 @@ def _generate_select_expression_for_StringNull(source_column, name):  # noqa: N8
     Example
     -------
     >>> from pyspark.sql import Row
-    >>> from spooq2.transformer import Mapper
+    >>> from spooq.transformer import Mapper
     >>>
     >>> input_df = spark.createDataFrame(
     >>>     [Row(email=u'tsivorn1@who.int'),
@@ -400,7 +400,7 @@ def _generate_select_expression_for_IntNull(source_column, name):  # noqa: N802
     Example
     -------
     >>> from pyspark.sql import Row
-    >>> from spooq2.transformer import Mapper
+    >>> from spooq.transformer import Mapper
     >>>
     >>> input_df = spark.createDataFrame(
     >>>     [Row(facebook_id=3047288),
@@ -428,7 +428,7 @@ def _generate_select_expression_for_StringBoolean(source_column, name):  # noqa:
     Example
     -------
     >>> from pyspark.sql import Row
-    >>> from spooq2.transformer import Mapper
+    >>> from spooq.transformer import Mapper
     >>>
     >>> input_df = spark.createDataFrame(
     >>>     [Row(email=u'tsivorn1@who.int'),
@@ -458,7 +458,7 @@ def _generate_select_expression_for_IntBoolean(source_column, name):  # noqa: N8
     Example
     -------
     >>> from pyspark.sql import Row
-    >>> from spooq2.transformer import Mapper
+    >>> from spooq.transformer import Mapper
     >>>
     >>> input_df = spark.createDataFrame(
     >>>     [Row(facebook_id=3047288),
@@ -488,7 +488,7 @@ def _generate_select_expression_for_TimestampMonth(source_column, name):  # noqa
     -------
     >>> from pyspark.sql import Row
     >>> from datetime import datetime
-    >>> from spooq2.transformer import Mapper
+    >>> from spooq.transformer import Mapper
     >>>
     >>> input_df = spark.createDataFrame(
     >>>     [Row(birthday=datetime(2019, 2, 9, 2, 45)),
@@ -513,7 +513,7 @@ def _generate_select_expression_for_meters_to_cm(source_column, name):
     Example
     -------
     >>> from pyspark.sql import Row
-    >>> from spooq2.transformer import Mapper
+    >>> from spooq.transformer import Mapper
     >>>
     >>> input_df = spark.createDataFrame(
     >>>     [Row(size_in_m=1.80),
@@ -546,7 +546,7 @@ def _generate_select_expression_for_has_value(source_column, name):
     Example
     -------
     >>> from pyspark.sql import Row
-    >>> from spooq2.transformer import Mapper
+    >>> from spooq.transformer import Mapper
     >>>
     >>> input_df = spark.createDataFrame(
     >>>     [Row(input_key=1.80),
@@ -579,7 +579,7 @@ def _generate_select_expression_for_unix_timestamp_ms_to_spark_timestamp(source_
     Example
     -------
     >>> from pyspark.sql import Row
-    >>> from spooq2.transformer import Mapper
+    >>> from spooq.transformer import Mapper
     >>>
     >>> input_df = spark.createDataFrame(
     >>>     [Row(unix_timestamp_in_ms=1591627696951),
@@ -615,7 +615,7 @@ def _generate_select_expression_for_extended_string_to_int(source_column, name):
 
     Example
     -------
-    >>> from spooq2.transformer import Mapper
+    >>> from spooq.transformer import Mapper
     >>>
     >>> input_df.head(3)
     [Row(input_string="  123456 "),
@@ -649,7 +649,7 @@ def _generate_select_expression_for_extended_string_to_long(source_column, name)
 
     Example
     -------
-    >>> from spooq2.transformer import Mapper
+    >>> from spooq.transformer import Mapper
     >>>
     >>> input_df.head(3)
     [Row(input_string="  21474836470 "),
@@ -683,7 +683,7 @@ def _generate_select_expression_for_extended_string_to_float(source_column, name
 
     Example
     -------
-    >>> from spooq2.transformer import Mapper
+    >>> from spooq.transformer import Mapper
     >>>
     >>> input_df.head(3)
     [Row(input_string="  836470.819 "),
@@ -717,7 +717,7 @@ def _generate_select_expression_for_extended_string_to_double(source_column, nam
 
     Example
     -------
-    >>> from spooq2.transformer import Mapper
+    >>> from spooq.transformer import Mapper
     >>>
     >>> input_df.head(3)
     [Row(input_string="  21474838464.70 "),
@@ -759,7 +759,7 @@ def _generate_select_expression_for_extended_string_to_boolean(source_column, na
 
     Example
     -------
-    >>> from spooq2.transformer import Mapper
+    >>> from spooq.transformer import Mapper
     >>>
     >>> input_df.head(3)
     [Row(input_string="  true "),
@@ -806,7 +806,7 @@ def _generate_select_expression_for_extended_string_to_timestamp(source_column, 
 
     Example
     -------
-    >>> from spooq2.transformer import Mapper
+    >>> from spooq.transformer import Mapper
     >>>
     >>> input_df.head(3)
     [Row(input_string="2020-08-12T12:43:14+0000"),
@@ -858,7 +858,7 @@ def _generate_select_expression_for_extended_string_to_date(source_column, name)
 
     Example
     -------
-    >>> from spooq2.transformer import Mapper
+    >>> from spooq.transformer import Mapper
     >>>
     >>> input_df.head(3)
     [Row(input_string="2020-08-12T12:43:14+0000"),
@@ -893,7 +893,7 @@ def _generate_select_expression_for_extended_string_unix_timestamp_ms_to_timesta
 
     Example
     -------
-    >>> from spooq2.transformer import Mapper
+    >>> from spooq.transformer import Mapper
     >>>
     >>> input_df.head(3)
     [Row(input_string="2020-08-12T12:43:14+0000"),
@@ -929,7 +929,7 @@ def _generate_select_expression_for_extended_string_unix_timestamp_ms_to_date(so
 
     Example
     -------
-    >>> from spooq2.transformer import Mapper
+    >>> from spooq.transformer import Mapper
     >>>
     >>> input_df.head(3)
     [Row(input_string="2020-08-12T12:43:14+0000"),

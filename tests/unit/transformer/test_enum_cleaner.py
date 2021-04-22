@@ -4,7 +4,7 @@ from pyspark.sql import functions as F, types as T
 from chispa.dataframe_comparer import assert_df_equality
 import datetime as dt
 
-from spooq2.transformer import EnumCleaner
+from spooq.transformer import EnumCleaner
 
 
 class TestBasicAttributes(object):

@@ -6,7 +6,11 @@ name = "pypi"
 [dev-packages]
 # Developing / Debugging
 ipython = "*"
-#Testing
+pudb = "*"
+pytest-pudb = "*"
+jedi = "==0.17.2"  # fixes ipython bug
+
+# Testing
 doubles = "*"
 Faker = "*"
 pytest = "*"
@@ -14,30 +18,35 @@ pytest-assume = "*"
 pytest-cov = "*"
 pytest-html = "*"
 pytest-pspec = "*"
+pytest-mock = "*"
 pytest-random-order = "*"
 pytest-spark = "*"
 mock = "*"
 pytest-env = "*"
+chispa = "*"
+
 # Documentation
 recommonmark = "*"
 sphinx = "*"
 sphinxcontrib-plantuml = "*"
+sphinx_rtd_theme = "*"
 mccabe = "*"
-pytest-mock = "*"
-ipdb = "*"
 rope = "*"
 ansi2html = "*"
 pylint = "*"
 pyarrow = "*"
-chispa = "*"
-jedi = "==0.17.2"
-pudb = "*"
-pytest-pudb = "*"
+sphinx-markdown-builder = "*"
+sphinx-jekyll-builder = "*"
+grip = "*"
+
+# Others
+bump2version = "*"
+twine = "*"
 
 [packages]
 pandas = "*"
 future = "*"
-spooq2 = {path = ".",editable = true}
+spooq = {path = ".", editable = true}
 pyspark = "==3.0.1"
 
 [requires]

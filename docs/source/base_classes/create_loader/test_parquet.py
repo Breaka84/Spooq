@@ -1,7 +1,7 @@
 import pytest
 from pyspark.sql.dataframe import DataFrame
 
-from spooq2.loader import ParquetLoader
+from spooq.loader import ParquetLoader
 
 
 @pytest.fixture(scope="module")

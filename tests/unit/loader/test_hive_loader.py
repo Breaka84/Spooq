@@ -9,7 +9,7 @@ from pyspark.sql.functions import lit
 from pyspark.sql import types as sql_types
 from py4j.protocol import Py4JJavaError
 
-from spooq2.loader import HiveLoader
+from spooq.loader import HiveLoader
 
 
 @pytest.fixture(scope="function")

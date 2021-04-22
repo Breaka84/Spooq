@@ -4,7 +4,7 @@ import pytest
 import pandas as pd
 from pyspark.sql import types as sql_types
 
-from spooq2.transformer import NewestByGroup
+from spooq.transformer import NewestByGroup
 
 
 @pytest.fixture(scope="module")

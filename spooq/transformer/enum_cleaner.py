@@ -11,7 +11,7 @@ class EnumCleaner(BaseCleaner):
 
     Examples
     --------
-    >>> from spooq2.transformer import EnumCleaner
+    >>> from spooq.transformer import EnumCleaner
     >>>
     >>> transformer = EnumCleaner(
     >>>     cleaning_definitions={
@@ -26,7 +26,7 @@ class EnumCleaner(BaseCleaner):
     >>>     }
     >>> )
 
-    >>> from spooq2.transformer import EnumCleaner
+    >>> from spooq.transformer import EnumCleaner
     >>> from pyspark.sql import Row
     >>>
     >>> input_df = spark.createDataFrame([

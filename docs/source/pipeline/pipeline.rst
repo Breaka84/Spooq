@@ -1,5 +1,5 @@
 Pipeline
 ========
 
-.. automodule:: spooq2.pipeline.pipeline
+.. automodule:: spooq.pipeline.pipeline
     :no-members:

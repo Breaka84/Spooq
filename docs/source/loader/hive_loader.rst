@@ -1,7 +1,7 @@
 Hive Database
 =============
 
-.. automodule:: spooq2.loader.hive_loader
+.. automodule:: spooq.loader.hive_loader
     :members:
 
 Activity Diagram

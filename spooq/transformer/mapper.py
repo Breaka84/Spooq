@@ -16,7 +16,7 @@ class Mapper(Transformer):
     Examples
     --------
     >>> from pyspark.sql import functions as F
-    >>> from spooq2.transformer import Mapper
+    >>> from spooq.transformer import Mapper
     >>>
     >>> mapping = [
     >>>     ("id",            "data.relationships.food.data.id",  "StringType"),
@@ -44,7 +44,7 @@ class Mapper(Transformer):
         about the column names for the output DataFrame, the column names (paths)
         from the input DataFrame, and their data types. Custom data types are also supported, which can
         clean, pivot, anonymize, ... the data itself. Please have a look at the
-        :py:mod:`spooq2.transformer.mapper_custom_data_types` module for more information.
+        :py:mod:`spooq.transformer.mapper_custom_data_types` module for more information.
 
     ignore_missing_columns : :any:`bool`, Defaults to False
         Specifies if the mapping transformation should use NULL if a referenced input
@@ -103,7 +103,7 @@ class Mapper(Transformer):
 
     Note
     ----
-    Please see :py:mod:`spooq2.transformer.mapper_custom_data_types` for all available custom
+    Please see :py:mod:`spooq.transformer.mapper_custom_data_types` for all available custom
     data types and how to inject your own.
 
     Note

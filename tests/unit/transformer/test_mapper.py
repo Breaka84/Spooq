@@ -8,7 +8,7 @@ from pyspark.sql.utils import AnalysisException
 from chispa.dataframe_comparer import assert_df_equality
 
 
-from spooq2.transformer import Mapper
+from spooq.transformer import Mapper
 
 
 @pytest.fixture(scope="module")

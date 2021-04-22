@@ -1,13 +1,13 @@
 """
-Global Logger instance used by Spooq2.
+Global Logger instance used by spooq.
 
 Example
 -------
 >>> import logging
->>> logga = logging.getLogger("spooq2")
+>>> logga = logging.getLogger("spooq")
 <logging.Logger at 0x7f5dc8eb2890>
 >>> logga.info("Hello World")
-[spooq2] 2020-03-21 23:55:48,253 INFO logging_example::<module>::4: Hello World
+[spooq] 2020-03-21 23:55:48,253 INFO logging_example::<module>::4: Hello World
 
 """
 
@@ -15,7 +15,7 @@ import os
 import sys
 import logging
 
-from spooq2._version import __version__ as version_number
+from spooq._version import __version__ as version_number
 
 initialized = False
 
@@ -29,7 +29,7 @@ def initialize():
     ----
     The output format is defined as:
         | "[%(name)s] %(asctime)s %(levelname)s %(module)s::%(funcName)s::%(lineno)d: %(message)s"
-        | For example "[spooq2] 2020-03-11 15:40:59,313 DEBUG newest_by_group::__init__::53: group by columns: [u'user_id']"
+        | For example "[spooq] 2020-03-11 15:40:59,313 DEBUG newest_by_group::__init__::53: group by columns: [u'user_id']"
 
     Warning
     -------
@@ -43,7 +43,7 @@ def initialize():
     logging_level = get_logging_level()
 
     # logging.getLogger("root").setLevel(logging_level)
-    logger = logging.getLogger("spooq2")
+    logger = logging.getLogger("spooq")
     logger.setLevel(logging_level)
 
     if not len(logger.handlers):

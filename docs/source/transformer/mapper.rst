@@ -4,7 +4,7 @@ Mapper
 Class
 -----
 
-.. autoclass:: spooq2.transformer.mapper.Mapper
+.. autoclass:: spooq.transformer.mapper.Mapper
 
 Activity Diagram
 ---------------------------------------------
@@ -116,7 +116,7 @@ Timestamp (TimestampType / DateType) -> 1st day of the input value's month (Time
 Custom Mapping Methods Details
 --------------------------------------------
 
-.. automodule:: spooq2.transformer.mapper_custom_data_types
+.. automodule:: spooq.transformer.mapper_custom_data_types
     :members:
     :ignore-module-all:
     :member-order: bysource

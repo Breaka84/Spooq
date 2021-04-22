@@ -2,7 +2,7 @@ from builtins import str
 import os
 import logging
 
-spooq_logger = logging.getLogger("spooq2")
+spooq_logger = logging.getLogger("spooq")
 
 
 def remove_hdfs_prefix(path):

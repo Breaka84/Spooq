@@ -7,7 +7,7 @@ from pyspark.sql import functions as F, types as T
 from pyspark.sql import Row
 import datetime as dt
 
-from spooq2.transformer import ThresholdCleaner
+from spooq.transformer import ThresholdCleaner
 
 
 # fmt: off

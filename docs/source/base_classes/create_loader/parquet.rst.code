@@ -3,4 +3,4 @@ Parquet Loader
 
 Some text if you like...
 
-.. automodule:: spooq2.loader.parquet
+.. automodule:: spooq.loader.parquet

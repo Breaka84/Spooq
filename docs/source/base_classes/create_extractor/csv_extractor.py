@@ -22,7 +22,7 @@ class CSVExtractor(Extractor):
     input_file: :any:`str`
         The explicit file path for the input data set. Globbing support depends
         on implementation of Spark's csv reader!
-    
+
     Raises
     ------
     :any:`exceptions.TypeError`:
@@ -34,17 +34,17 @@ class CSVExtractor(Extractor):
         self.input_file = input_file
         self.spark = SparkSession.Builder()\
             .enableHiveSupport()\
-            .appName('spooq2.extractor: {nm}'.format(nm=self.name))\
+            .appName('spooq.extractor: {nm}'.format(nm=self.name))\
             .getOrCreate()
 
     def extract(self):
         self.logger.info('Loading Raw CSV Files from: ' + self.input_file)
         output_df = self.spark.read.load(
             input_file,
-            format="csv", 
-            sep=";", 
-            inferSchema="true", 
+            format="csv",
+            sep=";",
+            inferSchema="true",
             header="true"
         )
-        
+
         return output_df

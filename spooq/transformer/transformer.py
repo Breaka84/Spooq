@@ -1,12 +1,12 @@
 """
-Transformers take a :py:class:`pyspark.sql.DataFrame` as an input, transform it accordingly 
-and return a PySpark DataFrame.   
+Transformers take a :py:class:`pyspark.sql.DataFrame` as an input, transform it accordingly
+and return a PySpark DataFrame.
 
-Each Transformer class has to have a `transform` method which takes no arguments 
+Each Transformer class has to have a `transform` method which takes no arguments
 and returns a PySpark DataFrame.
 
 Possible transformation methods can be **Selecting the most up to date record by id**,
-**Exploding an array**, **Filter (on an exploded array)**, **Apply basic threshold cleansing** or 
+**Exploding an array**, **Filter (on an exploded array)**, **Apply basic threshold cleansing** or
 **Map the incoming DataFrame to at provided structure**.
 """
 
@@ -28,7 +28,7 @@ class Transformer(object):
 
     def __init__(self):
         self.name = type(self).__name__
-        self.logger = logging.getLogger("spooq2")
+        self.logger = logging.getLogger("spooq")
 
     def transform(self, input_df):
         """

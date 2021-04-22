@@ -7,9 +7,9 @@ skinparam defaultFontSize 18
 left to right direction
 hide empty members
 
-' namespace spooq2 {
+' namespace spooq {
   namespace extractor {
-      
+
       class Extractor {
       }
       Extractor <|-- JSONExtractor
@@ -27,7 +27,7 @@ hide empty members
 
   }
   namespace transformer{
-    
+
     class Transformer
     Transformer <|-- Exploder
     class Exploder
@@ -42,14 +42,14 @@ hide empty members
 
   }
   namespace loader {
-    
+
     class Loader
     Loader <|-- HiveLoader
     class HiveLoader
   }
   namespace pipeline {
-    
-    class Pipeline 
+
+    class Pipeline
     Pipeline o-- extractor : has 1 instance >
     Pipeline o-- transformer : has 1+ instances >
     Pipeline o-- loader : has 1 instance >

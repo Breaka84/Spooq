@@ -14,12 +14,12 @@ class Pipeline(object):
 
     Attributes
     ----------
-        extractor : Subclass of :py:class:`spooq2.extractor.Extractor`
+        extractor : Subclass of :py:class:`spooq.extractor.Extractor`
             The entry point of the Pipeline. Extracts a DataFrame from a Source.
-        transformers : List of Subclasses of :py:class:`spooq2.transformer.Transformer` Objects
+        transformers : List of Subclasses of :py:class:`spooq.transformer.Transformer` Objects
             The Data Wrangling Part of the Pipeline. A chain of Transformers, a single Transformer
             or a PassThrough Transformer can be set and used.
-        loader : Subclass of :py:class:`spooq2.loader.Loader`
+        loader : Subclass of :py:class:`spooq.loader.Loader`
             The exit point of the Pipeline. Loads a DataFrame to a target Sink.
         name : :any:`str`
             Sets the `__name__` of the class' type as `name`, which is essentially the Class' Name.
@@ -28,10 +28,10 @@ class Pipeline(object):
 
     Example
     -------
-    >>> from spooq2.pipeline import Pipeline
-    >>> import spooq2.extractor as   E
-    >>> import spooq2.transformer as T
-    >>> import spooq2.loader as      L
+    >>> from spooq.pipeline import Pipeline
+    >>> import spooq.extractor as   E
+    >>> import spooq.transformer as T
+    >>> import spooq.loader as      L
     >>>
     >>> #  Definition how the output table should look like and where the attributes come from:
     >>> users_mapping = [
@@ -91,7 +91,7 @@ class Pipeline(object):
         self.loader = None
 
         self.name = type(self).__name__
-        self.logger = logging.getLogger("spooq2")
+        self.logger = logging.getLogger("spooq")
         self.logger.info("New {cls_name} Instance created\n".format(cls_name=str(self.name)) + str(self))
 
     def execute(self):
@@ -176,8 +176,8 @@ class Pipeline(object):
 
         Parameters
         ----------
-        extractor : Subclass of :py:class:`spooq2.extractor.Extractor`
-            An already initialized Object of any Subclass of spooq2.extractor.Extractor.
+        extractor : Subclass of :py:class:`spooq.extractor.Extractor`
+            An already initialized Object of any Subclass of spooq.extractor.Extractor.
 
         Raises
         ------
@@ -193,8 +193,8 @@ class Pipeline(object):
 
         Parameters
         ----------
-        transformer : :any:`list` of Subclass of :py:class:`spooq2.transformer.Transformer`
-            Already initialized Object of any Subclass of spooq2.transformer.Transformer.
+        transformer : :any:`list` of Subclass of :py:class:`spooq.transformer.Transformer`
+            Already initialized Object of any Subclass of spooq.transformer.Transformer.
         """
 
         try:
@@ -214,8 +214,8 @@ class Pipeline(object):
 
         Parameters
         ----------
-        loader : Subclass of :py:class:`spooq2.loader.Loader`
-            An already initialized Object of any Subclass of spooq2.loader.Loader.
+        loader : Subclass of :py:class:`spooq.loader.Loader`
+            An already initialized Object of any Subclass of spooq.loader.Loader.
 
         Raises
         ------
@@ -226,7 +226,7 @@ class Pipeline(object):
         self.loader = loader
 
     def __str__(self):
-        return """spooq2.pipeline Object
+        return """spooq.pipeline Object
                 Used Extractor:    {extr}
                 Used Transformers: {trans}
                 Used Loader:       {ldr}

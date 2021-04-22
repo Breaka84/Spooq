@@ -114,7 +114,7 @@ class HiveLoader(Loader):
         self.spark = (
             SparkSession.Builder()
             .enableHiveSupport()
-            .appName("spooq2.extractor: {nm}".format(nm=self.name))
+            .appName("spooq.extractor: {nm}".format(nm=self.name))
             .getOrCreate()
         )
 

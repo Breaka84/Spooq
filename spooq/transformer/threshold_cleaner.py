@@ -21,7 +21,7 @@ class ThresholdCleaner(BaseCleaner):
 
     Examples
     --------
-    >>> from spooq2.transformer import ThresholdCleaner
+    >>> from spooq.transformer import ThresholdCleaner
     >>> transformer = ThresholdCleaner(
     >>>     thresholds={
     >>>         "created_at": {
@@ -37,7 +37,7 @@ class ThresholdCleaner(BaseCleaner):
     >>>     }
     >>> )
 
-    >>> from spooq2.transformer import ThresholdCleaner
+    >>> from spooq.transformer import ThresholdCleaner
     >>> from pyspark.sql import Row
     >>>
     >>> input_df = spark.createDataFrame([

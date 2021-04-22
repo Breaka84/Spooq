@@ -18,6 +18,7 @@ Report Bugs
 If you are reporting a bug, please include:
 
 * Your operating system name and version.
+* Your spark version (and distribution).
 * Any details about your local setup that might be helpful in troubleshooting.
 * Detailed steps to reproduce the bug.
 
@@ -36,9 +37,8 @@ and "help wanted" is open to whoever wants to implement it.
 Write Documentation
 ~~~~~~~~~~~~~~~~~~~
 
-Helper for Hadoop Ingestion Jobs could always use more documentation, whether as part of the
-official Helper for Hadoop Ingestion Jobs docs, in docstrings, or even on the web in blog posts,
-articles, and such.
+Spooq could always use more documentation, whether as part of the official Spooq docs,
+in docstrings, or even on the web in blog posts, articles, and such.
 
 Submit Feedback
 ~~~~~~~~~~~~~~~
@@ -53,15 +53,14 @@ If you are proposing a feature:
 Get Started!
 ------------
 
-Ready to contribute? Here's how to set up `spooq2` for local development.
+Ready to contribute? Here's how to set up `spooq` for local development.
 
-1. Fork the `spooq2` repo on Stash.
+1. Fork the `spooq` repo on Stash.
 2. Clone your fork locally::
 
     $ git clone https://github.com/Breaka84/Spooq
 
-3. Setup your development environment according to the documentation::
-    $ chromium docs/build/html/setup_development_testing.html
+3. Setup your development environment according to the [online documentation](https://spooq.readthedocs.io/en/latest/setup_development_testing.html)::
 
 4. Commit your changes and push your branch to GitHub::
 
@@ -79,14 +78,5 @@ Before you submit a pull request, check that it meets these guidelines:
 1. The pull request should include tests.
 2. If the pull request adds functionality, the docs should be updated. Put
    your new functionality into a function with a docstring, and add the
-   feature to the list in HISTORY.rst.
-3. The pull request should work for Python 2.7.
-
-Tips
-----
-
-The documentation can be found under following symlinks::
-
-    $ evince Documentation.pdf
-    or
-    $ chromium Documentation.html
+   feature to the list in CHANGELOG.rst.
+3. The pull request should work for Python 3.7 and PySpark 3.x

@@ -8,10 +8,10 @@ from __future__ import print_function
 from builtins import object
 import requests
 import json
-from spooq2.pipeline import Pipeline
-import spooq2.extractor as E
-import spooq2.transformer as T
-import spooq2.loader as L
+from spooq.pipeline import Pipeline
+import spooq.extractor as E
+import spooq.transformer as T
+import spooq.loader as L
 
 
 class PipelineFactory(object):
@@ -126,7 +126,7 @@ class PipelineFactory(object):
 
         Returns
         -------
-        :py:class:`~spooq2.Pipeline`
+        :py:class:`~spooq.Pipeline`
             A Spooq pipeline instance which is fully configured and can still be
             adapted and consequently executed.
         """

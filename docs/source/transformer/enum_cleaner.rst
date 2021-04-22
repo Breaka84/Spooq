@@ -1,5 +1,5 @@
 Enumeration-based Cleaner
 ===========================
 
-.. automodule:: spooq2.transformer.enum_cleaner
+.. automodule:: spooq.transformer.enum_cleaner
     :members:

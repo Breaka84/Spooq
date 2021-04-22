@@ -1,7 +1,7 @@
 Extractor Base Class
 ==============================
 
-.. automodule:: spooq2.extractor.extractor
+.. automodule:: spooq.extractor.extractor
     :no-members:
     :noindex:
 
@@ -27,7 +27,7 @@ Exemplary Sample Code
 ^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: create_extractor/csv_extractor.py
-    :caption: src/spooq2/extractor/csv_extractor.py:
+    :caption: spooq/extractor/csv_extractor.py:
     :language: python
 
 
@@ -35,13 +35,13 @@ References to include
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: create_extractor/init.diff
-    :caption: src/spooq2/extractor/__init__.py:
+    :caption: spooq/extractor/__init__.py:
     :language: udiff
 
 Tests
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
-One of Spooq2's features is to provide tested code for multiple data pipelines.
+One of Spooq's features is to provide tested code for multiple data pipelines.
 Please take your time to write sufficient unit tests!
 You can reuse test data from `tests/data` or create a new schema / data set if needed.
 A SparkSession is provided as a global fixture called `spark_session`.

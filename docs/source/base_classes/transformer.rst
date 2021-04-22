@@ -1,7 +1,7 @@
 Transformer Base Class
 ==============================
 
-.. automodule:: spooq2.transformer.transformer
+.. automodule:: spooq.transformer.transformer
     :no-members:
     :noindex:
 
@@ -27,24 +27,24 @@ Exemplary Sample Code
 ^^^^^^^^^^^^^^^^^^^^^^
 
 .. literalinclude:: create_transformer/no_id_dropper.py
-    :caption: src/spooq2/transformer/no_id_dropper.py:
+    :caption: spooq/transformer/no_id_dropper.py:
     :language: python
 
 References to include
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
 This makes it possible to import the new transformer class directly
-from `spooq2.transformer` instead of `spooq2.transformer.no_id_dropper`.
-It will also be imported if you use `from spooq2.transformer import *`.
+from `spooq.transformer` instead of `spooq.transformer.no_id_dropper`.
+It will also be imported if you use `from spooq.transformer import *`.
 
 .. literalinclude:: create_transformer/init.diff
-    :caption: src/spooq2/transformer/__init__.py:
+    :caption: spooq/transformer/__init__.py:
     :language: udiff
 
 Tests
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
-One of Spooq2's features is to provide tested code for multiple data pipelines.
+One of Spooq's features is to provide tested code for multiple data pipelines.
 Please take your time to write sufficient unit tests!
 You can reuse test data from `tests/data` or create a new schema / data set if needed.
 A SparkSession is provided as a global fixture called `spark_session`.

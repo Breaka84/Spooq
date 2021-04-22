@@ -3,8 +3,8 @@ from builtins import object
 import pytest
 from pyspark.sql.dataframe import DataFrame
 
-from spooq2.extractor import JSONExtractor
-from spooq2.extractor.tools import infer_input_path_from_partition
+from spooq.extractor import JSONExtractor
+from spooq.extractor.tools import infer_input_path_from_partition
 
 
 @pytest.fixture()

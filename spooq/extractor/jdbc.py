@@ -22,7 +22,7 @@ class JDBCExtractor(Extractor):
         self.spark = (
             SparkSession.Builder()
             .enableHiveSupport()
-            .appName("spooq2.extractor: {nm}".format(nm=self.name))
+            .appName("spooq.extractor: {nm}".format(nm=self.name))
             .getOrCreate()
         )
 
@@ -47,7 +47,7 @@ class JDBCExtractorFullLoad(JDBCExtractor):
 
     Examples
     --------
-    >>> import spooq2.extractor as E
+    >>> import spooq.extractor as E
     >>>
     >>> extractor = E.JDBCExtractorFullLoad(
     >>>     query="select id, first_name, last_name, gender, created_at test_db.from users",
@@ -115,11 +115,11 @@ class JDBCExtractorIncremental(JDBCExtractor):
     """
     Connects to a JDBC Source and fetches the data with respect to boundaries.
     The boundaries are inferred from the partition to load and logs from previous loads
-    stored in the ``spooq2_values_table``.
+    stored in the ``spooq_values_table``.
 
     Examples
     --------
-    >>> import spooq2.extractor as E
+    >>> import spooq.extractor as E
     >>>
     >>> # Boundaries derived from previously logged extractions => ("2020-01-31 03:29:59", False)
     >>>
@@ -132,7 +132,7 @@ class JDBCExtractorIncremental(JDBCExtractor):
     >>>         "password": "test123",
     >>>     },
     >>>     source_table="users",
-    >>>     spooq2_values_table="spooq2_jdbc_log_users",
+    >>>     spooq_values_table="spooq_jdbc_log_users",
     >>> )
     >>>
     >>> extractor._construct_query_for_partition(extractor.partition)
@@ -146,7 +146,7 @@ class JDBCExtractorIncremental(JDBCExtractor):
     ----------
     partition : :any:`int` or :any:`str`
         Partition to extract. Needed for logging the incremental load in
-        the ``spooq2_values_table``.
+        the ``spooq_values_table``.
 
     jdbc_options : :class:`dict`, optional
         A set of parameters to configure the connection to the source:
@@ -163,15 +163,15 @@ class JDBCExtractorIncremental(JDBCExtractor):
         Defines the tablename of the source to be loaded from. For example 'purchases'.
         This is necessary to build the query.
 
-    spooq2_values_table : :any:`str`
+    spooq_values_table : :any:`str`
         Defines the Hive table where previous and future loads of a specific source table
         are logged. This is necessary to derive boundaries for the current partition.
 
-    spooq2_values_db : :any:`str`, optional
-        Defines the Database where the ``spooq2_values_table`` is stored.
-        Defaults to `'spooq2_values'`.
+    spooq_values_db : :any:`str`, optional
+        Defines the Database where the ``spooq_values_table`` is stored.
+        Defaults to `'spooq_values'`.
 
-    spooq2_values_partition_column : :any:`str`, optional
+    spooq_values_partition_column : :any:`str`, optional
         The column name which is used for the boundaries.
         Defaults to `'updated_at'`.
 
@@ -191,17 +191,17 @@ class JDBCExtractorIncremental(JDBCExtractor):
         partition,
         jdbc_options,
         source_table,
-        spooq2_values_table,
-        spooq2_values_db="spooq2_values",
-        spooq2_values_partition_column="updated_at",
+        spooq_values_table,
+        spooq_values_db="spooq_values",
+        spooq_values_partition_column="updated_at",
         cache=True,
     ):
         super(JDBCExtractorIncremental, self).__init__(jdbc_options)
         self.partition = partition
         self.source_table = source_table
-        self.spooq2_values_table = spooq2_values_table
-        self.spooq2_values_db = spooq2_values_db
-        self.spooq2_values_partition_column = spooq2_values_partition_column
+        self.spooq_values_table = spooq_values_table
+        self.spooq_values_db = spooq_values_db
+        self.spooq_values_partition_column = spooq_values_partition_column
         self.cache = cache
 
     def extract(self):
@@ -209,17 +209,17 @@ class JDBCExtractorIncremental(JDBCExtractor):
         loaded_df = self._load_from_jdbc(query, self.jdbc_options, cache=self.cache)
         self._update_boundaries_for_current_partition_on_table(
             loaded_df,
-            self.spooq2_values_db,
-            self.spooq2_values_table,
+            self.spooq_values_db,
+            self.spooq_values_table,
             self.partition,
-            self.spooq2_values_partition_column,
+            self.spooq_values_partition_column,
         )
         return loaded_df
 
     def _construct_query_for_partition(self, partition):
         """Constructs and returns a predicated Query :any:`str` depending on the `partition`
 
-        Based on the partition and previous loading logs (`spooq2_values_table`),
+        Based on the partition and previous loading logs (`spooq_values_table`),
         boundaries will be calculated and injected in the where clause of the query.
 
         Parameters
@@ -248,18 +248,18 @@ class JDBCExtractorIncremental(JDBCExtractor):
 
         if lower_bound and upper_bound:
             where_clause = "where {chk_col} > {low_bnd} and {chk_col} <= {up_bnd}".format(
-                chk_col=self.spooq2_values_partition_column,
+                chk_col=self.spooq_values_partition_column,
                 low_bnd=_fix_boundary_value_syntax(lower_bound),
                 up_bnd=_fix_boundary_value_syntax(upper_bound),
             )
         elif lower_bound:
             where_clause = "where {chk_col} > {low_bnd}".format(
-                chk_col=self.spooq2_values_partition_column,
+                chk_col=self.spooq_values_partition_column,
                 low_bnd=_fix_boundary_value_syntax(lower_bound),
             )
         elif upper_bound:
             where_clause = "where {chk_col} <= {up_bnd}".format(
-                chk_col=self.spooq2_values_partition_column,
+                chk_col=self.spooq_values_partition_column,
                 up_bnd=_fix_boundary_value_syntax(upper_bound),
             )
 
@@ -270,7 +270,7 @@ class JDBCExtractorIncremental(JDBCExtractor):
         """
         Returns the lower and upper boundaries to be used in the where clause of the query.
         This information is deducted from the ``partition`` parameter and previous loading logs
-        (persisted in `spooq2_values_table`).
+        (persisted in `spooq_values_table`).
 
         Parameters
         ----------
@@ -281,7 +281,7 @@ class JDBCExtractorIncremental(JDBCExtractor):
         Tuple of :any:`str`
             Values of the tuple can also be `False`
         """
-        pd_df = self._get_previous_boundaries_table_as_pd(self.spooq2_values_db, self.spooq2_values_table)
+        pd_df = self._get_previous_boundaries_table_as_pd(self.spooq_values_db, self.spooq_values_table)
         partition = int(partition)
         table_is_empty = pd_df.empty
         partition_exists = not pd_df.loc[pd_df["dt"] == partition].empty
@@ -324,50 +324,50 @@ class JDBCExtractorIncremental(JDBCExtractor):
                     """
                     ERROR: Something weird happened...
                     There was a logical problem getting the correct boundaries
-                    from the spooq2value table!
+                    from the spooqvalue table!
                     Please debug me ;-)
                     """
                 )
 
-    def _get_previous_boundaries_table_as_pd(self, spooq2_values_db, spooq2_values_table):
+    def _get_previous_boundaries_table_as_pd(self, spooq_values_db, spooq_values_table):
         """
         Converts the previous_boundaries_table and returns a Pandas Dataframe.
 
         Parameters
         ----------
-        spooq2_values_db : :any:`str`
-        spooq2_values_table : :any:`str`
+        spooq_values_db : :any:`str`
+        spooq_values_table : :any:`str`
 
         Returns
         -------
         Pandas Dataframe
-            Content of `spooq2_values_table` from `spooq2_values_db`
+            Content of `spooq_values_table` from `spooq_values_db`
         """
-        return self._get_previous_boundaries_table(spooq2_values_db, spooq2_values_table).toPandas()
+        return self._get_previous_boundaries_table(spooq_values_db, spooq_values_table).toPandas()
 
-    def _get_previous_boundaries_table(self, spooq2_values_db, spooq2_values_table):
+    def _get_previous_boundaries_table(self, spooq_values_db, spooq_values_table):
         """
         Fetches and returns a DataFrame containing the logs of previous loading
-        jobs (`spooq2_values_table`) of this entity
+        jobs (`spooq_values_table`) of this entity
 
         Parameters
         ----------
-        spooq2_values_db : :any:`str`
-        spooq2_values_table : :any:`str`
+        spooq_values_db : :any:`str`
+        spooq_values_table : :any:`str`
 
         Returns
         -------
         PySpark DataFrame
-            Content of `spooq2_values_table` from `spooq2_values_db`
+            Content of `spooq_values_table` from `spooq_values_db`
 
         """
-        table_name = "{db}.{tbl}".format(db=spooq2_values_db, tbl=spooq2_values_table)
-        self.logger.info("Loading Spooq2Values Table from {name}".format(name=table_name))
+        table_name = "{db}.{tbl}".format(db=spooq_values_db, tbl=spooq_values_table)
+        self.logger.info("Loading spooqValues Table from {name}".format(name=table_name))
         df = self.spark.table(table_name)
         try:
-            self.spooq2_values_partition_column
+            self.spooq_values_partition_column
         except AttributeError:
-            self.spooq2_values_partition_column = df.select("partition_column").distinct().collect()[0].partition_column
+            self.spooq_values_partition_column = df.select("partition_column").distinct().collect()[0].partition_column
         return df
 
     @staticmethod
@@ -385,43 +385,43 @@ class JDBCExtractorIncremental(JDBCExtractor):
         current_pd_df = pd_df.loc[pd_df["dt"] == partition].iloc[0]
         return (current_pd_df.first_value, current_pd_df.last_value)
 
-    def _get_lowest_boundary_from_df(self, df, spooq2_values_partition_column):
+    def _get_lowest_boundary_from_df(self, df, spooq_values_partition_column):
         return eval(
             "df.na.drop(how='any', subset=['{chk_col}']).select(sql_min(df.{chk_col}).alias('minimum')).collect()[0].minimum".format(
-                chk_col=spooq2_values_partition_column
+                chk_col=spooq_values_partition_column
             )
         )
 
-    def _get_highest_boundary_from_df(self, df, spooq2_values_partition_column):
+    def _get_highest_boundary_from_df(self, df, spooq_values_partition_column):
         return eval(
             "df.na.drop(how='any', subset=['{chk_col}']).select(sql_max(df.{chk_col}).alias('maximum')).collect()[0].maximum".format(
-                chk_col=spooq2_values_partition_column
+                chk_col=spooq_values_partition_column
             )
         )
 
     def _update_boundaries_for_current_partition_on_table(
-        self, df, spooq2_values_db, spooq2_values_table, partition, spooq2_values_partition_column
+        self, df, spooq_values_db, spooq_values_table, partition, spooq_values_partition_column
     ):
 
-        lowest_boundary = self._get_lowest_boundary_from_df(df, spooq2_values_partition_column)
-        highest_boundary = self._get_highest_boundary_from_df(df, spooq2_values_partition_column)
+        lowest_boundary = self._get_lowest_boundary_from_df(df, spooq_values_partition_column)
+        highest_boundary = self._get_highest_boundary_from_df(df, spooq_values_partition_column)
         self._write_boundaries_to_hive(
             lowest_boundary,
             highest_boundary,
-            spooq2_values_db,
-            spooq2_values_table,
+            spooq_values_db,
+            spooq_values_table,
             partition,
-            spooq2_values_partition_column,
+            spooq_values_partition_column,
         )
 
     def _write_boundaries_to_hive(
         self,
         lowest_boundary,
         highest_boundary,
-        spooq2_values_db,
-        spooq2_values_table,
+        spooq_values_db,
+        spooq_values_table,
         partition,
-        spooq2_values_partition_column,
+        spooq_values_partition_column,
     ):
 
         self.spark.conf.set("hive.exec.dynamic.partition", "true")
@@ -438,7 +438,7 @@ class JDBCExtractorIncremental(JDBCExtractor):
 
         input_data = [
             [
-                str(spooq2_values_partition_column),
+                str(spooq_values_partition_column),
                 int(partition),
                 str(lowest_boundary),
                 str(highest_boundary),
@@ -448,5 +448,5 @@ class JDBCExtractorIncremental(JDBCExtractor):
         df_output = self.spark.createDataFrame(input_data, schema=schema)
 
         df_output.repartition(1).write.mode("overwrite").insertInto(
-            "{db}.{tbl}".format(db=spooq2_values_db, tbl=spooq2_values_table, dt=partition)
+            "{db}.{tbl}".format(db=spooq_values_db, tbl=spooq_values_table, dt=partition)
         )
