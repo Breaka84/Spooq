@@ -2,9 +2,10 @@
 Changelog
 =========
 
-3.3.0 (2021-04-16)
+3.3.0 (2021-04-22)
 -------------------
-* [MOD] (BREAKING CHANGE!) rename package back to Spooq (dropping "2")
+* [MOD] (BREAKING CHANGE!) rename package back to Spooq (dropping "2").
+  This means you need to update all imports from spooq2.xxx.yyy to spooq.xxx.yyy in your code!
 * [MOD] prepare for PyPi release
 * [MOD] drop official support for Spark 2.x (it most probably still works without issues,
   but some tests fail on Spark2 due to different columns ordering and the effort is too high to

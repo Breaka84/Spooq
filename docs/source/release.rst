@@ -25,15 +25,24 @@ _________
 
 Please add your changes to the CHANGELOG.rst
 
+Automatic Publishing via Github Action
+--------------------------------------
+
+The current Spooq version is automatically published on PyPi after a release on github is created.
+
+
+Manual Publishing from Command Line
+-----------------------------------
+
 Create the Distribution Files
------------------------------
+_____________________________
 
 .. code-block:: bash
 
     $ python setup.py sdist bdist_wheel
 
 Upload to Test-PyPi
--------------------
+___________________
 
 .. code-block:: bash
 
@@ -45,7 +54,7 @@ Beware, that the test PyPi uses different credentials than the real PyPi.
 You can get the credentials from your favourite collaborator.
 
 Upload to Real PyPi
--------------------
+___________________
 
 .. code-block:: bash
 
