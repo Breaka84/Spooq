@@ -1,5 +1,10 @@
-from builtins import object
-import logging
+"""
+This abstract class provides the functionality to log any cleansed values into a separate column
+that contains a struct with a sub column per cleansed column (according to the `cleaning_definition`).
+If a value was cleansed, the original value will be stored in its respective sub column. If a value was not
+cleansed, the sub column will be empty (None).
+"""
+
 from pyspark.sql import functions as F
 
 from .transformer import Transformer

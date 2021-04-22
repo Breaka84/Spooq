@@ -9,7 +9,7 @@ left to right direction
 
 
 namespace transformer{
-    
+
   class Transformer {
     .. derived ..
     name : str
@@ -39,8 +39,17 @@ namespace transformer{
     __
     transform(input_df : DataFrame)
   }
+  class BaseCleaner {
+    cleaning_definitions : dict
+    column_to_log_cleansed_values : str
+    __
+    transform(input_df : DataFrame)
+  }
+  class EnumCleaner {
+    __
+    transform(input_df : DataFrame)
+  }
   class ThresholdCleaner {
-    thresholds : dict
     __
     transform(input_df : DataFrame)
   }
@@ -54,12 +63,14 @@ namespace transformer{
   ' Mapper --|> Transformer
   ' Sieve --|> Transformer
   ' ThresholdCleaner --|> Transformer
-  Transformer --|> Mapper 
+  Transformer --|> Mapper
   Mapper <. mapper_custom_data_types : provides custom data types
   Transformer --|> Exploder
-  Transformer --|> NewestByGroup 
-  Transformer --|> Sieve 
-  Transformer --|> ThresholdCleaner 
+  Transformer --|> NewestByGroup
+  Transformer --|> Sieve
+  Transformer --|> BaseCleaner
+  BaseCleaner --|> ThresholdCleaner
+  BaseCleaner --|> EnumCleaner
 
 }
  @enduml
