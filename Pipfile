@@ -48,6 +48,7 @@ pandas = "*"
 future = "*"
 spooq = {path = ".", editable = true}
 pyspark = "==3.0.1"
+requests = "*"
 
 [requires]
 python_version = "3.7"

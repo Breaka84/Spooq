@@ -111,8 +111,8 @@ class ThresholdCleaner(BaseCleaner):
     Only Numeric, TimestampType, and DateType data types are supported!
     """
 
-    def __init__(self, thresholds={}, column_to_log_cleansed_values=None):
-        super().__init__(cleaning_definitions=thresholds, column_to_log_cleansed_values=column_to_log_cleansed_values)
+    def __init__(self, thresholds={}, column_to_log_cleansed_values=None, store_as_map=False):
+        super().__init__(cleaning_definitions=thresholds, column_to_log_cleansed_values=column_to_log_cleansed_values, store_as_map=store_as_map)
         self.logger.debug("Range Definitions: " + str(self.cleaning_definitions))
         self.TEMPORARY_COLUMNS_PREFIX = "dac28b56d8055953a7038bfe3b5097e7"  # SHA1 hash of "ThresholdCleaner"
 

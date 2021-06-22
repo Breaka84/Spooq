@@ -2,6 +2,12 @@
 Changelog
 =========
 
+3.3.1 (2021-04-23)
+-------------------
+* [MOD] Fix TOC on PyPi
+* [MOD] Add more links to PyPi
+
+
 3.3.0 (2021-04-22)
 -------------------
 * [MOD] (BREAKING CHANGE!) rename package back to Spooq (dropping "2").
