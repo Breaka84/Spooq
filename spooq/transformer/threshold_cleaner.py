@@ -21,13 +21,14 @@ class ThresholdCleaner(BaseCleaner):
 
     Examples
     --------
+    >>> from pyspark.sql import functions as F
     >>> from spooq.transformer import ThresholdCleaner
     >>> transformer = ThresholdCleaner(
     >>>     thresholds={
     >>>         "created_at": {
     >>>             "min": 0,
     >>>             "max": 1580737513,
-    >>>             "default": pyspark.sql.functions.current_date()
+    >>>             "default": F.current_date()
     >>>         },
     >>>         "size_cm": {
     >>>             "min": 70,
@@ -50,25 +51,25 @@ class ThresholdCleaner(BaseCleaner):
     >>>         "integers":    {"min":  0, "max": 10},
     >>>         "some_factor": {"min": -1, "max":  1}
     >>>     },
-    >>>     column_to_log_cleansed_values="cleansed_values_threshold"
+    >>>     column_to_log_cleansed_values="cleansed_values_threshold",
+    >>>     store_as_map=True,
     >>> )
     >>> output_df = transformer.transform(input_df)
     >>> output_df.show()
     +---+--------+-----------+-------------------------+
     | id|integers|some_factor|cleansed_values_threshold|
     +---+--------+-----------+-------------------------+
-    |  0|    null|      -0.75|                    [-5,]|
-    |  1|       5|       null|                 [, 1.25]|
-    |  2|    null|       0.67|                    [15,]|
+    |  0|    null|      -0.75|         [integers -> -5]|
+    |  1|       5|       null|     [some_factor -> 1...|
+    |  2|    null|       0.67|         [integers -> 15]|
     +---+--------+-----------+-------------------------+
     >>> output_df.printSchema()
-    root
      |-- id: long (nullable = true)
      |-- integers: long (nullable = true)
      |-- some_factor: double (nullable = true)
-     |-- cleansed_values_threshold: struct (nullable = false)
-     |    |-- integers: long (nullable = true)
-     |    |-- some_factor: double (nullable = true)
+     |-- cleansed_values_threshold: map (nullable = false)
+     |    |-- key: string
+     |    |-- value: string (valueContainsNull = true)
 
 
     Parameters
@@ -79,6 +80,10 @@ class ThresholdCleaner(BaseCleaner):
     column_to_log_cleansed_values : :any:`str`, Defaults to None
         Defines a column in which the original (uncleansed) value will be stored in case of cleansing. If no column
         name is given, nothing will be logged.
+
+    store_as_map : :any:`bool`, Defaults to False
+        Specifies if the logged cleansed values should be stored in a column as :any:`pyspark.sql.types.MapType` with
+        stringified values or as :any:`pyspark.sql.types.StructType` with the original respective data types.
 
     Note
     ----
@@ -112,7 +117,11 @@ class ThresholdCleaner(BaseCleaner):
     """
 
     def __init__(self, thresholds={}, column_to_log_cleansed_values=None, store_as_map=False):
-        super().__init__(cleaning_definitions=thresholds, column_to_log_cleansed_values=column_to_log_cleansed_values, store_as_map=store_as_map)
+        super().__init__(
+            cleaning_definitions=thresholds,
+            column_to_log_cleansed_values=column_to_log_cleansed_values,
+            store_as_map=store_as_map,
+        )
         self.logger.debug("Range Definitions: " + str(self.cleaning_definitions))
         self.TEMPORARY_COLUMNS_PREFIX = "dac28b56d8055953a7038bfe3b5097e7"  # SHA1 hash of "ThresholdCleaner"
 

@@ -35,18 +35,27 @@ class BaseCleaner(Transformer):
 
                 if self.column_to_log_cleansed_values in input_df.columns:
                     return F.when(F.col(temporary_column_name) == F.col(column_name), log_column).otherwise(
-                        F.map_concat(F.create_map(F.lit(column_name), F.col(temporary_column_name).cast(T.StringType())), log_column))
+                        F.map_concat(
+                            F.create_map(F.lit(column_name), F.col(temporary_column_name).cast(T.StringType())),
+                            log_column,
+                        )
+                    )
 
                 else:
                     return F.when(F.col(temporary_column_name) == F.col(column_name), F.create_map()).otherwise(
-                        F.create_map(F.lit(column_name), F.col(temporary_column_name).cast(T.StringType())))
+                        F.create_map(F.lit(column_name), F.col(temporary_column_name).cast(T.StringType()))
+                    )
 
             for column_name, temporary_column_name in zip(column_names, temporary_column_names):
                 input_df = input_df.withColumn(
-                    self.column_to_log_cleansed_values, _concat_cleansed_values_as_map(column_name, temporary_column_name, self.column_to_log_cleansed_values)
+                    self.column_to_log_cleansed_values,
+                    _concat_cleansed_values_as_map(
+                        column_name, temporary_column_name, self.column_to_log_cleansed_values
+                    ),
                 )
 
         else:
+
             def _only_keep_cleansed_values(column_name, temporary_column_name):
                 return F.when(F.col(temporary_column_name) == F.col(column_name), F.lit(None)).otherwise(
                     F.col(temporary_column_name)

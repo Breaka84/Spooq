@@ -7,8 +7,13 @@ import datetime as dt
 from spooq.transformer import EnumCleaner
 
 
+@pytest.fixture(scope="class")
+def input_df(spark_session):
+    return spark_session.createDataFrame([Row(b="positive"), Row(b="negative"), Row(b="positive")])
+
+
 class TestBasicAttributes(object):
-    """ Basic attributes of the transformer instance """
+    """Basic attributes of the transformer instance"""
 
     def test_has_logger(self):
         assert hasattr(EnumCleaner(), "logger")
@@ -21,10 +26,6 @@ class TestBasicAttributes(object):
 
 
 class TestExceptionsRaisedAndDefaultParametersApplied:
-    @pytest.fixture(scope="class")
-    def input_df(self, spark_session):
-        return spark_session.createDataFrame([Row(b="positive"), Row(b="negative"), Row(b="positive")])
-
     @pytest.fixture(scope="class")
     def expected_output_df(self, spark_session):
         return spark_session.createDataFrame([Row(b="positive"), Row(b=None), Row(b="positive")])
@@ -270,19 +271,7 @@ class TestDynamicDefaultValues:
         assert_df_equality(expected_output_df, output_df)
 
 
-class TestCleansedValuesAreLogged:
-    @pytest.fixture(scope="class")
-    def cleaning_definition_b_positive(self):
-        return dict(b=dict(elements=["positive"], default=None))
-
-    @pytest.fixture(scope="class")
-    def transformer(self, cleaning_definition_b_positive):
-        return EnumCleaner(cleaning_definition_b_positive, column_to_log_cleansed_values="cleansed_values_enum")
-
-    @pytest.fixture(scope="class")
-    def input_df(self, spark_session):
-        return spark_session.createDataFrame([Row(b="positive"), Row(b="negative"), Row(b="positive")])
-
+class TestCleansedValuesAreLoggedAsStruct:
     def test_single_cleansed_value_is_stored_in_separate_column(self, input_df, spark_session):
         expected_output_df = spark_session.createDataFrame(
             [
@@ -352,4 +341,112 @@ class TestCleansedValuesAreLogged:
         output_df = EnumCleaner(cleansing_definitions, column_to_log_cleansed_values="cleansed_values_enum").transform(
             input_df
         )
+        assert_df_equality(expected_output_df, output_df, ignore_nullable=True)
+
+
+class TestCleansedValuesAreLoggedAsMap:
+    def test_single_cleansed_value_is_stored_in_separate_column(self, input_df, spark_session):
+        expected_output_schema = T.StructType(
+            [
+                T.StructField("b", T.StringType(), True),
+                T.StructField("cleansed_values_enum", T.MapType(T.StringType(), T.StringType(), True), False),
+            ]
+        )
+        expected_output_df = spark_session.createDataFrame(
+            [
+                ("positive", {}),
+                (None, {"b": "negative"}),
+                ("positive", {}),
+            ],
+            schema=expected_output_schema,
+        )
+        cleansing_definitions = {"b": {"elements": ["positive"], "default": None}}
+        output_df = EnumCleaner(
+            cleansing_definitions, column_to_log_cleansed_values="cleansed_values_enum", store_as_map=True
+        ).transform(input_df)
+        assert_df_equality(expected_output_df, output_df, ignore_nullable=True)
+
+    def test_single_cleansed_value_is_stored_in_separate_column_with_default_substitute(self, input_df, spark_session):
+        expected_output_schema = T.StructType(
+            [
+                T.StructField("b", T.StringType(), True),
+                T.StructField("cleansed_values_enum", T.MapType(T.StringType(), T.StringType(), True), False),
+            ]
+        )
+        expected_output_df = spark_session.createDataFrame(
+            [
+                ("positive", {}),
+                ("cleansed_value", {"b": "negative"}),
+                ("positive", {}),
+            ],
+            schema=expected_output_schema,
+        )
+        cleansing_definitions = {"b": {"elements": ["positive"], "default": "cleansed_value"}}
+        transformer = EnumCleaner(
+            cleansing_definitions, column_to_log_cleansed_values="cleansed_values_enum", store_as_map=True
+        )
+        output_df = transformer.transform(input_df)
+        assert_df_equality(expected_output_df, output_df, ignore_nullable=True)
+
+    def test_only_cleansed_values_are_stored_in_separate_column(self, spark_session):
+        input_df = spark_session.createDataFrame(
+            [Row(a="stay", b="positive"), Row(a="stay", b="negative"), Row(a="stay", b="positive")]
+        )
+
+        expected_output_schema = T.StructType(
+            [
+                T.StructField("a", T.StringType(), True),
+                T.StructField("b", T.StringType(), True),
+                T.StructField("cleansed_values_enum", T.MapType(T.StringType(), T.StringType(), True), False),
+            ]
+        )
+        expected_output_df = spark_session.createDataFrame(
+            [
+                ("stay", "positive", {}),
+                ("stay", None, {"b": "negative"}),
+                ("stay", "positive", {}),
+            ],
+            schema=expected_output_schema,
+        )
+        cleansing_definitions = {"b": {"elements": ["positive"], "default": None}}
+        output_df = EnumCleaner(
+            cleansing_definitions, column_to_log_cleansed_values="cleansed_values_enum", store_as_map=True
+        ).transform(input_df)
+        assert_df_equality(expected_output_df, output_df, ignore_nullable=True)
+
+    def test_multiple_cleansing_rules(self, spark_session):
+        input_df = spark_session.createDataFrame(
+            [
+                Row(a="stay", b="positive", c="or", d="healthy"),
+                Row(a="stay", b="negative", c="and", d="healthy"),
+                Row(a="stay", b="positive", c="xor", d="healthy"),
+            ]
+        )
+
+        cleansing_definitions = dict(
+            b=dict(elements=["positive"]),
+            c=dict(elements=["xor"], mode="disallow", default="or"),
+        )
+
+        expected_output_schema = T.StructType(
+            [
+                T.StructField("a", T.StringType(), True),
+                T.StructField("b", T.StringType(), True),
+                T.StructField("c", T.StringType(), True),
+                T.StructField("d", T.StringType(), True),
+                T.StructField("cleansed_values_enum", T.MapType(T.StringType(), T.StringType(), True), False),
+            ]
+        )
+        expected_output_df = spark_session.createDataFrame(
+            [
+                ("stay", "positive", "or", "healthy", {}),
+                ("stay", None, "and", "healthy", {"b": "negative"}),
+                ("stay", "positive", "or", "healthy", {"c": "xor"}),
+            ],
+            schema=expected_output_schema,
+        )
+
+        output_df = EnumCleaner(
+            cleansing_definitions, column_to_log_cleansed_values="cleansed_values_enum", store_as_map=True
+        ).transform(input_df)
         assert_df_equality(expected_output_df, output_df, ignore_nullable=True)
