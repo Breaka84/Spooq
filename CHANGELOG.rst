@@ -2,33 +2,32 @@
 Changelog
 =========
 
-3.3.1 (2021-04-23)
+3.3.1 (2021-06-22)
 -------------------
-* [MOD] Fix TOC on PyPi
-* [MOD] Add more links to PyPi
-
+* [MOD] Add option to store logged cleansed values as MapType (Enum & Threshold based cleansers)
+* [FIX] Fix TOC on PyPi, add more links to PyPi
 
 3.3.0 (2021-04-22)
 -------------------
 * [MOD] (BREAKING CHANGE!) rename package back to Spooq (dropping "2").
   This means you need to update all imports from spooq2.xxx.yyy to spooq.xxx.yyy in your code!
-* [MOD] prepare for PyPi release
-* [MOD] drop official support for Spark 2.x (it most probably still works without issues,
+* [MOD] Prepare for PyPi release
+* [MOD] Drop official support for Spark 2.x (it most probably still works without issues,
   but some tests fail on Spark2 due to different columns ordering and the effort is too high to
   maintain both versions with respect to tests)
 
 3.2.0 (2021-04-13)
 -------------------
-* [MOD] add functionality to log cleansed values into separate struct column (column_to_log_cleansed_values)
-* [MOD] add ignore_ambiguous_columns to Mapper
-* [MOD] log spooq version when importing
-* [REM] drop separate spark package (bin-folder) as pip package can now handle all tests as well
-* [ADD] github action to test on label (test-it) or merge into master
+* [MOD] Add functionality to log cleansed values into separate struct column (column_to_log_cleansed_values)
+* [MOD] Add ignore_ambiguous_columns to Mapper
+* [MOD] Log spooq version when importing
+* [REM] Drop separate spark package (bin-folder) as pip package can now handle all tests as well
+* [ADD] Github action to test on label (test-it) or merge into master
 
 3.1.0 (2021-01-27)
 -------------------
 * [ADD] EnumCleaner Transformer
-* [MOD] add support for dynamic default values with the ThresholdCleaner
+* [MOD] Add support for dynamic default values with the ThresholdCleaner
 
 3.0.1 (2021-01-22)
 -------------------
@@ -37,7 +36,7 @@ Changelog
 3.0.0b (2020-12-09)
 -------------------
 * [ADD] Spark 3 support (different handling in tests via `only_sparkX` decorators)
-* [FIX] fix null types in schema for custom transformations on missing columns
+* [FIX] Fix null types in schema for custom transformations on missing columns
 * [MOD] (BREAKING CHANGE!) set default for `ignore_missing_columns` of Mapper to False (fails on missing input columns)
 
 2.3.0 (2020-11-23)
@@ -47,10 +46,10 @@ Changelog
 
 2.2.0 (2020-10-02)
 ------------------
-* [MOD] add support for prepending and appending mappings on input dataframe (Mapper)
-* [MOD] add support for custom spark sql functions in mapper without injecting methods
-* [MOD] add support for "on"/"off" and "enabled"/"disabled" in extended_string_to_boolean custom mapper transformations
-* [ADD] new custom mapper transformations:
+* [MOD] Add support for prepending and appending mappings on input dataframe (Mapper)
+* [MOD] Add support for custom spark sql functions in mapper without injecting methods
+* [MOD] Add support for "on"/"off" and "enabled"/"disabled" in extended_string_to_boolean custom mapper transformations
+* [ADD] New custom mapper transformations:
 
     - extended_string_to_date
     - extended_string_unix_timestamp_ms_to_date
@@ -59,9 +58,9 @@ Changelog
 2.1.1 (2020-09-04)
 ------------------
 * [MOD] `drop_rows_with_empty_array` flag to allow keeping rows with empty array after explosion
-* [MOD] additional test-cases for extended_string mappings (non string inputs)
-* [FIX] remove STDERR logging, don't touch root logging level anymore (needs to be done outside spooq to see some lower log levels)
-* [ADD] new custom mapper transformations:
+* [MOD] Additional test-cases for extended_string mappings (non string inputs)
+* [FIX] Remove STDERR logging, don't touch root logging level anymore (needs to be done outside spooq to see some lower log levels)
+* [ADD] New custom mapper transformations:
 
     - extended_string_unix_timestamp_ms_to_timestamp
 
@@ -69,8 +68,8 @@ Changelog
 ------------------
 * [ADD] Python 3 support
 * [MOD] `ignore_missing_columns` flag to fail on missing input columns with Mapper transformer (https://github.com/Breaka84/Spooq/pull/6)
-* [MOD] timestamp support for threshold cleaner
-* [ADD] new custom mapper transformations:
+* [MOD] Timestamp support for threshold cleaner
+* [ADD] New custom mapper transformations:
 
     - meters_to_cm
     - unix_timestamp_ms_to_spark_timestamp
