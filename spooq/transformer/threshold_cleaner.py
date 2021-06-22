@@ -63,6 +63,7 @@ class ThresholdCleaner(BaseCleaner):
     |  1|       5|       null|     [some_factor -> 1...|
     |  2|    null|       0.67|         [integers -> 15]|
     +---+--------+-----------+-------------------------+
+    #  Remark: ``some_factor -> 1...`` from the df.show() is a bug, the stored value correctly holds ``"1.25"``
     >>> output_df.printSchema()
      |-- id: long (nullable = true)
      |-- integers: long (nullable = true)
@@ -70,7 +71,6 @@ class ThresholdCleaner(BaseCleaner):
      |-- cleansed_values_threshold: map (nullable = false)
      |    |-- key: string
      |    |-- value: string (valueContainsNull = true)
-
 
     Parameters
     ----------
