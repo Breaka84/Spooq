@@ -8,7 +8,7 @@ name = "pypi"
 ipython = "*"
 pudb = "*"
 pytest-pudb = "*"
-jedi = "==0.17.2"  # fixes ipython bug
+# jedi = "==0.17.2"  # fixes ipython bug
 
 # Testing
 doubles = "*"
