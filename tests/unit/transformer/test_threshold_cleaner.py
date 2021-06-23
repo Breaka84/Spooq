@@ -38,7 +38,7 @@ def input_df(spark_session):
 
 
 @pytest.fixture(scope="class")
-def input_df_integers(self, spark_session):
+def input_df_integers(spark_session):
     input_schema = T.StructType([
         T.StructField("id", T.IntegerType(), True),
         T.StructField("integers", T.IntegerType(), True),
@@ -187,13 +187,27 @@ class TestCleansedValuesAreLogged:
 
     def test_single_cleansed_value_is_stored_in_separate_column(self, transformer, input_df_integers, spark_session):
         thresholds = dict(integers=dict(min=0, max=10))
-
+        expected_output_schema = T.StructType(
+            [
+                T.StructField("id", T.IntegerType(), True),
+                T.StructField("integers", T.IntegerType(), True),
+                T.StructField(
+                    "cleansed_values_threshold",
+                    T.StructType(
+                        [
+                            T.StructField("integers", T.IntegerType(), True),
+                        ]
+                    ),
+                ),
+            ]
+        )
         expected_output_df = spark_session.createDataFrame(
             [
                 Row(id=0, integers=None, cleansed_values_threshold=Row(integers=-5)),
                 Row(id=1, integers=5, cleansed_values_threshold=Row(integers=None)),
                 Row(id=2, integers=None, cleansed_values_threshold=Row(integers=15)),
-            ]
+            ],
+            schema=expected_output_schema,
         )
         output_df = ThresholdCleaner(thresholds, column_to_log_cleansed_values="cleansed_values_threshold").transform(
             input_df_integers
@@ -204,13 +218,28 @@ class TestCleansedValuesAreLogged:
         self, transformer, input_df_integers, spark_session
     ):
         thresholds = dict(integers=dict(min=0, max=10, default=-1))
+        expected_output_schema = T.StructType(
+            [
+                T.StructField("id", T.IntegerType(), True),
+                T.StructField("integers", T.IntegerType(), True),
+                T.StructField(
+                    "cleansed_values_threshold",
+                    T.StructType(
+                        [
+                            T.StructField("integers", T.IntegerType(), True),
+                        ]
+                    ),
+                ),
+            ]
+        )
 
         expected_output_df = spark_session.createDataFrame(
             [
                 Row(id=0, integers=-1, cleansed_values_threshold=Row(integers=-5)),
                 Row(id=1, integers=5, cleansed_values_threshold=Row(integers=None)),
                 Row(id=2, integers=-1, cleansed_values_threshold=Row(integers=15)),
-            ]
+            ],
+            schema=expected_output_schema,
         )
         output_df = ThresholdCleaner(thresholds, column_to_log_cleansed_values="cleansed_values_threshold").transform(
             input_df_integers

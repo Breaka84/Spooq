@@ -11,11 +11,18 @@ from .transformer import Transformer
 
 
 class BaseCleaner(Transformer):
-    def __init__(self, cleaning_definitions, column_to_log_cleansed_values, store_as_map=False):
+    def __init__(
+        self,
+        cleaning_definitions,
+        column_to_log_cleansed_values,
+        store_as_map=False,
+        temporary_columns_prefix="1b75cdd2e2356a35486230c69cfac5493488a919",
+    ):
         super().__init__()
         self.cleaning_definitions = cleaning_definitions
         self.column_to_log_cleansed_values = column_to_log_cleansed_values
         self.store_as_map = store_as_map
+        self.TEMPORARY_COLUMNS_PREFIX = temporary_columns_prefix
 
     def _get_temporary_column_names(self, column_names):
         return [f"{self.TEMPORARY_COLUMNS_PREFIX}_{column_name}" for column_name in column_names]

@@ -121,9 +121,9 @@ class ThresholdCleaner(BaseCleaner):
             cleaning_definitions=thresholds,
             column_to_log_cleansed_values=column_to_log_cleansed_values,
             store_as_map=store_as_map,
+            temporary_columns_prefix="dac28b56d8055953a7038bfe3b5097e7",
         )
         self.logger.debug("Range Definitions: " + str(self.cleaning_definitions))
-        self.TEMPORARY_COLUMNS_PREFIX = "dac28b56d8055953a7038bfe3b5097e7"  # SHA1 hash of "ThresholdCleaner"
 
     def transform(self, input_df):
         self.logger.debug("input_df Schema: " + input_df._jdf.schema().treeString())

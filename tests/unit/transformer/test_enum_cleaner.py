@@ -50,11 +50,15 @@ class TestExceptionsRaisedAndDefaultParametersApplied:
         )
         assert "Spooq did not find such a list for column: b" in str(excinfo.value)
 
-    def test_missing_mode_defaults_to_allow(self, input_df, expected_output_df):
+    def test_missing_mode_raises_exception(self, input_df, expected_output_df):
         """Missing 'mode' attribute is set to the default: 'allow'"""
         cleaning_definition = dict(b=dict(elements=["positive"], default=None))
-        output_df = EnumCleaner(cleaning_definitions=cleaning_definition).transform(input_df)
-        assert_df_equality(expected_output_df, output_df)
+        with pytest.raises(RuntimeError) as excinfo:
+            EnumCleaner(cleaning_definitions=cleaning_definition).transform(input_df)
+        assert "Please provide a `mode` attribute!" in str(excinfo.value)
+        assert "column_name: b and cleaning_definition: {'elements': ['positive'], 'default': None}" in str(
+            excinfo.value
+        )
 
     def test_default_value_defaults_to_none(self, input_df, expected_output_df):
         """Missing 'default' attribute is set to the default: None"""
@@ -239,7 +243,9 @@ class TestDynamicDefaultValues:
 
     def test_current_date(self, input_df, spark_session):
         """Substitute the cleansed values with the current date"""
-        cleaning_definitions = dict(status=dict(elements=["active", "inactive"], default=F.current_date()))
+        cleaning_definitions = dict(
+            status=dict(elements=["active", "inactive"], mode="allow", default=F.current_date())
+        )
         expected_output_df = spark_session.createDataFrame(
             [
                 Row(id=1, status="active"),
@@ -256,7 +262,9 @@ class TestDynamicDefaultValues:
     def test_column_reference(self, input_df, spark_session):
         """Substitute the cleansed values with the calculated string based on another column"""
         default_value_func = (F.col("id") * 10).cast(T.StringType())
-        cleaning_definitions = dict(status=dict(elements=["active", "inactive"], default=default_value_func))
+        cleaning_definitions = dict(
+            status=dict(elements=["active", "inactive"], mode="allow", default=default_value_func)
+        )
         expected_output_df = spark_session.createDataFrame(
             [
                 Row(id=1, status="active"),
@@ -280,7 +288,7 @@ class TestCleansedValuesAreLoggedAsStruct:
                 Row(b="positive", cleansed_values_enum=Row(b=None)),
             ]
         )
-        cleansing_definitions = {"b": {"elements": ["positive"], "default": None}}
+        cleansing_definitions = {"b": {"elements": ["positive"], "mode": "allow", "default": None}}
         output_df = EnumCleaner(cleansing_definitions, column_to_log_cleansed_values="cleansed_values_enum").transform(
             input_df
         )
@@ -294,7 +302,7 @@ class TestCleansedValuesAreLoggedAsStruct:
                 Row(b="positive", cleansed_values_enum=Row(b=None)),
             ]
         )
-        cleansing_definitions = {"b": {"elements": ["positive"], "default": "cleansed_value"}}
+        cleansing_definitions = {"b": {"elements": ["positive"], "mode": "allow", "default": "cleansed_value"}}
         transformer = EnumCleaner(cleansing_definitions, column_to_log_cleansed_values="cleansed_values_enum")
         output_df = transformer.transform(input_df)
         assert_df_equality(expected_output_df, output_df, ignore_nullable=True)
@@ -310,7 +318,7 @@ class TestCleansedValuesAreLoggedAsStruct:
                 Row(a="stay", b="positive", cleansed_values_enum=Row(b=None)),
             ]
         )
-        cleansing_definitions = {"b": {"elements": ["positive"], "default": None}}
+        cleansing_definitions = {"b": {"elements": ["positive"], "mode": "allow", "default": None}}
         output_df = EnumCleaner(cleansing_definitions, column_to_log_cleansed_values="cleansed_values_enum").transform(
             input_df
         )
@@ -326,7 +334,7 @@ class TestCleansedValuesAreLoggedAsStruct:
         )
 
         cleansing_definitions = dict(
-            b=dict(elements=["positive"]),
+            b=dict(elements=["positive"], mode="allow"),
             c=dict(elements=["xor"], mode="disallow", default="or"),
         )
 
@@ -360,7 +368,7 @@ class TestCleansedValuesAreLoggedAsMap:
             ],
             schema=expected_output_schema,
         )
-        cleansing_definitions = {"b": {"elements": ["positive"], "default": None}}
+        cleansing_definitions = {"b": {"elements": ["positive"], "mode": "allow", "default": None}}
         output_df = EnumCleaner(
             cleansing_definitions, column_to_log_cleansed_values="cleansed_values_enum", store_as_map=True
         ).transform(input_df)
@@ -381,7 +389,7 @@ class TestCleansedValuesAreLoggedAsMap:
             ],
             schema=expected_output_schema,
         )
-        cleansing_definitions = {"b": {"elements": ["positive"], "default": "cleansed_value"}}
+        cleansing_definitions = {"b": {"elements": ["positive"], "mode": "allow", "default": "cleansed_value"}}
         transformer = EnumCleaner(
             cleansing_definitions, column_to_log_cleansed_values="cleansed_values_enum", store_as_map=True
         )
@@ -408,7 +416,7 @@ class TestCleansedValuesAreLoggedAsMap:
             ],
             schema=expected_output_schema,
         )
-        cleansing_definitions = {"b": {"elements": ["positive"], "default": None}}
+        cleansing_definitions = {"b": {"elements": ["positive"], "mode": "allow", "default": None}}
         output_df = EnumCleaner(
             cleansing_definitions, column_to_log_cleansed_values="cleansed_values_enum", store_as_map=True
         ).transform(input_df)
@@ -424,7 +432,7 @@ class TestCleansedValuesAreLoggedAsMap:
         )
 
         cleansing_definitions = dict(
-            b=dict(elements=["positive"]),
+            b=dict(elements=["positive"], mode="allow"),
             c=dict(elements=["xor"], mode="disallow", default="or"),
         )
 

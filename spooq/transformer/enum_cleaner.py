@@ -108,9 +108,13 @@ class EnumCleaner(BaseCleaner):
     """
 
     def __init__(self, cleaning_definitions={}, column_to_log_cleansed_values=None, store_as_map=False):
-        super().__init__(cleaning_definitions, column_to_log_cleansed_values, store_as_map)
+        super().__init__(
+            cleaning_definitions=cleaning_definitions,
+            column_to_log_cleansed_values=column_to_log_cleansed_values,
+            store_as_map=store_as_map,
+            temporary_columns_prefix="9b7798529fef529c8f2586be7ca43a66",
+        )
         self.logger.debug("Enumeration List: " + str(self.cleaning_definitions))
-        self.TEMPORARY_COLUMNS_PREFIX = "9b7798529fef529c8f2586be7ca43a66"  # SHA1 hash of "EnumCleaner"
 
     def transform(self, input_df):
         self.logger.debug("input_df Schema: " + input_df._jdf.schema().treeString())
@@ -127,7 +131,7 @@ class EnumCleaner(BaseCleaner):
                     f"Enumeration-based cleaning requires a non-empty list of elements per cleaning rule!",
                     f"\nSpooq did not find such a list for column: {column_name}",
                 )
-            mode = cleaning_definition.get("mode", "allow")
+            mode = cleaning_definition.get("mode", "NOT_DEFINED")
             substitute = cleaning_definition.get("default", None)
             data_type = input_df.schema[column_name].dataType
             if not isinstance(substitute, Column):
@@ -147,8 +151,16 @@ class EnumCleaner(BaseCleaner):
                     .otherwise(F.when(F.col(column_name).isin(elements), substitute).otherwise(F.col(column_name)))
                     .cast(data_type),
                 )
+            elif mode == "NOT_DEFINED":
+                raise RuntimeError(
+                    f"Please provide a `mode` attribute!\n"
+                    f"column_name: {column_name} and cleaning_definition: {cleaning_definition}"
+                )
             else:
-                raise ValueError(f"Only the following modes are supported by EnumCleaner: 'allow' and 'disallow'.")
+                raise ValueError(
+                    f"Only the following modes are supported by EnumCleaner: 'allow' and 'disallow'.\n"
+                    f"column_name: {column_name} and cleaning_definition: {cleaning_definition}"
+                )
 
         if self.column_to_log_cleansed_values:
             input_df = self._log_cleansed_values(input_df, column_names_to_clean, temporary_column_names)
