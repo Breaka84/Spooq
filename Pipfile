@@ -8,7 +8,7 @@ name = "pypi"
 ipython = "*"
 pudb = "*"
 pytest-pudb = "*"
-jedi = "==0.17.2"  # fixes ipython bug
+# jedi = "==0.17.2"  # fixes ipython bug
 
 # Testing
 doubles = "*"
@@ -48,6 +48,7 @@ pandas = "*"
 future = "*"
 spooq = {path = ".", editable = true}
 pyspark = "==3.0.1"
+requests = "*"
 
 [requires]
 python_version = "3.7"

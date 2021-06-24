@@ -14,43 +14,65 @@ from spooq.transformer import ThresholdCleaner
 @pytest.fixture(scope="module")
 def input_df(spark_session):
     input_data = [
-        #ids  #floats   #integers  #strings         #timestamps           #datetimes
-        [0,       12.0,      12,      "12",  dt.datetime(1850,1,1, 12,0,0), dt.date(1850,1,1)],
-        [1,       65.7,      65,      "65",  dt.datetime(2020,6,1, 12,0,0), dt.date(2020,6,1)],
-        [2,      300.0,     300,     "300",  dt.datetime(2020,6,1, 15,0,0), dt.date(2020,6,15)],
-        [4,     5000.0,    5000,    "5000",  dt.datetime(2020,6,1, 16,0,0), dt.date(2020,7,1)],
-        [5,      -75.0,     -75,     "-75",  dt.datetime(9999,1,1, 12,0,0), dt.date(9999,1,1)],
+        #  ids   floats  integers    strings         timestamps        datetimes
+        [0,       12.0,      12,      "12",  "1850-01-01 12:00:00",  "1850-01-01"],
+        [1,       65.7,      65,      "65",  "2020-06-01 12:00:00",  "2020-06-01"],
+        [2,      300.0,     300,     "300",  "2020-06-01 15:00:00",  "2020-06-15"],
+        [4,     5000.0,    5000,    "5000",  "2020-06-01 16:00:00",  "2020-07-01"],
+        [5,      -75.0,     -75,     "-75",  "9999-01-01 12:00:00",  "9999-01-01"],
     ]
     schema = sql_types.StructType(
         [
-            sql_types.StructField("id",         sql_types.IntegerType(),   True),
-            sql_types.StructField("floats",     sql_types.DoubleType(),    False),
-            sql_types.StructField("integers",   sql_types.LongType(),      False),
-            sql_types.StructField("strings",    sql_types.StringType(),    False),
-            sql_types.StructField("timestamps", sql_types.TimestampType(), False),
-            sql_types.StructField("datetimes",  sql_types.DateType(),      False),
+            sql_types.StructField("id",         sql_types.IntegerType(), True),
+            sql_types.StructField("floats",     sql_types.FloatType(),   False),
+            sql_types.StructField("integers",   sql_types.IntegerType(), False),
+            sql_types.StructField("strings",    sql_types.StringType(),  False),
+            sql_types.StructField("timestamps", sql_types.StringType(),  False),
+            sql_types.StructField("datetimes",  sql_types.StringType(),  False),
         ]
     )
-    return spark_session.createDataFrame(input_data, schema=schema)
+    input_df = spark_session.createDataFrame(input_data, schema=schema)
+    input_df = input_df.withColumn("timestamps", F.col("timestamps").cast(T.TimestampType()))  # Workaround for Timezone
+    input_df = input_df.withColumn("datetimes", F.col("datetimes").cast(T.DateType()))  # Workaround for Timezone
+    return input_df
+
+
+@pytest.fixture(scope="class")
+def input_df_integers(spark_session):
+    input_schema = T.StructType([
+        T.StructField("id", T.IntegerType(), True),
+        T.StructField("integers", T.IntegerType(), True),
+    ])
+    return spark_session.createDataFrame(
+        [
+            (0, -5),
+            (1, 5),
+            (2, 15),
+        ],
+        schema=input_schema
+    )
+
 
 @pytest.fixture(scope="module")
 def thresholds():
     return {
-        "integers":   {"min":  1,                           "max":  300},
-        "floats":     {"min":  1.0,                         "max":  300.0},
-        "strings":    {"min": "1",                          "max": "300"},
-        "timestamps": {"min": dt.datetime(2020,6,1,12,0,0), "max": dt.datetime(2020,6,1,16,0,0)},
-        "datetimes":  {"min": dt.date(2020,6,1),            "max": "2020-7-1"},
+        "integers":   {"min":  1,                    "max":  300},
+        "floats":     {"min":  1.0,                  "max":  300.0},
+        "strings":    {"min": "1",                   "max": "300"},
+        "timestamps": {"min": "2020-06-01 12:00:00", "max": "2020-06-01 16:00:00"},
+        "datetimes":  {"min": "2020-06-01",          "max": "2020-07-01"},
     }
+
 
 @pytest.fixture(scope="module")
 def supported_thresholds():
     return {
-        "floats":     {"min":  1.0,                         "max":  300.0},
-        "integers":   {"min":  1,                           "max":  300},
-        "timestamps": {"min": dt.datetime(2020,6,1,12,0,0), "max": dt.datetime(2020,6,1,16,0,0)},
-        "datetimes":  {"min": dt.date(2020,6,1),            "max": "2020-7-1"},
+        "floats":     {"min":  1.0,                  "max":  300.0},
+        "integers":   {"min":  1,                    "max":  300},
+        "timestamps": {"min": "2020-06-01 08:00:00", "max": "2020-06-01 20:00:00"},
+        "datetimes":  {"min": "2020-06-01",          "max": "2020-07-01"},
     }
+
 
 @pytest.fixture(scope="module")
 def expected_result():
@@ -58,15 +80,15 @@ def expected_result():
         "integers":   [ 12,    65,    300,   None, None],
         "floats":     [ 12.0,  65.7,  300.0, None, None],
         "strings":    ["12",  "65",  "300",  None, None],
-        "timestamps": [None, dt.datetime(2020,6,1, 12,0,0), dt.datetime(2020,6,1, 15,0,0),
-                       dt.datetime(2020,6,1, 16,0,0), None],
-        "datetimes":  [None, dt.date(2020,6,1), dt.date(2020,6,15), dt.date(2020,7,1), None],
+        "timestamps": [None, "2020-06-01 12:00:00", "2020-06-01 15:00:00",
+                       "2020-06-01 16:00:00", None],
+        "datetimes":  [None, "2020-06-01", "2020-06-15", "2020-07-01", None],
     }
 # fmt: on
 
 
 class TestBasicAttributes(object):
-    """ Basic attributes of the transformer instance """
+    """Basic attributes of the transformer instance"""
 
     def test_has_logger(self):
         assert hasattr(ThresholdCleaner(), "logger")
@@ -84,46 +106,44 @@ class TestCleaning(object):
         thresholds_to_test = {column_name: thresholds[column_name]}
         transformer = ThresholdCleaner(thresholds=thresholds_to_test)
         df_cleaned = transformer.transform(input_df)
-        result = [x[column_name] for x in df_cleaned.collect()]
+        result = [x[column_name] for x in df_cleaned.select(F.col(column_name).cast(T.StringType())).collect()]
         expected = expected_result[column_name]
 
-        assert result == expected
+        pytest.approx(result, 0.01) == expected
         assert input_df.columns == df_cleaned.columns
 
     def test_multiple_cleansing_rules(self, spark_session, supported_thresholds, input_df):
         transformer = ThresholdCleaner(thresholds=supported_thresholds)
         df_cleaned = transformer.transform(input_df)
 
+        expected_output_schema = T.StructType(
+            [
+                T.StructField("id", T.IntegerType(), True),
+                T.StructField("floats", T.FloatType(), True),
+                T.StructField("integers", T.IntegerType(), True),
+                T.StructField("strings", T.StringType(), True),
+                T.StructField("timestamps", T.StringType(), True),
+                T.StructField("datetimes", T.StringType(), True),
+            ]
+        )
+
         expected_result_df = spark_session.createDataFrame(
             [
-                Row(id=0, floats=12.0, integers=12, strings="12", timestamps=None, datetimes=None),
-                Row(
-                    id=1,
-                    floats=65.7,
-                    integers=65,
-                    strings="65",
-                    timestamps=dt.datetime(2020, 6, 1, 12, 0, 0),
-                    datetimes=dt.date(2020, 6, 1),
-                ),
-                Row(
-                    id=2,
-                    floats=300.0,
-                    integers=300,
-                    strings="300",
-                    timestamps=dt.datetime(2020, 6, 1, 15, 0, 0),
-                    datetimes=dt.date(2020, 6, 15),
-                ),
-                Row(
-                    id=4,
-                    floats=None,
-                    integers=None,
-                    strings="5000",
-                    timestamps=dt.datetime(2020, 6, 1, 16, 0, 0),
-                    datetimes=dt.date(2020, 7, 1),
-                ),
-                Row(id=5, floats=None, integers=None, strings="-75", timestamps=None, datetimes=None),
-            ]
-        ).withColumn("id", F.col("id").cast(T.IntegerType()))
+                (0, 12.0, 12, "12", None, None),
+                (1, 65.7, 65, "65", "2020-06-01 12:00:00", "2020-06-01"),
+                (2, 300.0, 300, "300", "2020-06-01 15:00:00", "2020-06-15"),
+                (4, None, None, "5000", "2020-06-01 16:00:00", "2020-07-01"),
+                (5, None, None, "-75", None, None),
+            ],
+            schema=expected_output_schema,
+        )
+
+        expected_result_df = expected_result_df.withColumn(
+            "timestamps", F.col("timestamps").cast(T.TimestampType())
+        )  # Workaround for Timezone
+        expected_result_df = expected_result_df.withColumn(
+            "datetimes", F.col("datetimes").cast(T.DateType())
+        )  # Workaround for Timezone
 
         assert_df_equality(df_cleaned, expected_result_df, ignore_nullable=True)
         assert input_df.columns == df_cleaned.columns
@@ -165,25 +185,29 @@ class TestCleansedValuesAreLogged:
     def transformer(self, supported_thresholds):
         return ThresholdCleaner(supported_thresholds, column_to_log_cleansed_values="cleansed_values_threshold")
 
-    @pytest.fixture(scope="class")
-    def input_df_integers(self, spark_session):
-        return spark_session.createDataFrame(
-            [
-                Row(id=0, integers=-5),
-                Row(id=1, integers=5),
-                Row(id=2, integers=15),
-            ]
-        )
-
     def test_single_cleansed_value_is_stored_in_separate_column(self, transformer, input_df_integers, spark_session):
         thresholds = dict(integers=dict(min=0, max=10))
-
+        expected_output_schema = T.StructType(
+            [
+                T.StructField("id", T.IntegerType(), True),
+                T.StructField("integers", T.IntegerType(), True),
+                T.StructField(
+                    "cleansed_values_threshold",
+                    T.StructType(
+                        [
+                            T.StructField("integers", T.IntegerType(), True),
+                        ]
+                    ),
+                ),
+            ]
+        )
         expected_output_df = spark_session.createDataFrame(
             [
                 Row(id=0, integers=None, cleansed_values_threshold=Row(integers=-5)),
                 Row(id=1, integers=5, cleansed_values_threshold=Row(integers=None)),
                 Row(id=2, integers=None, cleansed_values_threshold=Row(integers=15)),
-            ]
+            ],
+            schema=expected_output_schema,
         )
         output_df = ThresholdCleaner(thresholds, column_to_log_cleansed_values="cleansed_values_threshold").transform(
             input_df_integers
@@ -194,13 +218,28 @@ class TestCleansedValuesAreLogged:
         self, transformer, input_df_integers, spark_session
     ):
         thresholds = dict(integers=dict(min=0, max=10, default=-1))
+        expected_output_schema = T.StructType(
+            [
+                T.StructField("id", T.IntegerType(), True),
+                T.StructField("integers", T.IntegerType(), True),
+                T.StructField(
+                    "cleansed_values_threshold",
+                    T.StructType(
+                        [
+                            T.StructField("integers", T.IntegerType(), True),
+                        ]
+                    ),
+                ),
+            ]
+        )
 
         expected_output_df = spark_session.createDataFrame(
             [
                 Row(id=0, integers=-1, cleansed_values_threshold=Row(integers=-5)),
                 Row(id=1, integers=5, cleansed_values_threshold=Row(integers=None)),
                 Row(id=2, integers=-1, cleansed_values_threshold=Row(integers=15)),
-            ]
+            ],
+            schema=expected_output_schema,
         )
         output_df = ThresholdCleaner(thresholds, column_to_log_cleansed_values="cleansed_values_threshold").transform(
             input_df_integers
@@ -210,65 +249,161 @@ class TestCleansedValuesAreLogged:
     def test_multiple_cleansing_rules(self, spark_session, transformer, input_df):
         df_cleaned = transformer.transform(input_df)
 
-        expected_result_df = spark_session.createDataFrame(
+        expected_output_schema = T.StructType(
             [
-                Row(
-                    id=0,
-                    floats=12.0,
-                    integers=12,
-                    strings="12",
-                    timestamps=None,
-                    datetimes=None,
-                    cleansed_values_threshold=Row(
-                        floats=None,
-                        integers=None,
-                        timestamps=dt.datetime(1850, 1, 1, 12, 0, 0),
-                        datetimes=dt.date(1850, 1, 1),
-                    ),
-                ),
-                Row(
-                    id=1,
-                    floats=65.7,
-                    integers=65,
-                    strings="65",
-                    timestamps=dt.datetime(2020, 6, 1, 12, 0, 0),
-                    datetimes=dt.date(2020, 6, 1),
-                    cleansed_values_threshold=Row(floats=None, integers=None, timestamps=None, datetimes=None),
-                ),
-                Row(
-                    id=2,
-                    floats=300.0,
-                    integers=300,
-                    strings="300",
-                    timestamps=dt.datetime(2020, 6, 1, 15, 0, 0),
-                    datetimes=dt.date(2020, 6, 15),
-                    cleansed_values_threshold=Row(floats=None, integers=None, timestamps=None, datetimes=None),
-                ),
-                Row(
-                    id=4,
-                    floats=None,
-                    integers=None,
-                    strings="5000",
-                    timestamps=dt.datetime(2020, 6, 1, 16, 0, 0),
-                    datetimes=dt.date(2020, 7, 1),
-                    cleansed_values_threshold=Row(floats=5000.0, integers=5000, timestamps=None, datetimes=None),
-                ),
-                Row(
-                    id=5,
-                    floats=None,
-                    integers=None,
-                    strings="-75",
-                    timestamps=None,
-                    datetimes=None,
-                    cleansed_values_threshold=Row(
-                        floats=-75.0,
-                        integers=-75,
-                        timestamps=dt.datetime(9999, 1, 1, 12, 0, 0),
-                        datetimes=dt.date(9999, 1, 1),
+                T.StructField("id", T.IntegerType(), True),
+                T.StructField("floats", T.FloatType(), True),
+                T.StructField("integers", T.IntegerType(), True),
+                T.StructField("strings", T.StringType(), True),
+                T.StructField("timestamps", T.StringType(), True),
+                T.StructField("datetimes", T.StringType(), True),
+                T.StructField(
+                    "cleansed_values_threshold",
+                    T.StructType(
+                        [
+                            T.StructField("floats", T.FloatType(), True),
+                            T.StructField("integers", T.IntegerType(), True),
+                            T.StructField("timestamps", T.StringType(), True),
+                            T.StructField("datetimes", T.StringType(), True),
+                        ]
                     ),
                 ),
             ]
-        ).withColumn("id", F.col("id").cast(T.IntegerType()))
+        )
+
+        expected_result_df = spark_session.createDataFrame(
+            [
+                (0, 12.0, 12, "12", None, None, (None, None, "1850-01-01 12:00:00", "1850-01-01")),
+                (1, 65.7, 65, "65", "2020-06-01 12:00:00", "2020-06-01", (None, None, None, None)),
+                (2, 300.0, 300, "300", "2020-06-01 15:00:00", "2020-06-15", (None, None, None, None)),
+                (4, None, None, "5000", "2020-06-01 16:00:00", "2020-07-01", (5000.0, 5000, None, None)),
+                (5, None, None, "-75", None, None, (-75.0, -75, "9999-01-01 12:00:00", "9999-01-01")),
+            ],
+            schema=expected_output_schema,
+        )
+
+        expected_result_df = expected_result_df.withColumn(
+            "timestamps", F.col("timestamps").cast(T.TimestampType())
+        )  # Workaround for Timezone
+        expected_result_df = expected_result_df.withColumn(
+            "datetimes", F.col("datetimes").cast(T.DateType())
+        )  # Workaround for Timezone
+        expected_result_df = expected_result_df.withColumn(
+            "cleansed_values_threshold",
+            F.struct(  # Workaround for Timezone
+                F.col("cleansed_values_threshold.floats"),
+                F.col("cleansed_values_threshold.integers"),
+                F.col("cleansed_values_threshold.timestamps").cast(T.TimestampType()).alias("timestamps"),
+                F.col("cleansed_values_threshold.datetimes").cast(T.DateType()).alias("datetimes"),
+            ),
+        )
+
+        assert_df_equality(df_cleaned, expected_result_df, ignore_nullable=True)
+        assert input_df.columns + [transformer.column_to_log_cleansed_values] == df_cleaned.columns
+
+
+class TestCleansedValuesAreLoggedAsMap:
+    @pytest.fixture(scope="class")
+    def transformer(self, supported_thresholds):
+        return ThresholdCleaner(
+            supported_thresholds, column_to_log_cleansed_values="cleansed_values_threshold", store_as_map=True
+        )
+
+    def test_single_cleansed_value_is_stored_in_separate_column(self, transformer, input_df_integers, spark_session):
+        thresholds = dict(integers=dict(min=0, max=10))
+
+        expected_output_schema = T.StructType(
+            [
+                T.StructField("id", T.IntegerType(), True),
+                T.StructField("integers", T.IntegerType(), True),
+                T.StructField("cleansed_values_threshold", T.MapType(T.StringType(), T.StringType()), True),
+            ]
+        )
+        expected_output_df = spark_session.createDataFrame(
+            [
+                (0, None, {"integers": "-5"}),
+                (1, 5, {}),
+                (2, None, {"integers": "15"}),
+            ],
+            schema=expected_output_schema,
+        )
+
+        output_df = ThresholdCleaner(
+            thresholds, column_to_log_cleansed_values="cleansed_values_threshold", store_as_map=True
+        ).transform(input_df_integers)
+        assert_df_equality(expected_output_df, output_df, ignore_nullable=True)
+
+    def test_single_cleansed_value_is_stored_in_separate_column_with_default_substitute(
+        self, transformer, input_df_integers, spark_session
+    ):
+        thresholds = dict(integers=dict(min=0, max=10, default=-1))
+
+        expected_output_schema = T.StructType(
+            [
+                T.StructField("id", T.IntegerType(), True),
+                T.StructField("integers", T.IntegerType(), True),
+                T.StructField("cleansed_values_threshold", T.MapType(T.StringType(), T.StringType()), True),
+            ]
+        )
+
+        expected_output_df = spark_session.createDataFrame(
+            [
+                (0, -1, {"integers": "-5"}),
+                (1, 5, {}),
+                (2, -1, {"integers": "15"}),
+            ],
+            schema=expected_output_schema,
+        )
+        output_df = ThresholdCleaner(
+            thresholds, column_to_log_cleansed_values="cleansed_values_threshold", store_as_map=True
+        ).transform(input_df_integers)
+        assert_df_equality(expected_output_df, output_df, ignore_nullable=True)
+
+    def test_multiple_cleansing_rules(self, spark_session, transformer, input_df):
+        df_cleaned = transformer.transform(input_df)
+
+        expected_output_schema = T.StructType(
+            [
+                T.StructField("id", T.IntegerType(), True),
+                T.StructField("floats", T.FloatType(), True),
+                T.StructField("integers", T.IntegerType(), True),
+                T.StructField("strings", T.StringType(), True),
+                T.StructField("timestamps", T.StringType(), True),
+                T.StructField("datetimes", T.StringType(), True),
+                T.StructField("cleansed_values_threshold", T.MapType(T.StringType(), T.StringType(), True), False),
+            ]
+        )
+
+        expected_result_df = spark_session.createDataFrame(
+            [
+                (0, 12.0, 12, "12", None, None, {"timestamps": "1850-01-01 12:00:00", "datetimes": "1850-01-01"}),
+                (1, 65.7, 65, "65", "2020-06-01 12:00:00", "2020-06-01", {}),
+                (2, 300.0, 300, "300", "2020-06-01 15:00:00", "2020-06-15", {}),
+                (4, None, None, "5000", "2020-06-01 16:00:00", "2020-07-01", {"floats": "5000.0", "integers": "5000"}),
+                (
+                    5,
+                    None,
+                    None,
+                    "-75",
+                    None,
+                    None,
+                    {
+                        "floats": "-75.0",
+                        "integers": "-75",
+                        "timestamps": "9999-01-01 12:00:00",
+                        "datetimes": "9999-01-01",
+                    },
+                ),
+            ],
+            schema=expected_output_schema,
+        )
+
+        expected_result_df = expected_result_df.withColumn(
+            "timestamps", F.col("timestamps").cast(T.TimestampType())
+        )  # Workaround for Timezone
+        expected_result_df = expected_result_df.withColumn(
+            "datetimes", F.col("datetimes").cast(T.DateType())
+        )  # Workaround for Timezone
 
         assert_df_equality(df_cleaned, expected_result_df, ignore_nullable=True)
         assert input_df.columns + [transformer.column_to_log_cleansed_values] == df_cleaned.columns

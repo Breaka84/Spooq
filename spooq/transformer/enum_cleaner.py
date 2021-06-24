@@ -41,7 +41,8 @@ class EnumCleaner(BaseCleaner):
     >>>             "mode": "allow",
     >>>         }
     >>>     },
-    >>>     column_to_log_cleansed_values="cleansed_values_enum"
+    >>>     column_to_log_cleansed_values="cleansed_values_enum",
+    >>>     store_as_map=True,
     >>> )
     >>> output_df = transformer.transform(input_df)
     >>> output_df.show()
@@ -49,15 +50,16 @@ class EnumCleaner(BaseCleaner):
     |   a|       b|cleansed_values_enum|
     +----+--------+--------------------+
     |stay|positive|                  []|
-    |stay|    null|          [negative]|
+    |stay|    null|     [b -> negative]|
     |stay|positive|                  []|
     +----+--------+--------------------+
     >>> output_df.printSchema()
     root
      |-- a: string (nullable = true)
      |-- b: string (nullable = true)
-     |-- cleansed_values_enum: struct (nullable = false)
-     |    |-- b: string (nullable = true)
+     |-- cleansed_values_enum: map (nullable = false)
+     |    |-- key: string
+     |    |-- value: string (valueContainsNull = true)
 
     Parameters
     ----------
@@ -67,6 +69,10 @@ class EnumCleaner(BaseCleaner):
     column_to_log_cleansed_values : :any:`str`, Defaults to None
         Defines a column in which the original (uncleansed) value will be stored in case of cleansing. If no column
         name is given, nothing will be logged.
+
+    store_as_map : :any:`bool`, Defaults to False
+        Specifies if the logged cleansed values should be stored in a column as :any:`pyspark.sql.types.MapType` with
+        stringified values or as :any:`pyspark.sql.types.StructType` with the original respective data types.
 
     Note
     ----
@@ -101,10 +107,14 @@ class EnumCleaner(BaseCleaner):
     If you want to replace Null values you should use the method ~pyspark.sql.DataFrame.fillna from Spark.
     """
 
-    def __init__(self, cleaning_definitions={}, column_to_log_cleansed_values=None):
-        super().__init__(cleaning_definitions, column_to_log_cleansed_values)
+    def __init__(self, cleaning_definitions={}, column_to_log_cleansed_values=None, store_as_map=False):
+        super().__init__(
+            cleaning_definitions=cleaning_definitions,
+            column_to_log_cleansed_values=column_to_log_cleansed_values,
+            store_as_map=store_as_map,
+            temporary_columns_prefix="9b7798529fef529c8f2586be7ca43a66",
+        )
         self.logger.debug("Enumeration List: " + str(self.cleaning_definitions))
-        self.TEMPORARY_COLUMNS_PREFIX = "9b7798529fef529c8f2586be7ca43a66"  # SHA1 hash of "EnumCleaner"
 
     def transform(self, input_df):
         self.logger.debug("input_df Schema: " + input_df._jdf.schema().treeString())
@@ -121,7 +131,7 @@ class EnumCleaner(BaseCleaner):
                     f"Enumeration-based cleaning requires a non-empty list of elements per cleaning rule!",
                     f"\nSpooq did not find such a list for column: {column_name}",
                 )
-            mode = cleaning_definition.get("mode", "allow")
+            mode = cleaning_definition.get("mode", "NOT_DEFINED")
             substitute = cleaning_definition.get("default", None)
             data_type = input_df.schema[column_name].dataType
             if not isinstance(substitute, Column):
@@ -141,8 +151,16 @@ class EnumCleaner(BaseCleaner):
                     .otherwise(F.when(F.col(column_name).isin(elements), substitute).otherwise(F.col(column_name)))
                     .cast(data_type),
                 )
+            elif mode == "NOT_DEFINED":
+                raise RuntimeError(
+                    f"Please provide a `mode` attribute! Possible values are: ['allow', 'disallow'].\n"
+                    f"column_name: {column_name} and cleaning_definition: {cleaning_definition}"
+                )
             else:
-                raise ValueError(f"Only the following modes are supported by EnumCleaner: 'allow' and 'disallow'.")
+                raise ValueError(
+                    f"Only the following modes are supported by EnumCleaner: ['allow', 'disallow'].\n"
+                    f"column_name: {column_name} and cleaning_definition: {cleaning_definition}"
+                )
 
         if self.column_to_log_cleansed_values:
             input_df = self._log_cleansed_values(input_df, column_names_to_clean, temporary_column_names)

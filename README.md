@@ -10,24 +10,6 @@ The main components are:
 
 Those components can be plugged-in into a pipeline instance or used separately.
 
-# Table of Content
-
-<!-- TOC -->
-
-- [Welcome to Spooq](#welcome-to-spooq)
-- [Table of Content](#table-of-content)
-- [Features / Components](#features--components)
-- [Installation](#installation)
-- [Examples](#examples)
-    - [Pipeline with JSON source, various transformations and HIVE target database](#pipeline-with-json-source-various-transformations-and-hive-target-database)
-    - [Structured Streaming with selected Transformers](#structured-streaming-with-selected-transformers)
-- [Online Documentation](#online-documentation)
-- [Changelog](#changelog)
-- [Contribution](#contribution)
-- [License](#license)
-
-<!-- /TOC -->
-
 # Features / Components
 
 * [**Extractors**](https://spooq.readthedocs.io/en/latest/extractor/overview.html)

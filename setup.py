@@ -27,7 +27,8 @@ with open("docs/source/index.rst") as sphinx_index_file:
 
 requirements = [
     "pandas",
-    "future"
+    "future",
+    "requests",
 ]
 
 setup(
@@ -41,7 +42,11 @@ setup(
     long_description_content_type="text/markdown",
     author="David Hohensinn",
     author_email="breaka@gmx.at",
-    url="https://spooq.readthedocs.io",
+    url="https://github.com/Breaka84/Spooq",
+    project_urls={
+        "Documentation": "https://spooq.readthedocs.io",
+
+    },
     include_package_data=False,
     packages=find_packages(exclude=['*tests*']),
     install_requires=requirements,
