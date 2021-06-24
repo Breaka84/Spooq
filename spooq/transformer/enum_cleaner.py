@@ -153,12 +153,12 @@ class EnumCleaner(BaseCleaner):
                 )
             elif mode == "NOT_DEFINED":
                 raise RuntimeError(
-                    f"Please provide a `mode` attribute!\n"
+                    f"Please provide a `mode` attribute! Possible values are: ['allow', 'disallow'].\n"
                     f"column_name: {column_name} and cleaning_definition: {cleaning_definition}"
                 )
             else:
                 raise ValueError(
-                    f"Only the following modes are supported by EnumCleaner: 'allow' and 'disallow'.\n"
+                    f"Only the following modes are supported by EnumCleaner: ['allow', 'disallow'].\n"
                     f"column_name: {column_name} and cleaning_definition: {cleaning_definition}"
                 )
 
