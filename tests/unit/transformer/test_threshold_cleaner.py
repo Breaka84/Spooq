@@ -376,7 +376,7 @@ class TestCleansedValuesAreLoggedAsMap:
 
         expected_result_df = spark_session.createDataFrame(
             [
-                (0, 12.0, 12, "12", None, None, {"timestamps": "1850-01-01 12:00:00", "datetimes": "1850-01-01"}),
+                (0, 12.0, 12, "12", None, None, {"timestamps": "1850-01-01T12:00:00.000Z", "datetimes": "1850-01-01"}),
                 (1, 65.7, 65, "65", "2020-06-01 12:00:00", "2020-06-01", {}),
                 (2, 300.0, 300, "300", "2020-06-01 15:00:00", "2020-06-15", {}),
                 (4, None, None, "5000", "2020-06-01 16:00:00", "2020-07-01", {"floats": "5000.0", "integers": "5000"}),
@@ -390,7 +390,7 @@ class TestCleansedValuesAreLoggedAsMap:
                     {
                         "floats": "-75.0",
                         "integers": "-75",
-                        "timestamps": "9999-01-01 12:00:00",
+                        "timestamps": "9999-01-01T12:00:00.000Z",
                         "datetimes": "9999-01-01",
                     },
                 ),
