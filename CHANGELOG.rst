@@ -2,7 +2,7 @@
 Changelog
 =========
 
-3.3.3 (2021-06-22)
+3.3.3 (2021-06-30)
 -------------------
 * [MOD] Change logic for storing cleansed values as MapType Column to not break Spark (logical plan got to big)
 * [MOD] Add streaming tests (parquet & delta) for EnumCleaner unit tests.
