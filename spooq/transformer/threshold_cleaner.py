@@ -163,7 +163,7 @@ class ThresholdCleaner(BaseCleaner):
             self.logger.debug("Cleansing Expression for " + column_name + ": " + str(cleansing_expression))
             cleansing_expressions.append((column_name, cleansing_expression))
 
-        self.logger.info("Full treshold cleansing expression:")
+        self.logger.info("Full threshold cleansing expression:")
         self.logger.info(
             ".".join(
                 [

@@ -3,6 +3,7 @@ from pyspark.sql import Row
 from pyspark.sql import functions as F, types as T
 from chispa.dataframe_comparer import assert_df_equality
 import datetime as dt
+import os
 
 from spooq.transformer import EnumCleaner
 
@@ -10,6 +11,25 @@ from spooq.transformer import EnumCleaner
 @pytest.fixture(scope="class")
 def input_df(spark_session):
     return spark_session.createDataFrame([Row(b="positive"), Row(b="negative"), Row(b="positive")])
+
+
+@pytest.fixture(scope="class")
+def input_df_for_tests_with_multiple_cleansing_rules(spark_session):
+    return spark_session.createDataFrame(
+        [
+            Row(a="stay", b="positive", c="or", d="healthy"),
+            Row(a="stay", b="negative", c="and", d="healthy"),
+            Row(a="stay", b="positive", c="xor", d="healthy"),
+        ]
+    )
+
+
+@pytest.fixture(scope="class")
+def cleansing_definitions_for_tests_with_multiple_cleansing_rules():
+    return dict(
+        b=dict(elements=["positive"], mode="allow"),
+        c=dict(elements=["xor"], mode="disallow", default="or"),
+    )
 
 
 class TestBasicAttributes(object):
@@ -280,6 +300,17 @@ class TestDynamicDefaultValues:
 
 
 class TestCleansedValuesAreLoggedAsStruct:
+
+    @pytest.fixture(scope="class")
+    def expected_output_df_for_tests_with_multiple_cleansing_rules(self, spark_session):
+        return spark_session.createDataFrame(
+            [
+                Row(a="stay", b="positive", c="or", d="healthy", cleansed_values_enum=Row(b=None, c=None)),
+                Row(a="stay", b=None, c="and", d="healthy", cleansed_values_enum=Row(b="negative", c=None)),
+                Row(a="stay", b="positive", c="or", d="healthy", cleansed_values_enum=Row(b=None, c="xor")),
+            ]
+        )
+
     def test_single_cleansed_value_is_stored_in_separate_column(self, input_df, spark_session):
         expected_output_df = spark_session.createDataFrame(
             [
@@ -324,35 +355,112 @@ class TestCleansedValuesAreLoggedAsStruct:
         )
         assert_df_equality(expected_output_df, output_df, ignore_nullable=True)
 
-    def test_multiple_cleansing_rules(self, spark_session):
-        input_df = spark_session.createDataFrame(
-            [
-                Row(a="stay", b="positive", c="or", d="healthy"),
-                Row(a="stay", b="negative", c="and", d="healthy"),
-                Row(a="stay", b="positive", c="xor", d="healthy"),
-            ]
+    def test_multiple_cleansing_rules(self,
+                                      input_df_for_tests_with_multiple_cleansing_rules,
+                                      cleansing_definitions_for_tests_with_multiple_cleansing_rules,
+                                      expected_output_df_for_tests_with_multiple_cleansing_rules):
+
+        output_df = EnumCleaner(cleansing_definitions_for_tests_with_multiple_cleansing_rules, column_to_log_cleansed_values="cleansed_values_enum").transform(
+            input_df_for_tests_with_multiple_cleansing_rules
+        )
+        assert_df_equality(expected_output_df_for_tests_with_multiple_cleansing_rules, output_df, ignore_nullable=True)
+
+    def test_multiple_cleansing_rules_with_parquet_streaming(self, spark_session, tmpdir,
+                                                     input_df_for_tests_with_multiple_cleansing_rules,
+                                                     cleansing_definitions_for_tests_with_multiple_cleansing_rules,
+                                                     expected_output_df_for_tests_with_multiple_cleansing_rules):
+
+        input_table_location = os.path.join(tmpdir, "input_table.parquet")
+        output_table_location = os.path.join(tmpdir, "output_table.parquet")
+        output_checkpoint_location = os.path.join(tmpdir, "output_table.checkpoint")
+
+        input_df_for_tests_with_multiple_cleansing_rules.write.parquet(input_table_location)
+
+        input_stream = (spark_session.readStream
+                        .format("parquet")
+                        .option("maxBytesPerTrigger", str(1024 * 1024))
+                        .schema(input_df_for_tests_with_multiple_cleansing_rules.schema)
+                        .load(input_table_location)
         )
 
-        cleansing_definitions = dict(
-            b=dict(elements=["positive"], mode="allow"),
-            c=dict(elements=["xor"], mode="disallow", default="or"),
+        cleaned_stream = EnumCleaner(cleansing_definitions_for_tests_with_multiple_cleansing_rules, column_to_log_cleansed_values="cleansed_values_enum").transform(
+            input_stream
         )
 
-        expected_output_df = spark_session.createDataFrame(
-            [
-                Row(a="stay", b="positive", c="or", d="healthy", cleansed_values_enum=Row(b=None, c=None)),
-                Row(a="stay", b=None, c="and", d="healthy", cleansed_values_enum=Row(b="negative", c=None)),
-                Row(a="stay", b="positive", c="or", d="healthy", cleansed_values_enum=Row(b=None, c="xor")),
-            ]
+        (cleaned_stream.writeStream
+            .queryName("enum_cleaner_stream")
+            .format("parquet")
+            .outputMode("append")
+            .option("checkpointLocation", output_checkpoint_location)
+            .trigger(once=True)
+            .start(output_table_location)
+        ).awaitTermination()
+
+        output_df = spark_session.read.parquet(output_table_location)
+
+        assert_df_equality(expected_output_df_for_tests_with_multiple_cleansing_rules, output_df, ignore_nullable=True, ignore_row_order=True)
+
+    def test_multiple_cleansing_rules_with_delta_streaming(self, spark_session, tmpdir,
+                                                           input_df_for_tests_with_multiple_cleansing_rules,
+                                                           cleansing_definitions_for_tests_with_multiple_cleansing_rules,
+                                                           expected_output_df_for_tests_with_multiple_cleansing_rules):
+        input_table_location = os.path.join(tmpdir, "input_table.delta")
+        output_table_location = os.path.join(tmpdir, "output_table.delta")
+        output_checkpoint_location = os.path.join(tmpdir, "output_table.checkpoint")
+
+        input_df_for_tests_with_multiple_cleansing_rules.write.format("delta").save(input_table_location)
+
+        input_stream = (spark_session.readStream
+                        .format("delta")
+                        .option("maxBytesPerTrigger", str(1024 * 1024))
+                        .load(input_table_location)
+                        )
+
+        cleaned_stream = EnumCleaner(cleansing_definitions_for_tests_with_multiple_cleansing_rules, column_to_log_cleansed_values="cleansed_values_enum").transform(
+            input_stream
         )
 
-        output_df = EnumCleaner(cleansing_definitions, column_to_log_cleansed_values="cleansed_values_enum").transform(
-            input_df
-        )
-        assert_df_equality(expected_output_df, output_df, ignore_nullable=True)
+        (cleaned_stream.writeStream
+         .queryName("enum_cleaner_stream")
+         .format("delta")
+         .outputMode("append")
+         .option("checkpointLocation", output_checkpoint_location)
+         .trigger(once=True)
+         .start(output_table_location)
+         ).awaitTermination()
+
+        output_df = spark_session.read.format("delta").load(output_table_location)
+        output_df_sorted = output_df.sort(["a", "b", "c", "d", F.col("cleansed_values_enum").cast(T.StringType())])
+        expected_output_df_sorted = expected_output_df_for_tests_with_multiple_cleansing_rules.sort(["a", "b", "c", "d", F.col("cleansed_values_enum").cast(T.StringType())])
+
+        assert_df_equality(expected_output_df_sorted, output_df_sorted, ignore_nullable=True)
 
 
 class TestCleansedValuesAreLoggedAsMap:
+
+    @pytest.fixture(scope="class")
+    def expected_output_schema_for_tests_with_multiple_cleansing_rules(self):
+        return T.StructType(
+            [
+                T.StructField("a", T.StringType(), True),
+                T.StructField("b", T.StringType(), True),
+                T.StructField("c", T.StringType(), True),
+                T.StructField("d", T.StringType(), True),
+                T.StructField("cleansed_values_enum", T.MapType(T.StringType(), T.StringType(), True), False),
+            ]
+        )
+
+    @pytest.fixture(scope="class")
+    def expected_output_df_for_tests_with_multiple_cleansing_rules(self, spark_session, expected_output_schema_for_tests_with_multiple_cleansing_rules):
+        return spark_session.createDataFrame(
+            [
+                ("stay", "positive", "or", "healthy", {}),
+                ("stay", None, "and", "healthy", {"b": "negative"}),
+                ("stay", "positive", "or", "healthy", {"c": "xor"}),
+            ],
+            schema=expected_output_schema_for_tests_with_multiple_cleansing_rules,
+        )
+
     def test_single_cleansed_value_is_stored_in_separate_column(self, input_df, spark_session):
         expected_output_schema = T.StructType(
             [
@@ -422,39 +530,112 @@ class TestCleansedValuesAreLoggedAsMap:
         ).transform(input_df)
         assert_df_equality(expected_output_df, output_df, ignore_nullable=True)
 
-    def test_multiple_cleansing_rules(self, spark_session):
+    def test_multiple_cleansing_rules(self,
+                                      input_df_for_tests_with_multiple_cleansing_rules,
+                                      cleansing_definitions_for_tests_with_multiple_cleansing_rules,
+                                      expected_output_df_for_tests_with_multiple_cleansing_rules):
+
+        output_df = EnumCleaner(
+            cleansing_definitions_for_tests_with_multiple_cleansing_rules, column_to_log_cleansed_values="cleansed_values_enum", store_as_map=True
+        ).transform(input_df_for_tests_with_multiple_cleansing_rules)
+        assert_df_equality(expected_output_df_for_tests_with_multiple_cleansing_rules, output_df, ignore_nullable=True)
+
+    def test_multiple_cleansing_rules_without_any_cleansing(self,
+                                                            spark_session,
+                                                            expected_output_schema_for_tests_with_multiple_cleansing_rules,
+                                                            cleansing_definitions_for_tests_with_multiple_cleansing_rules,
+                                                            expected_output_df_for_tests_with_multiple_cleansing_rules):
+
         input_df = spark_session.createDataFrame(
             [
                 Row(a="stay", b="positive", c="or", d="healthy"),
-                Row(a="stay", b="negative", c="and", d="healthy"),
-                Row(a="stay", b="positive", c="xor", d="healthy"),
+                Row(a="stay", b="positive", c="and", d="healthy"),
+                Row(a="stay", b="positive", c="or", d="healthy"),
             ]
         )
 
-        cleansing_definitions = dict(
-            b=dict(elements=["positive"], mode="allow"),
-            c=dict(elements=["xor"], mode="disallow", default="or"),
-        )
-
-        expected_output_schema = T.StructType(
-            [
-                T.StructField("a", T.StringType(), True),
-                T.StructField("b", T.StringType(), True),
-                T.StructField("c", T.StringType(), True),
-                T.StructField("d", T.StringType(), True),
-                T.StructField("cleansed_values_enum", T.MapType(T.StringType(), T.StringType(), True), False),
-            ]
-        )
         expected_output_df = spark_session.createDataFrame(
             [
                 ("stay", "positive", "or", "healthy", {}),
-                ("stay", None, "and", "healthy", {"b": "negative"}),
-                ("stay", "positive", "or", "healthy", {"c": "xor"}),
+                ("stay", "positive", "and", "healthy", {}),
+                ("stay", "positive", "or", "healthy", {}),
             ],
-            schema=expected_output_schema,
+            schema=expected_output_schema_for_tests_with_multiple_cleansing_rules,
         )
 
         output_df = EnumCleaner(
-            cleansing_definitions, column_to_log_cleansed_values="cleansed_values_enum", store_as_map=True
+            cleansing_definitions_for_tests_with_multiple_cleansing_rules, column_to_log_cleansed_values="cleansed_values_enum", store_as_map=True
         ).transform(input_df)
         assert_df_equality(expected_output_df, output_df, ignore_nullable=True)
+
+    def test_multiple_cleansing_rules_with_parquet_streaming(self, spark_session, tmpdir,
+                                                             input_df_for_tests_with_multiple_cleansing_rules,
+                                                             cleansing_definitions_for_tests_with_multiple_cleansing_rules,
+                                                             expected_output_df_for_tests_with_multiple_cleansing_rules):
+        input_table_location = os.path.join(tmpdir, "input_table.parquet")
+        output_table_location = os.path.join(tmpdir, "output_table.parquet")
+        output_checkpoint_location = os.path.join(tmpdir, "output_table.checkpoint")
+
+        input_df_for_tests_with_multiple_cleansing_rules.write.parquet(input_table_location)
+
+
+        input_stream = (spark_session.readStream
+                        .format("parquet")
+                        .option("maxBytesPerTrigger", str(1024 * 1024))
+                        .schema(input_df_for_tests_with_multiple_cleansing_rules.schema)
+                        .load(input_table_location)
+                        )
+
+        cleaned_stream = EnumCleaner(cleansing_definitions_for_tests_with_multiple_cleansing_rules, column_to_log_cleansed_values="cleansed_values_enum", store_as_map=True).transform(
+            input_stream
+        )
+
+        (cleaned_stream.writeStream
+         .queryName("enum_cleaner_stream")
+         .format("parquet")
+         .outputMode("append")
+         .option("checkpointLocation", output_checkpoint_location)
+         .trigger(once=True)
+         .start(output_table_location)
+         ).awaitTermination()
+
+        output_df = spark_session.read.parquet(output_table_location)
+        output_df_sorted = output_df.sort(["a", "b", "c", "d", F.col("cleansed_values_enum").cast(T.StringType())])
+        expected_output_df_sorted = expected_output_df_for_tests_with_multiple_cleansing_rules.sort(["a", "b", "c", "d", F.col("cleansed_values_enum").cast(T.StringType())])
+
+        assert_df_equality(expected_output_df_sorted, output_df_sorted, ignore_nullable=True)
+
+    def test_multiple_cleansing_rules_with_delta_streaming(self, spark_session, tmpdir,
+                                                           input_df_for_tests_with_multiple_cleansing_rules,
+                                                           cleansing_definitions_for_tests_with_multiple_cleansing_rules,
+                                                           expected_output_df_for_tests_with_multiple_cleansing_rules):
+        input_table_location = os.path.join(tmpdir, "input_table.delta")
+        output_table_location = os.path.join(tmpdir, "output_table.delta")
+        output_checkpoint_location = os.path.join(tmpdir, "output_table.checkpoint")
+
+        input_df_for_tests_with_multiple_cleansing_rules.write.format("delta").save(input_table_location)
+
+        input_stream = (spark_session.readStream
+                        .format("delta")
+                        .option("maxBytesPerTrigger", str(1024 * 1024))
+                        .load(input_table_location)
+                        )
+
+        cleaned_stream = EnumCleaner(cleansing_definitions_for_tests_with_multiple_cleansing_rules, column_to_log_cleansed_values="cleansed_values_enum", store_as_map=True).transform(
+            input_stream
+        )
+
+        (cleaned_stream.writeStream
+         .queryName("enum_cleaner_stream")
+         .format("delta")
+         .outputMode("append")
+         .option("checkpointLocation", output_checkpoint_location)
+         .trigger(once=True)
+         .start(output_table_location)
+         ).awaitTermination()
+
+        output_df = spark_session.read.format("delta").load(output_table_location)
+        output_df_sorted = output_df.sort(["a", "b", "c", "d", F.col("cleansed_values_enum").cast(T.StringType())])
+        expected_output_df_sorted = expected_output_df_for_tests_with_multiple_cleansing_rules.sort(["a", "b", "c", "d", F.col("cleansed_values_enum").cast(T.StringType())])
+
+        assert_df_equality(expected_output_df_sorted, output_df_sorted, ignore_nullable=True)

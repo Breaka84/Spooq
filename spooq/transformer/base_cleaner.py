@@ -27,61 +27,42 @@ class BaseCleaner(Transformer):
     def _get_temporary_column_names(self, column_names):
         return [f"{self.TEMPORARY_COLUMNS_PREFIX}_{column_name}" for column_name in column_names]
 
-    def _add_temporary_columns(self, input_df, column_names, temporary_column_names):
+    @staticmethod
+    def _add_temporary_columns(input_df, column_names, temporary_column_names):
         for column_name, temporary_column_name in zip(column_names, temporary_column_names):
             # copy columns to be cleansed to temporary column
             input_df = input_df.withColumn(temporary_column_name, F.col(column_name))
         return input_df
 
     def _log_cleansed_values(self, input_df, column_names, temporary_column_names):
+        def _only_keep_cleansed_values(col_name, temporary_col_name):
+            return F.when(F.col(temporary_col_name) == F.col(col_name), F.lit(None)).otherwise(
+                F.col(temporary_col_name)
+            )
+
+        for column_name, temporary_column_name in zip(column_names, temporary_column_names):
+            # Only keep cleansed values in temporary columns
+            input_df = input_df.withColumn(
+                temporary_column_name, _only_keep_cleansed_values(column_name, temporary_column_name)
+            )
+
+        input_df = input_df.withColumn(
+            self.column_to_log_cleansed_values,
+            F.struct(
+                [
+                    F.col(temp_col_name).alias(col_name)
+                    for col_name, temp_col_name in zip(column_names, temporary_column_names)
+                ]
+            ),
+        )
 
         if self.store_as_map:
-
-            def _concat_cleansed_values_as_map(column_name, temporary_column_name, log_column_name):
-                log_column = F.col(log_column_name)
-
-                if self.column_to_log_cleansed_values in input_df.columns:
-                    return F.when(F.col(temporary_column_name) == F.col(column_name), log_column).otherwise(
-                        F.map_concat(
-                            F.create_map(F.lit(column_name), F.col(temporary_column_name).cast(T.StringType())),
-                            log_column,
-                        )
-                    )
-
-                else:
-                    return F.when(F.col(temporary_column_name) == F.col(column_name), F.create_map()).otherwise(
-                        F.create_map(F.lit(column_name), F.col(temporary_column_name).cast(T.StringType()))
-                    )
-
-            for column_name, temporary_column_name in zip(column_names, temporary_column_names):
-                input_df = input_df.withColumn(
-                    self.column_to_log_cleansed_values,
-                    _concat_cleansed_values_as_map(
-                        column_name, temporary_column_name, self.column_to_log_cleansed_values
-                    ),
-                )
-
-        else:
-
-            def _only_keep_cleansed_values(column_name, temporary_column_name):
-                return F.when(F.col(temporary_column_name) == F.col(column_name), F.lit(None)).otherwise(
-                    F.col(temporary_column_name)
-                )
-
-            for column_name, temporary_column_name in zip(column_names, temporary_column_names):
-                # Only keep cleansed values in temporary columns
-                input_df = input_df.withColumn(
-                    temporary_column_name, _only_keep_cleansed_values(column_name, temporary_column_name)
-                )
-
+            input_df = input_df.withColumn(
+                self.column_to_log_cleansed_values, F.to_json(self.column_to_log_cleansed_values)
+            )
             input_df = input_df.withColumn(
                 self.column_to_log_cleansed_values,
-                F.struct(
-                    [
-                        F.col(temp_col_name).alias(col_name)
-                        for col_name, temp_col_name in zip(column_names, temporary_column_names)
-                    ]
-                ),
+                F.from_json(self.column_to_log_cleansed_values, T.MapType(T.StringType(), T.StringType())),
             )
 
         return input_df.drop(*temporary_column_names)

@@ -2,6 +2,15 @@
 Changelog
 =========
 
+3.3.3 (2021-06-30)
+-------------------
+* [MOD] Change logic for storing cleansed values as MapType Column to not break Spark (logical plan got to big)
+* [MOD] Add streaming tests (parquet & delta) for EnumCleaner unit tests.
+
+3.3.2
+-------------------
+* Left out intentionally as there is already a yanked version 3.3.2 on PyPi
+
 3.3.1 (2021-06-22)
 -------------------
 * [MOD] Add option to store logged cleansed values as MapType (Enum & Threshold based cleansers)
