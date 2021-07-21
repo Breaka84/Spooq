@@ -64,5 +64,10 @@ class BaseCleaner(Transformer):
                 self.column_to_log_cleansed_values,
                 F.from_json(self.column_to_log_cleansed_values, T.MapType(T.StringType(), T.StringType())),
             )
+            # set empty map to null
+            input_df = input_df.withColumn(
+                self.column_to_log_cleansed_values,
+                F.when(F.size(F.col(self.column_to_log_cleansed_values))>0, F.col(self.column_to_log_cleansed_values)).otherwise(F.lit(None)),
+            )
 
         return input_df.drop(*temporary_column_names)
