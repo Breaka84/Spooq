@@ -322,7 +322,7 @@ class TestCleansedValuesAreLoggedAsMap:
         expected_output_df = spark_session.createDataFrame(
             [
                 (0, None, {"integers": "-5"}),
-                (1, 5, {}),
+                (1, 5, None),
                 (2, None, {"integers": "15"}),
             ],
             schema=expected_output_schema,
@@ -349,7 +349,7 @@ class TestCleansedValuesAreLoggedAsMap:
         expected_output_df = spark_session.createDataFrame(
             [
                 (0, -1, {"integers": "-5"}),
-                (1, 5, {}),
+                (1, 5, None),
                 (2, -1, {"integers": "15"}),
             ],
             schema=expected_output_schema,
@@ -370,15 +370,15 @@ class TestCleansedValuesAreLoggedAsMap:
                 T.StructField("strings", T.StringType(), True),
                 T.StructField("timestamps", T.StringType(), True),
                 T.StructField("datetimes", T.StringType(), True),
-                T.StructField("cleansed_values_threshold", T.MapType(T.StringType(), T.StringType(), True), False),
+                T.StructField("cleansed_values_threshold", T.MapType(T.StringType(), T.StringType(), True), True),
             ]
         )
 
         expected_result_df = spark_session.createDataFrame(
             [
                 (0, 12.0, 12, "12", None, None, {"timestamps": "1850-01-01T12:00:00.000Z", "datetimes": "1850-01-01"}),
-                (1, 65.7, 65, "65", "2020-06-01 12:00:00", "2020-06-01", {}),
-                (2, 300.0, 300, "300", "2020-06-01 15:00:00", "2020-06-15", {}),
+                (1, 65.7, 65, "65", "2020-06-01 12:00:00", "2020-06-01", None),
+                (2, 300.0, 300, "300", "2020-06-01 15:00:00", "2020-06-15", None),
                 (4, None, None, "5000", "2020-06-01 16:00:00", "2020-07-01", {"floats": "5000.0", "integers": "5000"}),
                 (
                     5,

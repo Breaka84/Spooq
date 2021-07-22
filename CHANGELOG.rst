@@ -2,6 +2,10 @@
 Changelog
 =========
 
+3.3.4 (2021-07-21)
+-------------------
+* [MOD] Store null value instead of an empty Map in case no cleansing was necessary
+
 3.3.3 (2021-06-30)
 -------------------
 * [MOD] Change logic for storing cleansed values as MapType Column to not break Spark (logical plan got to big)

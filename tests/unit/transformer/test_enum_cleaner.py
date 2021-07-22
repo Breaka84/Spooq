@@ -446,7 +446,7 @@ class TestCleansedValuesAreLoggedAsMap:
                 T.StructField("b", T.StringType(), True),
                 T.StructField("c", T.StringType(), True),
                 T.StructField("d", T.StringType(), True),
-                T.StructField("cleansed_values_enum", T.MapType(T.StringType(), T.StringType(), True), False),
+                T.StructField("cleansed_values_enum", T.MapType(T.StringType(), T.StringType(), True), True),
             ]
         )
 
@@ -454,7 +454,7 @@ class TestCleansedValuesAreLoggedAsMap:
     def expected_output_df_for_tests_with_multiple_cleansing_rules(self, spark_session, expected_output_schema_for_tests_with_multiple_cleansing_rules):
         return spark_session.createDataFrame(
             [
-                ("stay", "positive", "or", "healthy", {}),
+                ("stay", "positive", "or", "healthy", None),
                 ("stay", None, "and", "healthy", {"b": "negative"}),
                 ("stay", "positive", "or", "healthy", {"c": "xor"}),
             ],
@@ -465,14 +465,14 @@ class TestCleansedValuesAreLoggedAsMap:
         expected_output_schema = T.StructType(
             [
                 T.StructField("b", T.StringType(), True),
-                T.StructField("cleansed_values_enum", T.MapType(T.StringType(), T.StringType(), True), False),
+                T.StructField("cleansed_values_enum", T.MapType(T.StringType(), T.StringType(), True), True),
             ]
         )
         expected_output_df = spark_session.createDataFrame(
             [
-                ("positive", {}),
+                ("positive", None),
                 (None, {"b": "negative"}),
-                ("positive", {}),
+                ("positive", None),
             ],
             schema=expected_output_schema,
         )
@@ -486,14 +486,14 @@ class TestCleansedValuesAreLoggedAsMap:
         expected_output_schema = T.StructType(
             [
                 T.StructField("b", T.StringType(), True),
-                T.StructField("cleansed_values_enum", T.MapType(T.StringType(), T.StringType(), True), False),
+                T.StructField("cleansed_values_enum", T.MapType(T.StringType(), T.StringType(), True), True),
             ]
         )
         expected_output_df = spark_session.createDataFrame(
             [
-                ("positive", {}),
+                ("positive", None),
                 ("cleansed_value", {"b": "negative"}),
-                ("positive", {}),
+                ("positive", None),
             ],
             schema=expected_output_schema,
         )
@@ -513,14 +513,14 @@ class TestCleansedValuesAreLoggedAsMap:
             [
                 T.StructField("a", T.StringType(), True),
                 T.StructField("b", T.StringType(), True),
-                T.StructField("cleansed_values_enum", T.MapType(T.StringType(), T.StringType(), True), False),
+                T.StructField("cleansed_values_enum", T.MapType(T.StringType(), T.StringType(), True), True),
             ]
         )
         expected_output_df = spark_session.createDataFrame(
             [
-                ("stay", "positive", {}),
+                ("stay", "positive", None),
                 ("stay", None, {"b": "negative"}),
-                ("stay", "positive", {}),
+                ("stay", "positive", None),
             ],
             schema=expected_output_schema,
         )
@@ -556,9 +556,9 @@ class TestCleansedValuesAreLoggedAsMap:
 
         expected_output_df = spark_session.createDataFrame(
             [
-                ("stay", "positive", "or", "healthy", {}),
-                ("stay", "positive", "and", "healthy", {}),
-                ("stay", "positive", "or", "healthy", {}),
+                ("stay", "positive", "or", "healthy", None),
+                ("stay", "positive", "and", "healthy", None),
+                ("stay", "positive", "or", "healthy", None),
             ],
             schema=expected_output_schema_for_tests_with_multiple_cleansing_rules,
         )
