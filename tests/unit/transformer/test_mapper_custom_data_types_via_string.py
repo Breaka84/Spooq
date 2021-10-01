@@ -156,7 +156,7 @@ class TestMiscConversions(object):
     def test_generate_select_expression_without_casting(self, input_value, value, spark_session, spark_context):
         source_key, name = "demographics", "statistics"
         input_df = get_input_df(spark_session, spark_context, source_key, input_value)
-        result_column = custom_types._generate_select_expression_without_casting(
+        result_column = custom_types._generate_select_expression_for_as_is(
             source_column=input_df["attributes"]["data"][source_key], name=name
         )
         output_df = input_df.select(result_column)
@@ -376,12 +376,9 @@ class TestExtendedStringConversions(object):
         try:
             output_pd_df = output_df.toPandas()
             actual_value = output_pd_df.iloc[0]["output_key"].to_pydatetime()
-            assert (
-                actual_value.toordinal() == expected_value.toordinal(),
-                "actual_value: {act_val}, expected value: {expected_val}".format(
-                    act_val=actual_value, expected_val=expected_value
-                ),
-            )
+            error_message = f"actual_value: {actual_value}, expected value: {expected_value}"
+            assert actual_value.toordinal() == expected_value.toordinal(), error_message
+
         except AttributeError:
             # `.to_pydatetime()` can only be used on datetimes and throws AttributeErrors on None
             assert expected_value is None

@@ -1,5 +1,5 @@
-from __future__ import absolute_import
-from builtins import str
+from functools import partial
+from types import FunctionType
 from pyspark.sql.utils import AnalysisException
 from pyspark.sql import functions as F
 from pyspark.sql import types as T
@@ -7,6 +7,7 @@ from pyspark.sql.column import Column
 
 from .transformer import Transformer
 from .mapper_custom_data_types import _get_select_expression_for_custom_type
+import spooq.transformer.mapper_transformations as spq_trans
 
 
 class Mapper(Transformer):
@@ -127,14 +128,13 @@ class Mapper(Transformer):
         select_expressions = []
         with_column_expressions = []
 
-        for (name, source_column, data_type) in self.mapping:
+        for (name, source_column, data_transformation) in self.mapping:
             self.logger.debug("generating Select statement for attribute: {nm}".format(nm=name))
-
+            self.logger.debug(f"generate mapping for name: {name!s}, source_column: {source_column!s}, data_transformation: {data_transformation!s}")
             source_column = self._get_spark_column(source_column, name, input_df)
             if source_column is None:
                 continue
-            data_type, data_type_is_spark_builtin = self._get_spark_data_type(data_type)
-            select_expression = self._get_select_expression(name, source_column, data_type, data_type_is_spark_builtin)
+            select_expression = self._get_select_expression(name, source_column, data_transformation)
 
             self.logger.debug(
                 "Select-Expression for Attribute {nm}: {sql_expr}".format(nm=name, sql_expr=str(select_expression))
@@ -195,34 +195,78 @@ class Mapper(Transformer):
                 raise e
         return source_column
 
-    @staticmethod
-    def _get_spark_data_type(data_type):
+    def _get_spark_data_transformation_type(self, data_transformation):
         """
-        Returns the provided data_type as a Pyspark.sql.type.DataType (for spark-built-ins)
+        Returns the provided data_transformation as a Pyspark.sql.type.DataType (for spark-built-ins)
         or as a string (for custom spooq transformations) and marks if it is built-in or not.
         Supports source column definition as a string or a Pyspark.sql.Column (including functions).
         """
-        if isinstance(data_type, T.DataType):
-            data_type_is_spark_builtin = True
-        elif isinstance(data_type, str):
-            data_type = data_type.replace("()", "")
-            if hasattr(T, data_type):
-                data_type_is_spark_builtin = True
-                data_type = getattr(T, data_type)()
+        self.logger.debug(f"data_transformation: {data_transformation}")
+
+        if isinstance(data_transformation, T.DataType):
+            data_transformation_type = "spark_data_transformation"
+
+        elif isinstance(data_transformation, str):
+            if hasattr(T, data_transformation.replace("()", "")):
+                data_transformation_type = "spark_data_transformation_string"
             else:
-                data_type_is_spark_builtin = False
+                data_transformation_type = "spooq_function_string"
+
+        elif isinstance(data_transformation, FunctionType):
+            data_transformation_type = "spooq_function"
+
+        elif isinstance(data_transformation, partial):
+            data_transformation_type = "spooq_partial"
+
         else:
             raise ValueError(
-                'data_type not supported! class: "{}", name: "{}"'.format(type(data_type).__name__, str(data_type))
+                f"data_transformation not supported! "
+                f"class: {type(data_transformation)!s}, "
+                f"name: {data_transformation!s}"
             )
-        return data_type, data_type_is_spark_builtin
 
-    @staticmethod
-    def _get_select_expression(name, source_column, data_type, data_type_is_spark_builtin):
+        return data_transformation_type
+
+    def _get_select_expression(self, name, source_column, data_transformation):
         """
         Returns a valid pyspark sql select-expression with cast and alias, depending on the input parameters.
         """
-        if data_type_is_spark_builtin:
-            return source_column.cast(data_type).alias(name)
-        else:  # Custom Data Type
-            return _get_select_expression_for_custom_type(source_column, name, data_type)
+        self.logger.debug(f"name: {name!s}, source_column: {source_column!s}, data_transformation: {data_transformation!s}")
+        data_transformation_type = self._get_spark_data_transformation_type(data_transformation)
+
+        if data_transformation_type.startswith("spark"):
+            return self._get_select_expression_for_spark_transformation(name, source_column, data_transformation, data_transformation_type)
+        elif data_transformation_type.startswith("spooq"):
+            return self._get_select_expression_for_spooq_transformation(name, source_column, data_transformation, data_transformation_type)
+
+    @staticmethod
+    def _get_select_expression_for_spark_transformation(name, source_column, data_transformation, data_transformation_type):
+        if data_transformation_type == "spark_data_transformation":
+            return source_column.cast(data_transformation).alias(name)
+        else:  # spark_data_transformation_string
+            data_transformation = data_transformation.replace("()", "")
+            data_transformation = getattr(T, data_transformation)()
+            return source_column.cast(data_transformation).alias(name)
+
+    @staticmethod
+    def _get_select_expression_for_spooq_transformation(name, source_column, data_transformation, data_transformation_type):
+        if data_transformation_type == "spooq_function":
+            try:  # Function returns a partial
+                spooq_partial = data_transformation()
+                return spooq_partial(source_column=source_column, name=name)
+            except TypeError as e:  # Function is directly callable
+                if "required positional arguments" not in str(e):
+                    raise e
+                return data_transformation(source_column=source_column, name=name)
+
+        elif data_transformation_type == "spooq_partial":
+            if not data_transformation.keywords:
+                return data_transformation(source_column=source_column, name=name)
+            else:
+                args = data_transformation.keywords
+                args.setdefault("source_column", source_column)
+                args.setdefault("name", name)
+                return data_transformation(**args)
+        else:  # spooq_function_string
+            return _get_select_expression_for_custom_type(source_column, name, data_transformation)
+
