@@ -8,30 +8,14 @@ Please see that particular class on how to apply custom data types.
 For injecting your **own custom data types**, please have a visit to the
 :py:meth:`add_custom_data_type` method!
 """
-from __future__ import division
 import sys
-
-if sys.version_info.major > 2:
-    # This is needed for python 2 as otherwise pyspark raises an exception for following method:
-    # _to_json
-    # ToDo: Check if Python3 works without this import / overwrite
-    from builtins import str
-
-from past.utils import old_div
-import sys
-import json
+from functools import partial
 from pyspark.sql import functions as F
 from pyspark.sql import types as T
 
 from spooq.transformer import mapper_transformations as spq_trans
 
 __all__ = ["add_custom_data_type"]
-
-MIN_TIMESTAMP_MS = 0  # 01.01.1970 00:00:00
-MAX_TIMESTAMP_MS = 4102358400000  # 31.12.2099 00:00:00
-
-MIN_TIMESTAMP_SEC = 0
-MAX_TIMESTAMP_SEC = old_div(MAX_TIMESTAMP_MS, 1000)
 
 
 def add_custom_data_type(function_name, func):
@@ -138,81 +122,55 @@ def _get_select_expression_for_custom_type(source_column, name, data_type):
 
 
 def _generate_select_expression_for_as_is(source_column, name):
+    """
+    Deprecated!
+
+    Please use :py:method:`~spooq.transformer.mapper_transformations.as_is` directly instead.
+    """
     return spq_trans.as_is()(source_column, name)
 
 
 def _generate_select_expression_for_keep(source_column, name):
+    """
+    Deprecated!
+
+    Please use :py:method:`~spooq.transformer.mapper_transformations.as_is` directly instead.
+    """
     return spq_trans.as_is()(source_column, name)
 
 
 def _generate_select_expression_for_no_change(source_column, name):
+    """
+    Deprecated!
+
+    Please use :py:method:`~spooq.transformer.mapper_transformations.as_is` directly instead.
+    """
     return spq_trans.as_is()(source_column, name)
 
 
 def _generate_select_expression_for_json_string(source_column, name):
-    return spq_trans.json_string()(source_column, name)
+    """
+    Deprecated!
+
+    Please use :py:method:`~spooq.transformer.mapper_transformations.to_json_string` directly instead.
+    """
+    return spq_trans.to_json_string()(source_column, name)
 
 
 def _generate_select_expression_for_timestamp_ms_to_ms(source_column, name):
     """
-    This Constructor is used for unix timestamps. The values are cleaned
-    next to casting and renaming.
-    If the values are not between `01.01.1970` and `31.12.2099`,
-    NULL will be returned.
-    Cast to :any:`pyspark.sql.types.LongType`
+    Deprecated!
 
-    Example
-    -------
-    >>> from pyspark.sql import Row
-    >>> from spooq.transformer import Mapper
-    >>>
-    >>> input_df = spark.createDataFrame([
-    >>>     Row(time_sec=1581540839000),  # 02/12/2020 @ 8:53pm (UTC)
-    >>>     Row(time_sec=-4887839000),    # Invalid!
-    >>>     Row(time_sec=4737139200000)   # 02/12/2120 @ 12:00am (UTC)
-    >>> ])
-    >>>
-    >>> mapping = [("unix_ts", "time_sec", "timestamp_ms_to_ms")]
-    >>> output_df = Mapper(mapping).transform(input_df)
-    >>> output_df.head(3)
-    [Row(unix_ts=1581540839000), Row(unix_ts=None), Row(unix_ts=None)]
-
-    Note
-    ----
-    *input*  in **milli seconds**
-    *output* in **milli seconds**
+    Please just use `T.LongType()' as data_type (this method doesn't do any cleansing anymore)!
     """
     return spq_trans.unix_timestamp_to_unix_timestamp(input_time_unit="ms", output_time_unit="ms")(source_column, name)
 
 
 def _generate_select_expression_for_timestamp_ms_to_s(source_column, name):
     """
-    This Constructor is used for unix timestamps. The values are cleaned
-    next to casting and renaming.
-    If the values are not between `01.01.1970` and `31.12.2099`,
-    NULL will be returned.
-    Cast to :any:`pyspark.sql.types.LongType`
+    Deprecated!
 
-    Example
-    -------
-    >>> from pyspark.sql import Row
-    >>> from spooq.transformer import Mapper
-    >>>
-    >>> input_df = spark.createDataFrame([
-    >>>     Row(time_sec=1581540839000),  # 02/12/2020 @ 8:53pm (UTC)
-    >>>     Row(time_sec=-4887839000),    # Invalid!
-    >>>     Row(time_sec=4737139200000)   # 02/12/2120 @ 12:00am (UTC)
-    >>> ])
-    >>>
-    >>> mapping = [("unix_ts", "time_sec", "timestamp_ms_to_s")]
-    >>> output_df = Mapper(mapping).transform(input_df)
-    >>> output_df.head(3)
-    [Row(unix_ts=1581540839), Row(unix_ts=None), Row(unix_ts=None)]
-
-    Note
-    ----
-    *input*  in **milli seconds**
-    *output* in **seconds**
+    Please use :py:method:`~spooq.transformer.mapper_transformations.unix_timestamp_to_unix_timestamp` directly instead.
     """
     return spq_trans.unix_timestamp_to_unix_timestamp(input_time_unit="ms", output_time_unit="sec")(source_column, name)
 
@@ -220,32 +178,9 @@ def _generate_select_expression_for_timestamp_ms_to_s(source_column, name):
 
 def _generate_select_expression_for_timestamp_s_to_ms(source_column, name):
     """
-    This Constructor is used for unix timestamps. The values are cleaned
-    next to casting and renaming.
-    If the values are not between `01.01.1970` and `31.12.2099`,
-    NULL will be returned.
-    Cast to :any:`pyspark.sql.types.LongType`
+    Deprecated!
 
-    Example
-    -------
-    >>> from pyspark.sql import Row
-    >>> from spooq.transformer import Mapper
-    >>>
-    >>> input_df = spark.createDataFrame([
-    >>>     Row(time_sec=1581540839),  # 02/12/2020 @ 8:53pm (UTC)
-    >>>     Row(time_sec=-4887839),    # Invalid!
-    >>>     Row(time_sec=4737139200)   # 02/12/2120 @ 12:00am (UTC)
-    >>> ])
-    >>>
-    >>> mapping = [("unix_ts", "time_sec", "timestamp_s_to_ms")]
-    >>> output_df = Mapper(mapping).transform(input_df)
-    >>> output_df.head(3)
-    [Row(unix_ts=1581540839000), Row(unix_ts=None), Row(unix_ts=None)]
-
-    Note
-    ----
-    *input*  in **seconds**
-    *output* in **milli seconds**
+    Please use :py:method:`~spooq.transformer.mapper_transformations.unix_timestamp_to_unix_timestamp` directly instead.
     """
     return spq_trans.unix_timestamp_to_unix_timestamp(input_time_unit="sec", output_time_unit="ms")(source_column, name)
 
@@ -253,201 +188,233 @@ def _generate_select_expression_for_timestamp_s_to_ms(source_column, name):
 
 def _generate_select_expression_for_timestamp_s_to_s(source_column, name):
     """
-    This Constructor is used for unix timestamps. The values are cleaned
-    next to casting and renaming.
-    If the values are not between `01.01.1970` and `31.12.2099`,
-    NULL will be returned.
-    Cast to :any:`pyspark.sql.types.LongType`
+    Deprecated!
+
+    Please just use `T.LongType()' as data_type (this method doesn't do any cleansing anymore)!
+    """
+    return spq_trans.unix_timestamp_to_unix_timestamp(input_time_unit="sec", output_time_unit="sec")(source_column, name)
+
+
+def _generate_select_expression_for_StringNull(source_column, name):  # noqa: N802
+    """
+    Deprecated!
+
+    Please just use `F.lit(None)` as source_column and `T.StringType()' as data_type!
+    """
+
+    def _inner_func(source_column, name):
+        return F.lit(None).cast(T.StringType()).alias(name)
+
+    return partial(_inner_func)
+
+
+
+def _generate_select_expression_for_IntNull(source_column, name):  # noqa: N802
+    """
+    Deprecated!
+
+    Please just use `F.lit(None)` as source_column and `T.IntegerType()' as data_type!
+    """
+
+    def _inner_func(source_column, name):
+        return F.lit(None).cast(T.IntegerType()).alias(name)
+
+    return partial(_inner_func)
+
+
+def _generate_select_expression_for_StringBoolean(source_column, name):  # noqa: N802
+    """
+    Deprecated!
+
+    Please use :py:method:`~spooq.transformer.mapper_transformations.has_value` instead.
+
+    Used for Anonymizing.
+    The column's value will be replaced by `"1"` if it is:
+
+        * not NULL and
+        * not an empty string
 
     Example
     -------
     >>> from pyspark.sql import Row
     >>> from spooq.transformer import Mapper
     >>>
-    >>> input_df = spark.createDataFrame([
-    >>>     Row(time_sec=1581540839),  # 02/12/2020 @ 8:53pm (UTC)
-    >>>     Row(time_sec=-4887839),    # Invalid!
-    >>>     Row(time_sec=4737139200)   # 02/12/2120 @ 12:00am (UTC)
-    >>> ])
+    >>> input_df = spark.createDataFrame(
+    >>>     [Row(email=u'tsivorn1@who.int'),
+    >>>      Row(email=u''),
+    >>>      Row(email=u'gisaksen4@skype.com')]
+    >>> )
     >>>
-    >>> mapping = [("unix_ts", "time_sec", "timestamp_s_to_ms")]
+    >>> mapping = [("email", "email", "StringBoolean")]
     >>> output_df = Mapper(mapping).transform(input_df)
     >>> output_df.head(3)
-    [Row(unix_ts=1581540839), Row(unix_ts=None), Row(unix_ts=None)]
-
-    Note
-    ----
-    *input*  in **seconds**
-    *output* in **seconds**
+    [Row(email=u'1'), Row(email=None), Row(email=u'1')]
     """
-    return spq_trans.unix_timestamp_to_unix_timestamp(input_time_unit="sec", output_time_unit="sec")(source_column, name)
+    def _inner_func(source_column, name):
+        return (
+            F.when(source_column.isNull(), F.lit(None))
+                .when(source_column == "", F.lit(None))
+                .otherwise("1")
+                .cast(T.StringType())
+                .alias(name)
+        )
 
-
-def _generate_select_expression_for_StringNull(source_column, name):  # noqa: N802
-
-
-
-
-def _generate_select_expression_for_IntNull(source_column, name):  # noqa: N802
-
-
-
-
-def _generate_select_expression_for_StringBoolean(source_column, name):  # noqa: N802
-
-
+    return partial(_inner_func)
 
 
 def _generate_select_expression_for_IntBoolean(source_column, name):  # noqa: N802
+    """
+    Deprecated!
 
+    Please use :py:method:`~spooq.transformer.mapper_transformations.has_value` instead.
 
+    Used for Anonymizing.
+    The column's value will be replaced by `1` if it contains a non-NULL value.
+
+    Example
+    -------
+    >>> from pyspark.sql import Row
+    >>> from spooq.transformer import Mapper
+    >>>
+    >>> input_df = spark.createDataFrame(
+    >>>     [Row(facebook_id=3047288),
+    >>>      Row(facebook_id=0),
+    >>>      Row(facebook_id=None)]
+    >>> )
+    >>>
+    >>> mapping = [("facebook_id", "facebook_id", "IntBoolean")]
+    >>> output_df = Mapper(mapping).transform(input_df)
+    >>> output_df.head(3)
+    [Row(facebook_id=1), Row(facebook_id=1), Row(facebook_id=None)]
+
+    Note
+    ----
+    `0` (zero) or negative numbers are still considered as valid values and therefore converted to `1`.
+    """
+    def _inner_func(source_column, name):
+        return F.when(source_column.isNull(), F.lit(None)).otherwise(1).cast(T.IntegerType()).alias(name)
+
+    return partial(_inner_func)
 
 
 def _generate_select_expression_for_TimestampMonth(source_column, name):  # noqa: N802
+    """
+    Deprecated!
 
-
+    Please use :py:method:`~spooq.transformer.mapper_transformations.has_value` instead.
+    """
+    return spq_trans.spark_timestamp_to_first_of_month()(source_column, name)
 
 
 def _generate_select_expression_for_meters_to_cm(source_column, name):
+    """
+    Deprecated!
 
-
+    Please use :py:method:`~spooq.transformer.mapper_transformations.meters_to_cm` directly instead.
+    """
+    return spq_trans.meters_to_cm()(source_column, name)
 
 
 def _generate_select_expression_for_has_value(source_column, name):
+    """
+    Deprecated!
 
-
+    Please use :py:method:`~spooq.transformer.mapper_transformations.has_value` directly instead.
+    """
+    return spq_trans.has_value()(source_column, name)
 
 
 def _generate_select_expression_for_unix_timestamp_ms_to_spark_timestamp(source_column, name):
+    """
+    Deprecated!
 
+    Please use :py:method:`~spooq.transformer.mapper_transformations.extended_string_to_timestamp` directly instead.
+    """
+    return spq_trans.extended_string_to_timestamp()(source_column, name)
 
 
 def _generate_select_expression_for_extended_string_to_int(source_column, name):
-    return spq_trans.extended_string_to_number()(source_column, name, output_type=T.IntegerType())
+    """
+    Deprecated!
+
+    Please use :py:method:`~spooq.transformer.mapper_transformations.extended_string_to_number` directly instead
+    and define the `output_type` as `T.IntegerType()`.
+    """
+    return spq_trans.extended_string_to_number(output_type=T.IntegerType())(source_column, name)
 
 
 def _generate_select_expression_for_extended_string_to_long(source_column, name):
     """
-    More robust conversion from StringType to LongType.
-    Is able to additionally handle (compared to implicit Spark conversion):
+    Deprecated!
 
-    * Preceding whitespace
-    * Trailing whitespace
-    * Preceeding and trailing whitespace
-    * underscores as thousand separators
-
-    Hint
-    ----
-    Please have a look at the tests to get a better feeling how it behaves under
-    tests/unit/transformer/test_mapper_custom_data_types.py::TestExtendedStringConversions and
-    tests/data/test_fixtures/mapper_custom_data_types_fixtures.py
-
-    Example
-    -------
-    >>> from spooq.transformer import Mapper
-    >>>
-    >>> input_df.head(3)
-    [Row(input_string="  21474836470 "),
-     Row(input_string="Hello"),
-     Row(input_string="21_474_836_470")]
-    >>> mapping = [("output_value", "input_string", "extended_string_to_long")]
-    >>> output_df = Mapper(mapping).transform(input_df)
-    >>> output_df.head(3)
-    [Row(input_string=21474836470),
-     Row(input_string=None),
-     Row(input_string=21474836470)]
+    Please use :py:method:`~spooq.transformer.mapper_transformations.extended_string_to_number` directly instead
+    and define the `output_type` as `T.LongType()`.
     """
-    return spq_trans.extended_string_to_number()(source_column, name, output_type=T.LongType())
+    return spq_trans.extended_string_to_number(output_type=T.LongType())(source_column, name)
 
 
 def _generate_select_expression_for_extended_string_to_float(source_column, name):
     """
-    More robust conversion from StringType to FloatType.
-    Is able to additionally handle (compared to implicit Spark conversion):
+    Deprecated!
 
-    * Preceding whitespace
-    * Trailing whitespace
-    * Preceeding and trailing whitespace
-    * underscores as thousand separators
-
-    Hint
-    ----
-    Please have a look at the tests to get a better feeling how it behaves under
-    tests/unit/transformer/test_mapper_custom_data_types.py::TestExtendedStringConversions and
-    tests/data/test_fixtures/mapper_custom_data_types_fixtures.py
-
-    Example
-    -------
-    >>> from spooq.transformer import Mapper
-    >>>
-    >>> input_df.head(3)
-    [Row(input_string="  836470.819 "),
-     Row(input_string="Hello"),
-     Row(input_string="836_470.819")]
-    >>> mapping = [("output_value", "input_string", "extended_string_to_float")]
-    >>> output_df = Mapper(mapping).transform(input_df)
-    >>> output_df.head(3)
-    [Row(input_string=836470.819),
-     Row(input_string=None),
-     Row(input_string=836470.819)]
+    Please use :py:method:`~spooq.transformer.mapper_transformations.extended_string_to_number` directly instead
+    and define the `output_type` as `T.FloatType()`.
     """
-    return spq_trans.extended_string_to_number()(source_column, name, output_type=T.FloatType())
+    return spq_trans.extended_string_to_number(output_type=T.FloatType())(source_column, name)
 
 
 def _generate_select_expression_for_extended_string_to_double(source_column, name):
     """
-    More robust conversion from StringType to DoubleType.
-    Is able to additionally handle (compared to implicit Spark conversion):
+    Deprecated!
 
-    * Preceding whitespace
-    * Trailing whitespace
-    * Preceeding and trailing whitespace
-    * underscores as thousand separators
-
-    Hint
-    ----
-    Please have a look at the tests to get a better feeling how it behaves under
-    tests/unit/transformer/test_mapper_custom_data_types.py::TestExtendedStringConversions and
-    tests/data/test_fixtures/mapper_custom_data_types_fixtures.py
-
-    Example
-    -------
-    >>> from spooq.transformer import Mapper
-    >>>
-    >>> input_df.head(3)
-    [Row(input_string="  21474838464.70 "),
-     Row(input_string="Hello"),
-     Row(input_string="21_474_838_464.70")]
-    >>> mapping = [("output_value", "input_string", "extended_string_to_double")]
-    >>> output_df = Mapper(mapping).transform(input_df)
-    >>> output_df.head(3)
-    [Row(input_string=21474838464.7),
-     Row(input_string=None),
-     Row(input_string=21474838464.70)]
+    Please use :py:method:`~spooq.transformer.mapper_transformations.extended_string_to_number` directly instead
+    and define the `output_type` as `T.DoubleType()`.
     """
-    return spq_trans.extended_string_to_number()(source_column, name, output_type=T.DoubleType())
+    return spq_trans.extended_string_to_number(output_type=T.DoubleType())(source_column, name)
 
 
 def _generate_select_expression_for_extended_string_to_boolean(source_column, name):
+    """
+    Deprecated!
+
+    Please use :py:method:`~spooq.transformer.mapper_transformations.extended_string_to_boolean` directly instead.
+    """
+    return spq_trans.extended_string_to_boolean()(source_column, name)
 
 
 def _generate_select_expression_for_extended_string_to_timestamp(source_column, name):
+    """
+    Deprecated!
 
-
+    Please use :py:method:`~spooq.transformer.mapper_transformations.extended_string_to_timestamp` directly instead.
+    """
+    return spq_trans.extended_string_to_timestamp()(source_column, name)
 
 
 def _generate_select_expression_for_extended_string_to_date(source_column, name):
+    """
+    Deprecated!
 
-    return _generate_select_expression_for_extended_string_to_timestamp(source_column, name).cast(T.DateType())
+    Please use :py:method:`~spooq.transformer.mapper_transformations.extended_string_to_timestamp`
+    with `output_type=T.DateType()` directly instead.
+    """
+    return spq_trans.extended_string_to_timestamp(output_type=T.DateType())(source_column, name)
 
 
 def _generate_select_expression_for_extended_string_unix_timestamp_ms_to_timestamp(source_column, name):
+    """
+    Deprecated!
 
-
+    Please use :py:method:`~spooq.transformer.mapper_transformations.extended_string_to_timestamp` directly instead.
+    """
+    return spq_trans.extended_string_to_timestamp()(source_column, name)
 
 
 def _generate_select_expression_for_extended_string_unix_timestamp_ms_to_date(source_column, name):
+    """
+    Deprecated!
 
-    return _generate_select_expression_for_extended_string_unix_timestamp_ms_to_timestamp(source_column, name).cast(
-        T.DateType()
-    )
+    Please use :py:method:`~spooq.transformer.mapper_transformations.extended_string_to_timestamp`
+    with `output_type=T.DateType()` directly instead.
+    """
+    return spq_trans.extended_string_to_timestamp(output_type=T.DateType())(source_column, name)
