@@ -1,3 +1,4 @@
+import IPython
 from builtins import object
 import json
 import pytest
@@ -55,81 +56,12 @@ def get_input_df(spark_session, spark_context, source_key, input_value):
 
 
 class TestDynamicallyCallMethodsByDataTypeName(object):
-    # fmt: off
-    @pytest.mark.parametrize(("function_name", "data_type"), [
-        ("_generate_select_expression_for_as_is",                        "as_is"),
-        ("_generate_select_expression_without_casting",                  "as_is"),
-        ("_generate_select_expression_without_casting",                  "keep"),
-        ("_generate_select_expression_without_casting",                  "no_change"),
-        ("_generate_select_expression_for_json_string",                  "json_string"),
-        ("_generate_select_expression_for_meters_to_cm",                 "meters_to_cm"),
-        ("_generate_select_expression_for_has_value",                    "has_value"),
-        ("_generate_select_expression_for_timestamp_ms_to_ms",           "timestamp_ms_to_ms"),
-        ("_generate_select_expression_for_timestamp_ms_to_s",            "timestamp_ms_to_s"),
-        ("_generate_select_expression_for_timestamp_s_to_ms",            "timestamp_s_to_ms"),
-        ("_generate_select_expression_for_timestamp_s_to_ms",            "timestamp_s_to_ms"),
-        ("_generate_select_expression_for_StringNull",                   "StringNull"),
-        ("_generate_select_expression_for_IntNull",                      "IntNull"),
-        ("_generate_select_expression_for_IntBoolean",                   "IntBoolean"),
-        ("_generate_select_expression_for_StringBoolean",                "StringBoolean"),
-        ("_generate_select_expression_for_TimestampMonth",               "TimestampMonth"),
-        ("_generate_select_expression_for_extended_string_to_int",       "extended_string_to_int"),
-        ("_generate_select_expression_for_extended_string_to_long",      "extended_string_to_long"),
-        ("_generate_select_expression_for_extended_string_to_float",     "extended_string_to_float"),
-        ("_generate_select_expression_for_extended_string_to_double",    "extended_string_to_double"),
-        ("_generate_select_expression_for_extended_string_to_boolean",   "extended_string_to_boolean"),
-        ("_generate_select_expression_for_extended_string_to_timestamp", "extended_string_to_timestamp"),
-        ("_generate_select_expression_for_extended_string_unix_timestamp_ms_to_timestamp",
-         "extended_string_unix_timestamp_ms_to_timestamp"),
-    ])
-    # fmt: on
-    def test_get_select_expression_for_custom_type(self, data_type, function_name, mocker):
-        source_column, name = "element.key", "element_key"
-        mocked_function = mocker.patch.object(custom_types, function_name)
-        custom_types._get_select_expression_for_custom_type(source_column, name, data_type)
-
-        mocked_function.assert_called_once_with(source_column, name)
-
     def test_exception_is_raised_if_data_type_not_found(self):
         source_column, name = "element.key", "element_key"
         data_type = "NowhereToBeFound"
 
         with pytest.raises(AttributeError):
             custom_types._get_select_expression_for_custom_type(source_column, name, data_type)
-
-
-class TestAdHocSparkSqlFunctions(object):
-    @staticmethod
-    def create_input_df(input_value_1, input_value_2, spark_session):
-        spark_schema = T.StructType(
-            [
-                T.StructField(
-                    "nested",
-                    T.StructType(
-                        [
-                            T.StructField("input_key_1", get_spark_data_type(input_value_1)),
-                            T.StructField("input_key_2", get_spark_data_type(input_value_2)),
-                        ]
-                    ),
-                )
-            ]
-        )
-        return spark_session.createDataFrame(
-            data=[Row(nested=Row(input_key_1=input_value_1, input_key_2=input_value_2))], schema=spark_schema
-        )
-
-    @pytest.mark.parametrize(
-        argnames=("input_value_1", "input_value_2", "mapper_function", "expected_value"),
-        argvalues=fixtures_for_spark_sql_object,
-    )
-    def test_spark_sql_object(self, spark_session, input_value_1, input_value_2, mapper_function, expected_value):
-        input_df = self.create_input_df(input_value_1, input_value_2, spark_session)
-        output_df = Mapper(mapping=[("output_key", mapper_function, "as_is")]).transform(input_df)
-        actual = output_df.first().output_key
-        if isinstance(expected_value, datetime.datetime):
-            assert (expected_value - datetime.timedelta(seconds=30)) < actual < datetime.datetime.now()
-        else:
-            assert actual == expected_value
 
 
 class TestMiscConversions(object):
@@ -155,18 +87,17 @@ class TestMiscConversions(object):
     # fmt: on
     def test_generate_select_expression_without_casting(self, input_value, value, spark_session, spark_context):
         source_key, name = "demographics", "statistics"
+        mapping = [ (name, f"attributes.data.{source_key}", "as_is"), ]
         input_df = get_input_df(spark_session, spark_context, source_key, input_value)
-        result_column = custom_types._generate_select_expression_for_as_is(
-            source_column=input_df["attributes"]["data"][source_key], name=name
-        )
-        output_df = input_df.select(result_column)
+        output_df = Mapper(mapping).transform(input_df)
+
         assert output_df.schema.fieldNames() == [name], "Renaming of column"
         assert output_df.first()[name] == value, "Processing of column value"
 
     # fmt: off
     @pytest.mark.parametrize(("input_value", "value"), [
         ("only some text",
-        "only some text"),
+         "only some text"),
         (None,
          None),
         ({"key": "value"},
@@ -185,11 +116,10 @@ class TestMiscConversions(object):
     # fmt: on
     def test_generate_select_expression_for_json_string(self, input_value, value, spark_session, spark_context):
         source_key, name = "demographics", "statistics"
+        mapping = [ (name, f"attributes.data.{source_key}", "json_string"), ]
         input_df = get_input_df(spark_session, spark_context, source_key, input_value)
-        result_column = custom_types._generate_select_expression_for_json_string(
-            source_column=input_df["attributes"]["data"][source_key], name=name
-        )
-        output_df = input_df.select(result_column)
+        output_df = Mapper(mapping).transform(input_df)
+
         assert output_df.schema.fieldNames() == [name], "Renaming of column"
         assert output_df.schema[name].dataType.typeName() == "string", "Casting of column"
         assert output_df.first()[name] == value, "Processing of column value"
@@ -494,11 +424,9 @@ class TestAnonymizingMethods(object):
     # fmt: on
     def test_generate_select_expression_for_StringBoolean(self, input_value, value, spark_session, spark_context):
         source_key, name = "email_address", "mail"
+        mapping = [ (name, f"attributes.data.{source_key}", "StringBoolean"), ]
         input_df = get_input_df(spark_session, spark_context, source_key, input_value)
-        result_column = custom_types._generate_select_expression_for_StringBoolean(
-            source_column=input_df["attributes"]["data"][source_key], name=name
-        )
-        output_df = input_df.select(result_column)
+        output_df = Mapper(mapping).transform(input_df)
 
         assert output_df.schema.fieldNames() == [name], "Renaming of column"
         assert output_df.schema[name].dataType.typeName() == "string", "Casting of column"
@@ -651,17 +579,17 @@ class TestAnonymizingMethods(object):
 class TestTimestampMethods(object):
     # fmt: off
     @pytest.mark.parametrize(("input_value", "value"), [
-        (0,              0),              # minimum valid timestamp
-        (-1,             None),           # minimum valid timestamp - 1 ms
-        (None,           None),
-        (4102358400000,  4102358400000),  # maximum valid timestamp
-        (4102358400001,  None),           # maximum valid timestamp + 1 ms
-        (5049688276000,  None),
-        (3469296996000,  3469296996000),
-        (7405162940000,  None),
-        (2769601503000,  2769601503000),
-        (-1429593275000, None),
-        (3412549669000,  3412549669000),
+        (              -1,              -1),
+        (               0,               0),
+        (               1,               1),
+        (            None,            None),
+        (   5049688276000,   5049688276000),
+        (   3469296996000,   3469296996000),
+        (   7405162940000,   7405162940000),
+        (   2769601503000,   2769601503000),
+        ( "2769601503000",   2769601503000),
+        (  -1429593275000,  -1429593275000),
+        (   3412549669000,   3412549669000),
     ])
     # fmt: on
     def test_generate_select_expression_for_timestamp_ms_to_ms(self, input_value, value, spark_session, spark_context):
@@ -678,17 +606,19 @@ class TestTimestampMethods(object):
 
     # fmt: off
     @pytest.mark.parametrize(("input_value", "value"), [
-        (0,              0),           # minimum valid timestamp
-        (-1,             None),        # minimum valid timestamp - 1 ms
-        (None,           None),
-        (4102358400000,  4102358400),  # maximum valid timestamp
-        (4102358400001,  None),        # maximum valid timestamp + 1 ms
-        (5049688276000,  None),
-        (3469296996000,  3469296996),
-        (7405162940000,  None),
-        (2769601503000,  2769601503),
-        (-1429593275000, None),
-        (3412549669000,  3412549669),
+        (              1,            0),
+        (              0,            0),
+        (             -1,            0),
+        (           None,         None),
+        (  4102358400000,   4102358400),
+        (  4102358400001,   4102358400),
+        (  5049688276000,   5049688276),
+        (  3469296996000,   3469296996),
+        (  7405162940000,   7405162940),
+        (  2769601503000,   2769601503),
+        ( -1429593275000,  -1429593275),
+        (  3412549669000,   3412549669),
+        ("2769601503000",   2769601503),
     ])
     # fmt: on
     def test_generate_select_expression_for_timestamp_ms_to_s(self, input_value, value, spark_session, spark_context):
@@ -705,17 +635,18 @@ class TestTimestampMethods(object):
 
     # fmt: off
     @pytest.mark.parametrize(("input_value", "value"), [
-        (0,           0),              # minimum valid timestamp
-        (-1,          None),           # minimum valid timestamp - 1 s
-        (None,        None),
-        (4102358400,  4102358400000),  # maximum valid timestamp
-        (4102358401,  None),           # maximum valid timestamp + 1 s
-        (5049688276,  None),
-        (3469296996,  3469296996000),
-        (7405162940,  None),
-        (2769601503,  2769601503000),
-        (-1429593275, None),
-        (3412549669,  3412549669000),
+        (           1,            1000),
+        (           0,               0),
+        (          -1,           -1000),
+        (        None,            None),
+        (  4102358400,   4102358400000),
+        (  5049688276,   5049688276000),
+        (  3469296996,   3469296996000),
+        (  7405162940,   7405162940000),
+        (  2769601503,   2769601503000),
+        ( -1429593275,  -1429593275000),
+        (  3412549669,   3412549669000),
+        ("2769601503",   2769601503000),
     ])
     # fmt: on
     def test_generate_select_expression_for_timestamp_s_to_ms(self, input_value, value, spark_session, spark_context):
@@ -732,17 +663,18 @@ class TestTimestampMethods(object):
 
     # fmt: off
     @pytest.mark.parametrize(("input_value", "value"), [
-        (0,           0),           # minimum valid timestamp
-        (-1,          None),        # minimum valid timestamp - 1 s
-        (None,        None),
-        (4102358400,  4102358400),  # maximum valid timestamp
-        (4102358401,  None),        # maximum valid timestamp + 1 s
-        (5049688276,  None),
-        (3469296996,  3469296996),
-        (7405162940,  None),
-        (2769601503,  2769601503),
-        (-1429593275, None),
-        (3412549669,  3412549669),
+        (           1,            1),
+        (           0,            0),
+        (          -1,           -1),
+        (        None,         None),
+        (  4102358400,   4102358400),
+        (  5049688276,   5049688276),
+        (  3469296996,   3469296996),
+        (  7405162940,   7405162940),
+        (  2769601503,   2769601503),
+        ( -1429593275,  -1429593275),
+        (  3412549669,   3412549669),
+        ("2769601503",   2769601503),
     ])
     # fmt: on
     def test_generate_select_expression_for_timestamp_s_to_s(self, input_value, value, spark_session, spark_context):

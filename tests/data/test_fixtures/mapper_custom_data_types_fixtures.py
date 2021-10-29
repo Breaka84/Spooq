@@ -378,14 +378,14 @@ fixtures_for_extended_string_to_date_spark2 = [
 fixtures_for_extended_string_to_date = [
     ("2020-08-12T12:43:14+0000",   datetime.date(2020, 8, 12)),
     ("2020-08-12T12:43:14+00:00",  datetime.date(2020, 8, 12)),
-    ("2020-08-12T12:43:14Z00:00",  None),  # No `Z` allowed by Spark3 for timezone settings (only `+HH:MM`)
-    ("2020-08-12T12:43:14Z0000",   None),  # No `Z` allowed by Spark3 for timezone settings (only `+HH:MM`)
+    ("2020-08-12T12:43:14Z00:00",  datetime.date(2020, 8, 12)),
+    ("2020-08-12T12:43:14Z0000",   datetime.date(2020, 8, 12)),
     ("  2020-08-12T12:43:14+0000", datetime.date(2020, 8, 12)),
     ("2020-08-12T12:43:14+0000  ", datetime.date(2020, 8, 12)),
     (" 2020-08-12T12:43:14+0000 ", datetime.date(2020, 8, 12)),
     ("2020-08-12T12:43:14+02:00",  datetime.date(2020, 8, 12)),
-    ("2020-08-12T12:43:14+0200",   None),  # only `+HH:MM` is supported by Spark for timezone offsets
-    ("2020-08-12T12:43:14Z0200",   None),  # only `+HH:MM` is supported by Spark for timezone offsets
+    ("2020-08-12T12:43:14+0200",   datetime.date(2020, 8, 12)),
+    ("2020-08-12T12:43:14Z0200",   datetime.date(2020, 8, 12)),
     ("2020-08-12T12:43:14",        datetime.date(2020, 8, 12)),
     ("2020-08-12 12:43:14",        datetime.date(2020, 8, 12)),
     ("2020-08-12",                 datetime.date(2020, 8, 12)),
@@ -435,14 +435,14 @@ fixtures_for_extended_string_unix_timestamp_ms_to_date_spark2 = [
 fixtures_for_extended_string_unix_timestamp_ms_to_date = [
     ("2020-08-12T12:43:14+0000",   datetime.date(2020, 8, 12)),
     ("2020-08-12T12:43:14+00:00",  datetime.date(2020, 8, 12)),
-    ("2020-08-12T12:43:14Z00:00",  None),  # No `Z` allowed by Spark3 for timezone settings (only `+HH:MM`)
-    ("2020-08-12T12:43:14Z0000",   None),  # No `Z` allowed by Spark3 for timezone settings (only `+HH:MM`)
+    ("2020-08-12T12:43:14Z00:00",  datetime.date(2020, 8, 12)),
+    ("2020-08-12T12:43:14Z0000",   datetime.date(2020, 8, 12)),
     ("  2020-08-12T12:43:14+0000", datetime.date(2020, 8, 12)),
     ("2020-08-12T12:43:14+0000  ", datetime.date(2020, 8, 12)),
     (" 2020-08-12T12:43:14+0000 ", datetime.date(2020, 8, 12)),
     ("2020-08-12T12:43:14+02:00",  datetime.date(2020, 8, 12)),
-    ("2020-08-12T12:43:14+0200",   None),  # only `+HH:MM` is supported by Spark for timezone offsets
-    ("2020-08-12T12:43:14Z0200",   None),  # only `+HH:MM` is supported by Spark for timezone offsets
+    ("2020-08-12T12:43:14+0200",   datetime.date(2020, 8, 12)),
+    ("2020-08-12T12:43:14Z0200",   datetime.date(2020, 8, 12)),
     ("2020-08-12T12:43:14",        datetime.date(2020, 8, 12)),
     ("2020-08-12 12:43:14",        datetime.date(2020, 8, 12)),
     ("2020-08-12",                 datetime.date(2020, 8, 12)),

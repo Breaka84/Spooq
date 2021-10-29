@@ -45,10 +45,19 @@ def as_is(**kwargs: Any) -> partial:
      Row(my_friends=[]),
      Row(my_friends=[Row(first_name=u'Daphn\xe9e', id=16707, last_name=u'Lyddiard'), Row(first_name=u'Ad\xe9la\xefde', id=17429, last_name=u'Wisdom')])]
     """
-    def _inner_func(source_column, name):
+    def _inner_func(source_column, name, alternative_source_columns, output_type):
+        if alternative_source_columns:
+            source_column = _coalesce_source_columns(source_column, alternative_source_columns)
+        if output_type:
+            source_column = source_column.cast(output_type)
         return source_column.alias(name)
 
-    return partial(_inner_func)
+    args = dict(
+        alternative_source_columns=kwargs.get("alternative_source_columns", False),
+        output_type=kwargs.get("output_type", False),
+    )
+
+    return partial(_inner_func, **args)
 
 
 def to_json_string(**kwargs: Any) -> partial:
@@ -129,12 +138,12 @@ def unix_timestamp_to_unix_timestamp(**kwargs: Any) -> partial:
         if alternative_source_columns:
             source_column = _coalesce_source_columns(source_column, alternative_source_columns)
         if input_time_unit == "ms":
-            source_column = source_column / 1_000
+            source_column = source_column / 1_000.0
 
-        output_column = source_column.cast(T.LongType())
+        output_column = source_column.cast(T.DoubleType())
 
         if output_time_unit == "ms":
-            output_column = output_column * 1_000
+            output_column = output_column * 1_000.0
 
         return output_column.cast(output_type).alias(name)
 
@@ -421,10 +430,10 @@ def extended_string_to_timestamp(**kwargs: Any) -> partial:
         output_col = (
             F.when(
                 F.abs(F.trim(source_column).cast(T.LongType())).between(0, max_timestamp_sec),
-                F.trim(source_column).cast(T.LongType()),
+                F.trim(source_column).cast(T.LongType()).cast(T.TimestampType())
             ).when(
                 F.abs(F.trim(source_column).cast(T.LongType())) > max_timestamp_sec,
-                (F.trim(source_column) / 1000),
+                (F.trim(source_column) / 1000).cast(T.TimestampType())
                 ).otherwise(
                 F.trim(source_column)
             ).cast(output_type)

@@ -53,84 +53,92 @@ def get_input_df(spark_session, spark_context, source_key, input_value):
     return spark_session.read.json(spark_context.parallelize([input_json]))
 
 
-class TestDynamicallyCallMethodsByDataTypeName:
-    # fmt: off
-    @pytest.mark.parametrize(("function_name", "data_type"), [
-        ("_generate_select_expression_for_as_is",                        spq.as_is),
-        ("_generate_select_expression_without_casting",                  spq.as_is),
-        ("_generate_select_expression_without_casting",                  spq.keep),
-        ("_generate_select_expression_without_casting",                  spq.no_change),
-        ("_generate_select_expression_for_json_string",                  spq.json_string),
-        ("_generate_select_expression_for_meters_to_cm",                 spq.meters_to_cm),
-        ("_generate_select_expression_for_has_value",                    spq.has_value),
-        ("_generate_select_expression_for_timestamp_ms_to_ms",           spq.timestamp_ms_to_ms),
-        ("_generate_select_expression_for_timestamp_ms_to_s",            spq.timestamp_ms_to_s),
-        ("_generate_select_expression_for_timestamp_s_to_ms",            spq.timestamp_s_to_ms),
-        ("_generate_select_expression_for_timestamp_s_to_ms",            spq.timestamp_s_to_ms),
-        ("_generate_select_expression_for_StringNull",                   spq.StringNull),
-        ("_generate_select_expression_for_IntNull",                      spq.IntNull),
-        ("_generate_select_expression_for_IntBoolean",                   spq.IntBoolean),
-        ("_generate_select_expression_for_StringBoolean",                spq.StringBoolean),
-        ("_generate_select_expression_for_TimestampMonth",               spq.TimestampMonth),
-        ("_generate_select_expression_for_extended_string_to_int",       spq.extended_string_to_int),
-        ("_generate_select_expression_for_extended_string_to_long",      spq.extended_string_to_long),
-        ("_generate_select_expression_for_extended_string_to_float",     spq.extended_string_to_float),
-        ("_generate_select_expression_for_extended_string_to_double",    spq.extended_string_to_double),
-        ("_generate_select_expression_for_extended_string_to_boolean",   spq.extended_string_to_boolean),
-        ("_generate_select_expression_for_extended_string_to_timestamp", spq.extended_string_to_timestamp),
-        ("_generate_select_expression_for_extended_string_unix_timestamp_ms_to_timestamp",
-         spq.extended_string_unix_timestamp_ms_to_timestamp),
-    ])
-    # fmt: on
-    def test_get_select_expression_for_custom_type(self, data_type, function_name, mocker):
-        source_column, name = "element.key", "element_key"
-        mocked_function = mocker.patch.object(custom_types, function_name)
-        custom_types._get_select_expression_for_custom_type(source_column, name, data_type)
+class TestAdHocSparkSqlFunctions(object):
+    @staticmethod
+    def create_input_df(input_value_1, input_value_2, spark_session):
+        spark_schema = T.StructType(
+            [
+                T.StructField(
+                    "nested",
+                    T.StructType(
+                        [
+                            T.StructField("input_key_1", get_spark_data_type(input_value_1)),
+                            T.StructField("input_key_2", get_spark_data_type(input_value_2)),
+                        ]
+                    ),
+                )
+            ]
+        )
+        return spark_session.createDataFrame(
+            data=[Row(nested=Row(input_key_1=input_value_1, input_key_2=input_value_2))], schema=spark_schema
+        )
 
-        mocked_function.assert_called_once_with(source_column, name)
+    @pytest.mark.parametrize(
+        argnames=("input_value_1", "input_value_2", "mapper_function", "expected_value"),
+        argvalues=fixtures_for_spark_sql_object,
+    )
+    def test_spark_sql_object(self, spark_session, input_value_1, input_value_2, mapper_function, expected_value):
+        input_df = self.create_input_df(input_value_1, input_value_2, spark_session)
+        output_df = Mapper(mapping=[("output_key", mapper_function, "as_is")]).transform(input_df)
+        actual = output_df.first().output_key
+        if isinstance(expected_value, datetime.datetime):
+            assert (expected_value - datetime.timedelta(seconds=30)) < actual < datetime.datetime.now()
+        else:
+            assert actual == expected_value
 
-    def test_exception_is_raised_if_data_type_not_found(self):
-        source_column, name = "element.key", "element_key"
-        data_type = "NowhereToBeFound"
 
-        with pytest.raises(AttributeError):
-            custom_types._get_select_expression_for_custom_type(source_column, name, data_type)
+class TestAsIs:
+    pass
 
-#
-# class TestAdHocSparkSqlFunctions(object):
-#     @staticmethod
-#     def create_input_df(input_value_1, input_value_2, spark_session):
-#         spark_schema = T.StructType(
-#             [
-#                 T.StructField(
-#                     "nested",
-#                     T.StructType(
-#                         [
-#                             T.StructField("input_key_1", get_spark_data_type(input_value_1)),
-#                             T.StructField("input_key_2", get_spark_data_type(input_value_2)),
-#                         ]
-#                     ),
-#                 )
-#             ]
-#         )
-#         return spark_session.createDataFrame(
-#             data=[Row(nested=Row(input_key_1=input_value_1, input_key_2=input_value_2))], schema=spark_schema
-#         )
-#
-#     @pytest.mark.parametrize(
-#         argnames=("input_value_1", "input_value_2", "mapper_function", "expected_value"),
-#         argvalues=fixtures_for_spark_sql_object,
-#     )
-#     def test_spark_sql_object(self, spark_session, input_value_1, input_value_2, mapper_function, expected_value):
-#         input_df = self.create_input_df(input_value_1, input_value_2, spark_session)
-#         output_df = Mapper(mapping=[("output_key", mapper_function, "as_is")]).transform(input_df)
-#         actual = output_df.first().output_key
-#         if isinstance(expected_value, datetime.datetime):
-#             assert (expected_value - datetime.timedelta(seconds=30)) < actual < datetime.datetime.now()
-#         else:
-#             assert actual == expected_value
-#
-#
+
+class TestToJsonString:
+    def test_if_OOTB_function_behaves_the_same(self):
+        assert False
+
+
+class TestUnixTimestampToUnixTimestamp:
+    pass
+
+
+class TestSparkTimestampToFirstOfMonth:
+    pass
+
+
+class TestMetersToCm:
+    pass
+
+
+class TestHasValue:
+    pass
+
+
+class TestExtendedStringToNumber:
+    pass
+
+
+class TestExtendedStringToBoolean:
+    pass
+
+
+class TestExtendedStringToTimestamp:
+    pass
+
+
+class TestCustomTimeFormatToTimestamp:
+    pass
+
+
+class TestStringToArray:
+    pass
+
+
+class TestApplyFunction:
+    pass
+
+
+class TestMapValues:
+    pass
+
 # class TestMiscConversions(object):
 #     # fmt: off
 #     @pytest.mark.parametrize(("input_value", "value"), [
