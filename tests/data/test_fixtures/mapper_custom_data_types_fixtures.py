@@ -1,13 +1,22 @@
 import datetime
 from pyspark.sql import functions as F
 from pyspark.sql import types as T
+from pyspark.sql import Row
+
+
+def get_ids_for_fixture(fixture):
+    return [
+        f" actual: <{actual}> ({type(actual)}) -> expected: <{expected}>  ({type(expected)})"
+        for actual, expected in fixture
+    ]
+
 
 complex_event_expression = (
-        F.when(F.col("nested.input_key_1").isNotNull(), F.col("nested.input_key_1") / 1000)
-            .otherwise(F.col("nested.input_key_2") / 1000)
-            .cast(T.TimestampType())
-            .cast(T.DateType())
-    )
+    F.when(F.col("nested.input_key_1").isNotNull(), F.col("nested.input_key_1") / 1000)
+    .otherwise(F.col("nested.input_key_2") / 1000)
+    .cast(T.TimestampType())
+    .cast(T.DateType())
+)
 
 # fmt: off
 fixtures_for_spark_sql_object = [
@@ -26,6 +35,44 @@ fixtures_for_spark_sql_object = [
     (1597069446000,             None,                complex_event_expression,           datetime.date(2020, 8, 10)),
     (None,                      1597069446000,       complex_event_expression,           datetime.date(2020, 8, 10)),
     (1597242246000,             1597069446000,       complex_event_expression,           datetime.date(2020, 8, 12)),
+]
+
+fixtures_for_as_is = [
+    ("only some text",
+     "only some text"),
+    (None,
+     None),
+    ({"key": "value"},
+     {"key": "value"}),
+    ({"key": {"other_key": "value"}},
+     {"key": {"other_key": "value"}}),
+    ({"age": 18, "weight": 75},
+     {"age": 18, "weight": 75}),
+    ({"list_of_friend_ids": [12, 75, 44, 76]},
+     {"list_of_friend_ids": [12, 75, 44, 76]}),
+    ([{"weight": "75"}, {"weight": "76"}, {"weight": "73"}],
+     [{"weight": "75"}, {"weight": "76"}, {"weight": "73"}]),
+    ({"list_of_friend_ids": [{"id": 12}, {"id": 75}, {"id": 44}, {"id": 76}]},
+     {"list_of_friend_ids": [{"id": 12}, {"id": 75}, {"id": 44}, {"id": 76}]}),
+]
+
+fixtures_for_json_string = [
+    ("only some text",
+     "only some text"),
+    (None,
+     None),
+    ({"key": "value"},
+     '{"key": "value"}'),
+    ({"key": {"other_key": "value"}},
+     '{"key": {"other_key": "value"}}'),
+    ({"age": 18, "weight": 75},
+     '{"age": 18, "weight": 75}'),
+    ({"list_of_friend_ids": [12, 75, 44, 76]},
+     '{"list_of_friend_ids": [12, 75, 44, 76]}'),
+    ([{"weight": "75"}, {"weight": "76"}, {"weight": "73"}],
+     '[{"weight": "75"}, {"weight": "76"}, {"weight": "73"}]'),
+    ({"list_of_friend_ids": [{"id": 12}, {"id": 75}, {"id": 44}, {"id": 76}]},
+     '{"list_of_friend_ids": [{"id": 12}, {"id": 75}, {"id": 44}, {"id": 76}]}')
 ]
 
 fixtures_for_has_value = [
@@ -460,4 +507,3 @@ fixtures_for_extended_string_unix_timestamp_ms_to_date = [
     ("2k",                         None),
 ]
 # fmt:on
-

@@ -1,5 +1,7 @@
 from functools import partial
 from types import FunctionType
+
+import IPython
 from pyspark.sql.utils import AnalysisException
 from pyspark.sql import functions as F
 from pyspark.sql import types as T
@@ -130,7 +132,9 @@ class Mapper(Transformer):
 
         for (name, source_column, data_transformation) in self.mapping:
             self.logger.debug("generating Select statement for attribute: {nm}".format(nm=name))
-            self.logger.debug(f"generate mapping for name: {name!s}, source_column: {source_column!s}, data_transformation: {data_transformation!s}")
+            self.logger.debug(
+                f"generate mapping for name: {name!s}, source_column: {source_column!s}, data_transformation: {data_transformation!s}"
+            )
             source_column = self._get_spark_column(source_column, name, input_df)
             if source_column is None:
                 continue
@@ -231,16 +235,24 @@ class Mapper(Transformer):
         """
         Returns a valid pyspark sql select-expression with cast and alias, depending on the input parameters.
         """
-        self.logger.debug(f"name: {name!s}, source_column: {source_column!s}, data_transformation: {data_transformation!s}")
+        self.logger.debug(
+            f"name: {name!s}, source_column: {source_column!s}, data_transformation: {data_transformation!s}"
+        )
         data_transformation_type = self._get_spark_data_transformation_type(data_transformation)
 
         if data_transformation_type.startswith("spark"):
-            return self._get_select_expression_for_spark_transformation(name, source_column, data_transformation, data_transformation_type)
+            return self._get_select_expression_for_spark_transformation(
+                name, source_column, data_transformation, data_transformation_type
+            )
         elif data_transformation_type.startswith("spooq"):
-            return self._get_select_expression_for_spooq_transformation(name, source_column, data_transformation, data_transformation_type)
+            return self._get_select_expression_for_spooq_transformation(
+                name, source_column, data_transformation, data_transformation_type
+            )
 
     @staticmethod
-    def _get_select_expression_for_spark_transformation(name, source_column, data_transformation, data_transformation_type):
+    def _get_select_expression_for_spark_transformation(
+        name, source_column, data_transformation, data_transformation_type
+    ):
         if data_transformation_type == "spark_data_transformation":
             return source_column.cast(data_transformation).alias(name)
         else:  # spark_data_transformation_string
@@ -249,7 +261,9 @@ class Mapper(Transformer):
             return source_column.cast(data_transformation).alias(name)
 
     @staticmethod
-    def _get_select_expression_for_spooq_transformation(name, source_column, data_transformation, data_transformation_type):
+    def _get_select_expression_for_spooq_transformation(
+        name, source_column, data_transformation, data_transformation_type
+    ):
         if data_transformation_type == "spooq_function":
             try:  # Function returns a partial
                 spooq_partial = data_transformation()
@@ -269,4 +283,3 @@ class Mapper(Transformer):
                 return data_transformation(**args)
         else:  # spooq_function_string
             return _get_select_expression_for_custom_type(source_column, name, data_transformation)
-

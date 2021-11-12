@@ -17,14 +17,7 @@ from pyspark.sql import functions as F, types as T
 
 
 def _coalesce_source_columns(source_column, alternative_source_columns):
-    return F.coalesce(
-        source_column,
-        *[
-            F.col(col)
-            for col
-            in alternative_source_columns
-        ]
-    )
+    return F.coalesce(source_column, *[F.col(col) for col in alternative_source_columns])
 
 
 def as_is(**kwargs: Any) -> partial:
@@ -45,6 +38,7 @@ def as_is(**kwargs: Any) -> partial:
      Row(my_friends=[]),
      Row(my_friends=[Row(first_name=u'Daphn\xe9e', id=16707, last_name=u'Lyddiard'), Row(first_name=u'Ad\xe9la\xefde', id=17429, last_name=u'Wisdom')])]
     """
+
     def _inner_func(source_column, name, alternative_source_columns, output_type):
         if alternative_source_columns:
             source_column = _coalesce_source_columns(source_column, alternative_source_columns)
@@ -81,6 +75,7 @@ def to_json_string(**kwargs: Any) -> partial:
      Row(friends_json=None),
      Row(friends_json=u'[{"first_name": "Daphn\\u00e9e", "last_name": "Lyddiard", "id": 16707}, {"first_name": "Ad\\u00e9la\\u00efde", "last_name": "Wisdom", "id": 17429}]')]
     """
+
     def _inner_func(source_column, name, output_type):
         def _to_json(col):
             if not col:
@@ -134,6 +129,7 @@ def unix_timestamp_to_unix_timestamp(**kwargs: Any) -> partial:
     >>> output_df.head(3)
     [Row(unix_ts=1581540839), Row(unix_ts=-4887839000), Row(unix_ts=4737139200)]
     """
+
     def _inner_func(source_column, name, input_time_unit, output_time_unit, alternative_source_columns, output_type):
         if alternative_source_columns:
             source_column = _coalesce_source_columns(source_column, alternative_source_columns)
@@ -182,6 +178,7 @@ def spark_timestamp_to_first_of_month(**kwargs: Any) -> partial:
      Row(birthday=None),
      Row(birthday=datetime.datetime(1988, 1, 1, 0, 0))]
     """
+
     def _inner_func(source_column, name, alternative_source_columns, output_type):
         if alternative_source_columns:
             source_column = _coalesce_source_columns(source_column, alternative_source_columns)
@@ -189,7 +186,7 @@ def spark_timestamp_to_first_of_month(**kwargs: Any) -> partial:
 
     args = dict(
         alternative_source_columns=kwargs.get("alternative_source_columns", False),
-        output_type=kwargs.get("output_type", T.DateType())
+        output_type=kwargs.get("output_type", T.DateType()),
     )
 
     return partial(_inner_func, **args)
@@ -217,6 +214,7 @@ def meters_to_cm(**kwargs: Any) -> partial:
      Row(size_in_cm=165),
      Row(size_in_cm=205)]
     """
+
     def _inner_func(source_column, name, alternative_source_columns, output_type):
         if alternative_source_columns:
             source_column = _coalesce_source_columns(source_column, alternative_source_columns)
@@ -224,7 +222,7 @@ def meters_to_cm(**kwargs: Any) -> partial:
 
     args = dict(
         alternative_source_columns=kwargs.get("alternative_source_columns", False),
-        output_type=kwargs.get("output_type", T.IntegerType())
+        output_type=kwargs.get("output_type", T.IntegerType()),
     )
 
     return partial(_inner_func, **args)
@@ -263,19 +261,20 @@ def has_value(**kwargs: Any) -> partial:
      Row(result=False)]
 
     """
+
     def _inner_func(source_column, name, alternative_source_columns, output_type):
         if alternative_source_columns:
             source_column = _coalesce_source_columns(source_column, alternative_source_columns)
         return (
             F.when((source_column.isNotNull()) & (source_column.cast(T.StringType()) != ""), F.lit(True))
-                .otherwise(F.lit(False))
-                .cast(output_type)
-                .alias(name)
+            .otherwise(F.lit(False))
+            .cast(output_type)
+            .alias(name)
         )
 
     args = dict(
         alternative_source_columns=kwargs.get("alternative_source_columns", False),
-        output_type=kwargs.get("output_type", T.BooleanType())
+        output_type=kwargs.get("output_type", T.BooleanType()),
     )
 
     return partial(_inner_func, **args)
@@ -315,6 +314,7 @@ def extended_string_to_number(**kwargs: Any) -> partial:
      Row(input_string=None),
      Row(input_string=123456)]
     """
+
     def _inner_func(source_column, name, alternative_source_columns, output_type):
         if alternative_source_columns:
             source_column = _coalesce_source_columns(source_column, alternative_source_columns)
@@ -367,14 +367,19 @@ def extended_string_to_boolean(**kwargs: Any) -> partial:
      Row(input_string=False),
      Row(input_string=True)]
     """
+
     def _inner_func(source_column, name, true_values, false_values, alternative_source_columns, output_type):
         if alternative_source_columns:
             source_column = _coalesce_source_columns(source_column, alternative_source_columns)
         return (
-            F.when(F.trim(source_column).isin(true_values), F.lit(True))
+            (
+                F.when(F.trim(source_column).isin(true_values), F.lit(True))
                 .when(F.trim(source_column).isin(false_values), F.lit(False))
                 .otherwise(F.trim(source_column).cast(T.BooleanType()))
-        ).cast(output_type).alias(name)
+            )
+            .cast(output_type)
+            .alias(name)
+        )
 
     args = dict(
         true_values=kwargs.get("true_values", ["on", "enabled"]),
@@ -424,19 +429,21 @@ def extended_string_to_timestamp(**kwargs: Any) -> partial:
      Row(input_string=datetime.datetime(2020, 8, 10, 14, 24, 6)),
      Row(input_string=datetime.datetime(2020, 8, 12, 0, 0, 0))]
     """
+
     def _inner_func(source_column, name, max_timestamp_sec, date_format, alternative_source_columns, output_type):
         if alternative_source_columns:
             source_column = _coalesce_source_columns(source_column, alternative_source_columns)
         output_col = (
             F.when(
                 F.abs(F.trim(source_column).cast(T.LongType())).between(0, max_timestamp_sec),
-                F.trim(source_column).cast(T.LongType()).cast(T.TimestampType())
-            ).when(
+                F.trim(source_column).cast(T.LongType()).cast(T.TimestampType()),
+            )
+            .when(
                 F.abs(F.trim(source_column).cast(T.LongType())) > max_timestamp_sec,
-                (F.trim(source_column) / 1000).cast(T.TimestampType())
-                ).otherwise(
-                F.trim(source_column)
-            ).cast(output_type)
+                (F.trim(source_column) / 1000).cast(T.TimestampType()),
+            )
+            .otherwise(F.trim(source_column))
+            .cast(output_type)
         )
         if date_format:
             output_col = F.date_format(output_col, date_format)
@@ -459,6 +466,7 @@ def custom_time_format_to_timestamp(**kwargs: Any) -> partial:
         * IntegerType
         * StringType
     """
+
     def _inner_func(source_column, name, input_format, alternative_source_columns, output_type):
         if alternative_source_columns:
             source_column = _coalesce_source_columns(source_column, alternative_source_columns)
@@ -481,13 +489,14 @@ def string_to_array(**kwargs: Any) -> partial:
     If conversion is not possible, the value will be set to null
     Example: "[1,2,3,item1]" --> [1,2,3,null]
     """
+
     def _inner_func(source_column, name, alternative_source_columns, output_type):
         if alternative_source_columns:
             source_column = _coalesce_source_columns(source_column, alternative_source_columns)
         return (
             F.split(F.regexp_replace(source_column, r"^\s*\[*\s*|\s*\]*\s*$", ""), r"\s*,\s*")
-                .cast(T.ArrayType(output_type))
-                .alias(name)
+            .cast(T.ArrayType(output_type))
+            .alias(name)
         )
 
     args = dict(
@@ -502,7 +511,8 @@ def apply_function(**kwargs: Any) -> partial:
     """
     Applies a custom function
     """
-    def _inner_func(source_column, name, alternative_source_columns, output_type):
+
+    def _inner_func(source_column, name, func, alternative_source_columns, output_type):
         if alternative_source_columns:
             source_column = _coalesce_source_columns(source_column, alternative_source_columns)
         return func(source_column).cast(output_type).alias(name)
@@ -537,6 +547,7 @@ def map_values(**kwargs: Any) -> partial:
         .otherwise(batch_df.app_branch)
 
     """
+
     def _inner_func(source_column, name, mapping, default, alternative_source_columns, output_type):
         if alternative_source_columns:
             source_column = _coalesce_source_columns(source_column, alternative_source_columns)

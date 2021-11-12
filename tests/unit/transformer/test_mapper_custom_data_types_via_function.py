@@ -1,16 +1,19 @@
 import json
+
+import IPython
 import pytest
+from chispa import assert_df_equality
 import datetime
-import pandas as pd
-from pyspark.sql import functions as F
 from pyspark.sql import Row
-from pyspark.sql import types as T
+from pyspark.sql import functions as F, types as T
 
 from spooq.transformer import mapper_transformations as spq
-import spooq.transformer.mapper_custom_data_types as custom_types
 from spooq.transformer import Mapper
 from ...data.test_fixtures.mapper_custom_data_types_fixtures import (
+    get_ids_for_fixture,
     fixtures_for_spark_sql_object,
+    fixtures_for_as_is,
+    fixtures_for_json_string,
     fixtures_for_has_value,
     fixtures_for_extended_string_to_int,
     fixtures_for_extended_string_to_long,
@@ -42,18 +45,24 @@ def parameter_to_string_id(val):
     return "<" + str(val) + ">"
 
 
-def parameters_to_string_id(actual_value, expected_value):
-    return " actual: <{a}> ({a_cls}) -> expected: <{e}>  ({e_cls})".format(
-        a=actual_value, a_cls=str(type(actual_value)), e=expected_value, e_cls=str(type(expected_value))
-    )
-
-
 def get_input_df(spark_session, spark_context, source_key, input_value):
     input_json = json.dumps({"attributes": {"data": {source_key: input_value}}})
     return spark_session.read.json(spark_context.parallelize([input_json]))
 
 
-class TestAdHocSparkSqlFunctions(object):
+@pytest.fixture()
+def input_df(request, spark_session, spark_context):
+    input_json = json.dumps({"attributes": {"data": {"some_attribute": request.param}}})
+    return spark_session.read.json(spark_context.parallelize([input_json]))
+
+
+@pytest.fixture()
+def expected_df(request, spark_session, spark_context):
+    input_json = json.dumps({"mapped_name": request.param})
+    return spark_session.read.json(spark_context.parallelize([input_json]))
+
+
+class TestAdHocSparkSqlFunctions:
     @staticmethod
     def create_input_df(input_value_1, input_value_2, spark_session):
         spark_schema = T.StructType(
@@ -88,12 +97,52 @@ class TestAdHocSparkSqlFunctions(object):
 
 
 class TestAsIs:
-    pass
+    @pytest.fixture(scope="class")
+    def mapping(self):
+        return [("mapped_name", "attributes.data.some_attribute", spq.as_is())]
+
+    @pytest.mark.parametrize(
+        argnames="input_df, expected_df",
+        argvalues=fixtures_for_as_is,
+        indirect=["input_df", "expected_df"],
+        ids=get_ids_for_fixture(fixtures_for_as_is),
+    )
+    def test_as_is(self, input_df, expected_df, mapping):
+        output_df = Mapper(mapping).transform(input_df)
+        assert_df_equality(expected_df, output_df)
 
 
 class TestToJsonString:
-    def test_if_OOTB_function_behaves_the_same(self):
-        assert False
+    @pytest.fixture(scope="class")
+    def mapping(self):
+        return [("mapped_name", "attributes.data.some_attribute", spq.to_json_string())]
+
+    @pytest.mark.parametrize(
+        argnames="input_df, expected_df",
+        argvalues=fixtures_for_json_string,
+        indirect=["input_df", "expected_df"],
+        ids=get_ids_for_fixture(fixtures_for_json_string),
+    )
+    def test_to_json_string(self, input_df, expected_df, mapping):
+        output_df = Mapper(mapping).transform(input_df)
+        assert_df_equality(expected_df, output_df)
+
+    @pytest.mark.parametrize(
+        argnames="input_df, expected_df",
+        argvalues=fixtures_for_json_string,
+        indirect=["input_df", "expected_df"],
+        ids=get_ids_for_fixture(fixtures_for_json_string),
+    )
+    def test_if_out_of_the_box_function_behaves_the_same(self, input_df, expected_df):
+        mapping = [("mapped_name", "attributes.data.some_attribute", spq.apply_function(func=F.to_json))]
+        input_value = input_df.first().attributes.data.asDict(True)["some_attribute"]
+        if isinstance(input_value, (type(None), str)):
+            pytest.xfail("Not supported by pyspark's `to_json` function")
+
+        output_df = Mapper(mapping).transform(input_df)
+        assert_df_equality(
+            expected_df.select(F.regexp_replace(F.col("mapped_name"), " ", "").alias("mapped_name")), output_df
+        )
 
 
 class TestUnixTimestampToUnixTimestamp:
@@ -138,6 +187,7 @@ class TestApplyFunction:
 
 class TestMapValues:
     pass
+
 
 # class TestMiscConversions(object):
 #     # fmt: off

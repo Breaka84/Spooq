@@ -11,7 +11,6 @@ from pyspark.sql import types as T
 import spooq.transformer.mapper_custom_data_types as custom_types
 from spooq.transformer import Mapper
 from ...data.test_fixtures.mapper_custom_data_types_fixtures import (
-    fixtures_for_spark_sql_object,
     fixtures_for_has_value,
     fixtures_for_extended_string_to_int,
     fixtures_for_extended_string_to_long,
@@ -87,7 +86,9 @@ class TestMiscConversions(object):
     # fmt: on
     def test_generate_select_expression_without_casting(self, input_value, value, spark_session, spark_context):
         source_key, name = "demographics", "statistics"
-        mapping = [ (name, f"attributes.data.{source_key}", "as_is"), ]
+        mapping = [
+            (name, f"attributes.data.{source_key}", "as_is"),
+        ]
         input_df = get_input_df(spark_session, spark_context, source_key, input_value)
         output_df = Mapper(mapping).transform(input_df)
 
@@ -116,7 +117,9 @@ class TestMiscConversions(object):
     # fmt: on
     def test_generate_select_expression_for_json_string(self, input_value, value, spark_session, spark_context):
         source_key, name = "demographics", "statistics"
-        mapping = [ (name, f"attributes.data.{source_key}", "json_string"), ]
+        mapping = [
+            (name, f"attributes.data.{source_key}", "json_string"),
+        ]
         input_df = get_input_df(spark_session, spark_context, source_key, input_value)
         output_df = Mapper(mapping).transform(input_df)
 
@@ -424,7 +427,9 @@ class TestAnonymizingMethods(object):
     # fmt: on
     def test_generate_select_expression_for_StringBoolean(self, input_value, value, spark_session, spark_context):
         source_key, name = "email_address", "mail"
-        mapping = [ (name, f"attributes.data.{source_key}", "StringBoolean"), ]
+        mapping = [
+            (name, f"attributes.data.{source_key}", "StringBoolean"),
+        ]
         input_df = get_input_df(spark_session, spark_context, source_key, input_value)
         output_df = Mapper(mapping).transform(input_df)
 
