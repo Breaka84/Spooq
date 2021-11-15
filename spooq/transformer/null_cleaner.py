@@ -1,5 +1,4 @@
 import pyspark.sql.functions as F
-import pyspark.sql.types as sql_types
 from pyspark.sql.column import Column
 
 from .base_cleaner import BaseCleaner
@@ -7,66 +6,56 @@ from .base_cleaner import BaseCleaner
 
 class NullCleaner(BaseCleaner):
     """
-    Sets null values within a DataFrame to a default value.
-    Takes a dictionary with valid value ranges for each column to be cleaned.
+    Fills Null values of the specifield fields.
+    Takes a dictionary with the fields to be cleaned and the default value to be set when the field is null.
 
     Examples
     --------
     >>> from pyspark.sql import functions as F
-    >>> from spooq.transformer import ThresholdCleaner
-    >>> transformer = ThresholdCleaner(
-    >>>     thresholds={
-    >>>         "created_at": {
-    >>>             "min": 0,
-    >>>             "max": 1580737513,
-    >>>             "default": F.current_date()
-    >>>         },
-    >>>         "size_cm": {
-    >>>             "min": 70,
-    >>>             "max": 250,
-    >>>             "default": None
-    >>>         },
+    >>> from spooq.transformer import NullCleaner
+    >>> transformer = NullCleaner(
+    >>>     cleaning_definitions={
+    >>>         "points": {
+    >>>             "default": 0
+    >>>         }
     >>>     }
     >>> )
 
-    >>> from spooq.transformer import ThresholdCleaner
+    >>> from spooq.transformer import NullCleaner
     >>> from pyspark.sql import Row
     >>>
     >>> input_df = spark.createDataFrame([
-    >>>     Row(id=0, integers=-5, some_factor=-0.75),
-    >>>     Row(id=1, integers= 5, some_factor= 1.25),
-    >>>     Row(id=2, integers=15, some_factor= 0.67),
+    >>>     Row(id=0, points=5),
+    >>>     Row(id=1, points= None),
+    >>>     Row(id=2, points=15),
     >>> ])
-    >>> transformer = ThresholdCleaner(
-    >>>     thresholds={
-    >>>         "integers":    {"min":  0, "max": 10},
-    >>>         "some_factor": {"min": -1, "max":  1}
+    >>> transformer = NullCleaner(
+    >>>     cleaning_definitions={
+    >>>         "points":    {"default":  0},
     >>>     },
-    >>>     column_to_log_cleansed_values="cleansed_values_threshold",
+    >>>     column_to_log_cleansed_values="cleansed_values_null",
     >>>     store_as_map=True,
     >>> )
     >>> output_df = transformer.transform(input_df)
     >>> output_df.show()
-    +---+--------+-----------+-------------------------+
-    | id|integers|some_factor|cleansed_values_threshold|
-    +---+--------+-----------+-------------------------+
-    |  0|    null|      -0.75|         [integers -> -5]|
-    |  1|       5|       null|     [some_factor -> 1...|
-    |  2|    null|       0.67|         [integers -> 15]|
-    +---+--------+-----------+-------------------------+
-    #  Remark: ``some_factor -> 1...`` from the df.show() is a bug, the stored value correctly holds ``"1.25"``
+    +---+------+--------------------+
+    | id|points|cleansed_values_null|
+    +---+------+--------------------+
+    |  0|     5|                null|
+    |  1|     0|    [points -> null]|
+    |  2|    15|                null|
+    +---+------+--------------------+
     >>> output_df.printSchema()
      |-- id: long (nullable = true)
-     |-- integers: long (nullable = true)
-     |-- some_factor: double (nullable = true)
-     |-- cleansed_values_threshold: map (nullable = false)
+     |-- points: long (nullable = true)
+     |-- cleansed_values_null: map (nullable = true)
      |    |-- key: string
      |    |-- value: string (valueContainsNull = true)
 
     Parameters
     ----------
-    thresholds : :py:class:`dict`
-        Dictionary containing column names and respective valid ranges
+    cleaning_definitions : :py:class:`dict`
+        Dictionary containing column names and respective default values
 
     column_to_log_cleansed_values : :any:`str`, Defaults to None
         Defines a column in which the original (uncleansed) value will be stored in case of cleansing. If no column
@@ -78,18 +67,10 @@ class NullCleaner(BaseCleaner):
 
     Note
     ----
-    Following cleansing rule attributes per column are supported:
+    The following cleaning_definitions attributes per column are mandatory:
 
-        * min, mandatory - any
-            A number or timestamp/date which serves as the lower limit for allowed values. Values
-            below this threshold will be cleansed.
-        * max, mandatory - any
-            A number or timestamp/date which serves as the upper limit for allowed values. Values
-            above this threshold will be cleansed.
-        * default, defaults to None - :class:`~pyspark.sql.column.Column` or any primitive Python value
+        * default - :class:`~pyspark.sql.column.Column` or any primitive Python value
             If a value gets cleansed it gets replaced with the provided default value.
-
-    The :meth:`pyspark.sql.functions.between` method is used internally.
 
     Returns
     -------
@@ -99,15 +80,12 @@ class NullCleaner(BaseCleaner):
     Raises
     ------
     :any:`exceptions.ValueError`
-        Threshold-based cleaning only supports Numeric, Date and Timestamp Types!
-        Column with name: {col_name} and type of: {col_type} was provided
-
-    Warning
-    -------
-    Only Numeric, TimestampType, and DateType data types are supported!
+        Null-based cleaning requires the field default.
+        Default parameter is not specified for column with name: {column_name}
     """
 
-    def __init__(self, cleaning_definitions={}, column_to_log_cleansed_values=None, store_as_map=False):
+    def __init__(self, cleaning_definitions=None, column_to_log_cleansed_values=None, store_as_map=False):
+        cleaning_definitions = cleaning_definitions if cleaning_definitions is not None else {}
         super().__init__(
             cleaning_definitions=cleaning_definitions,
             column_to_log_cleansed_values=column_to_log_cleansed_values,
