@@ -112,9 +112,9 @@ class NullCleaner(BaseCleaner):
             cleaning_definitions=cleaning_definitions,
             column_to_log_cleansed_values=column_to_log_cleansed_values,
             store_as_map=store_as_map,
-            temporary_columns_prefix="dac28b56d8055953a7038bfe3b5097e7",
+            temporary_columns_prefix="ead8cn9f7tf0sf1cs1ua61464zti82kj",
         )
-        self.logger.debug("Range Definitions: " + str(self.cleaning_definitions))
+        self.logger.debug("Cleansing Definitions: " + str(self.cleaning_definitions))
 
     def transform(self, input_df):
         self.logger.debug("input_df Schema: " + input_df._jdf.schema().treeString())
@@ -126,10 +126,10 @@ class NullCleaner(BaseCleaner):
             input_df = self._add_temporary_columns(input_df, column_names_to_clean, temporary_column_names)
 
         cleansing_expressions = []
-        for column_name, value_range in list(self.cleaning_definitions.items()):
+        for column_name, cleansing_value in list(self.cleaning_definitions.items()):
 
             data_type = input_df.schema[str(column_name)].dataType
-            substitute = value_range.get("default")
+            substitute = cleansing_value.get("default")
 
             if substitute is None:
                 raise ValueError("Null-based cleaning requires the field default.", f"Default parameter is not specified for column with name: {column_name}")
@@ -137,7 +137,7 @@ class NullCleaner(BaseCleaner):
             if not isinstance(substitute, Column):
                 substitute = F.lit(substitute)
 
-            self.logger.debug("Ranges for column " + column_name + ": " + str(value_range))
+            self.logger.debug("Cleansing value for column " + column_name + ": " + str(cleansing_value))
 
             cleansing_expression = (
                 F.when(
