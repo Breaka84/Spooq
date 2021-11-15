@@ -31,25 +31,6 @@ from ...data.test_fixtures.mapper_custom_data_types_fixtures import (
 )
 
 
-def get_spark_data_type(input_value):
-    return {
-        "str": T.StringType(),
-        "int": T.LongType(),
-        "bool": T.BooleanType(),
-        "float": T.DoubleType(),
-        "NoneType": T.NullType(),
-    }[type(input_value).__name__]
-
-
-def parameter_to_string_id(val):
-    return "<" + str(val) + ">"
-
-
-def get_input_df(spark_session, spark_context, source_key, input_value):
-    input_json = json.dumps({"attributes": {"data": {source_key: input_value}}})
-    return spark_session.read.json(spark_context.parallelize([input_json]))
-
-
 @pytest.fixture()
 def input_df(request, spark_session, spark_context):
     input_json = json.dumps({"attributes": {"data": {"some_attribute": request.param}}})
@@ -64,31 +45,37 @@ def expected_df(request, spark_session, spark_context):
 
 class TestAdHocSparkSqlFunctions:
     @staticmethod
-    def create_input_df(input_value_1, input_value_2, spark_session):
-        spark_schema = T.StructType(
-            [
-                T.StructField(
-                    "nested",
-                    T.StructType(
-                        [
-                            T.StructField("input_key_1", get_spark_data_type(input_value_1)),
-                            T.StructField("input_key_2", get_spark_data_type(input_value_2)),
-                        ]
-                    ),
-                )
-            ]
-        )
-        return spark_session.createDataFrame(
-            data=[Row(nested=Row(input_key_1=input_value_1, input_key_2=input_value_2))], schema=spark_schema
-        )
+    def get_spark_data_type(input_value):
+        return {
+            "str": T.StringType(),
+            "int": T.LongType(),
+            "bool": T.BooleanType(),
+            "float": T.DoubleType(),
+            "NoneType": T.NullType(),
+        }[type(input_value).__name__]
 
     @pytest.mark.parametrize(
         argnames=("input_value_1", "input_value_2", "mapper_function", "expected_value"),
         argvalues=fixtures_for_spark_sql_object,
     )
     def test_spark_sql_object(self, spark_session, input_value_1, input_value_2, mapper_function, expected_value):
-        input_df = self.create_input_df(input_value_1, input_value_2, spark_session)
-        output_df = Mapper(mapping=[("output_key", mapper_function, "as_is")]).transform(input_df)
+        spark_schema = T.StructType(
+            [
+                T.StructField(
+                    "nested",
+                    T.StructType(
+                        [
+                            T.StructField("input_key_1", self.get_spark_data_type(input_value_1)),
+                            T.StructField("input_key_2", self.get_spark_data_type(input_value_2)),
+                        ]
+                    ),
+                )
+            ]
+        )
+        input_df = spark_session.createDataFrame(
+            data=[Row(nested=Row(input_key_1=input_value_1, input_key_2=input_value_2))], schema=spark_schema
+        )
+        output_df = Mapper(mapping=[("output_key", mapper_function, spq.as23_is)]).transform(input_df)
         actual = output_df.first().output_key
         if isinstance(expected_value, datetime.datetime):
             assert (expected_value - datetime.timedelta(seconds=30)) < actual < datetime.datetime.now()
@@ -97,33 +84,27 @@ class TestAdHocSparkSqlFunctions:
 
 
 class TestAsIs:
-    @pytest.fixture(scope="class")
-    def mapping(self):
-        return [("mapped_name", "attributes.data.some_attribute", spq.as_is())]
-
     @pytest.mark.parametrize(
         argnames="input_df, expected_df",
         argvalues=fixtures_for_as_is,
         indirect=["input_df", "expected_df"],
         ids=get_ids_for_fixture(fixtures_for_as_is),
     )
-    def test_as_is(self, input_df, expected_df, mapping):
+    def test_as_is(self, input_df, expected_df):
+        mapping = [("mapped_name", "attributes.data.some_attribute", spq.as_is())]
         output_df = Mapper(mapping).transform(input_df)
         assert_df_equality(expected_df, output_df)
 
 
 class TestToJsonString:
-    @pytest.fixture(scope="class")
-    def mapping(self):
-        return [("mapped_name", "attributes.data.some_attribute", spq.to_json_string())]
-
     @pytest.mark.parametrize(
         argnames="input_df, expected_df",
         argvalues=fixtures_for_json_string,
         indirect=["input_df", "expected_df"],
         ids=get_ids_for_fixture(fixtures_for_json_string),
     )
-    def test_to_json_string(self, input_df, expected_df, mapping):
+    def test_to_json_string(self, input_df, expected_df):
+        mapping = [("mapped_name", "attributes.data.some_attribute", spq.to_json_string())]
         output_df = Mapper(mapping).transform(input_df)
         assert_df_equality(expected_df, output_df)
 
