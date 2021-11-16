@@ -36,8 +36,10 @@ class BaseCleaner(Transformer):
 
     def _log_cleansed_values(self, input_df, column_names, temporary_column_names):
         def _only_keep_cleansed_values(col_name, temporary_col_name):
-            return F.when(F.col(temporary_col_name) == F.col(col_name), F.lit(None)).otherwise(
-                F.col(temporary_col_name)
+            return (F.when(F.col(temporary_col_name) == F.col(col_name), F.lit(None))
+                .otherwise(F.when(F.col(temporary_col_name).isNull() & F.col(col_name).isNull(), F.lit(None))
+                .otherwise(F.when(F.col(temporary_col_name).isNull() & F.col(col_name).isNotNull(), F.lit("null"))
+                .otherwise(F.col(temporary_col_name))))
             )
 
         for column_name, temporary_column_name in zip(column_names, temporary_column_names):
