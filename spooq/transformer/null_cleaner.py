@@ -62,8 +62,8 @@ class NullCleaner(BaseCleaner):
         name is given, nothing will be logged.
 
     store_as_map : :any:`bool`, Defaults to False
-        Specifies if the logged cleansed values should be stored in a column as :any:`pyspark.sql.types.MapType` with
-        stringified values or as :any:`pyspark.sql.types.StructType` with the original respective data types.
+        Specifies if the logged cleansed values should be stored in a column as :any:`pyspark.sql.types.MapType` or as
+        :any:`pyspark.sql.types.StructType` with stringified values.
 
     Note
     ----
