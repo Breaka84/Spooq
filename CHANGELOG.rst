@@ -2,6 +2,10 @@
 Changelog
 =========
 
+3.3.5 (2021-11-16)
+-------------------
+* [MOD] Add Null Cleaner spooq.transformer.NullCleaner
+
 3.3.4 (2021-07-21)
 -------------------
 * [MOD] Store null value instead of an empty Map in case no cleansing was necessary
