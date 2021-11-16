@@ -1,7 +1,7 @@
-Enumeration-based Cleaner
+Null Cleaner
 ===========================
 
-.. automodule:: spooq.transformer.enum_cleaner
+.. automodule:: spooq.transformer.null_cleaner
     :members:
 
 
