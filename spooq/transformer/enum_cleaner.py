@@ -104,7 +104,7 @@ class EnumCleaner(BaseCleaner):
     -------
     None values are explicitly ignored as input values because `F.lit(None).isin(["elem1", "elem2"])` will neither
     return True nor False but None.
-    If you want to replace Null values you should use the method ~pyspark.sql.DataFrame.fillna from Spark.
+    If you want to replace Null values you should use the transformer :py:class:`spooq.transformer.NullCleaner`
     """
 
     def __init__(self, cleaning_definitions={}, column_to_log_cleansed_values=None, store_as_map=False):
