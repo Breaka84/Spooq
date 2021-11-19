@@ -133,3 +133,25 @@ class TestCleansedValuesAreLoggedAsMap:
             cleansing_definitions, column_to_log_cleansed_values="cleansed_values_null", store_as_map=True
         ).transform(input_df)
         assert_df_equality(expected_output_df, output_df)
+
+    def test_single_cleansing_boolean_log_as_map(self, input_df, spark_session):
+        input_boolean_df = spark_session.createDataFrame([Row(b=True), Row(b=None), Row(b=False)])
+        expected_output_schema = T.StructType(
+            [
+                T.StructField("b", T.BooleanType(), True),
+                T.StructField("cleansed_values_null", T.MapType(T.StringType(), T.StringType(), True), True),
+            ]
+        )
+        expected_output_df = spark_session.createDataFrame(
+            [
+                (True, None),
+                (False, {"b": "null"}),
+                (False, None),
+            ],
+            schema=expected_output_schema,
+        )
+        cleansing_definitions = {"b": {"default": False}}
+        output_df = NullCleaner(
+            cleansing_definitions, column_to_log_cleansed_values="cleansed_values_null", store_as_map=True
+        ).transform(input_boolean_df)
+        assert_df_equality(expected_output_df, output_df)
