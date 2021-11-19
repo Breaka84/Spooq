@@ -2,6 +2,10 @@
 Changelog
 =========
 
+3.3.6 (2021-11-19)
+-------------------
+* [FIX] Fix Cleaners logs in case of field type different than string
+
 3.3.5 (2021-11-16)
 -------------------
 * [ADD] Add Null Cleaner spooq.transformer.NullCleaner
