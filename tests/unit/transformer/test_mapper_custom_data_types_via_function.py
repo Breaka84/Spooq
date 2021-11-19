@@ -1,5 +1,4 @@
 import json
-
 import IPython
 import pytest
 from chispa import assert_df_equality
@@ -14,6 +13,8 @@ from ...data.test_fixtures.mapper_custom_data_types_fixtures import (
     fixtures_for_spark_sql_object,
     fixtures_for_as_is,
     fixtures_for_json_string,
+    fixtures_for_timestamp_ms_to_s,
+    fixtures_for_timestamp_s_to_ms,
     fixtures_for_has_value,
     fixtures_for_extended_string_to_int,
     fixtures_for_extended_string_to_long,
@@ -75,7 +76,7 @@ class TestAdHocSparkSqlFunctions:
         input_df = spark_session.createDataFrame(
             data=[Row(nested=Row(input_key_1=input_value_1, input_key_2=input_value_2))], schema=spark_schema
         )
-        output_df = Mapper(mapping=[("output_key", mapper_function, spq.as23_is)]).transform(input_df)
+        output_df = Mapper(mapping=[("output_key", mapper_function, spq.as_is)]).transform(input_df)
         actual = output_df.first().output_key
         if isinstance(expected_value, datetime.datetime):
             assert (expected_value - datetime.timedelta(seconds=30)) < actual < datetime.datetime.now()
@@ -94,6 +95,90 @@ class TestAsIs:
         mapping = [("mapped_name", "attributes.data.some_attribute", spq.as_is())]
         output_df = Mapper(mapping).transform(input_df)
         assert_df_equality(expected_df, output_df)
+
+
+class TestCoalesceColumns:
+    def test_alternative_source_columns(self, spark_session):
+        input_df = spark_session.createDataFrame([
+            Row(
+                str_1=None, str_2="Hello",
+                str_bool_1=None, str_bool_2="True",
+                int_1=None, int_2=1637335255,
+                float_1=None, float_2=1.80,
+                str_int_1=None, str_int_2="1637335255",
+                str_ts_1=None, str_ts_2="2020-08-12 12:43:14",
+                int_date_1=None, int_date_2=20201007,
+                str_array_1=None, str_array_2="1,2,3",
+                str_key_1=None, str_key_2="Y"
+            )
+        ],
+            schema=(
+                "str_1 STRING, str_2 STRING ,"
+                "str_bool_1 STRING, str_bool_2 STRING ,"
+                "int_1 LONG, int_2 LONG ,"
+                "float_1 FLOAT, float_2 FLOAT ,"
+                "str_int_1 STRING, str_int_2 STRING ,"
+                "str_ts_1 STRING, str_ts_2 STRING ,"
+                "int_date_1 LONG, int_date_2 LONG ,"
+                "str_array_1 STRING, str_array_2 STRING ,"
+                "str_key_1 STRING, str_key_2 STRING"
+            )
+        )
+
+        expected_df = spark_session.createDataFrame([
+            Row(
+                as_is="Hello",
+                unix_to_unix=1637335,
+                first_of_month=datetime.date(2020, 8, 1),
+                m_to_cm=180,
+                has_val=True,
+                str_to_num=1637335255,
+                str_to_bool=True,
+                str_to_timestamp="2020-08-12 12:43",
+                custom_to_timestamp="2020-10-07 00:00:00",
+                str_to_array=[1, 2, 3],
+                apply_func="hello",
+                map_vals="Yes",
+            )
+        ],
+            schema=(
+                "as_is STRING, "
+                "unix_to_unix LONG, "
+                "first_of_month DATE, "
+                "m_to_cm INTEGER, "
+                "has_val BOOLEAN, "
+                "str_to_num LONG, "
+                "str_to_bool BOOLEAN, "
+                "str_to_timestamp STRING, "
+                "custom_to_timestamp STRING, "
+                "str_to_array ARRAY<STRING>, "
+                "apply_func STRING, "
+                "map_vals STRING"
+            )
+        )
+
+        # fmt:off
+        mapping = [
+            ("as_is",                "str_1",        spq.as_is(alt_src_cols="str_2")),
+            ("unix_to_unix",         "int_1",        spq.unix_timestamp_to_unix_timestamp(alt_src_cols="int_2")),
+            ("first_of_month",       "str_ts_1",     spq.spark_timestamp_to_first_of_month(alt_src_cols="str_ts_2")),
+            ("m_to_cm",              "float_1",      spq.meters_to_cm(alt_src_cols="float_2")),
+            ("has_val",              "int_1",        spq.has_value(alt_src_cols="int_2")),
+            ("str_to_num",           "str_int_1",    spq.extended_string_to_number(alt_src_cols="str_int_2")),
+            ("str_to_bool",          "str_bool_1",   spq.extended_string_to_boolean(alt_src_cols="str_bool_2")),
+            ("str_to_timestamp",     "str_ts_1",     spq.extended_string_to_timestamp(alt_src_cols="str_ts_2",
+                                                                                      date_format="yyyy-MM-dd HH:mm")),
+            ("custom_to_timestamp",  "int_date_1",   spq.custom_time_format_to_timestamp(alt_src_cols="int_date_2",
+                                                                                         input_format="yyyyMMdd",
+                                                                                         output_type=T.StringType())),
+            ("str_to_array",         "str_array_1",  spq.string_to_array(alt_src_cols="str_array_2")),
+            ("apply_func",           "str_1",        spq.apply_function(alt_src_cols="str_2", func=F.lower)),
+            ("map_vals",             "str_key_1",    spq.map_values(alt_src_cols="str_key_2", mapping={"Y": "Yes"})),
+        ]
+        # fmt:on
+
+        output_df = Mapper(mapping).transform(input_df)
+        assert_df_equality(expected_df, output_df, ignore_nullable=True)
 
 
 class TestToJsonString:
@@ -127,7 +212,37 @@ class TestToJsonString:
 
 
 class TestUnixTimestampToUnixTimestamp:
-    pass
+    @pytest.mark.parametrize(
+        argnames="input_df, expected_df",
+        argvalues=fixtures_for_timestamp_ms_to_s,
+        indirect=["input_df", "expected_df"],
+        ids=get_ids_for_fixture(fixtures_for_timestamp_ms_to_s),
+    )
+    def test_unix_timestamp_ms_to_s(self, input_df, expected_df):
+        mapping = [(
+            "mapped_name",
+            "attributes.data.some_attribute",
+            spq.unix_timestamp_to_unix_timestamp(input_time_unit="ms", output_time_unit="sec")
+        )]
+        output_df = Mapper(mapping).transform(input_df)
+        expected_df = expected_df.select(F.col("mapped_name").alias("mapped_name").cast(T.LongType()))
+        assert_df_equality(expected_df, output_df)
+
+    @pytest.mark.parametrize(
+        argnames="input_df, expected_df",
+        argvalues=fixtures_for_timestamp_s_to_ms,
+        indirect=["input_df", "expected_df"],
+        ids=get_ids_for_fixture(fixtures_for_timestamp_s_to_ms),
+    )
+    def test_unix_timestamp_s_to_ms(self, input_df, expected_df):
+        mapping = [(
+            "mapped_name",
+            "attributes.data.some_attribute",
+            spq.unix_timestamp_to_unix_timestamp(input_time_unit="sec", output_time_unit="ms")
+        )]
+        output_df = Mapper(mapping).transform(input_df)
+        expected_df = expected_df.select(F.col("mapped_name").alias("mapped_name").cast(T.LongType()))
+        assert_df_equality(expected_df, output_df)
 
 
 class TestSparkTimestampToFirstOfMonth:

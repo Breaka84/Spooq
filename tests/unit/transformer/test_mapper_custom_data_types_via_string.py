@@ -25,6 +25,8 @@ from ...data.test_fixtures.mapper_custom_data_types_fixtures import (
     fixtures_for_extended_string_unix_timestamp_ms_to_timestamp,
     fixtures_for_extended_string_to_date,
     fixtures_for_extended_string_unix_timestamp_ms_to_date,
+    fixtures_for_timestamp_ms_to_s,
+    fixtures_for_timestamp_s_to_ms,
 )
 from ...helpers.skip_conditions import only_spark2, only_spark3
 
@@ -610,21 +612,7 @@ class TestTimestampMethods(object):
         assert output_df.first()[name] == value, "Processing of column value"
 
     # fmt: off
-    @pytest.mark.parametrize(("input_value", "value"), [
-        (              1,            0),
-        (              0,            0),
-        (             -1,            0),
-        (           None,         None),
-        (  4102358400000,   4102358400),
-        (  4102358400001,   4102358400),
-        (  5049688276000,   5049688276),
-        (  3469296996000,   3469296996),
-        (  7405162940000,   7405162940),
-        (  2769601503000,   2769601503),
-        ( -1429593275000,  -1429593275),
-        (  3412549669000,   3412549669),
-        ("2769601503000",   2769601503),
-    ])
+    @pytest.mark.parametrize(("input_value", "value"), fixtures_for_timestamp_ms_to_s)
     # fmt: on
     def test_generate_select_expression_for_timestamp_ms_to_s(self, input_value, value, spark_session, spark_context):
         source_key, name = "updated_at", "updated_at_ms"
@@ -639,20 +627,7 @@ class TestTimestampMethods(object):
         assert output_df.first()[name] == value, "Processing of column value"
 
     # fmt: off
-    @pytest.mark.parametrize(("input_value", "value"), [
-        (           1,            1000),
-        (           0,               0),
-        (          -1,           -1000),
-        (        None,            None),
-        (  4102358400,   4102358400000),
-        (  5049688276,   5049688276000),
-        (  3469296996,   3469296996000),
-        (  7405162940,   7405162940000),
-        (  2769601503,   2769601503000),
-        ( -1429593275,  -1429593275000),
-        (  3412549669,   3412549669000),
-        ("2769601503",   2769601503000),
-    ])
+    @pytest.mark.parametrize(("input_value", "value"), fixtures_for_timestamp_s_to_ms)
     # fmt: on
     def test_generate_select_expression_for_timestamp_s_to_ms(self, input_value, value, spark_session, spark_context):
         source_key, name = "updated_at", "updated_at_ms"
