@@ -10,4 +10,5 @@ Development Lead
 Contributors
 ------------
 
-* Philip Butting <phb@runtastic.com>
+* Philip Buttinger <phb@runtastic.com>
+* Emanuele Viglianisi <emv@runtastic.com>
