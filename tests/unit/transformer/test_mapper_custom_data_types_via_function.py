@@ -84,22 +84,11 @@ class TestAdHocSparkSqlFunctions:
             assert actual == expected_value
 
 
-class TestAsIs:
-    @pytest.mark.parametrize(
-        argnames="input_df, expected_df",
-        argvalues=fixtures_for_as_is,
-        indirect=["input_df", "expected_df"],
-        ids=get_ids_for_fixture(fixtures_for_as_is),
-    )
-    def test_as_is(self, input_df, expected_df):
-        mapping = [("mapped_name", "attributes.data.some_attribute", spq.as_is())]
-        output_df = Mapper(mapping).transform(input_df)
-        assert_df_equality(expected_df, output_df)
+class TestGenericFunctionality:
 
-
-class TestCoalesceColumns:
-    def test_alternative_source_columns(self, spark_session):
-        input_df = spark_session.createDataFrame([
+    @pytest.fixture(scope="class")
+    def input_df(self, spark_session):
+        return spark_session.createDataFrame([
             Row(
                 str_1=None, str_2="Hello",
                 str_bool_1=None, str_bool_2="True",
@@ -109,54 +98,53 @@ class TestCoalesceColumns:
                 str_ts_1=None, str_ts_2="2020-08-12 12:43:14",
                 int_date_1=None, int_date_2=20201007,
                 str_array_1=None, str_array_2="1,2,3",
-                str_key_1=None, str_key_2="Y"
-            )
-        ],
+                str_key_1=None, str_key_2="Y")
+            ],
             schema=(
-                "str_1 STRING, str_2 STRING ,"
-                "str_bool_1 STRING, str_bool_2 STRING ,"
-                "int_1 LONG, int_2 LONG ,"
-                "float_1 FLOAT, float_2 FLOAT ,"
-                "str_int_1 STRING, str_int_2 STRING ,"
-                "str_ts_1 STRING, str_ts_2 STRING ,"
-                "int_date_1 LONG, int_date_2 LONG ,"
-                "str_array_1 STRING, str_array_2 STRING ,"
-                "str_key_1 STRING, str_key_2 STRING"
-            )
+                "str_1 STRING, str_2 STRING, "
+                "str_bool_1 STRING, str_bool_2 STRING, "
+                "int_1 LONG, int_2 LONG, "
+                "float_1 FLOAT, float_2 FLOAT, "
+                "str_int_1 STRING, str_int_2 STRING, "
+                "str_ts_1 STRING, str_ts_2 STRING, "
+                "int_date_1 LONG, int_date_2 LONG, "
+                "str_array_1 STRING, str_array_2 STRING, "
+                "str_key_1 STRING, str_key_2 STRING")
         )
+
+    def test_different_syntax_options(self, input_df, spark_session):
+        # fmt:off
+        mapping = [
+            ("function",                  "str_2",        spq.as_is),
+            ("function_call",             "str_2",        spq.as_is()),
+            ("function_call_with_params", "str_2",        spq.as_is(output_type=T.StringType())),
+            ("function_as_source",        F.col("str_2"), spq.as_is),
+            ("literal_as_source",         F.lit("Hi!"),   T.StringType()),
+        ]
+        # fmt:on
 
         expected_df = spark_session.createDataFrame([
             Row(
-                as_is="Hello",
-                unix_to_unix=1637335,
-                first_of_month=datetime.date(2020, 8, 1),
-                m_to_cm=180,
-                has_val=True,
-                str_to_num=1637335255,
-                str_to_bool=True,
-                str_to_timestamp="2020-08-12 12:43",
-                custom_to_timestamp="2020-10-07 00:00:00",
-                str_to_array=[1, 2, 3],
-                apply_func="hello",
-                map_vals="Yes",
-            )
-        ],
+                function="Hello",
+                function_call="Hello",
+                function_call_with_params="Hello",
+                function_as_source="Hello",
+                literal_as_source="Hi!"
+                )
+            ],
             schema=(
-                "as_is STRING, "
-                "unix_to_unix LONG, "
-                "first_of_month DATE, "
-                "m_to_cm INTEGER, "
-                "has_val BOOLEAN, "
-                "str_to_num LONG, "
-                "str_to_bool BOOLEAN, "
-                "str_to_timestamp STRING, "
-                "custom_to_timestamp STRING, "
-                "str_to_array ARRAY<STRING>, "
-                "apply_func STRING, "
-                "map_vals STRING"
-            )
+                "function STRING, "
+                "function_call STRING, "
+                "function_call_with_params STRING, "
+                "function_as_source STRING, "
+                "literal_as_source STRING"
+                )
         )
 
+        output_df = Mapper(mapping).transform(input_df)
+        assert_df_equality(expected_df, output_df, ignore_nullable=True)
+
+    def test_alternative_source_columns(self, spark_session, input_df):
         # fmt:off
         mapping = [
             ("as_is",                "str_1",        spq.as_is(alt_src_cols="str_2")),
@@ -177,8 +165,68 @@ class TestCoalesceColumns:
         ]
         # fmt:on
 
+        expected_df = spark_session.createDataFrame(
+            [
+                Row(
+                    as_is="Hello",
+                    unix_to_unix=1637335,
+                    first_of_month=datetime.date(2020, 8, 1),
+                    m_to_cm=180,
+                    has_val=True,
+                    str_to_num=1637335255,
+                    str_to_bool=True,
+                    str_to_timestamp="2020-08-12 12:43",
+                    custom_to_timestamp="2020-10-07 00:00:00",
+                    str_to_array=[1, 2, 3],
+                    apply_func="hello",
+                    map_vals="Yes",
+                )
+            ],
+            schema=(
+                "as_is STRING, "
+                "unix_to_unix LONG, "
+                "first_of_month DATE, "
+                "m_to_cm INTEGER, "
+                "has_val BOOLEAN, "
+                "str_to_num LONG, "
+                "str_to_bool BOOLEAN, "
+                "str_to_timestamp STRING, "
+                "custom_to_timestamp STRING, "
+                "str_to_array ARRAY<STRING>, "
+                "apply_func STRING, "
+                "map_vals STRING"
+            )
+        )
+
         output_df = Mapper(mapping).transform(input_df)
         assert_df_equality(expected_df, output_df, ignore_nullable=True)
+
+    def test_output_type_casting(self, input_df):
+        # fmt:off
+        mapping = [
+            ("as_is",                "str_2",        spq.as_is(output_type=T.StringType())),
+            ("unix_to_unix",         "int_2",        spq.unix_timestamp_to_unix_timestamp(output_type=T.StringType())),
+            ("first_of_month",       "str_ts_2",     spq.spark_timestamp_to_first_of_month(output_type=T.StringType())),
+            ("m_to_cm",              "float_2",      spq.meters_to_cm(output_type=T.StringType())),
+            ("has_val",              "int_2",        spq.has_value(output_type=T.StringType())),
+            ("str_to_num",           "str_int_2",    spq.extended_string_to_number(output_type=T.StringType())),
+            ("str_to_bool",          "str_bool_2",   spq.extended_string_to_boolean(output_type=T.StringType())),
+            ("str_to_timestamp",     "str_ts_2",     spq.extended_string_to_timestamp(output_type=T.StringType(),
+                                                                                      date_format="yyyy-MM-dd HH:mm")),
+            ("custom_to_timestamp",  "int_date_2",   spq.custom_time_format_to_timestamp(output_type=T.StringType(),
+                                                                                         input_format="yyyyMMdd")),
+            ("str_to_array",         "str_array_2",  spq.string_to_array(output_type=T.StringType())),
+            ("apply_func",           "str_2",        spq.apply_function(output_type=T.StringType(), func=F.lower)),
+            ("map_vals",             "str_key_2",    spq.map_values(output_type=T.StringType(), mapping={"Y": "Yes"})),
+        ]
+        # fmt:on
+
+        output_df = Mapper(mapping).transform(input_df)
+        for col in output_df.schema.fields:
+            if "array" in col.name:
+                assert col.jsonValue()["type"]["elementType"] == "string"
+            else:
+                assert isinstance(col.dataType, T.StringType)
 
 
 class TestToJsonString:

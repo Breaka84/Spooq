@@ -20,7 +20,7 @@ complex_event_expression = (
 
 # fmt: off
 fixtures_for_spark_sql_object = [
-    # input_value_1           # input_value_1        # mapper function                   # expected_value
+    # input_value_1           # input_value_2        # mapper function                   # expected_value
     ("place_holder",          "place_holder",        F.current_date(),                   datetime.date.today()),
     ("place_holder",          "place_holder",        F.current_timestamp(),              datetime.datetime.now()),
     ("some string",           "place_holder",        F.col("nested.input_key_1"),        "some string"),
