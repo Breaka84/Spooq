@@ -326,7 +326,7 @@ def _generate_select_expression_for_unix_timestamp_ms_to_spark_timestamp(source_
     """
     Deprecated!
 
-    Please use :py:method:`~spooq.transformer.mapper_transformations.extended_string_to_timestamp` directly instead.
+    Please use :py:method:`~spooq.transformer.mapper_transformations.str_to_timestamp` directly instead.
     """
     return spq.unix_timestamp_to_unix_timestamp(input_time_unit="ms", output_time_unit="sec", output_type=T.TimestampType())(source_column, name)
 
@@ -335,84 +335,84 @@ def _generate_select_expression_for_extended_string_to_int(source_column, name):
     """
     Deprecated!
 
-    Please use :py:method:`~spooq.transformer.mapper_transformations.extended_string_to_number` directly instead
+    Please use :py:method:`~spooq.transformer.mapper_transformations.str_to_num` directly instead
     and define the `output_type` as `T.IntegerType()`.
     """
-    return spq.extended_string_to_number(output_type=T.IntegerType())(source_column, name)
+    return spq.str_to_num(output_type=T.IntegerType())(source_column, name)
 
 
 def _generate_select_expression_for_extended_string_to_long(source_column, name):
     """
     Deprecated!
 
-    Please use :py:method:`~spooq.transformer.mapper_transformations.extended_string_to_number` directly instead
+    Please use :py:method:`~spooq.transformer.mapper_transformations.str_to_num` directly instead
     and define the `output_type` as `T.LongType()`.
     """
-    return spq.extended_string_to_number(output_type=T.LongType())(source_column, name)
+    return spq.str_to_num(output_type=T.LongType())(source_column, name)
 
 
 def _generate_select_expression_for_extended_string_to_float(source_column, name):
     """
     Deprecated!
 
-    Please use :py:method:`~spooq.transformer.mapper_transformations.extended_string_to_number` directly instead
+    Please use :py:method:`~spooq.transformer.mapper_transformations.str_to_num` directly instead
     and define the `output_type` as `T.FloatType()`.
     """
-    return spq.extended_string_to_number(output_type=T.FloatType())(source_column, name)
+    return spq.str_to_num(output_type=T.FloatType())(source_column, name)
 
 
 def _generate_select_expression_for_extended_string_to_double(source_column, name):
     """
     Deprecated!
 
-    Please use :py:method:`~spooq.transformer.mapper_transformations.extended_string_to_number` directly instead
+    Please use :py:method:`~spooq.transformer.mapper_transformations.str_to_num` directly instead
     and define the `output_type` as `T.DoubleType()`.
     """
-    return spq.extended_string_to_number(output_type=T.DoubleType())(source_column, name)
+    return spq.str_to_num(output_type=T.DoubleType())(source_column, name)
 
 
 def _generate_select_expression_for_extended_string_to_boolean(source_column, name):
     """
     Deprecated!
 
-    Please use :py:method:`~spooq.transformer.mapper_transformations.extended_string_to_boolean` directly instead.
+    Please use :py:method:`~spooq.transformer.mapper_transformations.str_to_bool` directly instead.
     """
-    return spq.extended_string_to_boolean()(source_column, name)
+    return spq.str_to_bool()(source_column, name)
 
 
 def _generate_select_expression_for_extended_string_to_timestamp(source_column, name):
     """
     Deprecated!
 
-    Please use :py:method:`~spooq.transformer.mapper_transformations.extended_string_to_timestamp` directly instead.
+    Please use :py:method:`~spooq.transformer.mapper_transformations.str_to_timestamp` directly instead.
     """
-    return spq.extended_string_to_timestamp()(source_column, name)
+    return spq.str_to_timestamp()(source_column, name)
 
 
 def _generate_select_expression_for_extended_string_to_date(source_column, name):
     """
     Deprecated!
 
-    Please use :py:method:`~spooq.transformer.mapper_transformations.extended_string_to_timestamp`
+    Please use :py:method:`~spooq.transformer.mapper_transformations.str_to_timestamp`
     with `output_type=T.DateType()` directly instead.
     """
-    return spq.extended_string_to_timestamp(output_type=T.DateType())(source_column, name)
+    return spq.str_to_timestamp(output_type=T.DateType())(source_column, name)
 
 
 def _generate_select_expression_for_extended_string_unix_timestamp_ms_to_timestamp(source_column, name):
     """
     Deprecated!
 
-    Please use :py:method:`~spooq.transformer.mapper_transformations.extended_string_to_timestamp` directly instead.
+    Please use :py:method:`~spooq.transformer.mapper_transformations.str_to_timestamp` directly instead.
     """
-    return spq.extended_string_to_timestamp()(source_column, name)
+    return spq.str_to_timestamp()(source_column, name)
 
 
 def _generate_select_expression_for_extended_string_unix_timestamp_ms_to_date(source_column, name):
     """
     Deprecated!
 
-    Please use :py:method:`~spooq.transformer.mapper_transformations.extended_string_to_timestamp`
+    Please use :py:method:`~spooq.transformer.mapper_transformations.str_to_timestamp`
     with `output_type=T.DateType()` directly instead.
     """
-    return spq.extended_string_to_timestamp(output_type=T.DateType())(source_column, name)
+    return spq.str_to_timestamp(output_type=T.DateType())(source_column, name)

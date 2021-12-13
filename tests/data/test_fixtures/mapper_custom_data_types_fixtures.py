@@ -5,10 +5,14 @@ from pyspark.sql import Row
 
 
 def get_ids_for_fixture(fixture):
-    return [
-        f" actual: <{actual}> ({type(actual)}) -> expected: <{expected}>  ({type(expected)})"
-        for actual, expected in fixture
-    ]
+    try:
+        return [
+            f" actual: <{actual}> ({type(actual)}) -> expected: <{expected}>  ({type(expected)})"
+            for actual, expected in fixture
+        ]
+    except ValueError:
+        return " / ".join(fixture)
+
 
 
 complex_event_expression = (
@@ -75,6 +79,35 @@ fixtures_for_json_string = [
      '{"list_of_friend_ids": [{"id": 12}, {"id": 75}, {"id": 44}, {"id": 76}]}')
 ]
 
+fixtures_for_timestamp_to_first_of_month = [
+    (None,         None),
+    ("1955-09-41", None),
+    ("1969-04-03", "1969-04-01"),
+    ("1985-03-07", "1985-03-01"),
+    ("1998-06-10", "1998-06-01"),
+    ("1967-05-16", "1967-05-01"),
+    ("1953-01-01", "1953-01-01"),
+    ("1954-11-06", "1954-11-01"),
+    ("1978-09-05", "1978-09-01"),
+    ("1999-05-23", "1999-05-01"),
+]
+
+fixtures_for_meters_to_cm = [
+    (1.80,    180),
+    (2.,      200),
+    (-1.0,   -100),
+    (0.0,       0),
+    (0,         0),
+    (2,       200),
+    (-4,     -400),
+    ("1.80",  180),
+    ("2.",    200),
+    ("-1.0", -100),
+    ("0.0",     0),
+    (None,   None),
+    ("one",  None),
+]
+
 fixtures_for_has_value = [
     ("1",        True),
     ("",         False),
@@ -113,7 +146,7 @@ fixtures_for_has_value = [
     (False,      True),
 ]
 
-fixtures_for_extended_string_to_int = [
+fixtures_for_str_to_int = [
     ("123456",        123456),
     ("-123456",      -123456),
     ("-1",                -1),
@@ -141,7 +174,7 @@ fixtures_for_extended_string_to_int = [
     (-1234.56,         -1234),
 ]
 
-fixtures_for_extended_string_to_long = [
+fixtures_for_str_to_long = [
     ("21474836470",                21474836470),
     ("-21474836470",              -21474836470),
     ("-1",                                  -1),
@@ -171,7 +204,7 @@ fixtures_for_extended_string_to_long = [
     (0,                                      0),
 ]
 
-fixtures_for_extended_string_to_float = [
+fixtures_for_str_to_float = [
     ("123456.0",      123456.0),
     ("123456",        123456.0),
     ("-123456.0",    -123456.0),
@@ -201,7 +234,7 @@ fixtures_for_extended_string_to_float = [
     ("2k",                None),
 ]
 
-fixtures_for_extended_string_to_double = [
+fixtures_for_str_to_double = [
     ("214748364.70",          214748364.70),
     ("214748364",              214748364.0),
     ("-214748364.70",        -214748364.70),
@@ -231,7 +264,7 @@ fixtures_for_extended_string_to_double = [
     ("2k",                            None),
 ]
 
-fixtures_for_extended_string_to_boolean = [
+fixtures_for_str_to_bool_base = [
     ("1",        True),
     ("1.0",      None),
     ("TRUE",     True),
@@ -251,10 +284,8 @@ fixtures_for_extended_string_to_boolean = [
     ("n",        False),
     ("yes",      True),
     ("no",       False),
-    ("enabled",  True),
-    ("disabled", False),
-    ("on",       True),
-    ("off",      False),
+    ("ja",       None),
+    ("Nein",     None),
     ("   true",  True),
     ("true   ",  True),
     (" true  ",  True),
@@ -267,6 +298,38 @@ fixtures_for_extended_string_to_boolean = [
     (True,       True),
     (False,      False),
 ]
+
+fixtures_for_str_to_bool_default = [
+    ("enabled",  True),
+    ("ENABLED",  True),
+    ("disabled", False),
+    ("Disabled", False),
+    ("on",       True),
+    ("ON",       True),
+    ("off",      False),
+    ("Off",      False),
+] + fixtures_for_str_to_bool_base
+
+fixtures_for_str_to_bool_additional_true_values = [
+    ("Sure",    True),
+    ("sure",    True),
+    ("surely",  None),
+    ("OK",      True),
+    ("ok",      True),
+] + fixtures_for_str_to_bool_base
+
+fixtures_for_str_to_bool_additional_false_values = [
+    ("Nope",    False),
+    ("nope",    False),
+    ("Nope!",   None),
+    ("NOK",     False),
+    ("Nok",     False),
+] + fixtures_for_str_to_bool_base
+
+fixtures_for_str_to_bool_additional_true_and_false_values = set(
+    fixtures_for_str_to_bool_additional_true_values
+    + fixtures_for_str_to_bool_additional_false_values
+)
 
 fixtures_for_extended_string_to_timestamp_spark2 = [
     ("2020-08-12T12:43:14+0000",   datetime.datetime(2020, 8, 12, 12, 43, 14)),
@@ -302,9 +365,10 @@ fixtures_for_extended_string_to_timestamp_spark2 = [
     ("2k",                         None),
 ]
 
-fixtures_for_extended_string_to_timestamp = [
+fixtures_for_str_to_timestamp_default = [
     ("2020-08-12T12:43:14+0000",   datetime.datetime(2020, 8, 12, 12, 43, 14)),
     ("2020-08-12T12:43:14+00:00",  datetime.datetime(2020, 8, 12, 12, 43, 14)),
+    ("2020-08-12T12:43:14.543000", datetime.datetime(2020, 8, 12, 12, 43, 14, 543)),
     ("2020-08-12T12:43:14Z00:00",  None),  # No `Z` allowed by Spark3 for timezone settings (only `+HH:MM`)
     ("2020-08-12T12:43:14Z0000",   None),  # No `Z` allowed by Spark3 for timezone settings (only `+HH:MM`)
     ("  2020-08-12T12:43:14+0000", datetime.datetime(2020, 8, 12, 12, 43, 14)),
@@ -334,6 +398,45 @@ fixtures_for_extended_string_to_timestamp = [
     ("nil",                        None),
     ("Hello",                      None),
     ("2k",                         None),
+]
+
+fixtures_for_str_to_timestamp_custom_format = [
+    # Input date is "2020-12-24 20:07:35.253"
+    # date_format,           # expected string
+    ("yy",                   "20"),
+    ("yyyy",                 "2020"),
+    ("yyyyMM",               "202012"),
+    ("yyyyMMdd",             "20201224"),
+    ("yyyy/MM/dd",           "2020/12/24"),
+    ("yyyy/MM/dd-HH",        "2020/12/24-20"),
+    ("yyyy/MM/dd HH:mm",     "2020/12/24 20:07"),
+    ("yyyy/MM/dd HH:mm:ss",  "2020/12/24 20:07:35"),
+]
+
+fixtures_for_str_to_timestamp_max_valid_timestamp = [
+    # Input date is 1608840455 "2020-12-24 20:07:35"
+    # max_valid_timestamp,           # expected timestamp
+    (4102358400,   "2020-12-24 20:07:35"), #datetime.datetime(2020, 12, 24, 20,  7, 35)),       # max valid: 2099-12-31 00:00:00 UTC, default
+    (1608843600,   "2020-12-24 20:07:35"), #datetime.datetime(2020, 12, 24, 20,  7, 35)),       # max valid: 2020-12-24 21:00:00 UTC
+    (1608685200,   "1970-01-19 14:54:00.455"), #datetime.datetime(1970, 1,  19,  2, 53, 56, 400)),  # max valid: 2020-12-23 01:00:00 UTC
+]
+
+fixtures_for_custom_time_format_to_timestamp = [
+    # input_value,           # input_format             # expected_output
+    ("20",                   "yy",                      "2020-01-01 00:00:00"),
+    ("20",                   "yyyy",                    None),
+    (20,                     "yy",                      "2020-01-01 00:00:00"),
+    ("2020",                 "yyyy",                    "2020-01-01 00:00:00"),
+    (2020,                   "yyyy",                    "2020-01-01 00:00:00"),
+    ("202012",               "yyyyMM",                  "2020-12-01 00:00:00"),
+    (202012,                 "yyyyMM",                  "2020-12-01 00:00:00"),
+    ("20201224",             "yyyyMMdd",                "2020-12-24 00:00:00"),
+    (20201224,               "yyyyMMdd",                "2020-12-24 00:00:00"),
+    (20201324,               "yyyyMMdd",                None),
+    ("2020/12/24",           "yyyy/MM/dd",              "2020-12-24 00:00:00"),
+    ("2020/12/24-20",        "yyyy/MM/dd-HH",           "2020-12-24 20:00:00"),
+    ("2020/12/24 20:07",     "yyyy/MM/dd HH:mm",        "2020-12-24 20:07:00"),
+    ("2020/12/24 20:07:35",  "yyyy/MM/dd HH:mm:ss",     "2020-12-24 20:07:35"),
 ]
 
 fixtures_for_extended_string_unix_timestamp_ms_to_timestamp_spark2 = [

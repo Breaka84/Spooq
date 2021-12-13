@@ -39,11 +39,11 @@ extended_string_to_double
 ***********************************************************************
 Number (IntegerType, FloatType, StringType) -> Number (DoubleType)
 
-extended_string_to_boolean
+str_to_bool
 ***********************************************************************
 Number (IntegerType, FloatType, StringType, BooleanType) -> boolean (BooleanType)
 
-extended_string_to_timestamp
+str_to_timestamp
 ***********************************************************************
 unix timestamp in s or text (IntegerType, FloatType, StringType) -> timestamp (TimestampType)
 

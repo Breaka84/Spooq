@@ -25,7 +25,7 @@ class Mapper(Transformer):
     >>>     ("id",            "data.relationships.food.data.id",  "StringType"),
     >>>     ("version",       "data.version",                     "extended_string_to_int"),
     >>>     ("type",          "elem.attributes.type",             "StringType"),
-    >>>     ("created_at",    "elem.attributes.created_at",       "extended_string_to_timestamp"),
+    >>>     ("created_at",    "elem.attributes.created_at",       "str_to_timestamp"),
     >>>     ("created_on",    "elem.attributes.created_at",       "extended_string_to_date"),
     >>>     ("process_date",  F.current_timestamp(),              "DateType"),
     >>> ]

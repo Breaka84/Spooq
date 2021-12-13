@@ -12,16 +12,16 @@ import spooq.transformer.mapper_custom_data_types as custom_types
 from spooq.transformer import Mapper
 from ...data.test_fixtures.mapper_custom_data_types_fixtures import (
     fixtures_for_has_value,
-    fixtures_for_extended_string_to_int,
-    fixtures_for_extended_string_to_long,
-    fixtures_for_extended_string_to_float,
-    fixtures_for_extended_string_to_double,
-    fixtures_for_extended_string_to_boolean,
+    fixtures_for_str_to_int,
+    fixtures_for_str_to_long,
+    fixtures_for_str_to_float,
+    fixtures_for_str_to_double,
+    fixtures_for_str_to_bool,
     fixtures_for_extended_string_to_timestamp_spark2,
     fixtures_for_extended_string_unix_timestamp_ms_to_timestamp_spark2,
     fixtures_for_extended_string_to_date_spark2,
     fixtures_for_extended_string_unix_timestamp_ms_to_date_spark2,
-    fixtures_for_extended_string_to_timestamp,
+    fixtures_for_str_to_timestamp_default,
     fixtures_for_extended_string_unix_timestamp_ms_to_timestamp,
     fixtures_for_extended_string_to_date,
     fixtures_for_extended_string_unix_timestamp_ms_to_date,
@@ -180,8 +180,8 @@ class TestExtendedStringConversions(object):
 
     @pytest.mark.parametrize(
         argnames=("input_value", "expected_value"),
-        argvalues=fixtures_for_extended_string_to_int,
-        ids=[parameters_to_string_id(actual, expected) for actual, expected in fixtures_for_extended_string_to_int],
+        argvalues=fixtures_for_str_to_int,
+        ids=[parameters_to_string_id(actual, expected) for actual, expected in fixtures_for_str_to_int],
     )
     def test_extended_string_to_int(self, spark_session, input_value, expected_value):
         input_df = self.create_input_df(input_value, spark_session)
@@ -191,8 +191,8 @@ class TestExtendedStringConversions(object):
 
     @pytest.mark.parametrize(
         argnames=("input_value", "expected_value"),
-        argvalues=fixtures_for_extended_string_to_long,
-        ids=[parameters_to_string_id(actual, expected) for actual, expected in fixtures_for_extended_string_to_long],
+        argvalues=fixtures_for_str_to_long,
+        ids=[parameters_to_string_id(actual, expected) for actual, expected in fixtures_for_str_to_long],
     )
     def test_extended_string_to_long(self, spark_session, input_value, expected_value):
         input_df = self.create_input_df(input_value, spark_session)
@@ -202,8 +202,8 @@ class TestExtendedStringConversions(object):
 
     @pytest.mark.parametrize(
         argnames=("input_value", "expected_value"),
-        argvalues=fixtures_for_extended_string_to_float,
-        ids=[parameters_to_string_id(actual, expected) for actual, expected in fixtures_for_extended_string_to_float],
+        argvalues=fixtures_for_str_to_float,
+        ids=[parameters_to_string_id(actual, expected) for actual, expected in fixtures_for_str_to_float],
     )
     def test_extended_string_to_float(self, spark_session, input_value, expected_value):
         input_df = self.create_input_df(input_value, spark_session)
@@ -217,8 +217,8 @@ class TestExtendedStringConversions(object):
 
     @pytest.mark.parametrize(
         argnames=("input_value", "expected_value"),
-        argvalues=fixtures_for_extended_string_to_double,
-        ids=[parameters_to_string_id(actual, expected) for actual, expected in fixtures_for_extended_string_to_double],
+        argvalues=fixtures_for_str_to_double,
+        ids=[parameters_to_string_id(actual, expected) for actual, expected in fixtures_for_str_to_double],
     )
     def test_extended_string_to_double(self, spark_session, input_value, expected_value):
         input_df = self.create_input_df(input_value, spark_session)
@@ -232,12 +232,12 @@ class TestExtendedStringConversions(object):
 
     @pytest.mark.parametrize(
         argnames=("input_value", "expected_value"),
-        argvalues=fixtures_for_extended_string_to_boolean,
-        ids=[parameters_to_string_id(actual, expected) for actual, expected in fixtures_for_extended_string_to_boolean],
+        argvalues=fixtures_for_str_to_bool,
+        ids=[parameters_to_string_id(actual, expected) for actual, expected in fixtures_for_str_to_bool],
     )
     def test_extended_string_to_boolean(self, spark_session, input_value, expected_value):
         input_df = self.create_input_df(input_value, spark_session)
-        output_df = Mapper(mapping=[("output_key", "input_key", "extended_string_to_boolean")]).transform(input_df)
+        output_df = Mapper(mapping=[("output_key", "input_key", "str_to_bool")]).transform(input_df)
         assert output_df.first().output_key == expected_value
         assert isinstance(output_df.schema["output_key"].dataType, T.BooleanType)
 
@@ -253,7 +253,7 @@ class TestExtendedStringConversions(object):
     def test_extended_string_to_timestamp_spark2(self, spark_session, input_value, expected_value):
         # test uses timezone set to GMT / UTC (pytest.ini)!
         input_df = self.create_input_df(input_value, spark_session)
-        output_df = Mapper(mapping=[("output_key", "input_key", "extended_string_to_timestamp")]).transform(input_df)
+        output_df = Mapper(mapping=[("output_key", "input_key", "str_to_timestamp")]).transform(input_df)
         # workaround via pandas necessary due to bug with direct conversion
         # to python datetime wrt timezone conversions (https://issues.apache.org/jira/browse/SPARK-32123)
         try:
@@ -271,15 +271,15 @@ class TestExtendedStringConversions(object):
     @only_spark3
     @pytest.mark.parametrize(
         argnames=("input_value", "expected_value"),
-        argvalues=fixtures_for_extended_string_to_timestamp,
+        argvalues=fixtures_for_str_to_timestamp_default,
         ids=[
-            parameters_to_string_id(actual, expected) for actual, expected in fixtures_for_extended_string_to_timestamp
+            parameters_to_string_id(actual, expected) for actual, expected in fixtures_for_str_to_timestamp_default
         ],
     )
     def test_extended_string_to_timestamp(self, spark_session, input_value, expected_value):
         # test uses timezone set to GMT / UTC (pytest.ini)!
         input_df = self.create_input_df(input_value, spark_session)
-        output_df = Mapper(mapping=[("output_key", "input_key", "extended_string_to_timestamp")]).transform(input_df)
+        output_df = Mapper(mapping=[("output_key", "input_key", "str_to_timestamp")]).transform(input_df)
         # workaround via pandas necessary due to bug with direct conversion
         # to python datetime wrt timezone conversions (https://issues.apache.org/jira/browse/SPARK-32123)
         output_pd_df = output_df.toPandas()

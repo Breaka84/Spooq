@@ -282,7 +282,7 @@ def has_value(**kwargs: Any) -> partial:
     return partial(_inner_func, **args)
 
 
-def extended_string_to_number(**kwargs: Any) -> partial:
+def str_to_num(**kwargs: Any) -> partial:
     """
     Todo: update docstring
     More robust conversion from StringType to IntegerType.
@@ -309,7 +309,7 @@ def extended_string_to_number(**kwargs: Any) -> partial:
     [Row(input_string="  123456 "),
      Row(input_string="Hello"),
      Row(input_string="123_456")]
-    >>> mapping = [("output_value", "input_string", spq_trans.extended_string_to_number(output_type=T.IntegerType()))]
+    >>> mapping = [("output_value", "input_string", spq_trans.str_to_num(output_type=T.IntegerType()))]
     >>> output_df = Mapper(mapping).transform(input_df)
     >>> output_df.head(3)
     [Row(input_string=123456),
@@ -330,7 +330,7 @@ def extended_string_to_number(**kwargs: Any) -> partial:
     return partial(_inner_func, **args)
 
 
-def extended_string_to_boolean(**kwargs: Any) -> partial:
+def str_to_bool(**kwargs: Any) -> partial:
     """
     More robust conversion from StringType to BooleanType.
     Is able to additionally handle (compared to implicit Spark conversion):
@@ -345,7 +345,7 @@ def extended_string_to_boolean(**kwargs: Any) -> partial:
     F.e.
 
     * 100 to boolean => True
-    * "100" to extended_string_to_boolean => False
+    * "100" to str_to_bool => False
     * "100" to boolean => False
 
     Hint
@@ -362,7 +362,7 @@ def extended_string_to_boolean(**kwargs: Any) -> partial:
     [Row(input_string="  true "),
      Row(input_string="0"),
      Row(input_string="y")]
-    >>> mapping = [("output_value", "input_string", "extended_string_to_boolean")]
+    >>> mapping = [("output_value", "input_string", "str_to_bool")]
     >>> output_df = Mapper(mapping).transform(input_df)
     >>> output_df.head(3)
     [Row(input_string=True),
@@ -370,13 +370,22 @@ def extended_string_to_boolean(**kwargs: Any) -> partial:
      Row(input_string=True)]
     """
 
-    def _inner_func(source_column, name, true_values, false_values, alt_src_cols, output_type):
+    def _inner_func(source_column, name, true_values, false_values, case_sensitive, alt_src_cols, output_type):
         if alt_src_cols:
             source_column = _coalesce_source_columns(source_column, alt_src_cols)
+        if case_sensitive:
+            true_condition = F.trim(source_column).isin(true_values)
+            false_condition = F.trim(source_column).isin(false_values)
+        else:
+            true_values = [str(val).lower() for val in true_values]
+            false_values = [str(val).lower() for val in false_values]
+            true_condition = F.lower(F.trim(source_column)).isin(true_values)
+            false_condition = F.lower(F.trim(source_column)).isin(false_values)
+
         return (
             (
-                F.when(F.trim(source_column).isin(true_values), F.lit(True))
-                .when(F.trim(source_column).isin(false_values), F.lit(False))
+                F.when(true_condition, F.lit(True))
+                .when(false_condition, F.lit(False))
                 .otherwise(F.trim(source_column).cast(T.BooleanType()))
             )
             .cast(output_type)
@@ -386,6 +395,7 @@ def extended_string_to_boolean(**kwargs: Any) -> partial:
     args = dict(
         true_values=kwargs.get("true_values", ["on", "enabled"]),
         false_values=kwargs.get("false_values", ["off", "disabled"]),
+        case_sensitive=kwargs.get("case_sensitive", False),
         alt_src_cols=kwargs.get("alt_src_cols", False),
         output_type=kwargs.get("output_type", T.BooleanType()),
     )
@@ -393,7 +403,7 @@ def extended_string_to_boolean(**kwargs: Any) -> partial:
     return partial(_inner_func, **args)
 
 
-def extended_string_to_timestamp(**kwargs: Any) -> partial:
+def str_to_timestamp(**kwargs: Any) -> partial:
     """
     More robust conversion from StringType to TimestampType. It is assumed that the
     timezone is already set to UTC in spark / java to avoid implicit timezone conversions.
@@ -424,7 +434,7 @@ def extended_string_to_timestamp(**kwargs: Any) -> partial:
     [Row(input_string="2020-08-12T12:43:14+0000"),
      Row(input_string="1597069446"),
      Row(input_string="2020-08-12")]
-    >>> mapping = [("output_value", "input_string", "extended_string_to_timestamp")]
+    >>> mapping = [("output_value", "input_string", "str_to_timestamp")]
     >>> output_df = Mapper(mapping).transform(input_df)
     >>> output_df.head(3)
     [Row(input_string=datetime.datetime(2020, 8, 12, 12, 43, 14)),
