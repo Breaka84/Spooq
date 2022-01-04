@@ -52,6 +52,24 @@ def input_df_integers(spark_session):
         schema=input_schema
     )
 
+@pytest.fixture(scope="class")
+def input_df_column_thresholds(spark_session):
+    input_schema = T.StructType([
+        T.StructField("id", T.IntegerType(), True),
+        T.StructField("integer1", T.IntegerType(), True),
+        T.StructField("integer2", T.IntegerType(), True),
+        T.StructField("min_value", T.IntegerType(), True),
+        T.StructField("max_value", T.IntegerType(), True),
+    ])
+    return spark_session.createDataFrame(
+        [
+            (0, -5, 0,  0, 10),
+            (1,  5, 10, 5, 20),
+            (2, 15, 5,  3, 10),
+        ],
+        schema=input_schema
+    )
+
 
 @pytest.fixture(scope="module")
 def thresholds():
@@ -63,6 +81,12 @@ def thresholds():
         "datetimes":  {"min": "2020-06-01",          "max": "2020-07-01"},
     }
 
+@pytest.fixture(scope="module")
+def column_thresholds():
+    return {
+        "integer1":   {"min": F.col("min_value"), "max": F.col("max_value"), "default": -999},
+        "integer2":   {"min": 3,                  "max": F.col("max_value"), "default": -999},
+    }
 
 @pytest.fixture(scope="module")
 def supported_thresholds():
@@ -478,3 +502,31 @@ class TestCleansedValuesAreLoggedAsMap:
 
         assert_df_equality(df_cleaned, expected_result_df, ignore_nullable=True)
         assert input_df.columns + [transformer.column_to_log_cleansed_values] == df_cleaned.columns
+
+    def test_column_as_threshold(
+            self, transformer, input_df_column_thresholds, spark_session, column_thresholds
+    ):
+
+        expected_output_schema = T.StructType(
+            [
+                T.StructField("id", T.IntegerType(), True),
+                T.StructField("integer1", T.IntegerType(), True),
+                T.StructField("integer2", T.IntegerType(), True),
+                T.StructField("min_value", T.IntegerType(), True),
+                T.StructField("max_value", T.IntegerType(), True),
+                T.StructField("cleansed_values_threshold", T.MapType(T.StringType(), T.StringType()), True),
+            ]
+        )
+
+        expected_output_df = spark_session.createDataFrame(
+            [
+                (0, -999, -999, 0, 10, {"integer1": "-5", "integer2": "0"}),
+                (1, 5, 10, 5, 20, None),
+                (2, -999, 5, 3, 10, {"integer1": "15"}),
+            ],
+            schema=expected_output_schema,
+        )
+        output_df = ThresholdCleaner(
+            column_thresholds, column_to_log_cleansed_values="cleansed_values_threshold", store_as_map=True,
+        ).transform(input_df_column_thresholds)
+        assert_df_equality(expected_output_df, output_df, ignore_nullable=True)
