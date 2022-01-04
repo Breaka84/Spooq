@@ -84,8 +84,8 @@ def thresholds():
 @pytest.fixture(scope="module")
 def column_thresholds():
     return {
-        "integer1":   {"min": "min_value", "max": "max_value", "default": -999},
-        "integer2":   {"min": 3,           "max": "max_value", "default": -999},
+        "integer1":   {"min": F.col("min_value"), "max": F.col("max_value"), "default": -999},
+        "integer2":   {"min": 3,                  "max": F.col("max_value"), "default": -999},
     }
 
 @pytest.fixture(scope="module")

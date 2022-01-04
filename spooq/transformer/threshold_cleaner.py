@@ -150,13 +150,6 @@ class ThresholdCleaner(BaseCleaner):
             if not isinstance(substitute, Column):
                 substitute = F.lit(substitute)
 
-            for lim in ["min", "max"]:
-                if isinstance(value_range[lim], str) and not value_range[lim][0].isdigit():
-                    if value_range[lim] in input_df.columns:
-                        value_range[lim] = F.col(value_range[lim])
-                    else:
-                        raise Exception(f"Column {value_range[lim]} not found in schema!")
-
             self.logger.debug("Ranges for column " + column_name + ": " + str(value_range))
 
             cleansing_expression = (
