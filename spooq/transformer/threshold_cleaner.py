@@ -90,11 +90,11 @@ class ThresholdCleaner(BaseCleaner):
     Following cleansing rule attributes per column are supported:
 
         * min, mandatory - any
-            A number or timestamp/date which serves as the lower limit for allowed values. Values
-            below this threshold will be cleansed.
+            A number or timestamp/date or a column which serves as the lower limit for allowed values.
+            Values below this threshold will be cleansed.
         * max, mandatory - any
-            A number or timestamp/date which serves as the upper limit for allowed values. Values
-            above this threshold will be cleansed.
+            A number, timestamp/date or a column which serves as the upper limit for allowed values.
+            Values above this threshold will be cleansed.
         * default, defaults to None - :class:`~pyspark.sql.column.Column` or any primitive Python value
             If a value gets cleansed it gets replaced with the provided default value.
 
@@ -138,10 +138,6 @@ class ThresholdCleaner(BaseCleaner):
         for column_name, value_range in list(self.cleaning_definitions.items()):
 
             data_type = input_df.schema[str(column_name)].dataType
-            substitute = value_range.get("default", None)
-            if not isinstance(substitute, Column):
-                substitute = F.lit(substitute)
-
             if not isinstance(data_type, (sql_types.NumericType, sql_types.DateType, sql_types.TimestampType)):
                 raise ValueError(
                     "Threshold-based cleaning only supports Numeric, Date and Timestamp Types!\n",
@@ -149,6 +145,17 @@ class ThresholdCleaner(BaseCleaner):
                         col_name=column_name, col_type=data_type
                     ),
                 )
+
+            substitute = value_range.get("default", None)
+            if not isinstance(substitute, Column):
+                substitute = F.lit(substitute)
+
+            for lim in ["min", "max"]:
+                if isinstance(value_range[lim], str) and not value_range[lim][0].isdigit():
+                    if value_range[lim] in input_df.columns:
+                        value_range[lim] = F.col(value_range[lim])
+                    else:
+                        raise Exception(f"Column {value_range[lim]} not found in schema!")
 
             self.logger.debug("Ranges for column " + column_name + ": " + str(value_range))
 

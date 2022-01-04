@@ -2,6 +2,10 @@
 Changelog
 =========
 
+3.3.7 (2022-01-04)
+-------------------
+* Columns can be used in addition to constants for definition of thresholds of the threshold cleaner
+
 3.3.6 (2021-11-19)
 -------------------
 * [FIX] Fix Cleaners logs in case of field type different than string
