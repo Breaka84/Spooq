@@ -133,7 +133,7 @@ class Mapper(Transformer):
         for (name, source_column, data_transformation) in self.mapping:
             self.logger.debug("generating Select statement for attribute: {nm}".format(nm=name))
             self.logger.debug(
-                f"generate mapping for name: {name!s}, source_column: {source_column!s}, data_transformation: {data_transformation!s}"
+                f"generate mapping for name: {name}, source_column: {source_column}, data_transformation: {data_transformation}"
             )
             source_column = self._get_spark_column(source_column, name, input_df)
             if source_column is None:
@@ -224,9 +224,9 @@ class Mapper(Transformer):
 
         else:
             raise ValueError(
-                f"data_transformation not supported! "
-                f"class: {type(data_transformation)!s}, "
-                f"name: {data_transformation!s}"
+                "data_transformation not supported! "
+                f"class: {type(data_transformation)}, "
+                f"name: {data_transformation}"
             )
 
         return data_transformation_type
@@ -236,7 +236,7 @@ class Mapper(Transformer):
         Returns a valid pyspark sql select-expression with cast and alias, depending on the input parameters.
         """
         self.logger.debug(
-            f"name: {name!s}, source_column: {source_column!s}, data_transformation: {data_transformation!s}"
+            f"name: {name}, source_column: {source_column}, data_transformation: {data_transformation}"
         )
         data_transformation_type = self._get_spark_data_transformation_type(data_transformation)
 

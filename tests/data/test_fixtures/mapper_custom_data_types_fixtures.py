@@ -5,6 +5,8 @@ from pyspark.sql import types as T
 from pyspark.sql import Row
 
 
+# fmt:off
+
 def get_ids_for_fixture(fixtures):
     try:
         return [
@@ -22,7 +24,6 @@ complex_event_expression = (
     .cast(T.DateType())
 )
 
-# fmt: off
 fixtures_for_spark_sql_object = [
     # input_value_1           # input_value_2        # mapper function                   # expected_value
     ("place_holder",          "place_holder",        F.current_date(),                   datetime.date.today()),
@@ -326,6 +327,10 @@ fixtures_for_str_to_bool_false_values_as_argument = [
     ("Nok",     False),
 ]
 
+fixtures_for_str_to_bool_true_and_false_values_as_argument = set(
+    fixtures_for_str_to_bool_false_values_as_argument + fixtures_for_str_to_bool_false_values_as_argument
+)
+
 fixtures_for_str_to_bool_true_values_added = set(
     fixtures_for_str_to_bool_base + fixtures_for_str_to_bool_true_values_as_argument
 )
@@ -334,12 +339,8 @@ fixtures_for_str_to_bool_false_values_added = set(
     fixtures_for_str_to_bool_base + fixtures_for_str_to_bool_false_values_as_argument
 )
 
-fixtures_for_str_to_bool_additional_true_and_false_values = set(
+fixtures_for_str_to_bool_true_and_false_values_added = set(
     fixtures_for_str_to_bool_true_values_added.union(fixtures_for_str_to_bool_false_values_added)
-)
-
-fixtures_for_str_to_bool_true_and_false_values_as_argument = set(
-    fixtures_for_str_to_bool_false_values_as_argument + fixtures_for_str_to_bool_false_values_as_argument
 )
 
 fixtures_for_extended_string_to_timestamp_spark2 = [
@@ -411,7 +412,25 @@ fixtures_for_str_to_timestamp_default = [
     ("2k",                         None),
 ]
 
-fixtures_for_str_to_timestamp_custom_format = [
+fixtures_for_str_to_timestamp_custom_input_format = [
+    # input_value,           # input_format             # expected_output
+    ("20",                   "yy",                      "2020-01-01 00:00:00"),
+    ("20",                   "yyyy",                    None),
+    (20,                     "yy",                      "2020-01-01 00:00:00"),
+    ("2020",                 "yyyy",                    "2020-01-01 00:00:00"),
+    (2020,                   "yyyy",                    "2020-01-01 00:00:00"),
+    ("202012",               "yyyyMM",                  "2020-12-01 00:00:00"),
+    (202012,                 "yyyyMM",                  "2020-12-01 00:00:00"),
+    ("20201224",             "yyyyMMdd",                "2020-12-24 00:00:00"),
+    (20201224,               "yyyyMMdd",                "2020-12-24 00:00:00"),
+    (20201324,               "yyyyMMdd",                None),
+    ("2020/12/24",           "yyyy/MM/dd",              "2020-12-24 00:00:00"),
+    ("2020/12/24-20",        "yyyy/MM/dd-HH",           "2020-12-24 20:00:00"),
+    ("2020/12/24 20:07",     "yyyy/MM/dd HH:mm",        "2020-12-24 20:07:00"),
+    ("2020/12/24 20:07:35",  "yyyy/MM/dd HH:mm:ss",     "2020-12-24 20:07:35"),
+]
+
+fixtures_for_str_to_timestamp_custom_output_format = [
     # Input date is "2020-12-24 20:07:35.253"
     # date_format,           # expected string
     ("yy",                   "20"),
@@ -430,24 +449,6 @@ fixtures_for_str_to_timestamp_max_valid_timestamp = [
     (4102358400,   "2020-12-24 20:07:35"), #datetime.datetime(2020, 12, 24, 20,  7, 35)),       # max valid: 2099-12-31 00:00:00 UTC, default
     (1608843600,   "2020-12-24 20:07:35"), #datetime.datetime(2020, 12, 24, 20,  7, 35)),       # max valid: 2020-12-24 21:00:00 UTC
     (1608685200,   "1970-01-19 14:54:00.455"), #datetime.datetime(1970, 1,  19,  2, 53, 56, 400)),  # max valid: 2020-12-23 01:00:00 UTC
-]
-
-fixtures_for_custom_time_format_to_timestamp = [
-    # input_value,           # input_format             # expected_output
-    ("20",                   "yy",                      "2020-01-01 00:00:00"),
-    ("20",                   "yyyy",                    None),
-    (20,                     "yy",                      "2020-01-01 00:00:00"),
-    ("2020",                 "yyyy",                    "2020-01-01 00:00:00"),
-    (2020,                   "yyyy",                    "2020-01-01 00:00:00"),
-    ("202012",               "yyyyMM",                  "2020-12-01 00:00:00"),
-    (202012,                 "yyyyMM",                  "2020-12-01 00:00:00"),
-    ("20201224",             "yyyyMMdd",                "2020-12-24 00:00:00"),
-    (20201224,               "yyyyMMdd",                "2020-12-24 00:00:00"),
-    (20201324,               "yyyyMMdd",                None),
-    ("2020/12/24",           "yyyy/MM/dd",              "2020-12-24 00:00:00"),
-    ("2020/12/24-20",        "yyyy/MM/dd-HH",           "2020-12-24 20:00:00"),
-    ("2020/12/24 20:07",     "yyyy/MM/dd HH:mm",        "2020-12-24 20:07:00"),
-    ("2020/12/24 20:07:35",  "yyyy/MM/dd HH:mm:ss",     "2020-12-24 20:07:35"),
 ]
 
 fixtures_for_extended_string_unix_timestamp_ms_to_timestamp_spark2 = [
@@ -653,3 +654,111 @@ fixtures_for_timestamp_s_to_ms = [
     (      3412549669,   3412549669000),
     (    "2769601503",   2769601503000),
 ]
+
+fixtures_for_str_to_array_str_to_int = [
+    # input_string          # expected_int_array
+    (" [1,2,3]",            [1, 2, 3]),
+    (" []",                 [None]),
+    (" ]",                  [None]),
+    ("1,2,test",            [1, 2, None]),
+    ("t,est",               [None, None]),
+    ("1,  2   ,  test",     [1, 2, None]),
+    ("   1,  2.4   ,  4  ", [1, 2, 4]),
+    (None,                  None),
+]
+
+fixtures_for_str_to_array_str_to_str = [
+    # input_string                       # expected_str_array
+    ("[item1,item2,3]",                  ["item1", "item2", "3"]),
+    ("item1,it[e]m2,it em3",             ["item1", "it[e]m2", "it em3"]),
+    ("    item1,   item2    ,   item3",  ["item1", "item2", "item3"]),
+    ("[it em1, item2, item3",            ["it em1", "item2", "item3"]),
+    ("[it ] e [ m1 , [ item2 ] , item3", ["it ] e [ m1", "[ item2 ]", "item3"]),
+    (" [ item1 , item2, item3 ] ",       ["item1", "item2", "item3"]),
+    (None,                               [None]),
+]
+
+fixtures_for_map_values_string_for_string_without_default = [
+    # mapping = {"whitelist": "allowlist", "blacklist": "blocklist"}
+    # default = source_column
+    # input_value,   # expected_output
+    ("allowlist",    "allowlist"),
+    ("WhiteList",    "WhiteList"),  # case sensitive
+    ("blocklist",    "blocklist"),
+    ("blacklist",    "blocklist"),
+    ("Blacklist",    "Blacklist"),  # case sensitive
+    ("shoppinglist", "shoppinglist"),
+    (None,           None),
+    (1,              "1"),
+    (True,           "true"),
+    (False,          "false"),
+]
+
+fixtures_for_map_values_string_for_string_with_default = [
+    # mapping = {"whitelist": "allowlist", "blacklist": "blocklist"}
+    # default = "No mapping found!"
+    # input_value,   # expected_output
+    ("allowlist",    "No mapping found!"),
+    ("whitelist",    "allowlist"),
+    ("WhiteList",    "No mapping found!"),  # case sensitive
+    ("blocklist",    "No mapping found!"),
+    ("blacklist",    "blocklist"),
+    ("Blacklist",    "No mapping found!"),  # case sensitive
+    ("shoppinglist", "No mapping found!"),
+    (None,           "No mapping found!"),
+    (1,              "No mapping found!"),
+    (True,           "No mapping found!"),
+    (False,          "No mapping found!"),
+]
+
+
+fixtures_for_map_values_string_for_integer = [
+    # mapping = {0: "bad", 1: "ok", 2: "good"}
+    # default = source_column
+    # input_value,   # expected_output
+    (-1,    "-1"),
+    ("-1",  "-1"),
+    (0,     "bad"),
+    ("0",   "bad"),
+    (1,     "ok"),
+    ("1",   "ok"),
+    (2,     "good"),
+    ("2",   "good"),
+    (3,     "3"),
+    ("3",   "3"),
+    (None,  None),
+    (True,  "true"),
+    (False, "false"),
+]
+
+fixtures_for_map_values_integer_for_string = [
+    # mapping = {"0": -99999}
+    # default = source_column
+    # input_value,   # expected_output
+    (-1,    -1),
+    ("-1",  -1),
+    (0,     -99999),
+    ("0",   -99999),
+    (1,     1),
+    ("1",   1),
+    (None,  None),
+    (True,  None),
+    (False, None),
+]
+
+fixtures_for_map_values_integer_for_integer = [
+    # mapping = {0: -99999}
+    # default = source_column
+    # input_value,   # expected_output
+    (-1,    -1),
+    ("-1",  -1),
+    (0,     -99999),
+    ("0",   -99999),
+    (1,     1),
+    ("1",   1),
+    (None,  None),
+    (True,  None),
+    (False, None),
+]
+
+# fmt: on

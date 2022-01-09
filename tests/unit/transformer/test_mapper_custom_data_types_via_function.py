@@ -25,13 +25,20 @@ from ...data.test_fixtures.mapper_custom_data_types_fixtures import (
     fixtures_for_str_to_bool_default,
     fixtures_for_str_to_bool_true_values_added,
     fixtures_for_str_to_bool_false_values_added,
-    fixtures_for_str_to_bool_additional_true_and_false_values,
+    fixtures_for_str_to_bool_true_and_false_values_added,
     fixtures_for_str_to_bool_false_values_as_argument,
     fixtures_for_str_to_bool_true_values_as_argument,
     fixtures_for_str_to_bool_true_and_false_values_as_argument,
-    fixtures_for_str_to_timestamp_custom_format,
+    fixtures_for_str_to_timestamp_custom_input_format,
+    fixtures_for_str_to_timestamp_custom_output_format,
     fixtures_for_str_to_timestamp_max_valid_timestamp,
-    fixtures_for_custom_time_format_to_timestamp,
+    fixtures_for_str_to_array_str_to_int,
+    fixtures_for_str_to_array_str_to_str,
+    fixtures_for_map_values_string_for_string_without_default,
+    fixtures_for_map_values_string_for_string_with_default,
+    fixtures_for_map_values_integer_for_string,
+    fixtures_for_map_values_string_for_integer,
+    fixtures_for_map_values_integer_for_integer,
     fixtures_for_extended_string_to_timestamp_spark2,
     fixtures_for_extended_string_unix_timestamp_ms_to_timestamp_spark2,
     fixtures_for_extended_string_to_date_spark2,
@@ -123,6 +130,39 @@ class TestGenericFunctionality:
                 "str_key_1 STRING, str_key_2 STRING")
         )
 
+    @pytest.fixture(scope="class")
+    def expected_df(self, spark_session):
+        return spark_session.createDataFrame(
+            [
+                Row(
+                    as_is="Hello",
+                    unix_to_unix=1637335,
+                    first_of_month=datetime.date(2020, 8, 1),
+                    m_to_cm=180,
+                    has_val=True,
+                    str_to_num=1637335255,
+                    str_to_bool=True,
+                    str_to_timestamp="2020-08-12 12:43",
+                    str_to_array=[1, 2, 3],
+                    apply_func="hello",
+                    map_vals="Yes",
+                )
+            ],
+            schema=(
+                "as_is STRING, "
+                "unix_to_unix LONG, "
+                "first_of_month DATE, "
+                "m_to_cm INTEGER, "
+                "has_val BOOLEAN, "
+                "str_to_num LONG, "
+                "str_to_bool BOOLEAN, "
+                "str_to_timestamp STRING, "
+                "str_to_array ARRAY<STRING>, "
+                "apply_func STRING, "
+                "map_vals STRING"
+            )
+        )
+
     def test_different_syntax_options(self, input_df, spark_session):
         # fmt:off
         mapping = [
@@ -155,7 +195,7 @@ class TestGenericFunctionality:
         output_df = Mapper(mapping).transform(input_df)
         assert_df_equality(expected_df, output_df, ignore_nullable=True)
 
-    def test_alternative_source_columns(self, spark_session, input_df):
+    def test_alternative_source_columns(self, input_df, expected_df):
         # fmt:off
         mapping = [
             ("as_is",                "str_1",        spq.as_is(alt_src_cols="str_2")),
@@ -166,48 +206,12 @@ class TestGenericFunctionality:
             ("str_to_num",           "str_int_1",    spq.str_to_num(alt_src_cols="str_int_2")),
             ("str_to_bool",          "str_bool_1",   spq.str_to_bool(alt_src_cols="str_bool_2")),
             ("str_to_timestamp",     "str_ts_1",     spq.str_to_timestamp(alt_src_cols="str_ts_2",
-                                                                          date_format="yyyy-MM-dd HH:mm")),
-            ("custom_to_timestamp",  "int_date_1",   spq.custom_time_format_to_timestamp(alt_src_cols="int_date_2",
-                                                                                         input_format="yyyyMMdd",
-                                                                                         output_type=T.StringType())),
-            ("str_to_array",         "str_array_1",  spq.string_to_array(alt_src_cols="str_array_2")),
+                                                                          output_format="yyyy-MM-dd HH:mm")),
+            ("str_to_array",         "str_array_1",  spq.str_to_array(alt_src_cols="str_array_2")),
             ("apply_func",           "str_1",        spq.apply_function(alt_src_cols="str_2", func=F.lower)),
             ("map_vals",             "str_key_1",    spq.map_values(alt_src_cols="str_key_2", mapping={"Y": "Yes"})),
         ]
         # fmt:on
-
-        expected_df = spark_session.createDataFrame(
-            [
-                Row(
-                    as_is="Hello",
-                    unix_to_unix=1637335,
-                    first_of_month=datetime.date(2020, 8, 1),
-                    m_to_cm=180,
-                    has_val=True,
-                    str_to_num=1637335255,
-                    str_to_bool=True,
-                    str_to_timestamp="2020-08-12 12:43",
-                    custom_to_timestamp="2020-10-07 00:00:00",
-                    str_to_array=[1, 2, 3],
-                    apply_func="hello",
-                    map_vals="Yes",
-                )
-            ],
-            schema=(
-                "as_is STRING, "
-                "unix_to_unix LONG, "
-                "first_of_month DATE, "
-                "m_to_cm INTEGER, "
-                "has_val BOOLEAN, "
-                "str_to_num LONG, "
-                "str_to_bool BOOLEAN, "
-                "str_to_timestamp STRING, "
-                "custom_to_timestamp STRING, "
-                "str_to_array ARRAY<STRING>, "
-                "apply_func STRING, "
-                "map_vals STRING"
-            )
-        )
 
         output_df = Mapper(mapping).transform(input_df)
         assert_df_equality(expected_df, output_df, ignore_nullable=True)
@@ -223,10 +227,8 @@ class TestGenericFunctionality:
             ("str_to_num",           "str_int_2",    spq.str_to_num(output_type=T.StringType())),
             ("str_to_bool",          "str_bool_2",   spq.str_to_bool(output_type=T.StringType())),
             ("str_to_timestamp",     "str_ts_2",     spq.str_to_timestamp(output_type=T.StringType(),
-                                                                          date_format="yyyy-MM-dd HH:mm")),
-            ("custom_to_timestamp",  "int_date_2",   spq.custom_time_format_to_timestamp(output_type=T.StringType(),
-                                                                                         input_format="yyyyMMdd")),
-            ("str_to_array",         "str_array_2",  spq.string_to_array(output_type=T.StringType())),
+                                                                          output_format="yyyy-MM-dd HH:mm")),
+            ("str_to_array",         "str_array_2",  spq.str_to_array(output_type=T.StringType())),
             ("apply_func",           "str_2",        spq.apply_function(output_type=T.StringType(), func=F.lower)),
             ("map_vals",             "str_key_2",    spq.map_values(output_type=T.StringType(), mapping={"Y": "Yes"})),
         ]
@@ -239,7 +241,24 @@ class TestGenericFunctionality:
             else:
                 assert isinstance(col.dataType, T.StringType)
 
-    def test_direct_call(self, spark_session, input_df):
+    def test_direct_call_with_named_arguments(self, input_df, expected_df):
+        output_df = input_df.select(
+            spq.as_is(source_column="str_2", name="as_is"),
+            spq.unix_timestamp_to_unix_timestamp(source_column="int_2", name="unix_to_unix"),
+            spq.spark_timestamp_to_first_of_month(source_column="str_ts_2", name="first_of_month"),
+            spq.meters_to_cm(source_column="float_2", name="m_to_cm"),
+            spq.has_value(source_column="int_2", name="has_val"),
+            spq.str_to_num(source_column="str_int_2", name="str_to_num"),
+            spq.str_to_bool(source_column="str_bool_2", name="str_to_bool"),
+            spq.str_to_timestamp(source_column="str_ts_2", name="str_to_timestamp", output_format="yyyy-MM-dd HH:mm"),
+            spq.str_to_array(source_column="str_array_2", name="str_to_array"),
+            spq.apply_function(source_column="str_2", name="apply_func", func=F.lower),
+            spq.map_values(source_column="str_key_2", name="map_vals", mapping={"Y": "Yes"}),
+        )
+
+        assert_df_equality(expected_df, output_df, ignore_nullable=True)
+
+    def test_direct_call_with_positional_arguments(self, input_df, expected_df):
         output_df = input_df.select(
             spq.as_is("str_2", "as_is"),
             spq.unix_timestamp_to_unix_timestamp("int_2", "unix_to_unix"),
@@ -248,47 +267,47 @@ class TestGenericFunctionality:
             spq.has_value("int_2", "has_val"),
             spq.str_to_num("str_int_2", "str_to_num"),
             spq.str_to_bool("str_bool_2", "str_to_bool"),
-            spq.str_to_timestamp("str_ts_2", "str_to_timestamp", date_format="yyyy-MM-dd HH:mm"),
-            spq.custom_time_format_to_timestamp("int_date_2", "custom_to_timestamp", input_format="yyyyMMdd", output_type=T.StringType()),
-            spq.string_to_array("str_array_2", "str_to_array"),
+            spq.str_to_timestamp("str_ts_2", "str_to_timestamp", output_format="yyyy-MM-dd HH:mm"),
+            spq.str_to_array("str_array_2", "str_to_array"),
             spq.apply_function("str_2", "apply_func", func=F.lower),
             spq.map_values("str_key_2", "map_vals", mapping={"Y": "Yes"}),
         )
 
-        expected_df = spark_session.createDataFrame(
-            [
-                Row(
-                    as_is="Hello",
-                    unix_to_unix=1637335,
-                    first_of_month=datetime.date(2020, 8, 1),
-                    m_to_cm=180,
-                    has_val=True,
-                    str_to_num=1637335255,
-                    str_to_bool=True,
-                    str_to_timestamp="2020-08-12 12:43",
-                    custom_to_timestamp="2020-10-07 00:00:00",
-                    str_to_array=[1, 2, 3],
-                    apply_func="hello",
-                    map_vals="Yes",
-                )
-            ],
+        assert_df_equality(expected_df, output_df, ignore_nullable=True)
+
+    def test_direct_call_with_default_name(self, spark_session, input_df, expected_df):
+        output_df = input_df.select(
+            spq.as_is("str_2"),
+            spq.unix_timestamp_to_unix_timestamp("int_2"),
+            spq.spark_timestamp_to_first_of_month("str_ts_2"),
+            spq.meters_to_cm("float_2"),
+            spq.has_value("int_2"),
+            spq.str_to_num("str_int_2"),
+            spq.str_to_bool("str_bool_2"),
+            spq.str_to_timestamp("str_ts_2", output_format="yyyy-MM-dd HH:mm"),
+            spq.str_to_array("str_array_2"),
+            spq.apply_function("str_2", func=F.lower),
+            spq.map_values("str_key_2", mapping={"Y": "Yes"}),
+        )
+
+        expected_df_ = spark_session.createDataFrame(
+            expected_df.rdd,
             schema=(
-                "as_is STRING, "
-                "unix_to_unix LONG, "
-                "first_of_month DATE, "
-                "m_to_cm INTEGER, "
-                "has_val BOOLEAN, "
-                "str_to_num LONG, "
-                "str_to_bool BOOLEAN, "
-                "str_to_timestamp STRING, "
-                "custom_to_timestamp STRING, "
-                "str_to_array ARRAY<STRING>, "
-                "apply_func STRING, "
-                "map_vals STRING"
+                "str_2 STRING, "
+                "int_2 LONG, "
+                "str_ts_2 DATE, "
+                "float_2 INTEGER, "
+                "int_2 BOOLEAN, "
+                "str_int_2 LONG, "
+                "str_bool_2 BOOLEAN, "
+                "str_ts_2 STRING, "
+                "str_array_2 ARRAY<STRING>, "
+                "str_2 STRING, "
+                "str_key_2 STRING"
             )
         )
 
-        assert_df_equality(expected_df, output_df, ignore_nullable=True)
+        assert_df_equality(expected_df_, output_df, ignore_nullable=True)
 
 
 class TestAsIs:
@@ -503,9 +522,9 @@ class TestStringToBoolean:
 
         @pytest.mark.parametrize(
             argnames="input_df, expected_df",
-            argvalues=fixtures_for_str_to_bool_additional_true_and_false_values,
+            argvalues=fixtures_for_str_to_bool_true_and_false_values_added,
             indirect=["input_df", "expected_df"],
-            ids=get_ids_for_fixture(fixtures_for_str_to_bool_additional_true_and_false_values),
+            ids=get_ids_for_fixture(fixtures_for_str_to_bool_true_and_false_values_added),
         )
         def test_str_to_bool_with_additional_true_and_false_values(self, input_df, expected_df):
             mapping = [("mapped_name", "attributes.data.some_attribute", spq.str_to_bool(
@@ -577,15 +596,31 @@ class TestStringToTimestamp:
         assert_df_equality(expected_df_, output_df)
 
     @pytest.mark.parametrize(
-        argnames="date_format, expected_string",
-        argvalues=fixtures_for_str_to_timestamp_custom_format,
-        ids=get_ids_for_fixture(fixtures_for_str_to_timestamp_custom_format),
+        argnames="input_df, input_format, expected_df",
+        argvalues=fixtures_for_str_to_timestamp_custom_input_format,
+        indirect=["input_df", "expected_df"],
+        ids=get_ids_for_fixture(fixtures_for_str_to_timestamp_custom_input_format),
     )
-    def test_str_to_timestamp_custom_format(self, spark_session, date_format, expected_string):
+    def test_str_to_timestamp_custom_input_format(self, input_df, input_format, expected_df):
+        mapping = [(
+            "mapped_name",
+            "attributes.data.some_attribute",
+            spq.str_to_timestamp(input_format=input_format, output_type=T.StringType())
+        )]
+        output_df = Mapper(mapping).transform(input_df)
+        expected_df_ = expected_df.select(F.col("mapped_name").cast(T.StringType()))
+        assert_df_equality(expected_df_, output_df)
+
+    @pytest.mark.parametrize(
+        argnames="date_format, expected_string",
+        argvalues=fixtures_for_str_to_timestamp_custom_output_format,
+        ids=get_ids_for_fixture(fixtures_for_str_to_timestamp_custom_output_format),
+    )
+    def test_str_to_timestamp_custom_output_format(self, spark_session, date_format, expected_string):
         input_df = spark_session.createDataFrame([
             Row(attributes=Row(data=Row(some_attribute="2020-12-24 20:07:35.253")))
         ])
-        mapping = [("mapped_name", "attributes.data.some_attribute", spq.str_to_timestamp(date_format=date_format))]
+        mapping = [("mapped_name", "attributes.data.some_attribute", spq.str_to_timestamp(output_format=date_format))]
         output_df = Mapper(mapping).transform(input_df)
         expected_df = spark_session.createDataFrame([Row(mapped_name=expected_string)])
         assert_df_equality(expected_df, output_df)
@@ -610,32 +645,111 @@ class TestStringToTimestamp:
         assert_df_equality(expected_df_, output_df)
 
 
-class TestCustomTimeFormatToTimestamp:
-    @pytest.mark.parametrize(
-        argnames="input_df, input_format, expected_df",
-        argvalues=fixtures_for_custom_time_format_to_timestamp,
-        indirect=["input_df", "expected_df"],
-        ids=get_ids_for_fixture(fixtures_for_custom_time_format_to_timestamp),
-    )
-    def test_custom_time_format_to_timestamp(self, input_df, input_format, expected_df):
-        mapping = [(
-            "mapped_name",
-            "attributes.data.some_attribute",
-            spq.custom_time_format_to_timestamp(input_format=input_format, output_type=T.StringType())
-        )]
-        output_df = Mapper(mapping).transform(input_df)
-        expected_df_ = expected_df.select(F.col("mapped_name").cast(T.StringType()))
-        assert_df_equality(expected_df_, output_df)
-
-
 class TestStringToArray:
-    pass
+    @pytest.mark.parametrize(
+        argnames="input_df, expected_df",
+        argvalues=fixtures_for_str_to_array_str_to_int,
+        indirect=["input_df", "expected_df"],
+        ids=get_ids_for_fixture(fixtures_for_str_to_array_str_to_int),
+    )
+    def test_array_containing_integers(self, spark_session, input_df, expected_df):
+        mapping = [("mapped_name", "attributes.data.some_attribute", spq.str_to_array(output_type=T.IntegerType()))]
+        output_df = Mapper(mapping).transform(input_df)
+        expected_df_ = spark_session.createDataFrame(
+            expected_df.rdd,
+            schema="mapped_name array<int>"
+        )
+        assert_df_equality(expected_df_, output_df, ignore_nullable=True)
+
+    @pytest.mark.parametrize(
+        argnames="input_df, expected_df",
+        argvalues=fixtures_for_str_to_array_str_to_str,
+        indirect=["input_df", "expected_df"],
+        ids=get_ids_for_fixture(fixtures_for_str_to_array_str_to_str),
+    )
+    def test_array_containing_strings(self, spark_session, input_df, expected_df):
+        mapping = [("mapped_name", "attributes.data.some_attribute", spq.str_to_array)]
+        output_df = Mapper(mapping).transform(input_df)
+        expected_df_ = spark_session.createDataFrame(
+            expected_df.rdd,
+            schema="mapped_name array<int>"
+        )
+        assert_df_equality(expected_df_, output_df, ignore_nullable=True)
+
+
+class TestMapValues:
+    @pytest.mark.parametrize(
+        argnames="input_df, expected_df",
+        argvalues=fixtures_for_map_values_string_for_string_without_default,
+        indirect=["input_df", "expected_df"],
+        ids=get_ids_for_fixture(fixtures_for_map_values_string_for_string_without_default),
+    )
+    def test_map_values_without_default(self, input_df, expected_df):
+        mapping = [("mapped_name", "attributes.data.some_attribute", spq.map_values(
+            mapping={"whitelist": "allowlist", "blacklist": "blocklist"}
+        ))]
+        output_df = Mapper(mapping).transform(input_df)
+        assert_df_equality(expected_df, output_df)
+
+    @pytest.mark.parametrize(
+        argnames="input_df, expected_df",
+        argvalues=fixtures_for_map_values_string_for_string_with_default,
+        indirect=["input_df", "expected_df"],
+        ids=get_ids_for_fixture(fixtures_for_map_values_string_for_string_with_default),
+    )
+    def test_map_values_with_default(self, input_df, expected_df):
+        mapping = [("mapped_name", "attributes.data.some_attribute", spq.map_values(
+            mapping={"whitelist": "allowlist", "blacklist": "blocklist"},
+            default="No mapping found!"
+        ))]
+        output_df = Mapper(mapping).transform(input_df)
+        assert_df_equality(expected_df, output_df, ignore_nullable=True)
+
+    @pytest.mark.parametrize(
+        argnames="input_df, expected_df",
+        argvalues=fixtures_for_map_values_string_for_integer,
+        indirect=["input_df", "expected_df"],
+        ids=get_ids_for_fixture(fixtures_for_map_values_string_for_integer),
+    )
+    def test_map_values_string_for_integer(self, input_df, expected_df):
+        mapping = [("mapped_name", "attributes.data.some_attribute", spq.map_values(
+            mapping={0: "bad", 1: "ok", 2: "good"}
+        ))]
+        output_df = Mapper(mapping).transform(input_df)
+        assert_df_equality(expected_df, output_df, ignore_nullable=True)
+
+    @pytest.mark.parametrize(
+        argnames="input_df, expected_df",
+        argvalues=fixtures_for_map_values_integer_for_string,
+        indirect=["input_df", "expected_df"],
+        ids=get_ids_for_fixture(fixtures_for_map_values_integer_for_string),
+    )
+    def test_map_values_integer_for_string(self, input_df, expected_df):
+        mapping = [("mapped_name", "attributes.data.some_attribute", spq.map_values(
+            mapping={"0": -99999},
+            output_type=T.LongType(),
+        ))]
+        output_df = Mapper(mapping).transform(input_df)
+        expected_df_ = expected_df.select(F.col("mapped_name").cast(T.LongType()).alias("mapped_name"))
+        assert_df_equality(expected_df_, output_df, ignore_nullable=True)
+
+    @pytest.mark.parametrize(
+        argnames="input_df, expected_df",
+        argvalues=fixtures_for_map_values_integer_for_integer,
+        indirect=["input_df", "expected_df"],
+        ids=get_ids_for_fixture(fixtures_for_map_values_integer_for_integer),
+    )
+    def test_map_values_integer_for_integer(self, input_df, expected_df):
+        mapping = [("mapped_name", "attributes.data.some_attribute", spq.map_values(
+            mapping={0: -99999},
+            output_type=T.LongType()
+        ))]
+        output_df = Mapper(mapping).transform(input_df)
+        expected_df_ = expected_df.select(F.col("mapped_name").cast(T.LongType()).alias("mapped_name"))
+        assert_df_equality(expected_df_, output_df, ignore_nullable=True)
 
 
 class TestApplyFunction:
     pass
 
-
-class TestMapValues:
-    pass
 

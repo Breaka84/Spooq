@@ -470,28 +470,44 @@ def str_to_timestamp(source_column=None, name=None, **kwargs: Any) -> partial:
      Row(input_string=datetime.datetime(2020, 8, 12, 0, 0, 0))]
     """
 
-    def _inner_func(source_column, name, max_timestamp_sec, date_format, alt_src_cols, output_type):
+    def _inner_func(source_column, name, max_timestamp_sec, input_format, output_format, alt_src_cols, output_type):
         if alt_src_cols:
             source_column = _coalesce_source_columns(source_column, alt_src_cols)
-        output_col = (
-            F.when(
-                F.abs(F.trim(source_column).cast(T.LongType())).between(0, max_timestamp_sec),
-                F.trim(source_column).cast(T.LongType()).cast(T.TimestampType()),
+
+        if input_format:
+            output_col = (
+                F.unix_timestamp(
+                    source_column.cast(T.StringType()),
+                    input_format
+                ).cast(
+                    T.TimestampType()
+                ).cast(
+                    output_type
+                ).alias(
+                    name
+                )
             )
-            .when(
-                F.abs(F.trim(source_column).cast(T.LongType())) > max_timestamp_sec,
-                (F.trim(source_column) / 1000).cast(T.TimestampType()),
+        else:
+            output_col = (
+                F.when(
+                    F.abs(F.trim(source_column).cast(T.LongType())).between(0, max_timestamp_sec),
+                    F.trim(source_column).cast(T.LongType()).cast(T.TimestampType()),
+                )
+                .when(
+                    F.abs(F.trim(source_column).cast(T.LongType())) > max_timestamp_sec,
+                    (F.trim(source_column) / 1000).cast(T.TimestampType()),
+                )
+                .otherwise(F.trim(source_column))
+                .cast(output_type)
             )
-            .otherwise(F.trim(source_column))
-            .cast(output_type)
-        )
-        if date_format:
-            output_col = F.date_format(output_col, date_format)
+        if output_format:
+            output_col = F.date_format(output_col, output_format)
         return output_col.alias(name)
 
     args = dict(
         max_timestamp_sec=kwargs.get("max_timestamp_sec", 4102358400),  # 2099-12-31 01:00:00
-        date_format=kwargs.get("date_format", False),
+        input_format=kwargs.get("input_format", False),
+        output_format=kwargs.get("output_format", False),
         alt_src_cols=kwargs.get("alt_src_cols", False),
         output_type=kwargs.get("output_type", T.TimestampType()),
     )
@@ -499,31 +515,7 @@ def str_to_timestamp(source_column=None, name=None, **kwargs: Any) -> partial:
     return _get_executable_function(_inner_func, source_column, name, **args)
 
 
-def custom_time_format_to_timestamp(source_column=None, name=None, **kwargs: Any) -> partial:
-    """
-    Converts an integer (yyyyMMdd) to a Date
-    Supports following input types:
-        * IntegerType
-        * StringType
-    """
-
-    def _inner_func(source_column, name, input_format, alt_src_cols, output_type):
-        if alt_src_cols:
-            source_column = _coalesce_source_columns(source_column, alt_src_cols)
-        return (
-            F.unix_timestamp(source_column.cast(T.StringType()), input_format).cast(T.TimestampType()).cast(output_type)
-        ).alias(name)
-
-    args = dict(
-        input_format=kwargs.get("input_format", "yyyyMMdd"),
-        alt_src_cols=kwargs.get("alt_src_cols", False),
-        output_type=kwargs.get("output_type", T.TimestampType()),
-    )
-
-    return _get_executable_function(_inner_func, source_column, name, **args)
-
-
-def string_to_array(source_column=None, name=None, **kwargs: Any) -> partial:
+def str_to_array(source_column=None, name=None, **kwargs: Any) -> partial:
     """
     Converts a string containing an array of integers to an array of integers
     If conversion is not possible, the value will be set to null
@@ -533,6 +525,7 @@ def string_to_array(source_column=None, name=None, **kwargs: Any) -> partial:
     def _inner_func(source_column, name, alt_src_cols, output_type):
         if alt_src_cols:
             source_column = _coalesce_source_columns(source_column, alt_src_cols)
+
         return (
             F.split(F.regexp_replace(source_column, r"^\s*\[*\s*|\s*\]*\s*$", ""), r"\s*,\s*")
             .cast(T.ArrayType(output_type))
@@ -594,15 +587,16 @@ def map_values(source_column=None, name=None, **kwargs: Any) -> partial:
 
         if isinstance(default, str) and default == "source_column":
             default = source_column
-        else:
+        if isinstance(default, str):
             default = F.lit(default)
 
         keys = list(mapping.keys())
-        when_clause = F.when(source_column == keys[0], mapping[keys[0]])
+        when_clause = F.when(source_column.cast(T.StringType()) == keys[0], mapping[keys[0]])
         for key in keys[1:]:
-            when_clause.when(source_column == key, mapping[key])
+            when_clause = when_clause.when(source_column.cast(T.StringType()) == key, mapping[key])
+        when_clause = when_clause.otherwise(default.cast(T.StringType()))
 
-        return when_clause.otherwise(default).cast(output_type).alias(name)
+        return when_clause.cast(output_type).alias(name)
 
     try:
         mapping = kwargs["mapping"]
