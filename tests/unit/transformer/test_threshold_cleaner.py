@@ -179,6 +179,29 @@ class TestCleaning(object):
         )
         assert_df_equality(expected_output_df, output_df)
 
+    def test_dynamic_thresholds(self, spark_session):
+        input_df = spark_session.createDataFrame(
+            [
+                Row(id=1, num=1),
+                Row(id=2, num=2),
+                Row(id=3, num=100),
+                Row(id=4, num=4),
+                Row(id=5, num=-1024),
+            ]
+        )
+        thresholds_to_test = dict(num=dict(min=F.col("id") - 10, max=F.col("id") + 10, default=-1))
+        output_df = ThresholdCleaner(thresholds_to_test).transform(input_df)
+        expected_output_df = spark_session.createDataFrame(
+            [
+                Row(id=1, num=1),
+                Row(id=2, num=2),
+                Row(id=3, num=-1),
+                Row(id=4, num=4),
+                Row(id=5, num=-1),
+            ]
+        )
+        assert_df_equality(expected_output_df, output_df)
+
 
 class TestCleansedValuesAreLogged:
     @pytest.fixture(scope="class")

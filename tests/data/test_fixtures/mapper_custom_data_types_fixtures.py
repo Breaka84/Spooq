@@ -1,18 +1,18 @@
 import datetime
+import IPython
 from pyspark.sql import functions as F
 from pyspark.sql import types as T
 from pyspark.sql import Row
 
 
-def get_ids_for_fixture(fixture):
+def get_ids_for_fixture(fixtures):
     try:
         return [
             f" actual: <{actual}> ({type(actual)}) -> expected: <{expected}>  ({type(expected)})"
-            for actual, expected in fixture
+            for actual, expected in fixtures
         ]
     except ValueError:
-        return " / ".join(fixture)
-
+        return [str(fixture) for fixture in fixtures]
 
 
 complex_event_expression = (
@@ -310,25 +310,36 @@ fixtures_for_str_to_bool_default = [
     ("Off",      False),
 ] + fixtures_for_str_to_bool_base
 
-fixtures_for_str_to_bool_additional_true_values = [
+fixtures_for_str_to_bool_true_values_as_argument = [
     ("Sure",    True),
     ("sure",    True),
     ("surely",  None),
     ("OK",      True),
     ("ok",      True),
-] + fixtures_for_str_to_bool_base
+]
 
-fixtures_for_str_to_bool_additional_false_values = [
+fixtures_for_str_to_bool_false_values_as_argument = [
     ("Nope",    False),
     ("nope",    False),
     ("Nope!",   None),
     ("NOK",     False),
     ("Nok",     False),
-] + fixtures_for_str_to_bool_base
+]
+
+fixtures_for_str_to_bool_true_values_added = set(
+    fixtures_for_str_to_bool_base + fixtures_for_str_to_bool_true_values_as_argument
+)
+
+fixtures_for_str_to_bool_false_values_added = set(
+    fixtures_for_str_to_bool_base + fixtures_for_str_to_bool_false_values_as_argument
+)
 
 fixtures_for_str_to_bool_additional_true_and_false_values = set(
-    fixtures_for_str_to_bool_additional_true_values
-    + fixtures_for_str_to_bool_additional_false_values
+    fixtures_for_str_to_bool_true_values_added.union(fixtures_for_str_to_bool_false_values_added)
+)
+
+fixtures_for_str_to_bool_true_and_false_values_as_argument = set(
+    fixtures_for_str_to_bool_false_values_as_argument + fixtures_for_str_to_bool_false_values_as_argument
 )
 
 fixtures_for_extended_string_to_timestamp_spark2 = [

@@ -10,10 +10,17 @@ Please see that particular class on how to apply custom data types.
 For injecting your **own custom data types**, please have a visit to the
 :py:meth:`add_custom_data_type` method!
 """
+import re
 from functools import partial
-from typing import Any
+from typing import Any, Union
 import json
+
+import IPython
 from pyspark.sql import functions as F, types as T
+from pyspark.sql.column import Column
+
+
+COLUMN_NAME_PATTERN = re.compile(".*\'(.*)\'")
 
 
 def _coalesce_source_columns(source_column, alt_src_cols):
@@ -22,7 +29,24 @@ def _coalesce_source_columns(source_column, alt_src_cols):
     return F.coalesce(source_column, *[F.col(col) for col in alt_src_cols])
 
 
-def as_is(**kwargs: Any) -> partial:
+def _get_executable_function(inner_func, source_column, name, **kwargs):
+    direct_call = True
+
+    if isinstance(source_column, str):
+        name = name or source_column.split(".")[-1]
+        source_column = F.col(source_column)
+    elif isinstance(source_column, Column):
+        name = name or re.search(COLUMN_NAME_PATTERN, source_column.name()).group(1)
+    else:
+        direct_call = False
+
+    if direct_call:
+        return inner_func(source_column, name, **kwargs)
+    else:
+        return partial(inner_func, **kwargs)
+
+
+def as_is(source_column=None, name=None, **kwargs: Any) -> partial:
     """
     Returns a column without casting. This is especially useful if you need to
     keep a complex data type, like an array, list or a struct.
@@ -53,10 +77,10 @@ def as_is(**kwargs: Any) -> partial:
         output_type=kwargs.get("output_type", False),
     )
 
-    return partial(_inner_func, **args)
+    return _get_executable_function(_inner_func, source_column, name, **args)
 
 
-def to_json_string(**kwargs: Any) -> partial:
+def to_json_string(source_column=None, name=None, **kwargs: Any) -> partial:
     """
     Returns a column as json compatible string.
     Nested hierarchies are supported.
@@ -97,10 +121,10 @@ def to_json_string(**kwargs: Any) -> partial:
         output_type=kwargs.get("output_type", T.StringType()),
     )
 
-    return partial(_inner_func, **args)
+    return _get_executable_function(_inner_func, source_column, name, **args)
 
 
-def unix_timestamp_to_unix_timestamp(**kwargs: Any) -> partial:
+def unix_timestamp_to_unix_timestamp(source_column=None, name=None, **kwargs: Any) -> partial:
     """
     Converts a unix timestamp (number) between milli seconds and seconds
     and casts it to a :any:`pyspark.sql.types.LongType`.
@@ -152,10 +176,10 @@ def unix_timestamp_to_unix_timestamp(**kwargs: Any) -> partial:
         output_type=kwargs.get("output_type", T.LongType()),
     )
 
-    return partial(_inner_func, **args)
+    return _get_executable_function(_inner_func, source_column, name, **args)
 
 
-def spark_timestamp_to_first_of_month(**kwargs: Any) -> partial:
+def spark_timestamp_to_first_of_month(source_column=None, name=None, **kwargs: Any) -> partial:
     """
     Used for Anonymizing. Can be used to keep the age but obscure the explicit birthday.
     This custom datatype requires a :any:`pyspark.sql.types.TimestampType` column as input.
@@ -191,10 +215,10 @@ def spark_timestamp_to_first_of_month(**kwargs: Any) -> partial:
         output_type=kwargs.get("output_type", T.DateType()),
     )
 
-    return partial(_inner_func, **args)
+    return _get_executable_function(_inner_func, source_column, name, **args)
 
 
-def meters_to_cm(**kwargs: Any) -> partial:
+def meters_to_cm(source_column=None, name=None, **kwargs: Any) -> partial:
     """
     Convert meters to cm and cast the result to an IntegerType.
 
@@ -227,10 +251,10 @@ def meters_to_cm(**kwargs: Any) -> partial:
         output_type=kwargs.get("output_type", T.IntegerType()),
     )
 
-    return partial(_inner_func, **args)
+    return _get_executable_function(_inner_func, source_column, name, **args)
 
 
-def has_value(**kwargs: Any) -> partial:
+def has_value(source_column=None, name=None, **kwargs: Any) -> partial:
     """
     Returns True if the source_column is
         - not NULL and
@@ -279,10 +303,10 @@ def has_value(**kwargs: Any) -> partial:
         output_type=kwargs.get("output_type", T.BooleanType()),
     )
 
-    return partial(_inner_func, **args)
+    return _get_executable_function(_inner_func, source_column, name, **args)
 
 
-def str_to_num(**kwargs: Any) -> partial:
+def str_to_num(source_column=None, name=None, **kwargs: Any) -> Union[partial, Column]:
     """
     Todo: update docstring
     More robust conversion from StringType to IntegerType.
@@ -327,10 +351,10 @@ def str_to_num(**kwargs: Any) -> partial:
         output_type=kwargs.get("output_type", T.LongType()),
     )
 
-    return partial(_inner_func, **args)
+    return _get_executable_function(_inner_func, source_column, name, **args)
 
 
-def str_to_bool(**kwargs: Any) -> partial:
+def str_to_bool(source_column=None, name=None, **kwargs: Any) -> partial:
     """
     More robust conversion from StringType to BooleanType.
     Is able to additionally handle (compared to implicit Spark conversion):
@@ -393,17 +417,21 @@ def str_to_bool(**kwargs: Any) -> partial:
         )
 
     args = dict(
-        true_values=kwargs.get("true_values", ["on", "enabled"]),
-        false_values=kwargs.get("false_values", ["off", "disabled"]),
         case_sensitive=kwargs.get("case_sensitive", False),
         alt_src_cols=kwargs.get("alt_src_cols", False),
         output_type=kwargs.get("output_type", T.BooleanType()),
     )
+    if kwargs.get("replace_default_values"):
+        args["true_values"] = kwargs["true_values"]
+        args["false_values"] = kwargs["false_values"]
+    else:
+        args["true_values"] = kwargs.get("true_values", []) + ["on", "enabled"]
+        args["false_values"] = kwargs.get("false_values", []) + ["off", "disabled"]
 
-    return partial(_inner_func, **args)
+    return _get_executable_function(_inner_func, source_column, name, **args)
 
 
-def str_to_timestamp(**kwargs: Any) -> partial:
+def str_to_timestamp(source_column=None, name=None, **kwargs: Any) -> partial:
     """
     More robust conversion from StringType to TimestampType. It is assumed that the
     timezone is already set to UTC in spark / java to avoid implicit timezone conversions.
@@ -468,10 +496,10 @@ def str_to_timestamp(**kwargs: Any) -> partial:
         output_type=kwargs.get("output_type", T.TimestampType()),
     )
 
-    return partial(_inner_func, **args)
+    return _get_executable_function(_inner_func, source_column, name, **args)
 
 
-def custom_time_format_to_timestamp(**kwargs: Any) -> partial:
+def custom_time_format_to_timestamp(source_column=None, name=None, **kwargs: Any) -> partial:
     """
     Converts an integer (yyyyMMdd) to a Date
     Supports following input types:
@@ -492,10 +520,10 @@ def custom_time_format_to_timestamp(**kwargs: Any) -> partial:
         output_type=kwargs.get("output_type", T.TimestampType()),
     )
 
-    return partial(_inner_func, **args)
+    return _get_executable_function(_inner_func, source_column, name, **args)
 
 
-def string_to_array(**kwargs: Any) -> partial:
+def string_to_array(source_column=None, name=None, **kwargs: Any) -> partial:
     """
     Converts a string containing an array of integers to an array of integers
     If conversion is not possible, the value will be set to null
@@ -516,10 +544,10 @@ def string_to_array(**kwargs: Any) -> partial:
         output_type=kwargs.get("output_type", T.StringType()),
     )
 
-    return partial(_inner_func, **args)
+    return _get_executable_function(_inner_func, source_column, name, **args)
 
 
-def apply_function(**kwargs: Any) -> partial:
+def apply_function(source_column=None, name=None, **kwargs: Any) -> partial:
     """
     Applies a custom function
     """
@@ -540,10 +568,10 @@ def apply_function(**kwargs: Any) -> partial:
         output_type=kwargs.get("output_type", T.StringType()),
     )
 
-    return partial(_inner_func, **args)
+    return _get_executable_function(_inner_func, source_column, name, **args)
 
 
-def map_values(**kwargs: Any) -> partial:
+def map_values(source_column=None, name=None, **kwargs: Any) -> partial:
     """
     Map input values to specified output values
 
@@ -590,4 +618,4 @@ def map_values(**kwargs: Any) -> partial:
         output_type=kwargs.get("output_type", T.StringType()),
     )
 
-    return partial(_inner_func, **args)
+    return _get_executable_function(_inner_func, source_column, name, **args)
