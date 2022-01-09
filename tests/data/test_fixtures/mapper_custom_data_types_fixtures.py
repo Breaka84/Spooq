@@ -680,7 +680,6 @@ fixtures_for_str_to_array_str_to_str = [
 
 fixtures_for_map_values_string_for_string_without_default = [
     # mapping = {"whitelist": "allowlist", "blacklist": "blocklist"}
-    # default = source_column
     # input_value,   # expected_output
     ("allowlist",    "allowlist"),
     ("WhiteList",    "WhiteList"),  # case sensitive
@@ -710,7 +709,6 @@ fixtures_for_map_values_string_for_string_with_default = [
     (True,           "No mapping found!"),
     (False,          "No mapping found!"),
 ]
-
 
 fixtures_for_map_values_string_for_integer = [
     # mapping = {0: "bad", 1: "ok", 2: "good"}
@@ -746,19 +744,5 @@ fixtures_for_map_values_integer_for_string = [
     (False, None),
 ]
 
-fixtures_for_map_values_integer_for_integer = [
-    # mapping = {0: -99999}
-    # default = source_column
-    # input_value,   # expected_output
-    (-1,    -1),
-    ("-1",  -1),
-    (0,     -99999),
-    ("0",   -99999),
-    (1,     1),
-    ("1",   1),
-    (None,  None),
-    (True,  None),
-    (False, None),
-]
 
 # fmt: on

@@ -735,9 +735,9 @@ class TestMapValues:
 
     @pytest.mark.parametrize(
         argnames="input_df, expected_df",
-        argvalues=fixtures_for_map_values_integer_for_integer,
+        argvalues=fixtures_for_map_values_integer_for_string,
         indirect=["input_df", "expected_df"],
-        ids=get_ids_for_fixture(fixtures_for_map_values_integer_for_integer),
+        ids=get_ids_for_fixture(fixtures_for_map_values_integer_for_string),
     )
     def test_map_values_integer_for_integer(self, input_df, expected_df):
         mapping = [("mapped_name", "attributes.data.some_attribute", spq.map_values(
