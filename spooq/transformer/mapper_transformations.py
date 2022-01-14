@@ -421,9 +421,10 @@ def str_to_bool(source_column=None, name=None, **kwargs: Any) -> partial:
         alt_src_cols=kwargs.get("alt_src_cols", False),
         output_type=kwargs.get("output_type", T.BooleanType()),
     )
+
     if kwargs.get("replace_default_values"):
-        args["true_values"] = kwargs["true_values"]
-        args["false_values"] = kwargs["false_values"]
+        args["true_values"] = kwargs.get("true_values", ["on", "enabled"])
+        args["false_values"] = kwargs.get("false_values", ["off", "disabled"])
     else:
         args["true_values"] = kwargs.get("true_values", []) + ["on", "enabled"]
         args["false_values"] = kwargs.get("false_values", []) + ["off", "disabled"]
@@ -540,30 +541,6 @@ def str_to_array(source_column=None, name=None, **kwargs: Any) -> partial:
     return _get_executable_function(_inner_func, source_column, name, **args)
 
 
-def apply_function(source_column=None, name=None, **kwargs: Any) -> partial:
-    """
-    Applies a custom function
-    """
-
-    def _inner_func(source_column, name, func, alt_src_cols, output_type):
-        if alt_src_cols:
-            source_column = _coalesce_source_columns(source_column, alt_src_cols)
-        return func(source_column).cast(output_type).alias(name)
-
-    try:
-        func = kwargs["func"]
-    except TypeError:
-        raise TypeError("'apply_function' transformation is missing the custom function (f.e. func=F.lower)")
-
-    args = dict(
-        func=func,
-        alt_src_cols=kwargs.get("alt_src_cols", False),
-        output_type=kwargs.get("output_type", T.StringType()),
-    )
-
-    return _get_executable_function(_inner_func, source_column, name, **args)
-
-
 def map_values(source_column=None, name=None, **kwargs: Any) -> partial:
     """
     Map input values to specified output values
@@ -581,7 +558,7 @@ def map_values(source_column=None, name=None, **kwargs: Any) -> partial:
 
     """
 
-    def _inner_func(source_column, name, mapping, default, alt_src_cols, output_type):
+    def _inner_func(source_column, name, mapping, default, case_sensitive, alt_src_cols, output_type):
         if alt_src_cols:
             source_column = _coalesce_source_columns(source_column, alt_src_cols)
 
@@ -591,9 +568,15 @@ def map_values(source_column=None, name=None, **kwargs: Any) -> partial:
             default = F.lit(default)
 
         keys = list(mapping.keys())
-        when_clause = F.when(source_column.cast(T.StringType()) == keys[0], mapping[keys[0]])
-        for key in keys[1:]:
-            when_clause = when_clause.when(source_column.cast(T.StringType()) == key, mapping[key])
+        if not case_sensitive:
+            when_clause = F.when(F.lower(source_column) == str(keys[0]).lower(), mapping[keys[0]])
+            for key in keys[1:]:
+                when_clause = when_clause.when(F.lower(source_column) == str(key).lower(), mapping[key])
+        else:
+            when_clause = F.when(source_column.cast(T.StringType()) == keys[0], mapping[keys[0]])
+            for key in keys[1:]:
+                when_clause = when_clause.when(source_column.cast(T.StringType()) == key, mapping[key])
+
         when_clause = when_clause.otherwise(default.cast(T.StringType()))
 
         return when_clause.cast(output_type).alias(name)
@@ -608,6 +591,31 @@ def map_values(source_column=None, name=None, **kwargs: Any) -> partial:
     args = dict(
         mapping=mapping,
         default=kwargs.get("default", "source_column"),
+        case_sensitive=kwargs.get("case_sensitive", False),
+        alt_src_cols=kwargs.get("alt_src_cols", False),
+        output_type=kwargs.get("output_type", T.StringType()),
+    )
+
+    return _get_executable_function(_inner_func, source_column, name, **args)
+
+
+def apply_func(source_column=None, name=None, **kwargs: Any) -> partial:
+    """
+    Applies a custom function
+    """
+
+    def _inner_func(source_column, name, func, alt_src_cols, output_type):
+        if alt_src_cols:
+            source_column = _coalesce_source_columns(source_column, alt_src_cols)
+        return func(source_column).cast(output_type).alias(name)
+
+    try:
+        func = kwargs["func"]
+    except TypeError:
+        raise TypeError("'apply_func' transformation is missing the custom function (f.e. func=F.lower)")
+
+    args = dict(
+        func=func,
         alt_src_cols=kwargs.get("alt_src_cols", False),
         output_type=kwargs.get("output_type", T.StringType()),
     )

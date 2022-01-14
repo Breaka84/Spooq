@@ -16,7 +16,7 @@ from ...data.test_fixtures.mapper_custom_data_types_fixtures import (
     fixtures_for_str_to_long,
     fixtures_for_str_to_float,
     fixtures_for_str_to_double,
-    fixtures_for_str_to_bool,
+    fixtures_for_str_to_bool_default,
     fixtures_for_extended_string_to_timestamp_spark2,
     fixtures_for_extended_string_unix_timestamp_ms_to_timestamp_spark2,
     fixtures_for_extended_string_to_date_spark2,
@@ -232,8 +232,8 @@ class TestExtendedStringConversions(object):
 
     @pytest.mark.parametrize(
         argnames=("input_value", "expected_value"),
-        argvalues=fixtures_for_str_to_bool,
-        ids=[parameters_to_string_id(actual, expected) for actual, expected in fixtures_for_str_to_bool],
+        argvalues=fixtures_for_str_to_bool_default,
+        ids=[parameters_to_string_id(actual, expected) for actual, expected in fixtures_for_str_to_bool_default],
     )
     def test_extended_string_to_boolean(self, spark_session, input_value, expected_value):
         input_df = self.create_input_df(input_value, spark_session)

@@ -10,8 +10,8 @@ from pyspark.sql import Row
 def get_ids_for_fixture(fixtures):
     try:
         return [
-            f" actual: <{actual}> ({type(actual)}) -> expected: <{expected}>  ({type(expected)})"
-            for actual, expected in fixtures
+            f" input: <{input_val}> ({type(input_val)}) -> expected: <{expected}>  ({type(expected)})"
+            for input_val, expected in fixtures
         ]
     except ValueError:
         return [str(fixture) for fixture in fixtures]
@@ -380,7 +380,7 @@ fixtures_for_extended_string_to_timestamp_spark2 = [
 fixtures_for_str_to_timestamp_default = [
     ("2020-08-12T12:43:14+0000",   datetime.datetime(2020, 8, 12, 12, 43, 14)),
     ("2020-08-12T12:43:14+00:00",  datetime.datetime(2020, 8, 12, 12, 43, 14)),
-    ("2020-08-12T12:43:14.543000", datetime.datetime(2020, 8, 12, 12, 43, 14, 543)),
+    ("2020-08-12T12:43:14.543000", datetime.datetime(2020, 8, 12, 12, 43, 14, 543000)),
     ("2020-08-12T12:43:14Z00:00",  None),  # No `Z` allowed by Spark3 for timezone settings (only `+HH:MM`)
     ("2020-08-12T12:43:14Z0000",   None),  # No `Z` allowed by Spark3 for timezone settings (only `+HH:MM`)
     ("  2020-08-12T12:43:14+0000", datetime.datetime(2020, 8, 12, 12, 43, 14)),
@@ -675,10 +675,10 @@ fixtures_for_str_to_array_str_to_str = [
     ("[it em1, item2, item3",            ["it em1", "item2", "item3"]),
     ("[it ] e [ m1 , [ item2 ] , item3", ["it ] e [ m1", "[ item2 ]", "item3"]),
     (" [ item1 , item2, item3 ] ",       ["item1", "item2", "item3"]),
-    (None,                               [None]),
+    (None,                               None),
 ]
 
-fixtures_for_map_values_string_for_string_without_default = [
+fixtures_for_map_values_string_for_string_without_default_case_sensitive = [
     # mapping = {"whitelist": "allowlist", "blacklist": "blocklist"}
     # input_value,   # expected_output
     ("allowlist",    "allowlist"),
@@ -693,21 +693,53 @@ fixtures_for_map_values_string_for_string_without_default = [
     (False,          "false"),
 ]
 
+fixtures_for_map_values_string_for_string_without_default = [
+    # mapping = {"whitelist": "allowlist", "blacklist": "blocklist"}
+    # input_value,   # expected_output
+    ("allowlist",    "allowlist"),
+    ("WhiteList",    "allowlist"),
+    ("blocklist",    "blocklist"),
+    ("blacklist",    "blocklist"),
+    ("Blacklist",    "blocklist"),
+    ("shoppinglist", "shoppinglist"),
+    (None,           None),
+    (1,              "1"),
+    (True,           "true"),
+    (False,          "false"),
+]
+
 fixtures_for_map_values_string_for_string_with_default = [
     # mapping = {"whitelist": "allowlist", "blacklist": "blocklist"}
     # default = "No mapping found!"
     # input_value,   # expected_output
     ("allowlist",    "No mapping found!"),
     ("whitelist",    "allowlist"),
-    ("WhiteList",    "No mapping found!"),  # case sensitive
+    ("WhiteList",    "allowlist"),
     ("blocklist",    "No mapping found!"),
     ("blacklist",    "blocklist"),
-    ("Blacklist",    "No mapping found!"),  # case sensitive
+    ("Blacklist",    "blocklist"),
     ("shoppinglist", "No mapping found!"),
     (None,           "No mapping found!"),
     (1,              "No mapping found!"),
     (True,           "No mapping found!"),
     (False,          "No mapping found!"),
+]
+
+fixtures_for_map_values_string_for_string_with_dynamic_default = [
+    # mapping = {"whitelist": "allowlist", "blacklist": "blocklist"}
+    # default = F.length("mapped_name")
+    # input_value,   # expected_output
+    ("allowlist",    "9"),
+    ("whitelist",    "allowlist"),
+    ("WhiteList",    "allowlist"),
+    ("blocklist",    "9"),
+    ("blacklist",    "blocklist"),
+    ("Blacklist",    "blocklist"),
+    ("shoppinglist", "12"),
+    (None,           None),
+    (1,              "1"),
+    (True,           "4"),
+    (False,          "5"),
 ]
 
 fixtures_for_map_values_string_for_integer = [
@@ -744,5 +776,42 @@ fixtures_for_map_values_integer_for_string = [
     (False, None),
 ]
 
+fixtures_for_apply_func_set_to_lower_case = [
+    # func = F.lower
+    # input_value,   # expected_output
+    (-1,            "-1"),
+    (99,            "99"),
+    ("-1",          "-1"),
+    ("99",          "99"),
+    ("Hello World", "hello world"),
+    ("hello world", "hello world"),
+    (None,          None),
+]
+
+fixtures_for_apply_func_check_if_user_still_has_hotmail = [
+    # input_value,   # expected_output
+    ("sarajishvilileqso@gmx.at", False),
+    ("jnnqn@astrinurdin.art",    False),
+    ("321aw@hotmail.com",        True),
+    ("techbrenda@hotmail.com",   True),
+    ("sdsxcx@gmail.com",         False),
+]
+
+fixtures_for_apply_func_check_if_number_is_even = [
+    # input_value,   # expected_output
+    ("21474836470",  True),
+    ("21474836473",  False),
+    (21474836470,    True),
+    (21474836473,    False),
+    (21474836470.10, True),
+    (21474836473.13, False),
+    (-1,             False),
+    (0,              True),
+    (1,              False),
+    ("NULL",         False),
+    ("None",         False),
+    (None,           False),
+    ("Hello World",  False),
+]
 
 # fmt: on

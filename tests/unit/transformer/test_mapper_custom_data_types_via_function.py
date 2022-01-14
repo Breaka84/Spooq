@@ -1,4 +1,5 @@
 import json
+from functools import partial
 import IPython
 import pytest
 from chispa import assert_df_equality
@@ -34,11 +35,15 @@ from ...data.test_fixtures.mapper_custom_data_types_fixtures import (
     fixtures_for_str_to_timestamp_max_valid_timestamp,
     fixtures_for_str_to_array_str_to_int,
     fixtures_for_str_to_array_str_to_str,
+    fixtures_for_map_values_string_for_string_without_default_case_sensitive,
     fixtures_for_map_values_string_for_string_without_default,
     fixtures_for_map_values_string_for_string_with_default,
+    fixtures_for_map_values_string_for_string_with_dynamic_default,
     fixtures_for_map_values_integer_for_string,
     fixtures_for_map_values_string_for_integer,
-    fixtures_for_map_values_integer_for_integer,
+    fixtures_for_apply_func_set_to_lower_case,
+    fixtures_for_apply_func_check_if_user_still_has_hotmail,
+    fixtures_for_apply_func_check_if_number_is_even,
     fixtures_for_extended_string_to_timestamp_spark2,
     fixtures_for_extended_string_unix_timestamp_ms_to_timestamp_spark2,
     fixtures_for_extended_string_to_date_spark2,
@@ -208,7 +213,7 @@ class TestGenericFunctionality:
             ("str_to_timestamp",     "str_ts_1",     spq.str_to_timestamp(alt_src_cols="str_ts_2",
                                                                           output_format="yyyy-MM-dd HH:mm")),
             ("str_to_array",         "str_array_1",  spq.str_to_array(alt_src_cols="str_array_2")),
-            ("apply_func",           "str_1",        spq.apply_function(alt_src_cols="str_2", func=F.lower)),
+            ("apply_func",           "str_1",        spq.apply_func(alt_src_cols="str_2", func=F.lower)),
             ("map_vals",             "str_key_1",    spq.map_values(alt_src_cols="str_key_2", mapping={"Y": "Yes"})),
         ]
         # fmt:on
@@ -229,7 +234,7 @@ class TestGenericFunctionality:
             ("str_to_timestamp",     "str_ts_2",     spq.str_to_timestamp(output_type=T.StringType(),
                                                                           output_format="yyyy-MM-dd HH:mm")),
             ("str_to_array",         "str_array_2",  spq.str_to_array(output_type=T.StringType())),
-            ("apply_func",           "str_2",        spq.apply_function(output_type=T.StringType(), func=F.lower)),
+            ("apply_func",           "str_2",        spq.apply_func(output_type=T.StringType(), func=F.lower)),
             ("map_vals",             "str_key_2",    spq.map_values(output_type=T.StringType(), mapping={"Y": "Yes"})),
         ]
         # fmt:on
@@ -252,7 +257,7 @@ class TestGenericFunctionality:
             spq.str_to_bool(source_column="str_bool_2", name="str_to_bool"),
             spq.str_to_timestamp(source_column="str_ts_2", name="str_to_timestamp", output_format="yyyy-MM-dd HH:mm"),
             spq.str_to_array(source_column="str_array_2", name="str_to_array"),
-            spq.apply_function(source_column="str_2", name="apply_func", func=F.lower),
+            spq.apply_func(source_column="str_2", name="apply_func", func=F.lower),
             spq.map_values(source_column="str_key_2", name="map_vals", mapping={"Y": "Yes"}),
         )
 
@@ -269,7 +274,7 @@ class TestGenericFunctionality:
             spq.str_to_bool("str_bool_2", "str_to_bool"),
             spq.str_to_timestamp("str_ts_2", "str_to_timestamp", output_format="yyyy-MM-dd HH:mm"),
             spq.str_to_array("str_array_2", "str_to_array"),
-            spq.apply_function("str_2", "apply_func", func=F.lower),
+            spq.apply_func("str_2", "apply_func", func=F.lower),
             spq.map_values("str_key_2", "map_vals", mapping={"Y": "Yes"}),
         )
 
@@ -286,7 +291,7 @@ class TestGenericFunctionality:
             spq.str_to_bool("str_bool_2"),
             spq.str_to_timestamp("str_ts_2", output_format="yyyy-MM-dd HH:mm"),
             spq.str_to_array("str_array_2"),
-            spq.apply_function("str_2", func=F.lower),
+            spq.apply_func("str_2", func=F.lower),
             spq.map_values("str_key_2", mapping={"Y": "Yes"}),
         )
 
@@ -342,7 +347,7 @@ class TestToJsonString:
         ids=get_ids_for_fixture(fixtures_for_json_string),
     )
     def test_if_out_of_the_box_function_behaves_the_same(self, input_df, expected_df):
-        mapping = [("mapped_name", "attributes.data.some_attribute", spq.apply_function(func=F.to_json))]
+        mapping = [("mapped_name", "attributes.data.some_attribute", spq.apply_func(func=F.to_json))]
         input_value = input_df.first().attributes.data.asDict(True)["some_attribute"]
         if isinstance(input_value, (type(None), str)):
             pytest.xfail("Not supported by pyspark's `to_json` function")
@@ -657,7 +662,7 @@ class TestStringToArray:
         output_df = Mapper(mapping).transform(input_df)
         expected_df_ = spark_session.createDataFrame(
             expected_df.rdd,
-            schema="mapped_name array<int>"
+            schema="mapped_name ARRAY<INT>"
         )
         assert_df_equality(expected_df_, output_df, ignore_nullable=True)
 
@@ -672,7 +677,7 @@ class TestStringToArray:
         output_df = Mapper(mapping).transform(input_df)
         expected_df_ = spark_session.createDataFrame(
             expected_df.rdd,
-            schema="mapped_name array<int>"
+            schema="mapped_name ARRAY<STRING>"
         )
         assert_df_equality(expected_df_, output_df, ignore_nullable=True)
 
@@ -693,6 +698,20 @@ class TestMapValues:
 
     @pytest.mark.parametrize(
         argnames="input_df, expected_df",
+        argvalues=fixtures_for_map_values_string_for_string_without_default_case_sensitive,
+        indirect=["input_df", "expected_df"],
+        ids=get_ids_for_fixture(fixtures_for_map_values_string_for_string_without_default_case_sensitive),
+    )
+    def test_map_values_without_default_case_sensitive(self, input_df, expected_df):
+        mapping = [("mapped_name", "attributes.data.some_attribute", spq.map_values(
+            mapping={"whitelist": "allowlist", "blacklist": "blocklist"},
+            case_sensitive=True,
+        ))]
+        output_df = Mapper(mapping).transform(input_df)
+        assert_df_equality(expected_df, output_df)
+
+    @pytest.mark.parametrize(
+        argnames="input_df, expected_df",
         argvalues=fixtures_for_map_values_string_for_string_with_default,
         indirect=["input_df", "expected_df"],
         ids=get_ids_for_fixture(fixtures_for_map_values_string_for_string_with_default),
@@ -701,6 +720,20 @@ class TestMapValues:
         mapping = [("mapped_name", "attributes.data.some_attribute", spq.map_values(
             mapping={"whitelist": "allowlist", "blacklist": "blocklist"},
             default="No mapping found!"
+        ))]
+        output_df = Mapper(mapping).transform(input_df)
+        assert_df_equality(expected_df, output_df, ignore_nullable=True)
+
+    @pytest.mark.parametrize(
+        argnames="input_df, expected_df",
+        argvalues=fixtures_for_map_values_string_for_string_with_dynamic_default,
+        indirect=["input_df", "expected_df"],
+        ids=get_ids_for_fixture(fixtures_for_map_values_string_for_string_with_dynamic_default),
+    )
+    def test_map_values_with_dynamic_default(self, input_df, expected_df):
+        mapping = [("mapped_name", "attributes.data.some_attribute", spq.map_values(
+            mapping={"whitelist": "allowlist", "blacklist": "blocklist"},
+            default=F.length("attributes.data.some_attribute")
         ))]
         output_df = Mapper(mapping).transform(input_df)
         assert_df_equality(expected_df, output_df, ignore_nullable=True)
@@ -750,6 +783,57 @@ class TestMapValues:
 
 
 class TestApplyFunction:
-    pass
+    @pytest.mark.parametrize(
+        argnames="input_df, expected_df",
+        argvalues=fixtures_for_apply_func_set_to_lower_case,
+        indirect=["input_df", "expected_df"],
+        ids=get_ids_for_fixture(fixtures_for_apply_func_set_to_lower_case),
+    )
+    def test_apply_func_without_parameters(self, input_df, expected_df):
+        mapping = [("mapped_name", "attributes.data.some_attribute", spq.apply_func(func=F.lower))]
+        output_df = Mapper(mapping).transform(input_df)
+        expected_df_ = expected_df.select(F.col("mapped_name").cast(T.StringType()).alias("mapped_name"))
+        assert_df_equality(expected_df_, output_df, ignore_nullable=True)
+
+    @pytest.mark.parametrize(
+        argnames="input_df, expected_df",
+        argvalues=fixtures_for_apply_func_check_if_number_is_even,
+        indirect=["input_df", "expected_df"],
+        ids=get_ids_for_fixture(fixtures_for_apply_func_check_if_number_is_even),
+    )
+    def test_apply_func_custom_function(self, input_df, expected_df):
+        def _is_even(source_column):
+            return F.when(
+                source_column.cast(T.LongType()) % 2 == 0,
+                F.lit(True)
+            ).otherwise(F.lit(False))
+
+        mapping = [("mapped_name", "attributes.data.some_attribute", spq.apply_func(
+            func=_is_even,
+            output_type=T.BooleanType()
+        ))]
+        output_df = Mapper(mapping).transform(input_df)
+        assert_df_equality(expected_df, output_df, ignore_nullable=True)
+
+    @pytest.mark.parametrize(
+        argnames="input_df, expected_df",
+        argvalues=fixtures_for_apply_func_check_if_user_still_has_hotmail,
+        indirect=["input_df", "expected_df"],
+        ids=get_ids_for_fixture(fixtures_for_apply_func_check_if_user_still_has_hotmail),
+    )
+    def test_apply_func_custom_function_with_parameters(self, input_df, expected_df):
+        def _has_hotmail_email(source_column, email_suffix):
+            return F.when(
+                source_column.cast(T.StringType()).contains(email_suffix),
+                F.lit(True)
+            ).otherwise(F.lit(False))
+
+        mapping = [("mapped_name", "attributes.data.some_attribute", spq.apply_func(
+            func=partial(_has_hotmail_email, email_suffix="hotmail.com"),
+            output_type=T.BooleanType()
+        ))]
+        output_df = Mapper(mapping).transform(input_df)
+        expected_df_ = expected_df.select(F.col("mapped_name").cast(T.BooleanType()).alias("mapped_name"))
+        assert_df_equality(expected_df_, output_df, ignore_nullable=True)
 
 

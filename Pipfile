@@ -9,7 +9,6 @@ ipython = "*"
 pudb = "*"
 pytest-pudb = "*"
 # jedi = "==0.17.2"  # fixes ipython bug
-
 # Testing
 doubles = "*"
 Faker = "*"
@@ -24,7 +23,6 @@ pytest-spark = "*"
 mock = "*"
 pytest-env = "*"
 chispa = "*"
-
 # Documentation
 recommonmark = "*"
 sphinx = "*"
@@ -38,10 +36,10 @@ pyarrow = "*"
 sphinx-markdown-builder = "*"
 sphinx-jekyll-builder = "*"
 grip = "*"
-
 # Others
 bump2version = "*"
 twine = "*"
+pytest-html-reporter = "*"
 
 [packages]
 pandas = "*"
