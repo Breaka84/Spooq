@@ -2,19 +2,26 @@ import datetime
 import IPython
 from pyspark.sql import functions as F
 from pyspark.sql import types as T
-from pyspark.sql import Row
+from pyspark.sql import Row, DataFrame
 
 
 # fmt:off
 
 def get_ids_for_fixture(fixtures):
-    try:
-        return [
-            f" input: <{input_val}> ({type(input_val)}) -> expected: <{expected}>  ({type(expected)})"
-            for input_val, expected in fixtures
-        ]
-    except ValueError:
-        return [str(fixture) for fixture in fixtures]
+    id_strings = []
+    for test_fixture in fixtures:
+        id_string = []
+        if not isinstance(test_fixture, (list, set, tuple)):
+            test_fixture = [test_fixture]
+        for idx, param in enumerate(test_fixture, start=1):
+            try:
+                param_value = ", ".join(param.toJSON().collect())
+            except AttributeError:
+                param_value = str(param)
+            id_string.append(f"Param {idx}: <{param_value}> (type: {type(param)})")
+        id_strings.append(" | ".join(id_string))
+
+    return id_strings
 
 
 complex_event_expression = (
@@ -680,13 +687,14 @@ fixtures_for_str_to_array_str_to_str = [
 
 fixtures_for_map_values_string_for_string_without_default_case_sensitive = [
     # mapping = {"whitelist": "allowlist", "blacklist": "blocklist"}
+    # ignore_case = False
     # input_value,   # expected_output
     ("allowlist",    "allowlist"),
     ("WhiteList",    "WhiteList"),  # case sensitive
     ("blocklist",    "blocklist"),
     ("blacklist",    "blocklist"),
     ("Blacklist",    "Blacklist"),  # case sensitive
-    ("shoppinglist", "shoppinglist"),
+    ("Shoppinglist", "Shoppinglist"),
     (None,           None),
     (1,              "1"),
     (True,           "true"),
@@ -701,11 +709,47 @@ fixtures_for_map_values_string_for_string_without_default = [
     ("blocklist",    "blocklist"),
     ("blacklist",    "blocklist"),
     ("Blacklist",    "blocklist"),
-    ("shoppinglist", "shoppinglist"),
+    ("Shoppinglist", "Shoppinglist"),
     (None,           None),
     (1,              "1"),
     (True,           "true"),
     (False,          "false"),
+]
+
+fixtures_for_map_values_sql_like_pattern = [
+    # mapping = {"%white%": True, "%black%": True}
+    # pattern_type = "sql_like"
+    # default = False
+    # output_type = T.BooleanType()
+    # input_value,   # expected_output
+    ("allowlist",    False),
+    ("WhiteList",    True),
+    ("blocklist",    False),
+    ("blacklist",    True),
+    ("Blacklist",    True),
+    ("Shoppinglist", False),
+    (None,           False),
+    (1,              False),
+    (True,           False),
+    (False,          False),
+]
+
+fixtures_for_map_values_regex_pattern = [
+    # mapping = {"white": True, ".*black.*": True}
+    # pattern_type = "regex"
+    # default = False
+    # output_type = T.BooleanType()
+    # input_value,   # expected_output
+    ("allowlist",    False),
+    ("WhiteList",    True),
+    ("blocklist",    False),
+    ("blacklist",    True),
+    ("Blacklist",    True),
+    ("Shoppinglist", False),
+    (None,           False),
+    (1,              False),
+    (True,           False),
+    (False,          False),
 ]
 
 fixtures_for_map_values_string_for_string_with_default = [
@@ -718,7 +762,7 @@ fixtures_for_map_values_string_for_string_with_default = [
     ("blocklist",    "No mapping found!"),
     ("blacklist",    "blocklist"),
     ("Blacklist",    "blocklist"),
-    ("shoppinglist", "No mapping found!"),
+    ("Shoppinglist", "No mapping found!"),
     (None,           "No mapping found!"),
     (1,              "No mapping found!"),
     (True,           "No mapping found!"),
@@ -735,7 +779,7 @@ fixtures_for_map_values_string_for_string_with_dynamic_default = [
     ("blocklist",    "9"),
     ("blacklist",    "blocklist"),
     ("Blacklist",    "blocklist"),
-    ("shoppinglist", "12"),
+    ("Shoppinglist", "12"),
     (None,           None),
     (1,              "1"),
     (True,           "4"),
@@ -764,7 +808,8 @@ fixtures_for_map_values_string_for_integer = [
 fixtures_for_map_values_integer_for_string = [
     # mapping = {"0": -99999}
     # default = source_column
-    # input_value,   # expected_output
+    # output_type = T.LongType()
+    # input_value, # expected_output
     (-1,    -1),
     ("-1",  -1),
     (0,     -99999),
@@ -772,8 +817,8 @@ fixtures_for_map_values_integer_for_string = [
     (1,     1),
     ("1",   1),
     (None,  None),
-    (True,  None),
-    (False, None),
+    (True,  1),
+    (False, 0),
 ]
 
 fixtures_for_apply_func_set_to_lower_case = [

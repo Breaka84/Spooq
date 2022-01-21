@@ -1,64 +1,25 @@
 import json
 from functools import partial
+import datetime as dt
+
 import IPython
 import pytest
 from chispa import assert_df_equality
-import datetime
 from pyspark.sql import Row
 from pyspark.sql import functions as F, types as T
 
 from spooq.transformer import mapper_transformations as spq
 from spooq.transformer import Mapper
-from ...data.test_fixtures.mapper_custom_data_types_fixtures import (
-    get_ids_for_fixture,
-    fixtures_for_spark_sql_object,
-    fixtures_for_as_is,
-    fixtures_for_json_string,
-    fixtures_for_timestamp_ms_to_s,
-    fixtures_for_timestamp_s_to_ms,
-    fixtures_for_timestamp_to_first_of_month,
-    fixtures_for_meters_to_cm,
-    fixtures_for_has_value,
-    fixtures_for_str_to_int,
-    fixtures_for_str_to_long,
-    fixtures_for_str_to_float,
-    fixtures_for_str_to_double,
-    fixtures_for_str_to_bool_default,
-    fixtures_for_str_to_bool_true_values_added,
-    fixtures_for_str_to_bool_false_values_added,
-    fixtures_for_str_to_bool_true_and_false_values_added,
-    fixtures_for_str_to_bool_false_values_as_argument,
-    fixtures_for_str_to_bool_true_values_as_argument,
-    fixtures_for_str_to_bool_true_and_false_values_as_argument,
-    fixtures_for_str_to_timestamp_custom_input_format,
-    fixtures_for_str_to_timestamp_custom_output_format,
-    fixtures_for_str_to_timestamp_max_valid_timestamp,
-    fixtures_for_str_to_array_str_to_int,
-    fixtures_for_str_to_array_str_to_str,
-    fixtures_for_map_values_string_for_string_without_default_case_sensitive,
-    fixtures_for_map_values_string_for_string_without_default,
-    fixtures_for_map_values_string_for_string_with_default,
-    fixtures_for_map_values_string_for_string_with_dynamic_default,
-    fixtures_for_map_values_integer_for_string,
-    fixtures_for_map_values_string_for_integer,
-    fixtures_for_apply_func_set_to_lower_case,
-    fixtures_for_apply_func_check_if_user_still_has_hotmail,
-    fixtures_for_apply_func_check_if_number_is_even,
-    fixtures_for_extended_string_to_timestamp_spark2,
-    fixtures_for_extended_string_unix_timestamp_ms_to_timestamp_spark2,
-    fixtures_for_extended_string_to_date_spark2,
-    fixtures_for_extended_string_unix_timestamp_ms_to_date_spark2,
-    fixtures_for_str_to_timestamp_default,
-    fixtures_for_extended_string_unix_timestamp_ms_to_timestamp,
-    fixtures_for_extended_string_to_date,
-    fixtures_for_extended_string_unix_timestamp_ms_to_date,
-)
+from ...data.test_fixtures.mapper_custom_data_types_fixtures import *
 
 
 @pytest.fixture()
 def input_df(request, spark_session, spark_context):
-    input_json = json.dumps({"attributes": {"data": {"some_attribute": request.param}}}, default=str)
-    return spark_session.read.json(spark_context.parallelize([input_json]))
+    try:
+        input_json = json.dumps({"attributes": {"data": {"some_attribute": request.param}}}, default=str)
+        return spark_session.read.json(spark_context.parallelize([input_json]))
+    except:
+        IPython.embed()
 
 
 @pytest.fixture()
@@ -101,8 +62,8 @@ class TestAdHocSparkSqlFunctions:
         )
         output_df = Mapper(mapping=[("output_key", mapper_function, spq.as_is)]).transform(input_df)
         actual = output_df.first().output_key
-        if isinstance(expected_value, datetime.datetime):
-            assert (expected_value - datetime.timedelta(seconds=30)) < actual < datetime.datetime.now()
+        if isinstance(expected_value, dt.datetime):
+            assert (expected_value - dt.timedelta(seconds=30)) < actual < dt.datetime.now()
         else:
             assert actual == expected_value
 
@@ -142,7 +103,7 @@ class TestGenericFunctionality:
                 Row(
                     as_is="Hello",
                     unix_to_unix=1637335,
-                    first_of_month=datetime.date(2020, 8, 1),
+                    first_of_month=dt.date(2020, 8, 1),
                     m_to_cm=180,
                     has_val=True,
                     str_to_num=1637335255,
@@ -705,7 +666,7 @@ class TestMapValues:
     def test_map_values_without_default_case_sensitive(self, input_df, expected_df):
         mapping = [("mapped_name", "attributes.data.some_attribute", spq.map_values(
             mapping={"whitelist": "allowlist", "blacklist": "blocklist"},
-            case_sensitive=True,
+            ignore_case=False,
         ))]
         output_df = Mapper(mapping).transform(input_df)
         assert_df_equality(expected_df, output_df)
@@ -737,6 +698,40 @@ class TestMapValues:
         ))]
         output_df = Mapper(mapping).transform(input_df)
         assert_df_equality(expected_df, output_df, ignore_nullable=True)
+
+    @pytest.mark.parametrize(
+        argnames="input_df, expected_df",
+        argvalues=fixtures_for_map_values_sql_like_pattern,
+        indirect=["input_df", "expected_df"],
+        ids=get_ids_for_fixture(fixtures_for_map_values_sql_like_pattern),
+    )
+    def test_map_values_sql_like_pattern(self, input_df, expected_df):
+        mapping = [("mapped_name", "attributes.data.some_attribute", spq.map_values(
+            mapping={"%white%": F.lit(True), "%black%": F.lit(True)},
+            pattern_type="sql_like",
+            default=F.lit(False),
+            output_type=T.BooleanType(),
+        ))]
+        output_df = Mapper(mapping).transform(input_df)
+        expected_df_ = expected_df.select(F.col("mapped_name").cast(T.BooleanType()).alias("mapped_name"))
+        assert_df_equality(expected_df_, output_df, ignore_nullable=True)
+
+    @pytest.mark.parametrize(
+        argnames="input_df, expected_df",
+        argvalues=fixtures_for_map_values_regex_pattern,
+        indirect=["input_df", "expected_df"],
+        ids=get_ids_for_fixture(fixtures_for_map_values_regex_pattern),
+    )
+    def test_map_values_regex_pattern(self, input_df, expected_df):
+        mapping = [("mapped_name", "attributes.data.some_attribute", spq.map_values(
+            mapping={r"(?i)white": True, r"(?i)^.*black.*$": True},
+            pattern_type="regex",
+            default=False,
+            output_type=T.BooleanType(),
+        ))]
+        output_df = Mapper(mapping).transform(input_df)
+        expected_df_ = expected_df.select(F.col("mapped_name").cast(T.BooleanType()).alias("mapped_name"))
+        assert_df_equality(expected_df_, output_df, ignore_nullable=True)
 
     @pytest.mark.parametrize(
         argnames="input_df, expected_df",
@@ -835,5 +830,4 @@ class TestApplyFunction:
         output_df = Mapper(mapping).transform(input_df)
         expected_df_ = expected_df.select(F.col("mapped_name").cast(T.BooleanType()).alias("mapped_name"))
         assert_df_equality(expected_df_, output_df, ignore_nullable=True)
-
 

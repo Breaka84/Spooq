@@ -1,5 +1,9 @@
 """
-TODO: make output_type optional for all methods
+All examples assume following code executed before:
+>>> from pyspark.sql import Row
+>>> from spooq.transformer import Mapper
+>>> from spooq.transformer import mapper_transformations as spq
+
 This is a collection of module level methods to construct a specific
 PySpark DataFrame query for custom defined data types.
 
@@ -12,7 +16,7 @@ For injecting your **own custom data types**, please have a visit to the
 """
 import re
 from functools import partial
-from typing import Any, Union
+from typing import Any, Union, List
 import json
 
 import IPython
@@ -46,23 +50,56 @@ def _get_executable_function(inner_func, source_column, name, **kwargs):
         return partial(inner_func, **kwargs)
 
 
-def as_is(source_column=None, name=None, **kwargs: Any) -> partial:
+def as_is(
+        source_column: Union[str, Column] = None,
+        name: str = None,
+        alt_src_cols: List[str] = None,
+        output_type: T.DataType() = None,
+) -> Union[partial, Column]:
     """
-    Returns a column without casting. This is especially useful if you need to
+    Todo: Format Docstring to work with PyCharm & VSCode
+    Returns by default a column without casting. This is especially useful if you need to
     keep a complex data type, like an array, list or a struct.
 
-    >>> from spooq.transformer import Mapper
-    >>>
-    >>> input_df.head(3)
-    [Row(friends=[Row(first_name=None, id=3993, last_name=None), Row(first_name=u'Ru\xf2', id=17484, last_name=u'Trank')]),
-     Row(friends=[]),
-     Row(friends=[Row(first_name=u'Daphn\xe9e', id=16707, last_name=u'Lyddiard'), Row(first_name=u'Ad\xe9la\xefde', id=17429, last_name=u'Wisdom')])]
-    >>> mapping = [("my_friends", "friends", "as_is")]
+    https://spooq.readthedocs.io/en/latest/transformer/mapper.html#spooq.transformer.mapper_transformations.as_is
+
+    Parameters
+    ----------
+    source_column : str or Column
+        Input column. Can be a name, pyspark column or pyspark function
+    name : str, default -> derived from input column
+        Name of the output column. (``.alias(name)``)
+    alt_src_cols : str, default -> no coalescing, only source_column
+        Coalesce with source_column and columns in this parameter.
+    output_type : T.DataType(), default -> no casting, same return data type as input data type
+        Applies provided datatype on output column (``.cast(output_type)``)
+
+    Examples
+    --------
+    >>> input_df = spark.createDataFrame([
+    >>>     Row(friends=[Row(first_name=None, id=3993, last_name=None),
+    >>>                  Row(first_name='Ruò', id=17484, last_name='Trank')]),
+    >>>     Row(friends=[]),
+    >>>     Row(friends=[Row(first_name='Daphnée', id=16707, last_name='Lyddiard'),
+    >>>                  Row(first_name='Adélaïde', id=17429, last_name='Wisdom')])
+    >>> ])
+    >>> mapping = [("my_friends", "friends", spq.as_is)]
     >>> output_df = Mapper(mapping).transform(input_df)
     >>> output_df.head(3)
-    [Row(my_friends=[Row(first_name=None, id=3993, last_name=None), Row(first_name=u'Ru\xf2', id=17484, last_name=u'Trank')]),
+    [Row(my_friends=[Row(first_name=None, id=3993, last_name=None),
+                     Row(first_name='Ruò', id=17484, last_name='Trank')]),
      Row(my_friends=[]),
-     Row(my_friends=[Row(first_name=u'Daphn\xe9e', id=16707, last_name=u'Lyddiard'), Row(first_name=u'Ad\xe9la\xefde', id=17429, last_name=u'Wisdom')])]
+     Row(my_friends=[Row(first_name='Daphnée', id=16707, last_name='Lyddiard'),
+                     Row(first_name='Adélaïde', id=17429, last_name='Wisdom')])]
+     >>> input_df.select(spq.as_is("friends.first_name")).show()
+    [Row(first_name=[None, 'Ruò']),
+     Row(first_name=[]),
+     Row(first_name=['Daphnée', 'Adélaïde'])]
+
+     Returns
+     -------
+        partial | Column: This method returns a suitable type depending on how you called it. This ensures compability
+            with Spooq's mapper tranformer - with or without explicit parameters as well as direct calls via select, ...
     """
 
     def _inner_func(source_column, name, alt_src_cols, output_type):
@@ -72,12 +109,13 @@ def as_is(source_column=None, name=None, **kwargs: Any) -> partial:
             source_column = source_column.cast(output_type)
         return source_column.alias(name)
 
-    args = dict(
-        alt_src_cols=kwargs.get("alt_src_cols", False),
-        output_type=kwargs.get("output_type", False),
+    return _get_executable_function(
+        inner_func=_inner_func,
+        source_column=source_column,
+        name=name,
+        alt_src_cols=alt_src_cols or False,
+        output_type=output_type or False
     )
-
-    return _get_executable_function(_inner_func, source_column, name, **args)
 
 
 def to_json_string(source_column=None, name=None, **kwargs: Any) -> partial:
@@ -558,28 +596,44 @@ def map_values(source_column=None, name=None, **kwargs: Any) -> partial:
 
     """
 
-    def _inner_func(source_column, name, mapping, default, case_sensitive, alt_src_cols, output_type):
+    def _inner_func(source_column, name, mapping, default, ignore_case, pattern_type, alt_src_cols, output_type):
         if alt_src_cols:
             source_column = _coalesce_source_columns(source_column, alt_src_cols)
 
         if isinstance(default, str) and default == "source_column":
             default = source_column
-        if isinstance(default, str):
+        elif not isinstance(default, Column):
             default = F.lit(default)
 
-        keys = list(mapping.keys())
-        if not case_sensitive:
-            when_clause = F.when(F.lower(source_column) == str(keys[0]).lower(), mapping[keys[0]])
-            for key in keys[1:]:
-                when_clause = when_clause.when(F.lower(source_column) == str(key).lower(), mapping[key])
+        if ignore_case and pattern_type != "regex":
+            mapping = {str(key).lower(): F.lit(value).cast(output_type) for key, value in mapping.items()}
+            source_column = F.lower(source_column)
         else:
-            when_clause = F.when(source_column.cast(T.StringType()) == keys[0], mapping[keys[0]])
+            mapping = {key: F.lit(value).cast(output_type) for key, value in mapping.items()}
+
+        keys = list(mapping.keys())
+        if pattern_type == "equals":
+            when_clause = F.when(source_column == keys[0], mapping[keys[0]])
             for key in keys[1:]:
                 when_clause = when_clause.when(source_column.cast(T.StringType()) == key, mapping[key])
 
-        when_clause = when_clause.otherwise(default.cast(T.StringType()))
+        elif pattern_type == "sql_like":
+            when_clause = F.when(source_column.like(keys[0]), mapping[keys[0]])
+            for key in keys[1:]:
+                when_clause = when_clause.when(source_column.like(key), mapping[key])
 
-        return when_clause.cast(output_type).alias(name)
+        elif pattern_type == "regex":
+            when_clause = F.when(source_column.rlike(keys[0]), mapping[keys[0]])
+            for key in keys[1:]:
+                when_clause = when_clause.when(source_column.rlike(key), mapping[key])
+
+        else:
+            raise ValueError(f"pattern_type <{pattern_type}> not recognized. "
+                             "Please choose among ['equals' (default), 'regex' and 'sql_like']")
+
+        when_clause = when_clause.otherwise(default.cast(output_type))
+
+        return when_clause.alias(name)
 
     try:
         mapping = kwargs["mapping"]
@@ -591,7 +645,8 @@ def map_values(source_column=None, name=None, **kwargs: Any) -> partial:
     args = dict(
         mapping=mapping,
         default=kwargs.get("default", "source_column"),
-        case_sensitive=kwargs.get("case_sensitive", False),
+        ignore_case=kwargs.get("ignore_case", True),
+        pattern_type=kwargs.get("pattern_type", "equals"),
         alt_src_cols=kwargs.get("alt_src_cols", False),
         output_type=kwargs.get("output_type", T.StringType()),
     )
