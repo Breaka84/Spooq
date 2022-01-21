@@ -1,5 +1,3 @@
-# For more information see: https://help.github.com/actions/language-and-framework-guides/using-python-with-github-actions
-
 name: Tests Python 3.7
 
 on:
@@ -7,15 +5,23 @@ on:
     branches: [ master ]
 
 jobs:
-  build:
+  push_to_master:
     runs-on: ubuntu-latest
     strategy:
       matrix:
         include:
           - pyspark-version: 3.0.1
             pyspark-pip-package: "pyspark==3.0.1"
-#          - pyspark-version: 2.4.3
-#            pyspark-pip-package: "pyspark==2.4.3"
+          - pyspark-version: 2.4.3
+            pyspark-pip-package: "pyspark==3.0.2"
+          - pyspark-version: 2.4.3
+            pyspark-pip-package: "pyspark==3.0.3"
+          - pyspark-version: 2.4.3
+            pyspark-pip-package: "pyspark==3.1.1"
+          - pyspark-version: 2.4.3
+            pyspark-pip-package: "pyspark==3.1.2"
+          - pyspark-version: 2.4.3
+            pyspark-pip-package: "pyspark==3.2.0"
     steps:
     - uses: actions/checkout@v2
     - name: Set up Java 1.8

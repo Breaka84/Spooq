@@ -1,6 +1,4 @@
 # This workflow will upload a Python Package using Twine when a release is created
-# For more information see: https://help.github.com/en/actions/language-and-framework-guides/using-python-with-github-actions#publishing-to-package-registries
-
 name: Upload Python Package
 
 on:
@@ -8,7 +6,7 @@ on:
     types: [created]
 
 jobs:
-  deploy:
+  deploy_to_pypi:
 
     runs-on: ubuntu-latest
 
