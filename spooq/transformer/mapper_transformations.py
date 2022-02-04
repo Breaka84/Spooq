@@ -1,18 +1,17 @@
 """
-All examples assume following code executed before:
+All examples assume following code has been executed before:
 >>> from pyspark.sql import Row
+>>> from pyspark.sql import functions as F, types as T
 >>> from spooq.transformer import Mapper
 >>> from spooq.transformer import mapper_transformations as spq
 
 This is a collection of module level methods to construct a specific
-PySpark DataFrame query for custom defined data types.
+PySpark DataFrame query for custom defined data transformations.
+These methods can be called via the :py:class:`~spooq.transformer.mapper.Mapper` transformer or directly.
 
-These methods are not meant to be called directly but via the
-the :py:class:`~spooq.transformer.mapper.Mapper` transformer.
-Please see that particular class on how to apply custom data types.
-
-For injecting your **own custom data types**, please have a visit to the
-:py:meth:`add_custom_data_type` method!
+All of these transformations support optionally following generic functionalities:
+    alt_src_cols: Alternative source columns that will be used within a coalesce function
+    output_type: Explicit casting to the provided data type (there are already proper defaults for each transformation)
 """
 import re
 from functools import partial
@@ -50,16 +49,10 @@ def _get_executable_function(inner_func, source_column, name, **kwargs):
         return partial(inner_func, **kwargs)
 
 
-def as_is(
-        source_column: Union[str, Column] = None,
-        name: str = None,
-        alt_src_cols: List[str] = None,
-        output_type: T.DataType() = None,
-) -> Union[partial, Column]:
+def as_is(source_column: Union[str, Column] = None, name: str = None, **kwargs) -> Union[partial, Column]:
     """
-    Todo: Format Docstring to work with PyCharm & VSCode
-    Returns by default a column without casting. This is especially useful if you need to
-    keep a complex data type, like an array, list or a struct.
+    Returns a renamed column without casting. This is especially useful if you need to
+    keep a complex data type (f.e. array, list or struct).
 
     https://spooq.readthedocs.io/en/latest/transformer/mapper.html#spooq.transformer.mapper_transformations.as_is
 
@@ -69,37 +62,40 @@ def as_is(
         Input column. Can be a name, pyspark column or pyspark function
     name : str, default -> derived from input column
         Name of the output column. (``.alias(name)``)
+
+    Keyword Arguments
+    -----------------
     alt_src_cols : str, default -> no coalescing, only source_column
-        Coalesce with source_column and columns in this parameter.
+        Coalesce with source_column and columns from this parameter.
     output_type : T.DataType(), default -> no casting, same return data type as input data type
         Applies provided datatype on output column (``.cast(output_type)``)
 
     Examples
     --------
     >>> input_df = spark.createDataFrame([
-    >>>     Row(friends=[Row(first_name=None, id=3993, last_name=None),
-    >>>                  Row(first_name='Ruò', id=17484, last_name='Trank')]),
-    >>>     Row(friends=[]),
-    >>>     Row(friends=[Row(first_name='Daphnée', id=16707, last_name='Lyddiard'),
-    >>>                  Row(first_name='Adélaïde', id=17429, last_name='Wisdom')])
-    >>> ])
+    ...     Row(friends=[Row(first_name="Gianni", id=3993, last_name="Weber"),
+    ...                  Row(first_name="Arielle", id=17484, last_name="Greaves")]),
+    ... ])
     >>> mapping = [("my_friends", "friends", spq.as_is)]
     >>> output_df = Mapper(mapping).transform(input_df)
-    >>> output_df.head(3)
-    [Row(my_friends=[Row(first_name=None, id=3993, last_name=None),
-                     Row(first_name='Ruò', id=17484, last_name='Trank')]),
-     Row(my_friends=[]),
-     Row(my_friends=[Row(first_name='Daphnée', id=16707, last_name='Lyddiard'),
-                     Row(first_name='Adélaïde', id=17429, last_name='Wisdom')])]
-     >>> input_df.select(spq.as_is("friends.first_name")).show()
-    [Row(first_name=[None, 'Ruò']),
-     Row(first_name=[]),
-     Row(first_name=['Daphnée', 'Adélaïde'])]
+    >>> output_df.show(truncate=False)
+    +--------------------------------------------------+
+    |my_friends                                        |
+    +--------------------------------------------------+
+    |[[Gianni, 3993, Weber], [Arielle, 17484, Greaves]]|
+    +--------------------------------------------------+
+    >>> input_df.select(spq.as_is("friends.first_name")).show(truncate=False)
+    +-----------------+
+    |first_name       |
+    +-----------------+
+    |[Gianni, Arielle]|
+    +-----------------+
 
-     Returns
-     -------
-        partial | Column: This method returns a suitable type depending on how you called it. This ensures compability
-            with Spooq's mapper tranformer - with or without explicit parameters as well as direct calls via select, ...
+    Returns
+    -------
+    partial or Column: This method returns a suitable type depending on how you called it. This ensures compability
+        with Spooq's mapper transformer - with or without explicit parameters as well as direct calls via select,
+        withColumn, where, ...
     """
 
     def _inner_func(source_column, name, alt_src_cols, output_type):
@@ -109,148 +105,9 @@ def as_is(
             source_column = source_column.cast(output_type)
         return source_column.alias(name)
 
-    return _get_executable_function(
-        inner_func=_inner_func,
-        source_column=source_column,
-        name=name,
-        alt_src_cols=alt_src_cols or False,
-        output_type=output_type or False
-    )
-
-
-def to_json_string(source_column=None, name=None, **kwargs: Any) -> partial:
-    """
-    Returns a column as json compatible string.
-    Nested hierarchies are supported.
-    The unicode representation of a column will be returned if an error occurs.
-
-    Example
-    -------
-    >>> from spooq.transformer import Mapper
-    >>>
-    >>> input_df.head(3)
-    [Row(friends=[Row(first_name=None, id=3993, last_name=None), Row(first_name=u'Ru\xf2', id=17484, last_name=u'Trank')]),
-     Row(friends=[]),
-     Row(friends=[Row(first_name=u'Daphn\xe9e', id=16707, last_name=u'Lyddiard'), Row(first_name=u'Ad\xe9la\xefde', id=17429, last_name=u'Wisdom')])]    >>> mapping = [("friends_json", "friends", "json_string")]
-    >>> mapping = [("friends_json", "friends", "json_string")]
-    >>> output_df = Mapper(mapping).transform(input_df)
-    >>> output_df.head(3)
-    [Row(friends_json=u'[{"first_name": null, "last_name": null, "id": 3993}, {"first_name": "Ru\\u00f2", "last_name": "Trank", "id": 17484}]'),
-     Row(friends_json=None),
-     Row(friends_json=u'[{"first_name": "Daphn\\u00e9e", "last_name": "Lyddiard", "id": 16707}, {"first_name": "Ad\\u00e9la\\u00efde", "last_name": "Wisdom", "id": 17429}]')]
-    """
-
-    def _inner_func(source_column, name, output_type):
-        def _to_json(col):
-            if not col:
-                return None
-            try:
-                if isinstance(col, list):
-                    return json.dumps([x.asDict(recursive=True) for x in col])
-                else:
-                    return json.dumps(col.asDict(recursive=True))
-            except (AttributeError, TypeError):
-                return str(col)
-
-        udf_to_json = F.udf(_to_json, output_type)
-        return udf_to_json(source_column).alias(name)
-
-    args = dict(
-        output_type=kwargs.get("output_type", T.StringType()),
-    )
-
-    return _get_executable_function(_inner_func, source_column, name, **args)
-
-
-def unix_timestamp_to_unix_timestamp(source_column=None, name=None, **kwargs: Any) -> partial:
-    """
-    Converts a unix timestamp (number) between milli seconds and seconds
-    and casts it to a :any:`pyspark.sql.types.LongType`.
-
-    Parameters
-    ----------
-        input_time_unit (str) :  Defines the time unit of the source value. Either "ms" or "sec"
-        output_time_unit (str) :  Defines the time unit of the target value. Either "ms" or "sec"
-
-    Example
-    -------
-    >>> from pyspark.sql import Row
-    >>> from spooq.transformer import Mapper
-    >>> from spooq.transformer import mapper_transformations as spq_trans
-    >>>
-    >>> input_df = spark.createDataFrame([
-    >>>     Row(time_sec=1581540839000),  # 2020-02-12 21:53:59
-    >>>     Row(time_sec=-4887839000),    # 1969-11-05 11:16:01
-    >>>     Row(time_sec=4737139200000)   # 2120-02-12 01:00:00
-    >>> ])
-    >>>
-    >>> mapping = [
-    >>>     ("unix_ts", "time_sec", spq_trans.unix_timestamp_to_unix_timestamp(input_time_unit="ms",
-    >>>                                                                        output_time_unit="sec")
-    >>>     ),
-    >>> ]
-    >>> output_df = Mapper(mapping).transform(input_df)
-    >>> output_df.head(3)
-    [Row(unix_ts=1581540839), Row(unix_ts=-4887839000), Row(unix_ts=4737139200)]
-    """
-
-    def _inner_func(source_column, name, input_time_unit, output_time_unit, alt_src_cols, output_type):
-        if alt_src_cols:
-            source_column = _coalesce_source_columns(source_column, alt_src_cols)
-        if input_time_unit == "ms":
-            source_column = source_column / 1_000.0
-
-        output_column = source_column.cast(T.DoubleType())
-
-        if output_time_unit == "ms":
-            output_column = output_column * 1_000.0
-
-        return output_column.cast(output_type).alias(name)
-
-    args = dict(
-        input_time_unit=kwargs.get("input_time_unit", "ms"),
-        output_time_unit=kwargs.get("output_time_unit", "sec"),
-        alt_src_cols=kwargs.get("alt_src_cols", False),
-        output_type=kwargs.get("output_type", T.LongType()),
-    )
-
-    return _get_executable_function(_inner_func, source_column, name, **args)
-
-
-def spark_timestamp_to_first_of_month(source_column=None, name=None, **kwargs: Any) -> partial:
-    """
-    Used for Anonymizing. Can be used to keep the age but obscure the explicit birthday.
-    This custom datatype requires a :any:`pyspark.sql.types.TimestampType` column as input.
-    The datetime value will be set to the first day of the month.
-
-    Example
-    -------
-    >>> from pyspark.sql import Row
-    >>> from datetime import datetime
-    >>> from spooq.transformer import Mapper
-    >>>
-    >>> input_df = spark.createDataFrame(
-    >>>     [Row(birthday=datetime(2019, 2, 9, 2, 45)),
-    >>>      Row(birthday=None),
-    >>>      Row(birthday=datetime(1988, 1, 31, 8))]
-    >>> )
-    >>>
-    >>> mapping = [("birthday", "birthday", "TimestampMonth")]
-    >>> output_df = Mapper(mapping).transform(input_df)
-    >>> output_df.head(3)
-    [Row(birthday=datetime.datetime(2019, 2, 1, 0, 0)),
-     Row(birthday=None),
-     Row(birthday=datetime.datetime(1988, 1, 1, 0, 0))]
-    """
-
-    def _inner_func(source_column, name, alt_src_cols, output_type):
-        if alt_src_cols:
-            source_column = _coalesce_source_columns(source_column, alt_src_cols)
-        return F.trunc(source_column, "month").cast(output_type).alias(name)
-
     args = dict(
         alt_src_cols=kwargs.get("alt_src_cols", False),
-        output_type=kwargs.get("output_type", T.DateType()),
+        output_type=kwargs.get("output_type", False),
     )
 
     return _get_executable_function(_inner_func, source_column, name, **args)
@@ -258,26 +115,48 @@ def spark_timestamp_to_first_of_month(source_column=None, name=None, **kwargs: A
 
 def meters_to_cm(source_column=None, name=None, **kwargs: Any) -> partial:
     """
-    Convert meters to cm and cast the result to an IntegerType.
+    Converts meters to cm and casts the result to an IntegerType.
 
-    Example
-    -------
-    >>> from pyspark.sql import Row
-    >>> from spooq.transformer import Mapper
-    >>>
-    >>> input_df = spark.createDataFrame(
-    >>>     [Row(size_in_m=1.80),
-    >>>      Row(size_in_m=1.65),
-    >>>      Row(size_in_m=2.05)]
-    >>> )
-    >>>
-    >>> mapping = [("size_in_cm", "size_in_m", "meters_to_cm")]
+    https://spooq.readthedocs.io/en/latest/transformer/mapper.html#spooq.transformer.mapper_transformations.meters_to_cm
+
+    Parameters
+    ----------
+    source_column : str or Column
+        Input column. Can be a name, pyspark column or pyspark function
+    name : str, default -> derived from input column
+        Name of the output column. (``.alias(name)``)
+
+    Keyword Arguments
+    -----------------
+    alt_src_cols : str, default -> no coalescing, only source_column
+        Coalesce with source_column and columns from this parameter.
+    output_type : T.DataType(), default -> T.IntegerType()
+        Applies provided datatype on output column (``.cast(output_type)``)
+
+    Examples
+    --------
+    >>> input_df = spark.createDataFrame([
+    ...     Row(size_in_m=1.80),
+    ...     Row(size_in_m=1.65),
+    ...     Row(size_in_m=2.05)
+    ... ])
+    >>> mapping = [("size_in_cm", "size_in_m", spq.meters_to_cm)]
     >>> output_df = Mapper(mapping).transform(input_df)
-    >>> output_df.head(3)
-    [Row(size_in_cm=180),
-     Row(size_in_cm=165),
-     Row(size_in_cm=205)]
-    """
+    >>> output_df.show(truncate=False)
+    +----------+
+    |size_in_cm|
+    +----------+
+    |180       |
+    |165       |
+    |204       |
+    +----------+
+
+    Returns
+    -------
+    partial or Column: This method returns a suitable type depending on how you called it. This ensures compability
+    with Spooq's mapper transformer - with or without explicit parameters as well as direct calls via select,
+    withColumn, where, ...
+"""
 
     def _inner_func(source_column, name, alt_src_cols, output_type):
         if alt_src_cols:
@@ -297,33 +176,55 @@ def has_value(source_column=None, name=None, **kwargs: Any) -> partial:
     Returns True if the source_column is
         - not NULL and
         - not "" (empty string)
-
     otherwise it returns False
 
     Warning
     -------
     This means that it will return True for values which would indicate a False value. Like "false" or 0!!!
 
-    Example
-    -------
-    >>> from pyspark.sql import Row
-    >>> from spooq.transformer import Mapper
-    >>>
-    >>> input_df = spark.createDataFrame(
-    >>>     [Row(input_key=1.80),
-    >>>      Row(input_key=None),
-    >>>      Row(input_key="some text"),
-    >>>      Row(input_key="")]
-    >>> )
-    >>>
-    >>> mapping = [("input_key", "result", "has_value")]
-    >>> output_df = Mapper(mapping).transform(input_df)
-    >>> output_df.head(4)
-    [Row(result=True),
-     Row(result=False),
-     Row(result=True),
-     Row(result=False)]
+    https://spooq.readthedocs.io/en/latest/transformer/mapper.html#spooq.transformer.mapper_transformations.has_value
 
+    Parameters
+    ----------
+    source_column : str or Column
+        Input column. Can be a name, pyspark column or pyspark function
+    name : str, default -> derived from input column
+        Name of the output column. (``.alias(name)``)
+
+    Keyword Arguments
+    -----------------
+    alt_src_cols : str, default -> no coalescing, only source_column
+        Coalesce with source_column and columns from this parameter.
+    output_type : T.DataType(), -> T.BooleanType()
+        Applies provided datatype on output column (``.cast(output_type)``)
+
+    Examples
+    --------
+    >>> input_df = spark.createDataFrame(
+    ...     [
+    ...         Row(input_key=False),
+    ...         Row(input_key=None),
+    ...         Row(input_key="some text"),
+    ...         Row(input_key="")
+    ...     ], schema="input_key string"
+    ... )
+    >>> mapping = [("does_it_have_value", "input_key", spq.has_value)]
+    >>> output_df = Mapper(mapping).transform(input_df)
+    >>> output_df.show(truncate=False)
+    +------------------+
+    |does_it_have_value|
+    +------------------+
+    |true              |
+    |false             |
+    |true              |
+    |false             |
+    +------------------+
+
+    Returns
+    -------
+    partial or Column: This method returns a suitable type depending on how you called it. This ensures compability
+        with Spooq's mapper transformer - with or without explicit parameters as well as direct calls via select,
+        withColumn, where, ...
     """
 
     def _inner_func(source_column, name, alt_src_cols, output_type):
@@ -673,6 +574,207 @@ def apply_func(source_column=None, name=None, **kwargs: Any) -> partial:
         func=func,
         alt_src_cols=kwargs.get("alt_src_cols", False),
         output_type=kwargs.get("output_type", T.StringType()),
+    )
+
+    return _get_executable_function(_inner_func, source_column, name, **args)
+
+
+def to_json_string(source_column=None, name=None, **kwargs: Any) -> partial:
+    """
+    Returns a column as json compatible string. Nested hierarchies are supported.
+    The unicode representation of a column will be returned if an error occurs.
+
+    https://spooq.readthedocs.io/en/latest/transformer/mapper.html#spooq.transformer.mapper_transformations.to_json_string
+
+    Parameters
+    ----------
+    source_column : str or Column
+        Input column. Can be a name, pyspark column or pyspark function
+    name : str, default -> derived from input column
+        Name of the output column. (``.alias(name)``)
+
+    Keyword Arguments
+    -----------------
+    alt_src_cols : str, default -> no coalescing, only source_column
+        Coalesce with source_column and columns from this parameter.
+    output_type : T.DataType(), default -> no casting, same return data type as input data type
+        Applies provided datatype on output column (``.cast(output_type)``)
+
+    Examples
+    --------
+    >>> input_df = spark.createDataFrame([
+    ...     Row(friends=[Row(first_name="Gianni", id=3993, last_name="Weber"),
+    ...                  Row(first_name="Arielle", id=17484, last_name="Greaves")]),
+    ... ])
+    >>> mapping = [("friends_json", "friends", spq.to_json_string)]
+    >>> output_df = Mapper(mapping).transform(input_df)
+    >>> output_df.show(truncate=False)
+    +----------------------------------------------------------------------------------------------------------------------------+
+    |friends_json                                                                                                                |
+    +----------------------------------------------------------------------------------------------------------------------------+
+    |[{"first_name": "Gianni", "id": 3993, "last_name": "Weber"}, {"first_name": "Arielle", "id": 17484, "last_name": "Greaves"}]|
+    +----------------------------------------------------------------------------------------------------------------------------+
+    >>> input_df.select(spq.to_json_string("friends.first_name")).show(truncate=False)
+    +---------------------+
+    |first_name           |
+    +---------------------+
+    |['Gianni', 'Arielle']|
+    +---------------------+
+
+    Returns
+    -------
+    partial or Column
+        This method returns a suitable type depending on how you called it. This ensures compability
+        with Spooq's mapper transformer - with or without explicit parameters as well as direct calls via select,
+        withColumn, where, ...
+    """
+
+    def _inner_func(source_column, name, alt_src_cols, output_type):
+        def _to_json(col):
+            if not col:
+                return None
+            try:
+                if isinstance(col, list):
+                    return json.dumps([x.asDict(recursive=True) for x in col])
+                else:
+                    return json.dumps(col.asDict(recursive=True))
+            except (AttributeError, TypeError):
+                return str(col)
+
+        if alt_src_cols:
+            source_column = _coalesce_source_columns(source_column, alt_src_cols)
+
+        udf_to_json = F.udf(_to_json, output_type)
+        return udf_to_json(source_column).alias(name)
+
+    args = dict(
+        alt_src_cols=kwargs.get("alt_src_cols", False),
+        output_type=kwargs.get("output_type", T.StringType()),
+    )
+
+    return _get_executable_function(_inner_func, source_column, name, **args)
+
+
+def unix_timestamp_to_unix_timestamp(source_column=None, name=None, **kwargs: Any) -> partial:
+    """
+    Converts a unix timestamp (number) between milli seconds and seconds
+    and casts it to a :any:`pyspark.sql.types.LongType`.
+
+    https://spooq.readthedocs.io/en/latest/transformer/mapper.html#spooq.transformer.mapper_transformations.to_json_string
+
+    Parameters
+    ----------
+    source_column : str or Column
+        Input column. Can be a name, pyspark column or pyspark function
+    name : str, default -> derived from input column
+        Name of the output column. (``.alias(name)``)
+
+    Keyword Arguments
+    -----------------
+    input_time_unit : str, default -> "ms"
+        Defines the time unit of the source value.
+        Possible Values: ["ms", "sec"]
+    output_time_unit : str, default -> "sec"
+        Defines the time unit of the target value.
+        Possible Values: ["ms", "sec"]
+    alt_src_cols : str, default -> no coalescing, only source_column
+        Coalesce with source_column and columns from this parameter.
+    output_type : T.DataType(), default -> no casting, same return data type as input data type
+        Applies provided datatype on output column (``.cast(output_type)``)
+
+    Examples
+    --------
+    >>> input_df = spark.createDataFrame([
+    ...     Row(time_ms=1581540839000),  # 2020-02-12 21:53:59
+    ...     Row(time_ms=-4887839000),    # 1969-11-05 11:16:01
+    ...     Row(time_ms=4737139200000)   # 2120-02-12 01:00:00
+    ... ])
+    >>> mapping = [("unix_ts", "time_ms", spq.unix_timestamp_to_unix_timestamp)]
+    >>> output_df = Mapper(mapping).transform(input_df)
+    >>> output_df.show(truncate=False)
+    +----------+
+    |unix_ts   |
+    +----------+
+    |1581540839|
+    |-4887839  |
+    |4737139200|
+    +----------+
+    >>> input_df.select(
+    ...     spq.unix_timestamp_to_unix_timestamp("time_ms", name="timestamp", output_type=T.TimestampType())
+    ... ).show(truncate=False)
+    +-------------------+
+    |timestamp            |
+    +-------------------+
+    |2020-02-12 21:53:59|
+    |1969-11-05 11:16:01|
+    |2120-02-12 01:00:00|
+    +-------------------+
+
+    Returns
+    -------
+    partial or Column
+        This method returns a suitable type depending on how you called it. This ensures compability
+        with Spooq's mapper transformer - with or without explicit parameters as well as direct calls via select,
+        withColumn, where, ...
+    """
+
+    def _inner_func(source_column, name, input_time_unit, output_time_unit, alt_src_cols, output_type):
+        if alt_src_cols:
+            source_column = _coalesce_source_columns(source_column, alt_src_cols)
+        if input_time_unit == "ms":
+            source_column = source_column / 1_000.0
+
+        output_column = source_column.cast(T.DoubleType())
+
+        if output_time_unit == "ms":
+            output_column = output_column * 1_000.0
+
+        return output_column.cast(output_type).alias(name)
+
+    args = dict(
+        input_time_unit=kwargs.get("input_time_unit", "ms"),
+        output_time_unit=kwargs.get("output_time_unit", "sec"),
+        alt_src_cols=kwargs.get("alt_src_cols", False),
+        output_type=kwargs.get("output_type", T.LongType()),
+    )
+
+    return _get_executable_function(_inner_func, source_column, name, **args)
+
+
+def spark_timestamp_to_first_of_month(source_column=None, name=None, **kwargs: Any) -> partial:
+    """
+    Used for Anonymizing. Can be used to keep the age but obscure the explicit birthday.
+    This custom datatype requires a :any:`pyspark.sql.types.TimestampType` column as input.
+    The datetime value will be set to the first day of the month.
+
+    Example
+    -------
+    >>> from pyspark.sql import Row
+    >>> from datetime import datetime
+    >>> from spooq.transformer import Mapper
+    >>>
+    >>> input_df = spark.createDataFrame(
+    >>>     [Row(birthday=datetime(2019, 2, 9, 2, 45)),
+    >>>      Row(birthday=None),
+    >>>      Row(birthday=datetime(1988, 1, 31, 8))]
+    >>> )
+    >>>
+    >>> mapping = [("birthday", "birthday", "TimestampMonth")]
+    >>> output_df = Mapper(mapping).transform(input_df)
+    >>> output_df.head(3)
+    [Row(birthday=datetime.datetime(2019, 2, 1, 0, 0)),
+     Row(birthday=None),
+     Row(birthday=datetime.datetime(1988, 1, 1, 0, 0))]
+    """
+
+    def _inner_func(source_column, name, alt_src_cols, output_type):
+        if alt_src_cols:
+            source_column = _coalesce_source_columns(source_column, alt_src_cols)
+        return F.trunc(source_column, "month").cast(output_type).alias(name)
+
+    args = dict(
+        alt_src_cols=kwargs.get("alt_src_cols", False),
+        output_type=kwargs.get("output_type", T.DateType()),
     )
 
     return _get_executable_function(_inner_func, source_column, name, **args)
