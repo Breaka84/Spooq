@@ -287,6 +287,10 @@ fixtures_for_extended_string_to_timestamp = [
     ("nil",                        None),
     ("Hello",                      None),
     ("2k",                         None),
+    ("-5355957305054330880",       None),
+    ("5355957305054330880",        None),
+    (-5355957305054330880,         None),
+    ("1.547035982469E12",          None),
 ]
 
 fixtures_for_extended_string_unix_timestamp_ms_to_timestamp_spark2 = [

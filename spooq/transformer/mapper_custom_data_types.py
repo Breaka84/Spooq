@@ -825,6 +825,10 @@ def _generate_select_expression_for_extended_string_to_timestamp(source_column, 
             F.trim(source_column).cast(T.LongType()).cast(T.TimestampType()),
         )
         .when(
+            F.abs(F.trim(source_column).cast(T.LongType())) > MAX_TIMESTAMP_MS,
+            F.lit(None),
+        )
+        .when(
             F.abs(F.trim(source_column).cast(T.LongType())) > MAX_TIMESTAMP_SEC,
             (F.trim(source_column) / 1000).cast(T.TimestampType()),
         )
