@@ -93,7 +93,8 @@ def as_is(source_column: Union[str, Column] = None, name: str = None, **kwargs) 
 
     Returns
     -------
-    partial or Column: This method returns a suitable type depending on how you called it. This ensures compability
+    partial or Column
+        This method returns a suitable type depending on how you called it. This ensures compability
         with Spooq's mapper transformer - with or without explicit parameters as well as direct calls via select,
         withColumn, where, ...
     """
@@ -153,9 +154,10 @@ def meters_to_cm(source_column=None, name=None, **kwargs: Any) -> partial:
 
     Returns
     -------
-    partial or Column: This method returns a suitable type depending on how you called it. This ensures compability
-    with Spooq's mapper transformer - with or without explicit parameters as well as direct calls via select,
-    withColumn, where, ...
+    partial or Column
+        This method returns a suitable type depending on how you called it. This ensures compability
+        with Spooq's mapper transformer - with or without explicit parameters as well as direct calls via select,
+        withColumn, where, ...
 """
 
     def _inner_func(source_column, name, alt_src_cols, output_type):
@@ -222,7 +224,8 @@ def has_value(source_column=None, name=None, **kwargs: Any) -> partial:
 
     Returns
     -------
-    partial or Column: This method returns a suitable type depending on how you called it. This ensures compability
+    partial or Column
+        This method returns a suitable type depending on how you called it. This ensures compability
         with Spooq's mapper transformer - with or without explicit parameters as well as direct calls via select,
         withColumn, where, ...
     """
