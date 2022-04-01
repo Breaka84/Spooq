@@ -303,6 +303,8 @@ fixtures_for_str_to_bool_base = [
     (1.0,        None),
     (0.0,        None),
     (-1.0,       None),
+    (123,        None),
+    (-123,       None),
     (True,       True),
     (False,      False),
 ]

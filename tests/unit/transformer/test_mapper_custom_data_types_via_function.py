@@ -522,7 +522,7 @@ class TestStringToBoolean:
             indirect=["input_df", "expected_df"],
             ids=get_ids_for_fixture(fixtures_for_str_to_bool_false_values_as_argument),
         )
-        def test_str_to_bool_with_additional_false_values(self, input_df, expected_df):
+        def test_str_to_bool_with_alternative_false_values(self, input_df, expected_df):
             mapping = [("mapped_name", "attributes.data.some_attribute", spq.str_to_bool(
                 false_values=["nope", "NOK"],
                 replace_default_values=True,
@@ -537,7 +537,7 @@ class TestStringToBoolean:
             indirect=["input_df", "expected_df"],
             ids=get_ids_for_fixture(fixtures_for_str_to_bool_true_and_false_values_as_argument),
         )
-        def test_str_to_bool_with_additional_true_and_false_values(self, input_df, expected_df):
+        def test_str_to_bool_with_alternative_true_and_false_values(self, input_df, expected_df):
             mapping = [("mapped_name", "attributes.data.some_attribute", spq.str_to_bool(
                 true_values=["sure", "OK"],
                 false_values=["nope", "NOK"],

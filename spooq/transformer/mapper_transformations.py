@@ -1,17 +1,17 @@
 """
+This is a collection of module level functions to be applied to a DataFrame.
+These methods can be used with the :py:class:`~spooq.transformer.mapper.Mapper` transformer
+or directly within a ``select`` or ``withColumn`` statement.
+
+All functions support following generic functionalities:
+    alt_src_cols: Alternative source columns that will be used within a coalesce function if provided
+    output_type: Explicit casting after the transformation (sane defaults are set for each function)
+
 All examples assume following code has been executed before:
 >>> from pyspark.sql import Row
 >>> from pyspark.sql import functions as F, types as T
 >>> from spooq.transformer import Mapper
 >>> from spooq.transformer import mapper_transformations as spq
-
-This is a collection of module level methods to construct a specific
-PySpark DataFrame query for custom defined data transformations.
-These methods can be called via the :py:class:`~spooq.transformer.mapper.Mapper` transformer or directly.
-
-All of these transformations support optionally following generic functionalities:
-    alt_src_cols: Alternative source columns that will be used within a coalesce function
-    output_type: Explicit casting to the provided data type (there are already proper defaults for each transformation)
 """
 import re
 from functools import partial
@@ -23,7 +23,7 @@ from pyspark.sql import functions as F, types as T
 from pyspark.sql.column import Column
 
 
-COLUMN_NAME_PATTERN = re.compile(".*\'(.*)\'")
+COLUMN_NAME_PATTERN = re.compile(r".*\'(.*)\'")
 
 
 def _coalesce_source_columns(source_column, alt_src_cols):
@@ -51,7 +51,7 @@ def _get_executable_function(inner_func, source_column, name, **kwargs):
 
 def as_is(source_column: Union[str, Column] = None, name: str = None, **kwargs) -> Union[partial, Column]:
     """
-    Returns a renamed column without casting. This is especially useful if you need to
+    Returns a renamed column without any casting. This is especially useful if you need to
     keep a complex data type (f.e. array, list or struct).
 
     https://spooq.readthedocs.io/en/latest/transformer/mapper.html#spooq.transformer.mapper_transformations.as_is
@@ -94,8 +94,8 @@ def as_is(source_column: Union[str, Column] = None, name: str = None, **kwargs) 
     Returns
     -------
     partial or Column
-        This method returns a suitable type depending on how you called it. This ensures compability
-        with Spooq's mapper transformer - with or without explicit parameters as well as direct calls via select,
+        This method returns a suitable type depending on how it was called. This ensures compability
+        with Spooq's mapper transformer - with or without explicit parameters - as well as direct calls via select,
         withColumn, where, ...
     """
 
@@ -155,10 +155,10 @@ def meters_to_cm(source_column=None, name=None, **kwargs: Any) -> partial:
     Returns
     -------
     partial or Column
-        This method returns a suitable type depending on how you called it. This ensures compability
-        with Spooq's mapper transformer - with or without explicit parameters as well as direct calls via select,
+        This method returns a suitable type depending on how it was called. This ensures compability
+        with Spooq's mapper transformer - with or without explicit parameters - as well as direct calls via select,
         withColumn, where, ...
-"""
+    """
 
     def _inner_func(source_column, name, alt_src_cols, output_type):
         if alt_src_cols:
@@ -180,11 +180,11 @@ def has_value(source_column=None, name=None, **kwargs: Any) -> partial:
         - not "" (empty string)
     otherwise it returns False
 
+    https://spooq.readthedocs.io/en/latest/transformer/mapper.html#spooq.transformer.mapper_transformations.has_value
+
     Warning
     -------
     This means that it will return True for values which would indicate a False value. Like "false" or 0!!!
-
-    https://spooq.readthedocs.io/en/latest/transformer/mapper.html#spooq.transformer.mapper_transformations.has_value
 
     Parameters
     ----------
@@ -197,7 +197,7 @@ def has_value(source_column=None, name=None, **kwargs: Any) -> partial:
     -----------------
     alt_src_cols : str, default -> no coalescing, only source_column
         Coalesce with source_column and columns from this parameter.
-    output_type : T.DataType(), -> T.BooleanType()
+    output_type : T.DataType(), default -> T.BooleanType()
         Applies provided datatype on output column (``.cast(output_type)``)
 
     Examples
@@ -210,23 +210,26 @@ def has_value(source_column=None, name=None, **kwargs: Any) -> partial:
     ...         Row(input_key="")
     ...     ], schema="input_key string"
     ... )
-    >>> mapping = [("does_it_have_value", "input_key", spq.has_value)]
+    >>> mapping = [
+    ...     ("original_value", "input_key", spq.as_is),
+    ...     ("does_it_have_value", "input_key", spq.has_value)
+    ... ]
     >>> output_df = Mapper(mapping).transform(input_df)
     >>> output_df.show(truncate=False)
-    +------------------+
-    |does_it_have_value|
-    +------------------+
-    |true              |
-    |false             |
-    |true              |
-    |false             |
-    +------------------+
+    +--------------+------------------+
+    |original_value|does_it_have_value|
+    +--------------+------------------+
+    |false         |true              |
+    |null          |false             |
+    |some text     |true              |
+    |              |false             |
+    +--------------+------------------+
 
     Returns
     -------
     partial or Column
-        This method returns a suitable type depending on how you called it. This ensures compability
-        with Spooq's mapper transformer - with or without explicit parameters as well as direct calls via select,
+        This method returns a suitable type depending on how it was called. This ensures compability
+        with Spooq's mapper transformer - with or without explicit parameters - as well as direct calls via select,
         withColumn, where, ...
     """
 
@@ -250,37 +253,57 @@ def has_value(source_column=None, name=None, **kwargs: Any) -> partial:
 
 def str_to_num(source_column=None, name=None, **kwargs: Any) -> Union[partial, Column]:
     """
-    Todo: update docstring
-    More robust conversion from StringType to IntegerType.
-    Is able to additionally handle (compared to implicit Spark conversion):
+    More robust conversion from StringType to number data types.
+    This method is able to additionally handle (compared to implicit Spark conversion):
 
-        * Preceding whitespace
-        * Trailing whitespace
-        * Preceeding and trailing whitespace
+        * Preceding and/or trailing whitespace
         * underscores as thousand separators
 
-    Hint
-    ----
-    Please have a look at the tests to get a better feeling how it behaves under
-    tests/unit/transformer/test_mapper_custom_data_types.py::TestExtendedStringConversions and
-    tests/data/test_fixtures/mapper_custom_data_types_fixtures.py
+    https://spooq.readthedocs.io/en/latest/transformer/mapper.html#spooq.transformer.mapper_transformations.str_to_num
 
-    Example
-    -------
-    >>> from pyspark.sql import types as T
-    >>> from spooq.transformer import Mapper
-    >>> from spooq.transformer import mapper_transformations as spq_trans
-    >>>
-    >>> input_df.head(3)
-    [Row(input_string="  123456 "),
-     Row(input_string="Hello"),
-     Row(input_string="123_456")]
-    >>> mapping = [("output_value", "input_string", spq_trans.str_to_num(output_type=T.IntegerType()))]
+    Parameters
+    ----------
+    source_column : str or Column
+        Input column. Can be a name, pyspark column or pyspark function
+    name : str, default -> derived from input column
+        Name of the output column. (``.alias(name)``)
+
+    Keyword Arguments
+    -----------------
+    alt_src_cols : str, default -> no coalescing, only source_column
+        Coalesce with source_column and columns from this parameter.
+    output_type : T.DataType(), default -> T.LongType()
+        Applies provided datatype on output column (``.cast(output_type)``)
+
+    Examples
+    --------
+    >>> input_df = spark.createDataFrame(
+    ...     [
+    ...         Row(input_string="  123456 "),
+    ...         Row(input_string="Hello"),
+    ...         Row(input_string="123_456")
+    ...     ], schema="input_key string"
+    ... )
+    >>> mapping = [
+    ...     ("original_value",    "input_key", spq.as_is),
+    ...     ("transformed_value", "input_key", spq.str_to_num)
+    ... ]
     >>> output_df = Mapper(mapping).transform(input_df)
-    >>> output_df.head(3)
-    [Row(input_string=123456),
-     Row(input_string=None),
-     Row(input_string=123456)]
+    >>> output_df.show(truncate=False)
+    +--------------+-----------------+
+    |original_value|transformed_value|
+    +--------------+-----------------+
+    |  123456      |123456           |
+    |Hello         |null             |
+    |123_456       |123456           |
+    +--------------+-----------------+
+
+    Returns
+    -------
+    partial or Column
+        This method returns a suitable type depending on how it was called. This ensures compability
+        with Spooq's mapper transformer - with or without explicit parameters - as well as direct calls via select,
+        withColumn, where, ...
     """
 
     def _inner_func(source_column, name, alt_src_cols, output_type):
@@ -299,41 +322,95 @@ def str_to_num(source_column=None, name=None, **kwargs: Any) -> Union[partial, C
 def str_to_bool(source_column=None, name=None, **kwargs: Any) -> partial:
     """
     More robust conversion from StringType to BooleanType.
-    Is able to additionally handle (compared to implicit Spark conversion):
+    This method is able to additionally handle (compared to implicit Spark conversion):
 
-    * Preceding whitespace
-    * Trailing whitespace
-    * Preceeding and trailing whitespace
+        * Preceding and/or trailing whitespace
+        * Define additional strings for true/false values ("on"/"off", "enabled"/"disabled" are added by default)
+
+    https://spooq.readthedocs.io/en/latest/transformer/mapper.html#spooq.transformer.mapper_transformations.str_to_bool
+
+    Parameters
+    ----------
+    source_column : str or Column
+        Input column. Can be a name, pyspark column or pyspark function
+    name : str, default -> derived from input column
+        Name of the output column. (``.alias(name)``)
+
+    Keyword Arguments
+    -----------------
+    case_sensitive : Bool, default -> False
+        Defines whether the case for the additional true/false lookup values is considered
+    true_values : list, default -> ["on", "enabled"]
+        A list of values that should result in a ``True`` value if they are found in the source column
+    false_values : list, default -> ["off", "disabled"]
+        A list of values that should result in a ``False`` value if they are found in the source column
+    replace_default_values : Bool, default -> False
+        Defines whether additionally provided true/false values replace or extend the default list
+    alt_src_cols : str, default -> no coalescing, only source_column
+        Coalesce with source_column and columns from this parameter.
+    output_type : T.DataType(), default -> T.BooleanType()
+        Applies provided datatype on output column (``.cast(output_type)``)
 
     Warning
     ---------
-    This does not handle numbers (cast as string) the same way as numbers (cast as number) to boolean conversion!
-    F.e.
+    Spark (and Spooq) handles number to boolean conversions depending on the input datatype!
+    Please see this table for clarification:
 
-    * 100 to boolean => True
-    * "100" to str_to_bool => False
-    * "100" to boolean => False
+    +-------+----------+-----------------+------------------+
+    | Input            | Result                             |
+    +-------+----------+-----------------+------------------+
+    | Value | Datatype | Cast to Boolean | spq.str_to_bool  |
+    +=======+==========+=================+==================+
+    |  -1   | int      | True            | NULL             |
+    +-------+----------+-----------------+------------------+
+    |  -1   | str      | NULL            | NULL             |
+    +-------+----------+-----------------+------------------+
+    |   0   | int      | False           | False            |
+    +-------+----------+-----------------+------------------+
+    |   0   | str      | False           | False            |
+    +-------+----------+-----------------+------------------+
+    |   1   | int      | True            | True             |
+    +-------+----------+-----------------+------------------+
+    |   1   | str      | True            | True             |
+    +-------+----------+-----------------+------------------+
+    | 100   | int      | True            | NULL             |
+    +-------+----------+-----------------+------------------+
+    | 100   | str      | NULL            | NULL             |
+    +-------+----------+-----------------+------------------+
 
-    Hint
-    ----
-    Please have a look at the tests to get a better feeling how it behaves under
-    tests/unit/transformer/test_mapper_custom_data_types.py::TestExtendedStringConversions and
-    tests/data/test_fixtures/mapper_custom_data_types_fixtures.py
-
-    Example
-    -------
-    >>> from spooq.transformer import Mapper
-    >>>
-    >>> input_df.head(3)
-    [Row(input_string="  true "),
-     Row(input_string="0"),
-     Row(input_string="y")]
-    >>> mapping = [("output_value", "input_string", "str_to_bool")]
+    Examples
+    --------
+    >>> input_df = spark.createDataFrame(
+    ...     [
+    ...         Row(input_string="  false "),
+    ...         Row(input_string="123"),
+    ...         Row(input_string="1"),
+    ...         Row(input_string="Enabled"),
+    ...         Row(input_string="n")
+    ...     ], schema="input_key string"
+    ... )
+    >>> mapping = [
+    ...     ("original_value",    "input_key", spq.as_is),
+    ...     ("transformed_value", "input_key", spq.str_to_bool)
+    ... ]
     >>> output_df = Mapper(mapping).transform(input_df)
-    >>> output_df.head(3)
-    [Row(input_string=True),
-     Row(input_string=False),
-     Row(input_string=True)]
+    >>> output_df.show(truncate=False)
+    +--------------+-----------------+
+    |original_value|transformed_value|
+    +--------------+-----------------+
+    |  false       |false            |
+    |123           |null             |
+    |1             |true             |
+    |Enabled       |true             |
+    |n             |false            |
+    +--------------+-----------------+
+
+    Returns
+    -------
+    partial or Column
+        This method returns a suitable type depending on how it was called. This ensures compability
+        with Spooq's mapper transformer - with or without explicit parameters - as well as direct calls via select,
+        withColumn, where, ...
     """
 
     def _inner_func(source_column, name, true_values, false_values, case_sensitive, alt_src_cols, output_type):
@@ -376,41 +453,75 @@ def str_to_bool(source_column=None, name=None, **kwargs: Any) -> partial:
 
 def str_to_timestamp(source_column=None, name=None, **kwargs: Any) -> partial:
     """
-    More robust conversion from StringType to TimestampType. It is assumed that the
-    timezone is already set to UTC in spark / java to avoid implicit timezone conversions.
+    More robust conversion from StringType to TimestampType (or as a formatted string).
+    This method supports following input types:
 
-    The conversion can handle unix timestamps in seconds and in milliseconds:
-        - Timestamps in the range [-MAX_TIMESTAMP_S, MAX_TIMESTAMP_S] are treated as seconds
-        - Timestamps in the range [-inf, -MAX_TIMESTAMP_S) and (MAX_TIMESTAMP_S, inf] are treated as milliseconds
-        - There is a time interval (1970-01-01 +- ~2.5 months)where we can not distinguish correctly between s and ms
-          (e.g. 3974400000 would be treated as seconds (2095-12-11T00:00:00) as the value is smaller than
-          MAX_TIMESTAMP_S, but it could also be a valid date in Milliseconds (1970-02-16T00:00:00)
+        * Unix timestamps in seconds
+        * Unix timestamps in milliseconds
+        * Timestamps in any format supported by Spark
+        * Timestamps in any custom format (via ``input_format``)
+        * Preceding and/or trailing whitespace
 
-    Is able to additionally handle (compared to implicit Spark conversion):
-    * Preceding whitespace
-    * Trailing whitespace
-    * Preceeding and trailing whitespace
+    https://spooq.readthedocs.io/en/latest/transformer/mapper.html#spooq.transformer.mapper_transformations.str_to_timestamp
 
-    Hint
-    ----
-    Please have a look at the tests to get a better feeling how it behaves under
-    tests/unit/transformer/test_mapper_custom_data_types.py::TestExtendedStringConversions and
-    tests/data/test_fixtures/mapper_custom_data_types_fixtures.py
+    Parameters
+    ----------
+    source_column : str or Column
+        Input column. Can be a name, pyspark column or pyspark function
+    name : str, default -> derived from input column
+        Name of the output column. (``.alias(name)``)
 
-    Example
-    -------
-    >>> from spooq.transformer import Mapper
-    >>>
-    >>> input_df.head(3)
-    [Row(input_string="2020-08-12T12:43:14+0000"),
-     Row(input_string="1597069446"),
-     Row(input_string="2020-08-12")]
-    >>> mapping = [("output_value", "input_string", "str_to_timestamp")]
+    Keyword Arguments
+    -----------------
+    max_timestamp_sec : int, default -> 4102358400 (=> 2099-12-31 01:00:00)
+        Defines the range in which unix timestamps are still considered as seconds (compared to milliseconds)
+    input_format : [str, Bool], default -> False
+        Spooq tries to convert the input string with the provided pattern (via ``F.unix_timestamp()``)
+    output_format : [str, Bool], default -> False
+        The output can be formatted according to the provided pattern (via ``F.date_format()``)
+    alt_src_cols : str, default -> no coalescing, only source_column
+        Coalesce with source_column and columns from this parameter.
+    output_type : T.DataType(), default -> T.TimestampType()
+        Applies provided datatype on output column (``.cast(output_type)``)
+
+    Warning
+    ---------
+    * Timestamps in the range (-inf, -max_timestamp_sec) and (max_timestamp_sec, inf) are treated as milliseconds
+    * There is a time interval (1970-01-01 +- ~2.5 months) where we can not distinguish correctly between s and ms
+      (e.g. 3974400000 would be treated as seconds (2095-12-11T00:00:00) as the value is smaller than
+      MAX_TIMESTAMP_S, but it could also be a valid date in Milliseconds (1970-02-16T00:00:00)
+
+    Examples
+    --------
+    >>> input_df = spark.createDataFrame(
+    ...     [
+    ...         Row(input_string="2020-08-12T12:43:14+0000"),
+    ...         Row(input_string="1597069446"),
+    ...         Row(input_string="1597069446000"),
+    ...         Row(input_string="2020-08-12"),
+    ...     ], schema="input_key string"
+    ... )
+    >>> mapping = [
+    ...     ("original_value",    "input_key", spq.as_is),
+    ...     ("transformed_value", "input_key", spq.str_to_timestamp)
+    ... ]
     >>> output_df = Mapper(mapping).transform(input_df)
-    >>> output_df.head(3)
-    [Row(input_string=datetime.datetime(2020, 8, 12, 12, 43, 14)),
-     Row(input_string=datetime.datetime(2020, 8, 10, 14, 24, 6)),
-     Row(input_string=datetime.datetime(2020, 8, 12, 0, 0, 0))]
+    >>> output_df.show(truncate=False)
+    +------------------------+-------------------+
+    |original_value          |transformed_value  |
+    +------------------------+-------------------+
+    |2020-08-12T12:43:14+0000|2020-08-12 14:43:14|
+    |1597069446              |2020-08-10 16:24:06|
+    |1597069446000           |2020-08-10 16:24:06|
+    |2020-08-12              |2020-08-12 00:00:00|
+    +------------------------+-------------------+
+
+    Returns
+    -------
+    partial or Column
+        This method returns a suitable type depending on how it was called. This ensures compability
+        with Spooq's mapper transformer - with or without explicit parameters - as well as direct calls via select,
+        withColumn, where, ...
     """
 
     def _inner_func(source_column, name, max_timestamp_sec, input_format, output_format, alt_src_cols, output_type):
@@ -424,8 +535,6 @@ def str_to_timestamp(source_column=None, name=None, **kwargs: Any) -> partial:
                     input_format
                 ).cast(
                     T.TimestampType()
-                ).cast(
-                    output_type
                 ).alias(
                     name
                 )
@@ -441,14 +550,15 @@ def str_to_timestamp(source_column=None, name=None, **kwargs: Any) -> partial:
                     (F.trim(source_column) / 1000).cast(T.TimestampType()),
                 )
                 .otherwise(F.trim(source_column))
-                .cast(output_type)
             )
         if output_format:
             output_col = F.date_format(output_col, output_format)
-        return output_col.alias(name)
+            if output_type == T.TimestampType():
+                output_type = T.StringType()
+        return output_col.cast(output_type).alias(name)
 
     args = dict(
-        max_timestamp_sec=kwargs.get("max_timestamp_sec", 4102358400),  # 2099-12-31 01:00:00
+        max_timestamp_sec=kwargs.get("max_timestamp_sec", 4102358400),
         input_format=kwargs.get("input_format", False),
         output_format=kwargs.get("output_format", False),
         alt_src_cols=kwargs.get("alt_src_cols", False),
@@ -460,9 +570,58 @@ def str_to_timestamp(source_column=None, name=None, **kwargs: Any) -> partial:
 
 def str_to_array(source_column=None, name=None, **kwargs: Any) -> partial:
     """
-    Converts a string containing an array of integers to an array of integers
-    If conversion is not possible, the value will be set to null
-    Example: "[1,2,3,item1]" --> [1,2,3,null]
+    Splits a string into a list (ArrayType).
+
+    https://spooq.readthedocs.io/en/latest/transformer/mapper.html#spooq.transformer.mapper_transformations.str_to_array
+
+    Parameters
+    ----------
+    source_column : str or Column
+        Input column. Can be a name, pyspark column or pyspark function
+    name : str, default -> derived from input column
+        Name of the output column. (``.alias(name)``)
+
+    Keyword Arguments
+    -----------------
+    alt_src_cols : str, default -> no coalescing, only source_column
+        Coalesce with source_column and columns from this parameter.
+    output_type : T.DataType(), default -> T.StringType()
+        Applies provided datatype on the elements of the output array (``.cast(T.ArrayType(output_type))``)
+
+    Examples
+    --------
+    >>> input_df = spark.createDataFrame(
+    ...     [
+    ...         Row(input_column="[item1,item2,3]"),
+    ...         Row(input_column="item1,it[e]m2,it em3"),
+    ...         Row(input_column="    item1,   item2    ,   item3")
+    ...     ], schema="input_key string"
+    ... )
+    >>> mapping = [
+    ...     ("original_value",    "input_key", spq.as_is),
+    ...     ("transformed_value", "input_key", spq.str_to_array)
+    ... ]
+    >>> output_df = Mapper(mapping).transform(input_df)
+    >>> output_df.printSchema()
+    root
+     |-- original_value: string (nullable = true)
+     |-- transformed_value: array (nullable = true)
+     |    |-- element: string (containsNull = true)
+    >>> output_df.show(truncate=False)
+    +-------------------------------+------------------------+
+    |original_value                 |transformed_value       |
+    +-------------------------------+------------------------+
+    |[item1,item2,3]                |[item1, item2, 3]       |
+    |item1,it[e]m2,it em3           |[item1, it[e]m2, it em3]|
+    |    item1,   item2    ,   item3|[item1, item2, item3]   |
+    +-------------------------------+------------------------+
+
+    Returns
+    -------
+    partial or Column
+        This method returns a suitable type depending on how it was called. This ensures compability
+        with Spooq's mapper transformer - with or without explicit parameters - as well as direct calls via select,
+        withColumn, where, ...
     """
 
     def _inner_func(source_column, name, alt_src_cols, output_type):
@@ -485,6 +644,7 @@ def str_to_array(source_column=None, name=None, **kwargs: Any) -> partial:
 
 def map_values(source_column=None, name=None, **kwargs: Any) -> partial:
     """
+    ToDo: Continue from here!
     Map input values to specified output values
 
     Examples
