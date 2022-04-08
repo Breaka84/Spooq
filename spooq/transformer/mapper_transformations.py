@@ -644,20 +644,97 @@ def str_to_array(source_column=None, name=None, **kwargs: Any) -> partial:
 
 def map_values(source_column=None, name=None, **kwargs: Any) -> partial:
     """
-    ToDo: Continue from here!
-    Map input values to specified output values
+    Maps input values to specified output values.
+
+    https://spooq.readthedocs.io/en/latest/transformer/mapper.html#spooq.transformer.mapper_transformations.map_values
+
+    Parameters
+    ----------
+    source_column : str or Column
+        Input column. Can be a name, pyspark column or pyspark function
+    name : str, default -> derived from input column
+        Name of the output column. (``.alias(name)``)
+
+    Keyword Arguments
+    -----------------
+    mapping : dict
+        Dictionary containing lookup / substitute value pairs.
+    default : [str, Column, Any], default -> "source_column"
+        Defines what will be returned if no matching lookup value was found.
+    ignore_case : bool, default -> True
+        Only relevant for "equals" and "sql_like" comparison operators.
+    pattern_type : str, default -> "equals"
+        Please choose among ['equals', 'regex' and 'sql_like'] for the comparison of input value and mapping key.
+    alt_src_cols : str, default -> no coalescing, only source_column
+        Coalesce with source_column and columns from this parameter.
+    output_type : T.DataType(), default -> T.StringType()
+        Applies provided datatype on the elements of the output array (``.cast(T.ArrayType(output_type))``)
+
+    Hint
+    ----
+    Maybe this table helps you to better understand what happens behind the curtains:
+
+    +---------------+------------+---------------------------------------------------------------------------+
+    | lookup        | substitute | mode         | Internal Spark Logic                                       |
+    +===============+============+=====================================+==================+==================+
+    | whitelist     | allowlist  | "equals"     | F.when(                                                    |
+    |               |            |              |     F.col("input_column") == "whitelist",                  |
+    |               |            |              |     F.lit("allowlist")                                     |
+    |               |            |              | ).otherwise(                                               |
+    |               |            |              |     F.col("input_column")                                  |
+    |               |            |              | )                                                          |
+    +---------------+------------+---------------------------------------------------------------------------+
+    | %whitelist%   | allowlist  | "sql_like"   | F.when(                                                    |
+    |               |            |              |     F.col("input_column").like("%whitelist%",              |
+    |               |            |              |     F.lit("allowlist")                                     |
+    |               |            |              | ).otherwise(                                               |
+    |               |            |              |     F.col("input_column")                                  |
+    |               |            |              | )                                                          |
+    +---------------+------------+---------------------------------------------------------------------------+
+    | .*whitelist.* | allowlist  | "regex   "   | F.when(                                                    |
+    |               |            |              |     F.col("input_column").rlike(".*whitelist.*",           |
+    |               |            |              |     F.lit("allowlist")                                     |
+    |               |            |              | ).otherwise(                                               |
+    |               |            |              |     F.col("input_column")                                  |
+    |               |            |              | )                                                          |
+    +---------------+------------+---------------------------------------------------------------------------+
 
     Examples
     --------
-    map = {
-        "runtastic": "running",
-        "results":   "training",
-    }
-    ==>
-    F.when(batch_df.app_branch == "runtastic", "running")
-        .when(batch_df.app_branch == "results", "training")
-        .otherwise(batch_df.app_branch)
+    >>> input_df = spark.createDataFrame(
+    ...     [
+    ...         ("allowlist", ),
+    ...         ("WhiteList", ),
+    ...         ("blocklist", ),
+    ...         ("blacklist", ),
+    ...         ("Blacklist", ),
+    ...         ("Shoppinglist", ),
+    ...     ], schema="input_key string"
+    ... )
+    >>> substitute_mapping = {"whitelist": "allowlist", "blacklist": "blocklist"}
+    >>> mapping = [
+    ...     ("original_value",    "input_key", spq.as_is),
+    ...     ("transformed_value", "input_key", spq.map_values(mapping=substitute_mapping))
+    ... ]
+    >>> output_df = Mapper(mapping).transform(input_df)
+    >>> output_df.show(truncate=False)
+    +--------------+-----------------+
+    |original_value|transformed_value|
+    +--------------+-----------------+
+    |allowlist     |allowlist        |
+    |WhiteList     |allowlist        |
+    |blocklist     |blocklist        |
+    |blacklist     |blocklist        |
+    |Blacklist     |blocklist        |
+    |Shoppinglist  |Shoppinglist     |
+    +--------------+-----------------+
 
+    Returns
+    -------
+    partial or Column
+        This method returns a suitable type depending on how it was called. This ensures compability
+        with Spooq's mapper transformer - with or without explicit parameters - as well as direct calls via select,
+        withColumn, where, ...
     """
 
     def _inner_func(source_column, name, mapping, default, ignore_case, pattern_type, alt_src_cols, output_type):
