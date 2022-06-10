@@ -15,7 +15,7 @@ All examples assume following code has been executed before:
 """
 import re
 from functools import partial
-from typing import Any, Union, List
+from typing import Any, Union, List, Callable
 import json
 
 import IPython
@@ -668,7 +668,7 @@ def map_values(source_column=None, name=None, **kwargs: Any) -> partial:
     alt_src_cols : str, default -> no coalescing, only source_column
         Coalesce with source_column and columns from this parameter.
     output_type : T.DataType(), default -> T.StringType()
-        Applies provided datatype on the elements of the output array (``.cast(T.ArrayType(output_type))``)
+        Applies provided datatype on output column (``.cast(output_type)``)
 
     Hint
     ----
@@ -797,13 +797,102 @@ def map_values(source_column=None, name=None, **kwargs: Any) -> partial:
 
 def apply_func(source_column=None, name=None, **kwargs: Any) -> partial:
     """
-    Applies a custom function
+    Applies a function / partial
+
+    https://spooq.readthedocs.io/en/latest/transformer/mapper.html#spooq.transformer.mapper_transformations.apply_func
+
+    Parameters
+    ----------
+    source_column : str or Column
+        Input column. Can be a name, pyspark column or pyspark function
+    name : str, default -> derived from input column
+        Name of the output column. (``.alias(name)``)
+
+    Keyword Arguments
+    -----------------
+    func : Callable
+        Function that takes the source column as single argument
+    alt_src_cols : str, default -> no coalescing, only source_column
+        Coalesce with source_column and columns from this parameter.
+    output_type : T.DataType(), default -> no casting
+        Applies provided datatype on output column (``.cast(output_type)``)
+
+    Examples
+    --------
+    >>> input_df = spark.createDataFrame(
+    ...     [
+    ...         ("F", ),
+    ...         ("f", ),
+    ...         ("x", ),
+    ...         ("X", ),
+    ...         ("m", ),
+    ...         ("M", ),
+    ...     ], schema="input_key string"
+    ... )
+    >>> mapping = [
+    ...     ("original_value",    "input_key", spq.as_is),
+    ...     ("transformed_value", "input_key", spq.apply_func(func=F.lower))
+    ... ]
+    >>> output_df = Mapper(mapping).transform(input_df)
+    >>> output_df.show(truncate=False)
+    +--------------+-----------------+
+    |original_value|transformed_value|
+    +--------------+-----------------+
+    |F             |f                |
+    |f             |f                |
+    |x             |x                |
+    |X             |x                |
+    |m             |m                |
+    |M             |m                |
+    +--------------+-----------------+
+
+    >>> input_df = spark.createDataFrame(
+    ...     [
+    ...         ("sarajishvilileqso@gmx.at", ),
+    ...         ("jnnqn@astrinurdin.art", ),
+    ...         ("321aw@hotmail.com", ),
+    ...         ("techbrenda@hotmail.com", ),
+    ...         ("sdsxcx@gmail.com", ),
+    ...     ], schema="input_key string"
+    ... )
+    ...
+    >>> def _has_hotmail(source_column):
+    ...     return F.when(
+    ...         source_column.cast(T.StringType()).endswith("@hotmail.com"),
+    ...         F.lit(True)
+    ...     ).otherwise(F.lit(False))
+    ...
+    >>> mapping = [
+    ...     ("original_value",    "input_key", spq.as_is),
+    ...     ("transformed_value", "input_key", spq.apply_func(func=_has_hotmail))
+    ... ]
+    >>> output_df = Mapper(mapping).transform(input_df)
+    >>> output_df.show(truncate=False)
+    +------------------------+-----------------+
+    |original_value          |transformed_value|
+    +------------------------+-----------------+
+    |sarajishvilileqso@gmx.at|false            |
+    |jnnqn@astrinurdin.art   |false            |
+    |321aw@hotmail.com       |true             |
+    |techbrenda@hotmail.com  |true             |
+    |sdsxcx@gmail.com        |false            |
+    +------------------------+-----------------+
+
+    Returns
+    -------
+    partial or Column
+        This method returns a suitable type depending on how it was called. This ensures compability
+        with Spooq's mapper transformer - with or without explicit parameters - as well as direct calls via select,
+        withColumn, where, ...
     """
 
     def _inner_func(source_column, name, func, alt_src_cols, output_type):
         if alt_src_cols:
             source_column = _coalesce_source_columns(source_column, alt_src_cols)
-        return func(source_column).cast(output_type).alias(name)
+        source_column = func(source_column)
+        if output_type:
+            source_column = source_column.cast(output_type)
+        return source_column.alias(name)
 
     try:
         func = kwargs["func"]
@@ -813,7 +902,7 @@ def apply_func(source_column=None, name=None, **kwargs: Any) -> partial:
     args = dict(
         func=func,
         alt_src_cols=kwargs.get("alt_src_cols", False),
-        output_type=kwargs.get("output_type", T.StringType()),
+        output_type=kwargs.get("output_type", False),
     )
 
     return _get_executable_function(_inner_func, source_column, name, **args)
@@ -822,6 +911,7 @@ def apply_func(source_column=None, name=None, **kwargs: Any) -> partial:
 def to_json_string(source_column=None, name=None, **kwargs: Any) -> partial:
     """
     Returns a column as json compatible string. Nested hierarchies are supported.
+    This function also supports NULL and strings as input in comparison to Spark's built-in ``to_json``.
     The unicode representation of a column will be returned if an error occurs.
 
     https://spooq.readthedocs.io/en/latest/transformer/mapper.html#spooq.transformer.mapper_transformations.to_json_string
@@ -897,10 +987,10 @@ def to_json_string(source_column=None, name=None, **kwargs: Any) -> partial:
 
 def unix_timestamp_to_unix_timestamp(source_column=None, name=None, **kwargs: Any) -> partial:
     """
-    Converts a unix timestamp (number) between milli seconds and seconds
+    Converts a unix timestamp (number) between milliseconds and seconds
     and casts it to a :any:`pyspark.sql.types.LongType`.
 
-    https://spooq.readthedocs.io/en/latest/transformer/mapper.html#spooq.transformer.mapper_transformations.to_json_string
+    https://spooq.readthedocs.io/en/latest/transformer/mapper.html#spooq.transformer.mapper_transformations.unix_timestamp_to_unix_timestamp
 
     Parameters
     ----------

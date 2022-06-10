@@ -103,7 +103,6 @@ class TestGenericFunctionality:
                 Row(
                     as_is="Hello",
                     unix_to_unix=1637335,
-                    first_of_month=dt.date(2020, 8, 1),
                     m_to_cm=180,
                     has_val=True,
                     str_to_num=1637335255,
@@ -117,7 +116,6 @@ class TestGenericFunctionality:
             schema=(
                 "as_is STRING, "
                 "unix_to_unix LONG, "
-                "first_of_month DATE, "
                 "m_to_cm INTEGER, "
                 "has_val BOOLEAN, "
                 "str_to_num LONG, "
@@ -166,7 +164,6 @@ class TestGenericFunctionality:
         mapping = [
             ("as_is",                "str_1",        spq.as_is(alt_src_cols="str_2")),
             ("unix_to_unix",         "int_1",        spq.unix_timestamp_to_unix_timestamp(alt_src_cols="int_2")),
-            ("first_of_month",       "str_ts_1",     spq.spark_timestamp_to_first_of_month(alt_src_cols="str_ts_2")),
             ("m_to_cm",              "float_1",      spq.meters_to_cm(alt_src_cols="float_2")),
             ("has_val",              "int_1",        spq.has_value(alt_src_cols="int_2")),
             ("str_to_num",           "str_int_1",    spq.str_to_num(alt_src_cols="str_int_2")),
@@ -187,7 +184,6 @@ class TestGenericFunctionality:
         mapping = [
             ("as_is",                "str_2",        spq.as_is(output_type=T.StringType())),
             ("unix_to_unix",         "int_2",        spq.unix_timestamp_to_unix_timestamp(output_type=T.StringType())),
-            ("first_of_month",       "str_ts_2",     spq.spark_timestamp_to_first_of_month(output_type=T.StringType())),
             ("m_to_cm",              "float_2",      spq.meters_to_cm(output_type=T.StringType())),
             ("has_val",              "int_2",        spq.has_value(output_type=T.StringType())),
             ("str_to_num",           "str_int_2",    spq.str_to_num(output_type=T.StringType())),
@@ -211,7 +207,6 @@ class TestGenericFunctionality:
         output_df = input_df.select(
             spq.as_is(source_column="str_2", name="as_is"),
             spq.unix_timestamp_to_unix_timestamp(source_column="int_2", name="unix_to_unix"),
-            spq.spark_timestamp_to_first_of_month(source_column="str_ts_2", name="first_of_month"),
             spq.meters_to_cm(source_column="float_2", name="m_to_cm"),
             spq.has_value(source_column="int_2", name="has_val"),
             spq.str_to_num(source_column="str_int_2", name="str_to_num"),
@@ -228,7 +223,6 @@ class TestGenericFunctionality:
         output_df = input_df.select(
             spq.as_is("str_2", "as_is"),
             spq.unix_timestamp_to_unix_timestamp("int_2", "unix_to_unix"),
-            spq.spark_timestamp_to_first_of_month("str_ts_2", "first_of_month"),
             spq.meters_to_cm("float_2", "m_to_cm"),
             spq.has_value("int_2", "has_val"),
             spq.str_to_num("str_int_2", "str_to_num"),
@@ -245,7 +239,6 @@ class TestGenericFunctionality:
         output_df = input_df.select(
             spq.as_is("str_2"),
             spq.unix_timestamp_to_unix_timestamp("int_2"),
-            spq.spark_timestamp_to_first_of_month("str_ts_2"),
             spq.meters_to_cm("float_2"),
             spq.has_value("int_2"),
             spq.str_to_num("str_int_2"),
@@ -261,7 +254,6 @@ class TestGenericFunctionality:
             schema=(
                 "str_2 STRING, "
                 "int_2 LONG, "
-                "str_ts_2 DATE, "
                 "float_2 INTEGER, "
                 "int_2 BOOLEAN, "
                 "str_int_2 LONG, "
@@ -350,20 +342,6 @@ class TestUnixTimestampToUnixTimestamp:
         )]
         output_df = Mapper(mapping).transform(input_df)
         expected_df_ = expected_df.select(F.col("mapped_name").cast(T.LongType()))
-        assert_df_equality(expected_df_, output_df)
-
-
-class TestSparkTimestampToFirstOfMonth:
-    @pytest.mark.parametrize(
-        argnames="input_df, expected_df",
-        argvalues=fixtures_for_timestamp_to_first_of_month,
-        indirect=["input_df", "expected_df"],
-        ids=get_ids_for_fixture(fixtures_for_timestamp_to_first_of_month),
-    )
-    def test_spark_timestamp_to_first_of_month(self, input_df, expected_df):
-        mapping = [("mapped_name", "attributes.data.some_attribute", spq.spark_timestamp_to_first_of_month())]
-        output_df = Mapper(mapping).transform(input_df)
-        expected_df_ = expected_df.select(F.col("mapped_name").cast(T.DateType()))
         assert_df_equality(expected_df_, output_df)
 
 

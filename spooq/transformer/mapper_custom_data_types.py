@@ -299,9 +299,15 @@ def _generate_select_expression_for_TimestampMonth(source_column, name):  # noqa
     """
     Deprecated!
 
-    Please use :py:method:`~spooq.transformer.mapper_transformations.has_value` instead.
+    Please use :py:method:`~spooq.transformer.mapper_transformations.apply_func` instead.
     """
-    return spq.spark_timestamp_to_first_of_month(output_type=T.TimestampType())(source_column, name)
+    _truncate_day = partial(F.trunc, format="month")
+    return spq.apply_func(
+        source_column=source_column,
+        name=name,
+        func=_truncate_day,
+        output_type=T.TimestampType()
+    )
 
 
 def _generate_select_expression_for_meters_to_cm(source_column, name):
