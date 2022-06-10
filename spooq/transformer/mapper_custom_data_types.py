@@ -127,7 +127,7 @@ def _generate_select_expression_for_as_is(source_column, name):
     """
     Deprecated!
 
-    Please use :py:method:`~spooq.transformer.mapper_transformations.as_is` directly instead.
+    Please use :dt.:`~spooq.transformer.mapper_transformations.as_is` directly instead.
     """
     return spq.as_is()(source_column, name)
 
@@ -136,7 +136,7 @@ def _generate_select_expression_for_keep(source_column, name):
     """
     Deprecated!
 
-    Please use :py:method:`~spooq.transformer.mapper_transformations.as_is` directly instead.
+    Please use :dt.:`~spooq.transformer.mapper_transformations.as_is` directly instead.
     """
     return spq.as_is()(source_column, name)
 
@@ -145,7 +145,7 @@ def _generate_select_expression_for_no_change(source_column, name):
     """
     Deprecated!
 
-    Please use :py:method:`~spooq.transformer.mapper_transformations.as_is` directly instead.
+    Please use :dt.:`~spooq.transformer.mapper_transformations.as_is` directly instead.
     """
     return spq.as_is()(source_column, name)
 
@@ -154,7 +154,7 @@ def test_generate_select_expression_without_casting(source_column, name):
     """
     Deprecated!
 
-    Please use :py:method:`~spooq.transformer.mapper_transformations.as_is` directly instead.
+    Please use :dt.:`~spooq.transformer.mapper_transformations.as_is` directly instead.
     """
     return spq.as_is()(source_column, name)
 
@@ -163,7 +163,7 @@ def _generate_select_expression_for_json_string(source_column, name):
     """
     Deprecated!
 
-    Please use :py:method:`~spooq.transformer.mapper_transformations.to_json_string` directly instead.
+    Please use :dt.:`~spooq.transformer.mapper_transformations.to_json_string` directly instead.
     """
     return spq.to_json_string()(source_column, name)
 
@@ -172,7 +172,7 @@ def _generate_select_expression_for_timestamp_ms_to_ms(source_column, name):
     """
     Deprecated!
 
-    Please just use `T.LongType()' as data_type (this method doesn't do any cleansing anymore)!
+    Please just use ``T.LongType()`` as data_type (this method doesn't do any cleansing anymore)!
     """
     return spq.unix_timestamp_to_unix_timestamp(input_time_unit="ms", output_time_unit="ms")(source_column, name)
 
@@ -181,7 +181,7 @@ def _generate_select_expression_for_timestamp_ms_to_s(source_column, name):
     """
     Deprecated!
 
-    Please use :py:method:`~spooq.transformer.mapper_transformations.unix_timestamp_to_unix_timestamp` directly instead.
+    Please use :dt.:`~spooq.transformer.mapper_transformations.unix_timestamp_to_unix_timestamp` directly instead.
     """
     return spq.unix_timestamp_to_unix_timestamp(input_time_unit="ms", output_time_unit="sec")(source_column, name)
 
@@ -191,7 +191,7 @@ def _generate_select_expression_for_timestamp_s_to_ms(source_column, name):
     """
     Deprecated!
 
-    Please use :py:method:`~spooq.transformer.mapper_transformations.unix_timestamp_to_unix_timestamp` directly instead.
+    Please use :dt.:`~spooq.transformer.mapper_transformations.unix_timestamp_to_unix_timestamp` directly instead.
     """
     return spq.unix_timestamp_to_unix_timestamp(input_time_unit="sec", output_time_unit="ms")(source_column, name)
 
@@ -201,7 +201,7 @@ def _generate_select_expression_for_timestamp_s_to_s(source_column, name):
     """
     Deprecated!
 
-    Please just use `T.LongType()' as data_type (this method doesn't do any cleansing anymore)!
+    Please just use ``T.LongType()`` as data_type (this method doesn't do any cleansing anymore)!
     """
     return spq.unix_timestamp_to_unix_timestamp(input_time_unit="sec", output_time_unit="sec")(source_column, name)
 
@@ -210,7 +210,7 @@ def _generate_select_expression_for_StringNull(source_column, name):  # noqa: N8
     """
     Deprecated!
 
-    Please just use `F.lit(None)` as source_column and `T.StringType()' as data_type!
+    Please just use ``F.lit(None)`` as source_column and ``T.StringType()`` as data_type!
     """
 
     return F.lit(None).cast(T.StringType()).alias(name)
@@ -220,7 +220,7 @@ def _generate_select_expression_for_IntNull(source_column, name):  # noqa: N802
     """
     Deprecated!
 
-    Please just use `F.lit(None)` as source_column and `T.IntegerType()' as data_type!
+    Please just use ``F.lit(None)`` as source_column and ``T.IntegerType()`` as data_type!
     """
 
     return F.lit(None).cast(T.IntegerType()).alias(name)
@@ -230,10 +230,10 @@ def _generate_select_expression_for_StringBoolean(source_column, name):  # noqa:
     """
     Deprecated!
 
-    Please use :py:method:`~spooq.transformer.mapper_transformations.has_value` instead.
+    Please use :dt.:`~spooq.transformer.mapper_transformations.has_value` instead.
 
     Used for Anonymizing.
-    The column's value will be replaced by `"1"` if it is:
+    The column's value will be replaced by ``"1"`` if it is:
 
         * not NULL and
         * not an empty string
@@ -267,10 +267,10 @@ def _generate_select_expression_for_IntBoolean(source_column, name):  # noqa: N8
     """
     Deprecated!
 
-    Please use :py:method:`~spooq.transformer.mapper_transformations.has_value` instead.
+    Please use :dt.:`~spooq.transformer.mapper_transformations.has_value` instead.
 
     Used for Anonymizing.
-    The column's value will be replaced by `1` if it contains a non-NULL value.
+    The column's value will be replaced by ``1`` if it contains a non-NULL value.
 
     Example
     -------
@@ -290,7 +290,7 @@ def _generate_select_expression_for_IntBoolean(source_column, name):  # noqa: N8
 
     Note
     ----
-    `0` (zero) or negative numbers are still considered as valid values and therefore converted to `1`.
+    ``0`` (zero) or negative numbers are still considered as valid values and therefore converted to ``1``.
     """
     return F.when(source_column.isNull(), F.lit(None)).otherwise(1).cast(T.IntegerType()).alias(name)
 
@@ -299,7 +299,7 @@ def _generate_select_expression_for_TimestampMonth(source_column, name):  # noqa
     """
     Deprecated!
 
-    Please use :py:method:`~spooq.transformer.mapper_transformations.apply_func` instead.
+    Please use :dt.:`~spooq.transformer.mapper_transformations.apply_func` instead.
     """
     _truncate_day = partial(F.trunc, format="month")
     return spq.apply_func(
@@ -314,7 +314,7 @@ def _generate_select_expression_for_meters_to_cm(source_column, name):
     """
     Deprecated!
 
-    Please use :py:method:`~spooq.transformer.mapper_transformations.meters_to_cm` directly instead.
+    Please use :dt.:`~spooq.transformer.mapper_transformations.meters_to_cm` directly instead.
     """
     return spq.meters_to_cm()(source_column, name)
 
@@ -323,7 +323,7 @@ def _generate_select_expression_for_has_value(source_column, name):
     """
     Deprecated!
 
-    Please use :py:method:`~spooq.transformer.mapper_transformations.has_value` directly instead.
+    Please use :dt.:`~spooq.transformer.mapper_transformations.has_value` directly instead.
     """
     return spq.has_value()(source_column, name)
 
@@ -332,7 +332,7 @@ def _generate_select_expression_for_unix_timestamp_ms_to_spark_timestamp(source_
     """
     Deprecated!
 
-    Please use :py:method:`~spooq.transformer.mapper_transformations.str_to_timestamp` directly instead.
+    Please use :dt.:`~spooq.transformer.mapper_transformations.str_to_timestamp` directly instead.
     """
     return spq.unix_timestamp_to_unix_timestamp(input_time_unit="ms", output_time_unit="sec", output_type=T.TimestampType())(source_column, name)
 
@@ -341,8 +341,8 @@ def _generate_select_expression_for_extended_string_to_int(source_column, name):
     """
     Deprecated!
 
-    Please use :py:method:`~spooq.transformer.mapper_transformations.str_to_num` directly instead
-    and define the `output_type` as `T.IntegerType()`.
+    Please use :dt.:`~spooq.transformer.mapper_transformations.str_to_num` directly instead
+    and define the ``output_type`` as ``T.IntegerType()``.
     """
     return spq.str_to_num(output_type=T.IntegerType())(source_column, name)
 
@@ -351,8 +351,8 @@ def _generate_select_expression_for_extended_string_to_long(source_column, name)
     """
     Deprecated!
 
-    Please use :py:method:`~spooq.transformer.mapper_transformations.str_to_num` directly instead
-    and define the `output_type` as `T.LongType()`.
+    Please use :dt.:`~spooq.transformer.mapper_transformations.str_to_num` directly instead
+    and define the ``output_type`` as ``T.LongType()``.
     """
     return spq.str_to_num(output_type=T.LongType())(source_column, name)
 
@@ -361,8 +361,8 @@ def _generate_select_expression_for_extended_string_to_float(source_column, name
     """
     Deprecated!
 
-    Please use :py:method:`~spooq.transformer.mapper_transformations.str_to_num` directly instead
-    and define the `output_type` as `T.FloatType()`.
+    Please use :dt.:`~spooq.transformer.mapper_transformations.str_to_num` directly instead
+    and define the ``output_type`` as ``T.FloatType()``.
     """
     return spq.str_to_num(output_type=T.FloatType())(source_column, name)
 
@@ -371,8 +371,8 @@ def _generate_select_expression_for_extended_string_to_double(source_column, nam
     """
     Deprecated!
 
-    Please use :py:method:`~spooq.transformer.mapper_transformations.str_to_num` directly instead
-    and define the `output_type` as `T.DoubleType()`.
+    Please use :dt.:`~spooq.transformer.mapper_transformations.str_to_num` directly instead
+    and define the ``output_type`` as ``T.DoubleType()``.
     """
     return spq.str_to_num(output_type=T.DoubleType())(source_column, name)
 
@@ -381,7 +381,7 @@ def _generate_select_expression_for_extended_string_to_boolean(source_column, na
     """
     Deprecated!
 
-    Please use :py:method:`~spooq.transformer.mapper_transformations.str_to_bool` directly instead.
+    Please use :dt.:`~spooq.transformer.mapper_transformations.str_to_bool` directly instead.
     """
     return spq.str_to_bool()(source_column, name)
 
@@ -390,7 +390,7 @@ def _generate_select_expression_for_extended_string_to_timestamp(source_column, 
     """
     Deprecated!
 
-    Please use :py:method:`~spooq.transformer.mapper_transformations.str_to_timestamp` directly instead.
+    Please use :dt.:`~spooq.transformer.mapper_transformations.str_to_timestamp` directly instead.
     """
     return spq.str_to_timestamp()(source_column, name)
 
@@ -399,8 +399,8 @@ def _generate_select_expression_for_extended_string_to_date(source_column, name)
     """
     Deprecated!
 
-    Please use :py:method:`~spooq.transformer.mapper_transformations.str_to_timestamp`
-    with `output_type=T.DateType()` directly instead.
+    Please use :dt.:`~spooq.transformer.mapper_transformations.str_to_timestamp`
+    with ``output_type=T.DateType()`` directly instead.
     """
     return spq.str_to_timestamp(output_type=T.DateType())(source_column, name)
 
@@ -409,7 +409,7 @@ def _generate_select_expression_for_extended_string_unix_timestamp_ms_to_timesta
     """
     Deprecated!
 
-    Please use :py:method:`~spooq.transformer.mapper_transformations.str_to_timestamp` directly instead.
+    Please use :dt.:`~spooq.transformer.mapper_transformations.str_to_timestamp` directly instead.
     """
     return spq.str_to_timestamp()(source_column, name)
 
@@ -418,7 +418,7 @@ def _generate_select_expression_for_extended_string_unix_timestamp_ms_to_date(so
     """
     Deprecated!
 
-    Please use :py:method:`~spooq.transformer.mapper_transformations.str_to_timestamp`
-    with `output_type=T.DateType()` directly instead.
+    Please use :dt.:`~spooq.transformer.mapper_transformations.str_to_timestamp`
+    with ``output_type=T.DateType()`` directly instead.
     """
     return spq.str_to_timestamp(output_type=T.DateType())(source_column, name)

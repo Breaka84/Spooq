@@ -1,4 +1,4 @@
-pyspark==3.0.1
+pyspark==3.2.1
 pandas==0.24.2
 sphinxcontrib-plantuml==0.18
 docutils<0.18

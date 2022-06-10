@@ -54,7 +54,7 @@ def as_is(source_column: Union[str, Column] = None, name: str = None, **kwargs) 
     Returns a renamed column without any casting. This is especially useful if you need to
     keep a complex data type (f.e. array, list or struct).
 
-    https://spooq.readthedocs.io/en/latest/transformer/mapper.html#spooq.transformer.mapper_transformations.as_is
+    https://spooq.rtfd.io/en/latest/transformer/mapper.html#spooq.transformer.mapper_transformations.as_is
 
     Parameters
     ----------
@@ -118,7 +118,7 @@ def meters_to_cm(source_column=None, name=None, **kwargs: Any) -> partial:
     """
     Converts meters to cm and casts the result to an IntegerType.
 
-    https://spooq.readthedocs.io/en/latest/transformer/mapper.html#spooq.transformer.mapper_transformations.meters_to_cm
+    https://spooq.rtfd.io/en/latest/transformer/mapper.html#spooq.transformer.mapper_transformations.meters_to_cm
 
     Parameters
     ----------
@@ -178,9 +178,9 @@ def has_value(source_column=None, name=None, **kwargs: Any) -> partial:
     Returns True if the source_column is
         - not NULL and
         - not "" (empty string)
-    otherwise it returns False
+        - otherwise it returns False
 
-    https://spooq.readthedocs.io/en/latest/transformer/mapper.html#spooq.transformer.mapper_transformations.has_value
+    https://spooq.rtfd.io/en/latest/transformer/mapper.html#spooq.transformer.mapper_transformations.has_value
 
     Warning
     -------
@@ -259,7 +259,7 @@ def str_to_num(source_column=None, name=None, **kwargs: Any) -> Union[partial, C
         * Preceding and/or trailing whitespace
         * underscores as thousand separators
 
-    https://spooq.readthedocs.io/en/latest/transformer/mapper.html#spooq.transformer.mapper_transformations.str_to_num
+    https://spooq.rtfd.io/en/latest/transformer/mapper.html#spooq.transformer.mapper_transformations.str_to_num
 
     Parameters
     ----------
@@ -327,7 +327,7 @@ def str_to_bool(source_column=None, name=None, **kwargs: Any) -> partial:
         * Preceding and/or trailing whitespace
         * Define additional strings for true/false values ("on"/"off", "enabled"/"disabled" are added by default)
 
-    https://spooq.readthedocs.io/en/latest/transformer/mapper.html#spooq.transformer.mapper_transformations.str_to_bool
+    https://spooq.rtfd.io/en/latest/transformer/mapper.html#spooq.transformer.mapper_transformations.str_to_bool
 
     Parameters
     ----------
@@ -462,7 +462,7 @@ def str_to_timestamp(source_column=None, name=None, **kwargs: Any) -> partial:
         * Timestamps in any custom format (via ``input_format``)
         * Preceding and/or trailing whitespace
 
-    https://spooq.readthedocs.io/en/latest/transformer/mapper.html#spooq.transformer.mapper_transformations.str_to_timestamp
+    https://spooq.rtfd.io/en/latest/transformer/mapper.html#spooq.transformer.mapper_transformations.str_to_timestamp
 
     Parameters
     ----------
@@ -572,7 +572,7 @@ def str_to_array(source_column=None, name=None, **kwargs: Any) -> partial:
     """
     Splits a string into a list (ArrayType).
 
-    https://spooq.readthedocs.io/en/latest/transformer/mapper.html#spooq.transformer.mapper_transformations.str_to_array
+    https://spooq.rtfd.io/en/latest/transformer/mapper.html#spooq.transformer.mapper_transformations.str_to_array
 
     Parameters
     ----------
@@ -646,7 +646,7 @@ def map_values(source_column=None, name=None, **kwargs: Any) -> partial:
     """
     Maps input values to specified output values.
 
-    https://spooq.readthedocs.io/en/latest/transformer/mapper.html#spooq.transformer.mapper_transformations.map_values
+    https://spooq.rtfd.io/en/latest/transformer/mapper.html#spooq.transformer.mapper_transformations.map_values
 
     Parameters
     ----------
@@ -799,7 +799,7 @@ def apply_func(source_column=None, name=None, **kwargs: Any) -> partial:
     """
     Applies a function / partial
 
-    https://spooq.readthedocs.io/en/latest/transformer/mapper.html#spooq.transformer.mapper_transformations.apply_func
+    https://spooq.rtfd.io/en/latest/transformer/mapper.html#spooq.transformer.mapper_transformations.apply_func
 
     Parameters
     ----------
@@ -914,7 +914,7 @@ def to_json_string(source_column=None, name=None, **kwargs: Any) -> partial:
     This function also supports NULL and strings as input in comparison to Spark's built-in ``to_json``.
     The unicode representation of a column will be returned if an error occurs.
 
-    https://spooq.readthedocs.io/en/latest/transformer/mapper.html#spooq.transformer.mapper_transformations.to_json_string
+    https://spooq.rtfd.io/en/latest/transformer/mapper.html#spooq.transformer.mapper_transformations.to_json_string
 
     Parameters
     ----------
@@ -990,7 +990,7 @@ def unix_timestamp_to_unix_timestamp(source_column=None, name=None, **kwargs: An
     Converts a unix timestamp (number) between milliseconds and seconds
     and casts it to a :any:`pyspark.sql.types.LongType`.
 
-    https://spooq.readthedocs.io/en/latest/transformer/mapper.html#spooq.transformer.mapper_transformations.unix_timestamp_to_unix_timestamp
+    https://spooq.rtfd.io/en/latest/transformer/mapper.html#spooq.transformer.mapper_transformations.unix_timestamp_to_unix_timestamp
 
     Parameters
     ----------
@@ -1066,45 +1066,6 @@ def unix_timestamp_to_unix_timestamp(source_column=None, name=None, **kwargs: An
         output_time_unit=kwargs.get("output_time_unit", "sec"),
         alt_src_cols=kwargs.get("alt_src_cols", False),
         output_type=kwargs.get("output_type", T.LongType()),
-    )
-
-    return _get_executable_function(_inner_func, source_column, name, **args)
-
-
-def spark_timestamp_to_first_of_month(source_column=None, name=None, **kwargs: Any) -> partial:
-    """
-    Used for Anonymizing. Can be used to keep the age but obscure the explicit birthday.
-    This custom datatype requires a :any:`pyspark.sql.types.TimestampType` column as input.
-    The datetime value will be set to the first day of the month.
-
-    Example
-    -------
-    >>> from pyspark.sql import Row
-    >>> from datetime import datetime
-    >>> from spooq.transformer import Mapper
-    >>>
-    >>> input_df = spark.createDataFrame(
-    >>>     [Row(birthday=datetime(2019, 2, 9, 2, 45)),
-    >>>      Row(birthday=None),
-    >>>      Row(birthday=datetime(1988, 1, 31, 8))]
-    >>> )
-    >>>
-    >>> mapping = [("birthday", "birthday", "TimestampMonth")]
-    >>> output_df = Mapper(mapping).transform(input_df)
-    >>> output_df.head(3)
-    [Row(birthday=datetime.datetime(2019, 2, 1, 0, 0)),
-     Row(birthday=None),
-     Row(birthday=datetime.datetime(1988, 1, 1, 0, 0))]
-    """
-
-    def _inner_func(source_column, name, alt_src_cols, output_type):
-        if alt_src_cols:
-            source_column = _coalesce_source_columns(source_column, alt_src_cols)
-        return F.trunc(source_column, "month").cast(output_type).alias(name)
-
-    args = dict(
-        alt_src_cols=kwargs.get("alt_src_cols", False),
-        output_type=kwargs.get("output_type", T.DateType()),
     )
 
     return _get_executable_function(_inner_func, source_column, name, **args)

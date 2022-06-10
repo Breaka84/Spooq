@@ -90,9 +90,9 @@ class Mapper(Transformer):
         a PySpark Column which will get evaluated. This can contain arbitrary logic supported by Spark. For example:
         ``F.current_date()`` or ``F.when(F.col("size") == 180, F.lit("tall")).otherwise(F.lit("tiny"))``.
     * DataType: :any:`str` or :class:`~pyspark.sql.types.DataType`
-        DataTypes can be types from :any:`pyspark.sql.types`, selected custom datatypes or
+        DataTypes can be types from :py:mod:`pyspark.sql.types`, selected custom datatypes or
         injected, ad-hoc custom datatypes.
-        The datatype will be interpreted as a PySpark built-in if it is a member of :any:`pyspark.sql.types` module.
+        The datatype will be interpreted as a PySpark built-in if it is a member of :py:mod:`pyspark.sql.types` module.
         If it is not an importable PySpark data type, a method to construct the statement will be
         called by the data type's name.
 

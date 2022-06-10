@@ -54,12 +54,12 @@ setup(
     keywords=[
         "spooq", "spark", "hive", "cloudera", "hadoop", "etl",
         "data ingestion", "data wrangling", "databricks", "big data",
-        "batch", "streaming"
+        "batch", "streaming", "data engineering"
     ],
     classifiers=[
-        "Development Status :: 4 - Beta",
-        "Intended Audience :: Developers",
+        "Development Status :: 5 - Production/Stable",
+        "Intended Audience :: Data Engineers",
         "Natural Language :: English",
-        "Programming Language :: Python :: 3.7",
+        "Programming Language :: Python :: 3.8",
     ]
 )

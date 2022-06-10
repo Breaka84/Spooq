@@ -12,16 +12,18 @@ jobs:
         include:
           - pyspark-version: 3.0.1
             pyspark-pip-package: "pyspark==3.0.1"
-          - pyspark-version: 2.4.3
+          - pyspark-version: 3.0.2
             pyspark-pip-package: "pyspark==3.0.2"
-          - pyspark-version: 2.4.3
+          - pyspark-version: 3.0.3
             pyspark-pip-package: "pyspark==3.0.3"
-          - pyspark-version: 2.4.3
+          - pyspark-version: 3.1.1
             pyspark-pip-package: "pyspark==3.1.1"
-          - pyspark-version: 2.4.3
+          - pyspark-version: 3.1.2
             pyspark-pip-package: "pyspark==3.1.2"
-          - pyspark-version: 2.4.3
+          - pyspark-version: 3.2.0
             pyspark-pip-package: "pyspark==3.2.0"
+          - pyspark-version: 3.2.1
+            pyspark-pip-package: "pyspark==3.2.1"
     steps:
     - uses: actions/checkout@v2
     - name: Set up Java 1.8

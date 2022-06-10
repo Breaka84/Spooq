@@ -242,10 +242,10 @@ add_module_names = False
 todo_include_todos = True
 
 intersphinx_mapping = {
-    'python':         ('https://docs.python.org/3.7', None),
-	'pyExceptions':   ('https://pyexceptions.readthedocs.io/en/stable/', None),
-	'pyMetaClasses':  ('https://pymetaclasses.readthedocs.io/en/latest/', None),
-    'pyspark':        ('https://spark.apache.org/docs/3.0.1/api/python/', None)
+    'python':         ('https://docs.python.org/3.8', None),
+	# 'pyExceptions':   ('https://pyexceptions.readthedocs.io/en/stable/', None),
+	# 'pyMetaClasses':  ('https://pymetaclasses.readthedocs.io/en/latest/', None),
+    'pyspark':        ('https://spark.apache.org/docs/3.2.1/api/python/', None)
 
 }
 

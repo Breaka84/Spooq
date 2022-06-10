@@ -45,8 +45,8 @@ pytest-html-reporter = "*"
 pandas = "*"
 future = "*"
 spooq = {path = ".", editable = true}
-pyspark = "==3.1.2"
+pyspark = "==3.2.1"
 requests = "*"
 
 [requires]
-python_version = "3.7"
+python_version = "3.8"
