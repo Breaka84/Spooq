@@ -419,6 +419,10 @@ fixtures_for_str_to_timestamp_default = [
     ("nil",                        None),
     ("Hello",                      None),
     ("2k",                         None),
+    ("-5355957305054330880",       None),
+    ("5355957305054330880",        None),
+    (-5355957305054330880,         None),
+    ("1.547035982469E12",          None),
 ]
 
 fixtures_for_str_to_timestamp_custom_input_format = [

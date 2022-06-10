@@ -2,6 +2,10 @@
 Changelog
 =========
 
+3.3.7 (2022-03-15)
+-------------------
+* [FIX] Fix long overflow in extended_string_to_timestamp
+
 3.3.6 (2021-11-19)
 -------------------
 * [FIX] Fix Cleaners logs in case of field type different than string
