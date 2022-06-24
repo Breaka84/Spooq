@@ -6,7 +6,7 @@
 Welcome to Spooq's documentation!
 =================================
 
-**Spooq** is your PySpark based helper library for ETL data ingestion pipeline in Data Lakes.
+Spooq is your **PySpark** based helper library for ETL data ingestion pipeline in Data Lakes.
 
 Extractors, Transformers, and Loaders are independent components which can be plugged-in into a pipeline instance or used separately.
 You can also use the custom functions from the Mapper transformer directly with PySpark (f.e. ``select`` or ``withColumn``).
@@ -17,17 +17,12 @@ Table of Content
     :maxdepth: 3
     :name: contents
 
-    changelog
     installation
-    setup_development_testing
-    release
-    examples
-    extractor/overview
-    transformer/overview
-    loader/overview
-    pipeline/overview
-    base_classes/overview
-    architecture
+    get_started
+    transformer/mapper_transformations
+    components
+    contribute
+    changelog
 
 Indices and tables
 ==================

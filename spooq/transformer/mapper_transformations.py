@@ -8,6 +8,7 @@ All functions support following generic functionalities:
     output_type: Explicit casting after the transformation (sane defaults are set for each function)
 
 All examples assume following code has been executed before:
+
 >>> from pyspark.sql import Row
 >>> from pyspark.sql import functions as F, types as T
 >>> from spooq.transformer import Mapper
@@ -54,7 +55,7 @@ def as_is(source_column: Union[str, Column] = None, name: str = None, **kwargs) 
     Returns a renamed column without any casting. This is especially useful if you need to
     keep a complex data type (f.e. array, list or struct).
 
-    https://spooq.rtfd.io/en/latest/transformer/mapper.html#spooq.transformer.mapper_transformations.as_is
+    https://spooq.rtfd.io/en/latest/transformer/mapper_transformations.html#as-is
 
     Parameters
     ----------
@@ -118,7 +119,7 @@ def meters_to_cm(source_column=None, name=None, **kwargs: Any) -> partial:
     """
     Converts meters to cm and casts the result to an IntegerType.
 
-    https://spooq.rtfd.io/en/latest/transformer/mapper.html#spooq.transformer.mapper_transformations.meters_to_cm
+    https://spooq.rtfd.io/en/latest/transformer/mapper_transformations.html#meters_to_cm
 
     Parameters
     ----------
@@ -180,7 +181,7 @@ def has_value(source_column=None, name=None, **kwargs: Any) -> partial:
         - not "" (empty string)
         - otherwise it returns False
 
-    https://spooq.rtfd.io/en/latest/transformer/mapper.html#spooq.transformer.mapper_transformations.has_value
+    https://spooq.rtfd.io/en/latest/transformer/mapper_transformations.html#has_value
 
     Warning
     -------
@@ -259,7 +260,7 @@ def str_to_num(source_column=None, name=None, **kwargs: Any) -> Union[partial, C
         * Preceding and/or trailing whitespace
         * underscores as thousand separators
 
-    https://spooq.rtfd.io/en/latest/transformer/mapper.html#spooq.transformer.mapper_transformations.str_to_num
+    https://spooq.rtfd.io/en/latest/transformer/mapper_transformations.html#str_to_num
 
     Parameters
     ----------
@@ -327,7 +328,7 @@ def str_to_bool(source_column=None, name=None, **kwargs: Any) -> partial:
         * Preceding and/or trailing whitespace
         * Define additional strings for true/false values ("on"/"off", "enabled"/"disabled" are added by default)
 
-    https://spooq.rtfd.io/en/latest/transformer/mapper.html#spooq.transformer.mapper_transformations.str_to_bool
+    https://spooq.rtfd.io/en/latest/transformer/mapper_transformations.html#str_to_bool
 
     Parameters
     ----------
@@ -462,7 +463,7 @@ def str_to_timestamp(source_column=None, name=None, **kwargs: Any) -> partial:
         * Timestamps in any custom format (via ``input_format``)
         * Preceding and/or trailing whitespace
 
-    https://spooq.rtfd.io/en/latest/transformer/mapper.html#spooq.transformer.mapper_transformations.str_to_timestamp
+    https://spooq.rtfd.io/en/latest/transformer/mapper_transformations.html#str_to_timestamp
 
     Parameters
     ----------
@@ -572,7 +573,7 @@ def str_to_array(source_column=None, name=None, **kwargs: Any) -> partial:
     """
     Splits a string into a list (ArrayType).
 
-    https://spooq.rtfd.io/en/latest/transformer/mapper.html#spooq.transformer.mapper_transformations.str_to_array
+    https://spooq.rtfd.io/en/latest/transformer/mapper_transformations.html#str_to_array
 
     Parameters
     ----------
@@ -646,7 +647,7 @@ def map_values(source_column=None, name=None, **kwargs: Any) -> partial:
     """
     Maps input values to specified output values.
 
-    https://spooq.rtfd.io/en/latest/transformer/mapper.html#spooq.transformer.mapper_transformations.map_values
+    https://spooq.rtfd.io/en/latest/transformer/mapper_transformations.html#map_values
 
     Parameters
     ----------
@@ -799,7 +800,7 @@ def apply_func(source_column=None, name=None, **kwargs: Any) -> partial:
     """
     Applies a function / partial
 
-    https://spooq.rtfd.io/en/latest/transformer/mapper.html#spooq.transformer.mapper_transformations.apply_func
+    https://spooq.rtfd.io/en/latest/transformer/mapper_transformations.html#apply_func
 
     Parameters
     ----------
@@ -914,7 +915,7 @@ def to_json_string(source_column=None, name=None, **kwargs: Any) -> partial:
     This function also supports NULL and strings as input in comparison to Spark's built-in ``to_json``.
     The unicode representation of a column will be returned if an error occurs.
 
-    https://spooq.rtfd.io/en/latest/transformer/mapper.html#spooq.transformer.mapper_transformations.to_json_string
+    https://spooq.rtfd.io/en/latest/transformer/mapper_transformations.html#to_json_string
 
     Parameters
     ----------
@@ -990,7 +991,7 @@ def unix_timestamp_to_unix_timestamp(source_column=None, name=None, **kwargs: An
     Converts a unix timestamp (number) between milliseconds and seconds
     and casts it to a :any:`pyspark.sql.types.LongType`.
 
-    https://spooq.rtfd.io/en/latest/transformer/mapper.html#spooq.transformer.mapper_transformations.unix_timestamp_to_unix_timestamp
+    https://spooq.rtfd.io/en/latest/transformer/mapper_transformations.html#unix_timestamp_to_unix_timestamp
 
     Parameters
     ----------
@@ -1019,7 +1020,9 @@ def unix_timestamp_to_unix_timestamp(source_column=None, name=None, **kwargs: An
     ...     Row(time_ms=-4887839000),    # 1969-11-05 11:16:01
     ...     Row(time_ms=4737139200000)   # 2120-02-12 01:00:00
     ... ])
-    >>> mapping = [("unix_ts", "time_ms", spq.unix_timestamp_to_unix_timestamp)]
+    >>> mapping = [
+    ...     ("unix_ts", "time_ms", spq.unix_timestamp_to_unix_timestamp(input_time_unit="ms", output_time_unit="sec"))
+    ... ]
     >>> output_df = Mapper(mapping).transform(input_df)
     >>> output_df.show(truncate=False)
     +----------+

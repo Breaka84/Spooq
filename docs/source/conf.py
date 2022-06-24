@@ -96,12 +96,14 @@ pygments_style = 'default'
 #
 # html_theme = 'alabaster'
 html_theme = 'sphinx_rtd_theme'
+# html_style = 'css/make_content_wider.css'
 # html_theme = 'groundwork'
 # html_theme = 'agogo'
-# html_theme_options = {
-    # "pagewidth": "200em",
-    # "documentwidth": "50%",
-# }
+html_theme_options = {
+    'body_max_width': '75%',
+    # 'pagewidth': '75%',
+    # 'documentwidth': '75%',
+}
 
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the
@@ -266,6 +268,7 @@ def setup(app):
     # }, True)
     # app.add_transform(AutoStructify)
     # app.connect("autodoc-skip-member", skip)
+    # app.add_css_file("source/_static/make_content_wider.css")
     pass
 
 # Configure PlantUML

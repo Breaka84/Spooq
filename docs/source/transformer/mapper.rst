@@ -6,15 +6,12 @@ Class
 
 .. autoclass:: spooq.transformer.mapper.Mapper
 
-Custom Mapping Functions Details
---------------------------------------------
+Custom Transformations
+------------------------------------------------
 
-.. automodule:: spooq.transformer.mapper_transformations
-    :members:
-    :ignore-module-all:
-    :member-order: bysource
+Please see :ref:`custom_transformations` for more details.
 
-[DEPRECATED] Custom Mapping Functions as Strings
+Custom Mapping Functions as Strings [DEPRECATED]
 ------------------------------------------------
 
 .. automodule:: spooq.transformer.mapper_custom_data_types

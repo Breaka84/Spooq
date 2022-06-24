@@ -2,6 +2,17 @@
 Changelog
 =========
 
+3.4.0 (2022-06-24)
+-------------------
+* [MOD] Custom Mapper transformations can now be passed as python objects with or without parameters
+* [MOD] Custom Mapper transformations can now also be used with ``select`` and ``withColumn``
+* [MOD] Renaming (shortening) of most custom Mapper transformations (https://spooq.rtfd.io/en/latest/transformer/mapper_transformations.html)
+* [ADD] ``str_to_array`` Mapper transformation
+* [ADD] ``map_values`` Mapper transformation
+* [ADD] ``apply_func`` Mapper transformation
+* [MOD] Tests use now Python 3.8
+* [MOD] Spark 3.2.1 compatibility
+
 3.3.7 (2022-03-15)
 -------------------
 * [FIX] Fix long overflow in extended_string_to_timestamp
