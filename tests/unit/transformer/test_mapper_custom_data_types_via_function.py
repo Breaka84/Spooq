@@ -535,6 +535,7 @@ class TestStringToTimestamp:
     )
     def test_str_to_timestamp_default(self, input_df, expected_df):
         mapping = [("mapped_name", "attributes.data.some_attribute", spq.str_to_timestamp())]
+        import IPython; IPython.embed()
         output_df = Mapper(mapping).transform(input_df)
         expected_df_ = expected_df.select(F.col("mapped_name").cast(T.TimestampType()))
         assert_df_equality(expected_df_, output_df)

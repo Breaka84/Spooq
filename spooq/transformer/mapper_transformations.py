@@ -554,8 +554,7 @@ def str_to_timestamp(source_column=None, name=None, **kwargs: Any) -> partial:
             )
         if output_format:
             output_col = F.date_format(output_col, output_format)
-            if output_type == T.TimestampType():
-                output_type = T.StringType()
+            output_type = T.StringType()
         return output_col.cast(output_type).alias(name)
 
     args = dict(

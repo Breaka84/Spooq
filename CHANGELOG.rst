@@ -12,6 +12,7 @@ Changelog
 * [ADD] ``apply_func`` Mapper transformation
 * [MOD] Tests use now Python 3.8
 * [MOD] Spark 3.2.1 compatibility
+* [MOD] Clean up documentation
 
 3.3.7 (2022-03-15)
 -------------------
