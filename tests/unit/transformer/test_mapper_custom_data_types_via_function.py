@@ -5,6 +5,7 @@ import datetime as dt
 import IPython
 import pytest
 from chispa import assert_df_equality
+import semver
 from pyspark.sql import Row
 from pyspark.sql import functions as F, types as T
 
@@ -24,7 +25,17 @@ def input_df(request, spark_session, spark_context):
 
 @pytest.fixture()
 def expected_df(request, spark_session, spark_context):
-    input_json = json.dumps({"mapped_name": request.param}, default=str)
+    if isinstance(request.param, dict):
+        input_value = next(
+            request.param[version]
+            for version
+            in request.param.keys()
+            if semver.match(spark_context.version, version)
+        )
+    else:
+        input_value = request.param
+
+    input_json = json.dumps({"mapped_name": input_value}, default=str)
     return spark_session.read.json(spark_context.parallelize([input_json]))
 
 
@@ -535,7 +546,6 @@ class TestStringToTimestamp:
     )
     def test_str_to_timestamp_default(self, input_df, expected_df):
         mapping = [("mapped_name", "attributes.data.some_attribute", spq.str_to_timestamp())]
-        import IPython; IPython.embed()
         output_df = Mapper(mapping).transform(input_df)
         expected_df_ = expected_df.select(F.col("mapped_name").cast(T.TimestampType()))
         assert_df_equality(expected_df_, output_df)

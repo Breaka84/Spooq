@@ -480,6 +480,10 @@ def str_to_timestamp(source_column=None, name=None, **kwargs: Any) -> partial:
         Spooq tries to convert the input string with the provided pattern (via ``F.unix_timestamp()``)
     output_format : [str, Bool], default -> False
         The output can be formatted according to the provided pattern (via ``F.date_format()``)
+    min_timestamp_ms : int, default -> -62135514321000 (=> Year 1)
+        Defines the overall allowed range to keep the timestamps within Python's ``datetime`` library limits
+    max_timestamp_ms : int, default -> 253402210800000 (=> Year 9999)
+        Defines the overall allowed range to keep the timestamps within Python's ``datetime`` library limits
     alt_src_cols : str, default -> no coalescing, only source_column
         Coalesce with source_column and columns from this parameter.
     output_type : T.DataType(), default -> T.TimestampType()
@@ -525,7 +529,9 @@ def str_to_timestamp(source_column=None, name=None, **kwargs: Any) -> partial:
         withColumn, where, ...
     """
 
-    def _inner_func(source_column, name, max_timestamp_sec, input_format, output_format, alt_src_cols, output_type):
+    def _inner_func(
+            source_column,
+            name, max_timestamp_sec, input_format, output_format, min_timestamp_ms, max_timestamp_ms, alt_src_cols, output_type):
         if alt_src_cols:
             source_column = _coalesce_source_columns(source_column, alt_src_cols)
 
@@ -543,6 +549,10 @@ def str_to_timestamp(source_column=None, name=None, **kwargs: Any) -> partial:
         else:
             output_col = (
                 F.when(
+                    ~F.trim(source_column).cast(T.LongType()).between(min_timestamp_ms, max_timestamp_ms),
+                    F.lit(None),
+                )
+                .when(
                     F.abs(F.trim(source_column).cast(T.LongType())).between(0, max_timestamp_sec),
                     F.trim(source_column).cast(T.LongType()).cast(T.TimestampType()),
                 )
@@ -561,6 +571,8 @@ def str_to_timestamp(source_column=None, name=None, **kwargs: Any) -> partial:
         max_timestamp_sec=kwargs.get("max_timestamp_sec", 4102358400),
         input_format=kwargs.get("input_format", False),
         output_format=kwargs.get("output_format", False),
+        min_timestamp_ms=kwargs.get("min_timestamp_ms", -62135514321000),
+        max_timestamp_ms=kwargs.get("max_timestamp_ms", 253402210800000),
         alt_src_cols=kwargs.get("alt_src_cols", False),
         output_type=kwargs.get("output_type", T.TimestampType()),
     )

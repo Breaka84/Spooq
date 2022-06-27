@@ -338,7 +338,7 @@ class TestExtendedStringConversions(object):
         # to python datetime wrt timezone conversions (https://issues.apache.org/jira/browse/SPARK-32123)
         output_pd_df = output_df.toPandas()
         output_value = output_pd_df.iloc[0]["output_key"]
-        if isinstance(output_value, type(pd.NaT)):
+        if isinstance(output_value, (type(pd.NaT))):
             actual_value = None
         else:
             actual_value = output_value.to_pydatetime().toordinal()

@@ -40,6 +40,7 @@ grip = "*"
 bump2version = "*"
 twine = "*"
 pytest-html-reporter = "*"
+semver = "*"
 
 [packages]
 pandas = "*"
