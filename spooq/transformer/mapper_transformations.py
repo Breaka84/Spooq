@@ -19,7 +19,6 @@ from functools import partial
 from typing import Any, Union, List, Callable
 import json
 
-import IPython
 from pyspark.sql import functions as F, types as T
 from pyspark.sql.column import Column
 

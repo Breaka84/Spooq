@@ -9,7 +9,6 @@ For injecting your **own custom data types**, please have a visit to the
 :py:meth:`add_custom_data_type` method!
 """
 import sys
-import IPython
 from functools import partial
 from pyspark.sql import functions as F
 from pyspark.sql import types as T

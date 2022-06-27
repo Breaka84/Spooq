@@ -1,4 +1,3 @@
-import IPython
 from builtins import object
 import json
 import pytest

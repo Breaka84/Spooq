@@ -2,7 +2,6 @@ import json
 from functools import partial
 import datetime as dt
 
-import IPython
 import pytest
 from chispa import assert_df_equality
 import semver

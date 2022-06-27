@@ -1,7 +1,6 @@
 from functools import partial
 from types import FunctionType
 
-import IPython
 from pyspark.sql.utils import AnalysisException
 from pyspark.sql import functions as F
 from pyspark.sql import types as T
