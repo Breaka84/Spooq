@@ -15,22 +15,25 @@ from ...data.test_fixtures.mapper_custom_data_types_fixtures import *
 
 @pytest.fixture()
 def input_df(request, spark_session, spark_context):
-    try:
-        input_json = json.dumps({"attributes": {"data": {"some_attribute": request.param}}}, default=str)
-        return spark_session.read.json(spark_context.parallelize([input_json]))
-    except:
-        IPython.embed()
+    input_json = json.dumps({"attributes": {"data": {"some_attribute": request.param}}}, default=str)
+    return spark_session.read.json(spark_context.parallelize([input_json]))
 
 
 @pytest.fixture()
 def expected_df(request, spark_session, spark_context):
     if isinstance(request.param, dict):
-        input_value = next(
-            request.param[version]
-            for version
-            in request.param.keys()
-            if semver.match(spark_context.version, version)
-        )
+        try:
+            input_value = next(
+                request.param[version]
+                for version
+                in request.param.keys()
+                if semver.match(spark_context.version, version)
+            )
+        except ValueError as e:
+            if "match_expr" in str(e):
+                input_value = request.param
+            else:
+                raise e
     else:
         input_value = request.param
 
@@ -313,7 +316,7 @@ class TestToJsonString:
         mapping = [("mapped_name", "attributes.data.some_attribute", spq.apply_func(func=F.to_json))]
         input_value = input_df.first().attributes.data.asDict(True)["some_attribute"]
         if isinstance(input_value, (type(None), str)):
-            pytest.xfail("Not supported by pyspark's `to_json` function")
+            pytest.xfail("Not supported by PySpark's `to_json` function")
 
         output_df = Mapper(mapping).transform(input_df)
         assert_df_equality(
@@ -581,10 +584,10 @@ class TestStringToTimestamp:
 
     @pytest.mark.parametrize(
         argnames="max_valid_timestamp, expected_timestamp",
-        argvalues=fixtures_for_str_to_timestamp_max_valid_timestamp,
-        ids=get_ids_for_fixture(fixtures_for_str_to_timestamp_max_valid_timestamp),
+        argvalues=fixtures_for_str_to_timestamp_max_valid_timestamp_in_sec,
+        ids=get_ids_for_fixture(fixtures_for_str_to_timestamp_max_valid_timestamp_in_sec),
     )
-    def test_str_to_timestamp_max_valid_timestamp(self, spark_session, max_valid_timestamp, expected_timestamp):
+    def test_str_to_timestamp_max_valid_timestamp_in_sec(self, spark_session, max_valid_timestamp, expected_timestamp):
         input_df = spark_session.createDataFrame([
             Row(attributes=Row(data=Row(some_attribute=1608840455)))
         ])
@@ -594,8 +597,20 @@ class TestStringToTimestamp:
             spq.str_to_timestamp(max_timestamp_sec=max_valid_timestamp, output_type=T.StringType())
         )]
         output_df = Mapper(mapping).transform(input_df)
-        expected_df = spark_session.createDataFrame([Row(mapped_name=expected_timestamp)])
+        expected_df = spark_session.createDataFrame([Row(mapped_name=expected_timestamp)], schema="mapped_name string")
         expected_df_ = expected_df.select(F.col("mapped_name").cast(T.StringType()))
+        assert_df_equality(expected_df_, output_df)
+
+    @pytest.mark.parametrize(
+        argnames="input_df, expected_df",
+        argvalues=fixtures_for_str_to_timestamp_min_max_limits,
+        indirect=["input_df", "expected_df"],
+        ids=get_ids_for_fixture(fixtures_for_str_to_timestamp_min_max_limits),
+    )
+    def test_str_to_timestamp_min_max_limits(self, input_df, expected_df):
+        mapping = [("mapped_name", "attributes.data.some_attribute", spq.str_to_timestamp())]
+        output_df = Mapper(mapping).transform(input_df)
+        expected_df_ = expected_df.select(F.col("mapped_name").cast(T.TimestampType()))
         assert_df_equality(expected_df_, output_df)
 
 

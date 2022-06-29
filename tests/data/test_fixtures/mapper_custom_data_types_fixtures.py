@@ -454,15 +454,19 @@ fixtures_for_str_to_timestamp_custom_output_format = [
     ("yyyy/MM/dd HH:mm:ss",  "2020/12/24 20:07:35"),
 ]
 
-fixtures_for_str_to_timestamp_max_valid_timestamp = [
+fixtures_for_str_to_timestamp_max_valid_timestamp_in_sec = [
     # Input date is 1608840455 "2020-12-24 20:07:35"
-    # max_valid_timestamp,           # expected timestamp
-    (4102358400,        "2020-12-24 20:07:35"), #datetime.datetime(2020, 12, 24, 20,  7, 35)),       # max valid: 2099-12-31 00:00:00 UTC, default
-    (1608843600,        "2020-12-24 20:07:35"), #datetime.datetime(2020, 12, 24, 20,  7, 35)),       # max valid: 2020-12-24 21:00:00 UTC
-    (1608685200,        "1970-01-19 14:54:00.455"), #datetime.datetime(1970, 1,  19,  2, 53, 56, 400)),  # max valid: 2020-12-23 01:00:00 UTC
+    # max_valid_timestamp,  # expected timestamp
+    (4102358400,            "2020-12-24 20:07:35"), #datetime.datetime(2020, 12, 24, 20,  7, 35)),       # max valid: 2099-12-31 00:00:00 UTC, default
+    (1608843600,            "2020-12-24 20:07:35"), #datetime.datetime(2020, 12, 24, 20,  7, 35)),       # max valid: 2020-12-24 21:00:00 UTC
+    (1608685200,            "1970-01-19 14:54:00.455"), #datetime.datetime(1970, 1,  19,  2, 53, 56, 400)),  # max valid: 2020-12-23 01:00:00 UTC
+]
+
+fixtures_for_str_to_timestamp_min_max_limits = [
+    # input_value,      # expected timestamp
     (-62135514321000,   "0001-01-02 00:00:00"),  # Minimum of datetime Python lib
-    (-62135514320999,   None),  # Minimum of datetime Python lib (-1ms)
-    (253402210800000,   "9999-12-30 23:23:59.999"),  # Maximum of datetime Python lib
+    (-62135514321001,   None),  # Minimum of datetime Python lib (-1ms)
+    (253402210800000,   "9999-12-31 00:00:00"),  # Maximum of datetime Python lib
     (253402210800001,   None),  # Maximum of datetime Python lib (+1ms)
 ]
 
