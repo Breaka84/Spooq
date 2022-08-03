@@ -8,6 +8,12 @@ from pyspark.sql.column import Column
 from .transformer import Transformer
 from .mapper_custom_data_types import _get_select_expression_for_custom_type
 
+TRANFORMATIONS_WITHOUT_CASTING = [
+    "as_is",
+    "keep",
+    "no_change"
+]
+
 
 class Mapper(Transformer):
     """
@@ -48,6 +54,10 @@ class Mapper(Transformer):
 
     ignore_missing_columns : :any:`bool`, Defaults to False
         Specifies if the mapping transformation should use NULL if a referenced input
+        column is missing in the provided DataFrame. If set to False, it will raise an exception.
+
+    skip_missing_columns : :any:`bool`, Defaults to False
+        Specifies if the mapping transformation should be skipped if a referenced input
         column is missing in the provided DataFrame. If set to False, it will raise an exception.
 
     ignore_ambiguous_columns : :any:`bool`, Defaults to False
@@ -130,7 +140,7 @@ class Mapper(Transformer):
         for (name, source_column, data_type) in self.mapping:
             self.logger.debug("generating Select statement for attribute: {nm}".format(nm=name))
 
-            source_column = self._get_spark_column(source_column, name, input_df)
+            source_column = self._get_spark_column(source_column, name, input_df, data_type)
             if source_column is None:
                 continue
             data_type, data_type_is_spark_builtin = self._get_spark_data_type(data_type)
@@ -166,7 +176,7 @@ class Mapper(Transformer):
                 df_to_return = df_to_return.withColumn(name, expression)
         return df_to_return
 
-    def _get_spark_column(self, source_column, name, input_df):
+    def _get_spark_column(self, source_column, name, input_df, data_type):
         """
         Returns the provided source column as a Pyspark.sql.Column and marks if it is missing or not.
         Supports source column definition as a string or a Pyspark.sql.Column (including functions).
@@ -178,10 +188,17 @@ class Mapper(Transformer):
 
         except AnalysisException as e:
             if isinstance(source_column, str) and self.ignore_missing_columns:
-                self.logger.warn(
-                    f"Missing column ({str(source_column)}) replaced with NULL (via ignore_missing_columns=True): {e.desc}"
-                )
-                source_column = F.lit(None)
+                if data_type in TRANFORMATIONS_WITHOUT_CASTING:
+                    self.logger.warn(
+                        f"Missing column ({str(source_column)}) skipped (via ignore_missing_columns=True) because "
+                        f"data_type could not be extracted from transformation: {e.desc}"
+                    )
+                    return None
+                else:
+                    self.logger.warn(
+                        f"Missing column ({str(source_column)}) replaced with NULL (via ignore_missing_columns=True): {e.desc}"
+                    )
+                    source_column = F.lit(None)
             elif "ambiguous" in e.desc.lower() and self.ignore_ambiguous_columns:
                 self.logger.warn(
                     f'Exception ignored (via ignore_ambiguous_columns=True) for column "{str(source_column)}": {e.desc}'
