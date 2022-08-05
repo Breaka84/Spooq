@@ -7,6 +7,8 @@ All functions support following generic functionalities:
     alt_src_cols: Alternative source columns that will be used within a coalesce function if provided
     output_type: Explicit casting after the transformation (sane defaults are set for each function)
 
+``to_str`` is the exception with a hardcoded output_type that cannot be changed
+
 All examples assume following code has been executed before:
 
 >>> from pyspark.sql import Row
@@ -27,9 +29,13 @@ COLUMN_NAME_PATTERN = re.compile(r".*\'(.*)\'")
 
 
 def _coalesce_source_columns(source_column, alt_src_cols):
-    if isinstance(alt_src_cols, str):
-        alt_src_cols = [alt_src_cols]
-    return F.coalesce(source_column, *[F.col(col) for col in alt_src_cols])
+    # print("_coalesce_source_columns")
+    # import IPython; IPython.embed()
+    if alt_src_cols is None or alt_src_cols is False:
+        return source_column
+    if not isinstance(alt_src_cols, (list, tuple, set)):
+        return F.coalesce(source_column, alt_src_cols)
+    return F.coalesce(source_column, *alt_src_cols)
 
 
 def _get_executable_function(inner_func, source_column, name, **kwargs):
@@ -100,8 +106,7 @@ def as_is(source_column: Union[str, Column] = None, name: str = None, **kwargs) 
     """
 
     def _inner_func(source_column, name, alt_src_cols, output_type):
-        if alt_src_cols:
-            source_column = _coalesce_source_columns(source_column, alt_src_cols)
+        source_column = _coalesce_source_columns(source_column, alt_src_cols)
         if output_type:
             source_column = source_column.cast(output_type)
         return source_column.alias(name)
@@ -114,152 +119,15 @@ def as_is(source_column: Union[str, Column] = None, name: str = None, **kwargs) 
     return _get_executable_function(_inner_func, source_column, name, **args)
 
 
-def meters_to_cm(source_column=None, name=None, **kwargs: Any) -> partial:
+def to_num(source_column=None, name=None, **kwargs: Any) -> Union[partial, Column]:
     """
-    Converts meters to cm and casts the result to an IntegerType.
-
-    https://spooq.rtfd.io/en/latest/transformer/mapper_transformations.html#meters_to_cm
-
-    Parameters
-    ----------
-    source_column : str or Column
-        Input column. Can be a name, pyspark column or pyspark function
-    name : str, default -> derived from input column
-        Name of the output column. (``.alias(name)``)
-
-    Keyword Arguments
-    -----------------
-    alt_src_cols : str, default -> no coalescing, only source_column
-        Coalesce with source_column and columns from this parameter.
-    output_type : T.DataType(), default -> T.IntegerType()
-        Applies provided datatype on output column (``.cast(output_type)``)
-
-    Examples
-    --------
-    >>> input_df = spark.createDataFrame([
-    ...     Row(size_in_m=1.80),
-    ...     Row(size_in_m=1.65),
-    ...     Row(size_in_m=2.05)
-    ... ])
-    >>> mapping = [("size_in_cm", "size_in_m", spq.meters_to_cm)]
-    >>> output_df = Mapper(mapping).transform(input_df)
-    >>> output_df.show(truncate=False)
-    +----------+
-    |size_in_cm|
-    +----------+
-    |180       |
-    |165       |
-    |204       |
-    +----------+
-
-    Returns
-    -------
-    partial or Column
-        This method returns a suitable type depending on how it was called. This ensures compability
-        with Spooq's mapper transformer - with or without explicit parameters - as well as direct calls via select,
-        withColumn, where, ...
-    """
-
-    def _inner_func(source_column, name, alt_src_cols, output_type):
-        if alt_src_cols:
-            source_column = _coalesce_source_columns(source_column, alt_src_cols)
-        return (source_column * 100).cast(output_type).alias(name)
-
-    args = dict(
-        alt_src_cols=kwargs.get("alt_src_cols", False),
-        output_type=kwargs.get("output_type", T.IntegerType()),
-    )
-
-    return _get_executable_function(_inner_func, source_column, name, **args)
-
-
-def has_value(source_column=None, name=None, **kwargs: Any) -> partial:
-    """
-    Returns True if the source_column is
-        - not NULL and
-        - not "" (empty string)
-        - otherwise it returns False
-
-    https://spooq.rtfd.io/en/latest/transformer/mapper_transformations.html#has_value
-
-    Warning
-    -------
-    This means that it will return True for values which would indicate a False value. Like "false" or 0!!!
-
-    Parameters
-    ----------
-    source_column : str or Column
-        Input column. Can be a name, pyspark column or pyspark function
-    name : str, default -> derived from input column
-        Name of the output column. (``.alias(name)``)
-
-    Keyword Arguments
-    -----------------
-    alt_src_cols : str, default -> no coalescing, only source_column
-        Coalesce with source_column and columns from this parameter.
-    output_type : T.DataType(), default -> T.BooleanType()
-        Applies provided datatype on output column (``.cast(output_type)``)
-
-    Examples
-    --------
-    >>> input_df = spark.createDataFrame(
-    ...     [
-    ...         Row(input_key=False),
-    ...         Row(input_key=None),
-    ...         Row(input_key="some text"),
-    ...         Row(input_key="")
-    ...     ], schema="input_key string"
-    ... )
-    >>> mapping = [
-    ...     ("original_value", "input_key", spq.as_is),
-    ...     ("does_it_have_value", "input_key", spq.has_value)
-    ... ]
-    >>> output_df = Mapper(mapping).transform(input_df)
-    >>> output_df.show(truncate=False)
-    +--------------+------------------+
-    |original_value|does_it_have_value|
-    +--------------+------------------+
-    |false         |true              |
-    |null          |false             |
-    |some text     |true              |
-    |              |false             |
-    +--------------+------------------+
-
-    Returns
-    -------
-    partial or Column
-        This method returns a suitable type depending on how it was called. This ensures compability
-        with Spooq's mapper transformer - with or without explicit parameters - as well as direct calls via select,
-        withColumn, where, ...
-    """
-
-    def _inner_func(source_column, name, alt_src_cols, output_type):
-        if alt_src_cols:
-            source_column = _coalesce_source_columns(source_column, alt_src_cols)
-        return (
-            F.when((source_column.isNotNull()) & (source_column.cast(T.StringType()) != ""), F.lit(True))
-            .otherwise(F.lit(False))
-            .cast(output_type)
-            .alias(name)
-        )
-
-    args = dict(
-        alt_src_cols=kwargs.get("alt_src_cols", False),
-        output_type=kwargs.get("output_type", T.BooleanType()),
-    )
-
-    return _get_executable_function(_inner_func, source_column, name, **args)
-
-
-def str_to_num(source_column=None, name=None, **kwargs: Any) -> Union[partial, Column]:
-    """
-    More robust conversion from StringType to number data types.
+    More robust conversion from StringType to number data types (Default: LongType).
     This method is able to additionally handle (compared to implicit Spark conversion):
 
         * Preceding and/or trailing whitespace
         * underscores as thousand separators
 
-    https://spooq.rtfd.io/en/latest/transformer/mapper_transformations.html#str_to_num
+    https://spooq.rtfd.io/en/latest/transformer/mapper_transformations.html#to_num
 
     Parameters
     ----------
@@ -286,7 +154,7 @@ def str_to_num(source_column=None, name=None, **kwargs: Any) -> Union[partial, C
     ... )
     >>> mapping = [
     ...     ("original_value",    "input_key", spq.as_is),
-    ...     ("transformed_value", "input_key", spq.str_to_num)
+    ...     ("transformed_value", "input_key", spq.to_num)
     ... ]
     >>> output_df = Mapper(mapping).transform(input_df)
     >>> output_df.show(truncate=False)
@@ -307,8 +175,7 @@ def str_to_num(source_column=None, name=None, **kwargs: Any) -> Union[partial, C
     """
 
     def _inner_func(source_column, name, alt_src_cols, output_type):
-        if alt_src_cols:
-            source_column = _coalesce_source_columns(source_column, alt_src_cols)
+        source_column = _coalesce_source_columns(source_column, alt_src_cols)
         return F.regexp_replace(F.trim(source_column), "_", "").cast(output_type).alias(name)
 
     args = dict(
@@ -319,7 +186,7 @@ def str_to_num(source_column=None, name=None, **kwargs: Any) -> Union[partial, C
     return _get_executable_function(_inner_func, source_column, name, **args)
 
 
-def str_to_bool(source_column=None, name=None, **kwargs: Any) -> partial:
+def to_bool(source_column=None, name=None, **kwargs: Any) -> partial:
     """
     More robust conversion from StringType to BooleanType.
     This method is able to additionally handle (compared to implicit Spark conversion):
@@ -327,7 +194,7 @@ def str_to_bool(source_column=None, name=None, **kwargs: Any) -> partial:
         * Preceding and/or trailing whitespace
         * Define additional strings for true/false values ("on"/"off", "enabled"/"disabled" are added by default)
 
-    https://spooq.rtfd.io/en/latest/transformer/mapper_transformations.html#str_to_bool
+    https://spooq.rtfd.io/en/latest/transformer/mapper_transformations.html#to_bool
 
     Parameters
     ----------
@@ -356,27 +223,27 @@ def str_to_bool(source_column=None, name=None, **kwargs: Any) -> partial:
     Spark (and Spooq) handles number to boolean conversions depending on the input datatype!
     Please see this table for clarification:
 
-    +-------+----------+-----------------+------------------+
-    | Input            | Result                             |
-    +-------+----------+-----------------+------------------+
-    | Value | Datatype | Cast to Boolean | spq.str_to_bool  |
-    +=======+==========+=================+==================+
-    |  -1   | int      | True            | NULL             |
-    +-------+----------+-----------------+------------------+
-    |  -1   | str      | NULL            | NULL             |
-    +-------+----------+-----------------+------------------+
-    |   0   | int      | False           | False            |
-    +-------+----------+-----------------+------------------+
-    |   0   | str      | False           | False            |
-    +-------+----------+-----------------+------------------+
-    |   1   | int      | True            | True             |
-    +-------+----------+-----------------+------------------+
-    |   1   | str      | True            | True             |
-    +-------+----------+-----------------+------------------+
-    | 100   | int      | True            | NULL             |
-    +-------+----------+-----------------+------------------+
-    | 100   | str      | NULL            | NULL             |
-    +-------+----------+-----------------+------------------+
+    +-------+----------+-----------------+-------------+
+    | Input            | Result                        |
+    +-------+----------+-----------------+-------------+
+    | Value | Datatype | Cast to Boolean | spq.to_bool |
+    +=======+==========+=================+=============+
+    |  -1   | int      | True            | NULL        |
+    +-------+----------+-----------------+-------------+
+    |  -1   | str      | NULL            | NULL        |
+    +-------+----------+-----------------+-------------+
+    |   0   | int      | False           | False       |
+    +-------+----------+-----------------+-------------+
+    |   0   | str      | False           | False       |
+    +-------+----------+-----------------+-------------+
+    |   1   | int      | True            | True        |
+    +-------+----------+-----------------+-------------+
+    |   1   | str      | True            | True        |
+    +-------+----------+-----------------+-------------+
+    | 100   | int      | True            | NULL        |
+    +-------+----------+-----------------+-------------+
+    | 100   | str      | NULL            | NULL        |
+    +-------+----------+-----------------+-------------+
 
     Examples
     --------
@@ -391,7 +258,7 @@ def str_to_bool(source_column=None, name=None, **kwargs: Any) -> partial:
     ... )
     >>> mapping = [
     ...     ("original_value",    "input_key", spq.as_is),
-    ...     ("transformed_value", "input_key", spq.str_to_bool)
+    ...     ("transformed_value", "input_key", spq.to_bool)
     ... ]
     >>> output_df = Mapper(mapping).transform(input_df)
     >>> output_df.show(truncate=False)
@@ -414,8 +281,7 @@ def str_to_bool(source_column=None, name=None, **kwargs: Any) -> partial:
     """
 
     def _inner_func(source_column, name, true_values, false_values, case_sensitive, alt_src_cols, output_type):
-        if alt_src_cols:
-            source_column = _coalesce_source_columns(source_column, alt_src_cols)
+        source_column = _coalesce_source_columns(source_column, alt_src_cols)
         if case_sensitive:
             true_condition = F.trim(source_column).isin(true_values)
             false_condition = F.trim(source_column).isin(false_values)
@@ -451,7 +317,7 @@ def str_to_bool(source_column=None, name=None, **kwargs: Any) -> partial:
     return _get_executable_function(_inner_func, source_column, name, **args)
 
 
-def str_to_timestamp(source_column=None, name=None, **kwargs: Any) -> partial:
+def to_timestamp(source_column=None, name=None, **kwargs: Any) -> partial:
     """
     More robust conversion from StringType to TimestampType (or as a formatted string).
     This method supports following input types:
@@ -462,7 +328,7 @@ def str_to_timestamp(source_column=None, name=None, **kwargs: Any) -> partial:
         * Timestamps in any custom format (via ``input_format``)
         * Preceding and/or trailing whitespace
 
-    https://spooq.rtfd.io/en/latest/transformer/mapper_transformations.html#str_to_timestamp
+    https://spooq.rtfd.io/en/latest/transformer/mapper_transformations.html#to_timestamp
 
     Parameters
     ----------
@@ -507,7 +373,7 @@ def str_to_timestamp(source_column=None, name=None, **kwargs: Any) -> partial:
     ... )
     >>> mapping = [
     ...     ("original_value",    "input_key", spq.as_is),
-    ...     ("transformed_value", "input_key", spq.str_to_timestamp)
+    ...     ("transformed_value", "input_key", spq.to_timestamp)
     ... ]
     >>> output_df = Mapper(mapping).transform(input_df)
     >>> output_df.show(truncate=False)
@@ -531,8 +397,7 @@ def str_to_timestamp(source_column=None, name=None, **kwargs: Any) -> partial:
     def _inner_func(
             source_column,
             name, max_timestamp_sec, input_format, output_format, min_timestamp_ms, max_timestamp_ms, alt_src_cols, output_type):
-        if alt_src_cols:
-            source_column = _coalesce_source_columns(source_column, alt_src_cols)
+        source_column = _coalesce_source_columns(source_column, alt_src_cols)
 
         if input_format:
             output_col = (
@@ -636,8 +501,7 @@ def str_to_array(source_column=None, name=None, **kwargs: Any) -> partial:
     """
 
     def _inner_func(source_column, name, alt_src_cols, output_type):
-        if alt_src_cols:
-            source_column = _coalesce_source_columns(source_column, alt_src_cols)
+        source_column = _coalesce_source_columns(source_column, alt_src_cols)
 
         return (
             F.split(F.regexp_replace(source_column, r"^\s*\[*\s*|\s*\]*\s*$", ""), r"\s*,\s*")
@@ -749,8 +613,7 @@ def map_values(source_column=None, name=None, **kwargs: Any) -> partial:
     """
 
     def _inner_func(source_column, name, mapping, default, ignore_case, pattern_type, alt_src_cols, output_type):
-        if alt_src_cols:
-            source_column = _coalesce_source_columns(source_column, alt_src_cols)
+        source_column = _coalesce_source_columns(source_column, alt_src_cols)
 
         if isinstance(default, str) and default == "source_column":
             default = source_column
@@ -806,11 +669,146 @@ def map_values(source_column=None, name=None, **kwargs: Any) -> partial:
     return _get_executable_function(_inner_func, source_column, name, **args)
 
 
-def apply_func(source_column=None, name=None, **kwargs: Any) -> partial:
+def meters_to_cm(source_column=None, name=None, **kwargs: Any) -> partial:
+    """
+    Converts meters to cm and casts the result to an IntegerType.
+
+    https://spooq.rtfd.io/en/latest/transformer/mapper_transformations.html#meters_to_cm
+
+    Parameters
+    ----------
+    source_column : str or Column
+        Input column. Can be a name, pyspark column or pyspark function
+    name : str, default -> derived from input column
+        Name of the output column. (``.alias(name)``)
+
+    Keyword Arguments
+    -----------------
+    alt_src_cols : str, default -> no coalescing, only source_column
+        Coalesce with source_column and columns from this parameter.
+    output_type : T.DataType(), default -> T.IntegerType()
+        Applies provided datatype on output column (``.cast(output_type)``)
+
+    Examples
+    --------
+    >>> input_df = spark.createDataFrame([
+    ...     Row(size_in_m=1.80),
+    ...     Row(size_in_m=1.65),
+    ...     Row(size_in_m=2.05)
+    ... ])
+    >>> mapping = [("size_in_cm", "size_in_m", spq.meters_to_cm)]
+    >>> output_df = Mapper(mapping).transform(input_df)
+    >>> output_df.show(truncate=False)
+    +----------+
+    |size_in_cm|
+    +----------+
+    |180       |
+    |165       |
+    |204       |
+    +----------+
+
+    Returns
+    -------
+    partial or Column
+        This method returns a suitable type depending on how it was called. This ensures compability
+        with Spooq's mapper transformer - with or without explicit parameters - as well as direct calls via select,
+        withColumn, where, ...
+    """
+
+    def _inner_func(source_column, name, alt_src_cols, output_type):
+        source_column = _coalesce_source_columns(source_column, alt_src_cols)
+        return (source_column * 100).cast(output_type).alias(name)
+
+    args = dict(
+        alt_src_cols=kwargs.get("alt_src_cols", False),
+        output_type=kwargs.get("output_type", T.IntegerType()),
+    )
+
+    return _get_executable_function(_inner_func, source_column, name, **args)
+
+
+def has_value(source_column=None, name=None, **kwargs: Any) -> partial:
+    """
+    Returns True if the source_column is
+        - not NULL and
+        - not "" (empty string)
+        - otherwise it returns False
+
+    https://spooq.rtfd.io/en/latest/transformer/mapper_transformations.html#has_value
+
+    Warning
+    -------
+    This means that it will return True for values which would indicate a False value. Like "false" or 0!!!
+
+    Parameters
+    ----------
+    source_column : str or Column
+        Input column. Can be a name, pyspark column or pyspark function
+    name : str, default -> derived from input column
+        Name of the output column. (``.alias(name)``)
+
+    Keyword Arguments
+    -----------------
+    alt_src_cols : str, default -> no coalescing, only source_column
+        Coalesce with source_column and columns from this parameter.
+    output_type : T.DataType(), default -> T.BooleanType()
+        Applies provided datatype on output column (``.cast(output_type)``)
+
+    Examples
+    --------
+    >>> input_df = spark.createDataFrame(
+    ...     [
+    ...         Row(input_key=False),
+    ...         Row(input_key=None),
+    ...         Row(input_key="some text"),
+    ...         Row(input_key="")
+    ...     ], schema="input_key string"
+    ... )
+    >>> mapping = [
+    ...     ("original_value", "input_key", spq.as_is),
+    ...     ("does_it_have_value", "input_key", spq.has_value)
+    ... ]
+    >>> output_df = Mapper(mapping).transform(input_df)
+    >>> output_df.show(truncate=False)
+    +--------------+------------------+
+    |original_value|does_it_have_value|
+    +--------------+------------------+
+    |false         |true              |
+    |null          |false             |
+    |some text     |true              |
+    |              |false             |
+    +--------------+------------------+
+
+    Returns
+    -------
+    partial or Column
+        This method returns a suitable type depending on how it was called. This ensures compability
+        with Spooq's mapper transformer - with or without explicit parameters - as well as direct calls via select,
+        withColumn, where, ...
+    """
+
+    def _inner_func(source_column, name, alt_src_cols, output_type):
+        source_column = _coalesce_source_columns(source_column, alt_src_cols)
+        return (
+            F.when((source_column.isNotNull()) & (source_column.cast(T.StringType()) != ""), F.lit(True))
+            .otherwise(F.lit(False))
+            .cast(output_type)
+            .alias(name)
+        )
+
+    args = dict(
+        alt_src_cols=kwargs.get("alt_src_cols", False),
+        output_type=kwargs.get("output_type", T.BooleanType()),
+    )
+
+    return _get_executable_function(_inner_func, source_column, name, **args)
+
+
+def apply(source_column=None, name=None, **kwargs: Any) -> partial:
     """
     Applies a function / partial
 
-    https://spooq.rtfd.io/en/latest/transformer/mapper_transformations.html#apply_func
+    https://spooq.rtfd.io/en/latest/transformer/mapper_transformations.html#apply
 
     Parameters
     ----------
@@ -842,7 +840,7 @@ def apply_func(source_column=None, name=None, **kwargs: Any) -> partial:
     ... )
     >>> mapping = [
     ...     ("original_value",    "input_key", spq.as_is),
-    ...     ("transformed_value", "input_key", spq.apply_func(func=F.lower))
+    ...     ("transformed_value", "input_key", spq.apply(func=F.lower))
     ... ]
     >>> output_df = Mapper(mapping).transform(input_df)
     >>> output_df.show(truncate=False)
@@ -875,7 +873,7 @@ def apply_func(source_column=None, name=None, **kwargs: Any) -> partial:
     ...
     >>> mapping = [
     ...     ("original_value",    "input_key", spq.as_is),
-    ...     ("transformed_value", "input_key", spq.apply_func(func=_has_hotmail))
+    ...     ("transformed_value", "input_key", spq.apply(func=_has_hotmail))
     ... ]
     >>> output_df = Mapper(mapping).transform(input_df)
     >>> output_df.show(truncate=False)
@@ -898,8 +896,7 @@ def apply_func(source_column=None, name=None, **kwargs: Any) -> partial:
     """
 
     def _inner_func(source_column, name, func, alt_src_cols, output_type):
-        if alt_src_cols:
-            source_column = _coalesce_source_columns(source_column, alt_src_cols)
+        source_column = _coalesce_source_columns(source_column, alt_src_cols)
         source_column = func(source_column)
         if output_type:
             source_column = source_column.cast(output_type)
@@ -908,7 +905,10 @@ def apply_func(source_column=None, name=None, **kwargs: Any) -> partial:
     try:
         func = kwargs["func"]
     except TypeError:
-        raise TypeError("'apply_func' transformation is missing the custom function (f.e. func=F.lower)")
+        raise TypeError("'apply' transformation is missing the custom function (f.e. func=F.lower)")
+
+    # print("apply")
+    # import IPython; IPython.embed()
 
     args = dict(
         func=func,
@@ -982,8 +982,7 @@ def to_json_string(source_column=None, name=None, **kwargs: Any) -> partial:
             except (AttributeError, TypeError):
                 return str(col)
 
-        if alt_src_cols:
-            source_column = _coalesce_source_columns(source_column, alt_src_cols)
+        source_column = _coalesce_source_columns(source_column, alt_src_cols)
 
         udf_to_json = F.udf(_to_json, output_type)
         return udf_to_json(source_column).alias(name)
@@ -995,13 +994,102 @@ def to_json_string(source_column=None, name=None, **kwargs: Any) -> partial:
 
     return _get_executable_function(_inner_func, source_column, name, **args)
 
+#
+# def unix_timestamp_to_unix_timestamp(source_column=None, name=None, **kwargs: Any) -> partial:
+#     """
+#     Converts a unix timestamp (number) between milliseconds and seconds
+#     and casts it to a :any:`pyspark.sql.types.LongType`.
+#
+#     https://spooq.rtfd.io/en/latest/transformer/mapper_transformations.html#unix_timestamp_to_unix_timestamp
+#
+#     Parameters
+#     ----------
+#     source_column : str or Column
+#         Input column. Can be a name, pyspark column or pyspark function
+#     name : str, default -> derived from input column
+#         Name of the output column. (``.alias(name)``)
+#
+#     Keyword Arguments
+#     -----------------
+#     input_time_unit : str, default -> "ms"
+#         Defines the time unit of the source value.
+#         Possible Values: ["ms", "sec"]
+#     output_time_unit : str, default -> "sec"
+#         Defines the time unit of the target value.
+#         Possible Values: ["ms", "sec"]
+#     alt_src_cols : str, default -> no coalescing, only source_column
+#         Coalesce with source_column and columns from this parameter.
+#     output_type : T.DataType(), default -> no casting, same return data type as input data type
+#         Applies provided datatype on output column (``.cast(output_type)``)
+#
+#     Examples
+#     --------
+#     >>> input_df = spark.createDataFrame([
+#     ...     Row(time_ms=1581540839000),  # 2020-02-12 21:53:59
+#     ...     Row(time_ms=-4887839000),    # 1969-11-05 11:16:01
+#     ...     Row(time_ms=4737139200000)   # 2120-02-12 01:00:00
+#     ... ])
+#     >>> mapping = [
+#     ...     ("unix_ts", "time_ms", spq.unix_timestamp_to_unix_timestamp(input_time_unit="ms", output_time_unit="sec"))
+#     ... ]
+#     >>> output_df = Mapper(mapping).transform(input_df)
+#     >>> output_df.show(truncate=False)
+#     +----------+
+#     |unix_ts   |
+#     +----------+
+#     |1581540839|
+#     |-4887839  |
+#     |4737139200|
+#     +----------+
+#     >>> input_df.select(
+#     ...     spq.unix_timestamp_to_unix_timestamp("time_ms", name="timestamp", output_type=T.TimestampType())
+#     ... ).show(truncate=False)
+#     +-------------------+
+#     |timestamp            |
+#     +-------------------+
+#     |2020-02-12 21:53:59|
+#     |1969-11-05 11:16:01|
+#     |2120-02-12 01:00:00|
+#     +-------------------+
+#
+#     Returns
+#     -------
+#     partial or Column
+#         This method returns a suitable type depending on how you called it. This ensures compability
+#         with Spooq's mapper transformer - with or without explicit parameters as well as direct calls via select,
+#         withColumn, where, ...
+#     """
+#
+#     def _inner_func(source_column, name, input_time_unit, output_time_unit, alt_src_cols, output_type):
+#         if alt_src_cols:
+#             source_column = _coalesce_source_columns(source_column, alt_src_cols)
+#         if input_time_unit == "ms":
+#             source_column = source_column / 1_000.0
+#
+#         output_column = source_column.cast(T.DoubleType())
+#
+#         if output_time_unit == "ms":
+#             output_column = output_column * 1_000.0
+#
+#         return output_column.cast(output_type).alias(name)
+#
+#     args = dict(
+#         input_time_unit=kwargs.get("input_time_unit", "ms"),
+#         output_time_unit=kwargs.get("output_time_unit", "sec"),
+#         alt_src_cols=kwargs.get("alt_src_cols", False),
+#         output_type=kwargs.get("output_type", T.LongType()),
+#     )
+#
+#     return _get_executable_function(_inner_func, source_column, name, **args)
 
-def unix_timestamp_to_unix_timestamp(source_column=None, name=None, **kwargs: Any) -> partial:
+
+# Convenience Methods #
+
+def to_str(source_column=None, name=None, **kwargs: Any) -> Union[partial, Column]:
     """
-    Converts a unix timestamp (number) between milliseconds and seconds
-    and casts it to a :any:`pyspark.sql.types.LongType`.
+    Convenience transformation that only casts to string.
 
-    https://spooq.rtfd.io/en/latest/transformer/mapper_transformations.html#unix_timestamp_to_unix_timestamp
+    https://spooq.rtfd.io/en/latest/transformer/mapper_transformations.html#to_str
 
     Parameters
     ----------
@@ -1012,73 +1100,182 @@ def unix_timestamp_to_unix_timestamp(source_column=None, name=None, **kwargs: An
 
     Keyword Arguments
     -----------------
-    input_time_unit : str, default -> "ms"
-        Defines the time unit of the source value.
-        Possible Values: ["ms", "sec"]
-    output_time_unit : str, default -> "sec"
-        Defines the time unit of the target value.
-        Possible Values: ["ms", "sec"]
     alt_src_cols : str, default -> no coalescing, only source_column
         Coalesce with source_column and columns from this parameter.
-    output_type : T.DataType(), default -> no casting, same return data type as input data type
+    output_type : T.DataType(), default -> T.StringType()
         Applies provided datatype on output column (``.cast(output_type)``)
 
     Examples
     --------
-    >>> input_df = spark.createDataFrame([
-    ...     Row(time_ms=1581540839000),  # 2020-02-12 21:53:59
-    ...     Row(time_ms=-4887839000),    # 1969-11-05 11:16:01
-    ...     Row(time_ms=4737139200000)   # 2120-02-12 01:00:00
-    ... ])
+    >>> input_df = spark.createDataFrame(
+    ...     [
+    ...         Row(input_string=123456),
+    ...         Row(input_string=-123456),
+    ...     ], schema="input_key int"
+    ... )
     >>> mapping = [
-    ...     ("unix_ts", "time_ms", spq.unix_timestamp_to_unix_timestamp(input_time_unit="ms", output_time_unit="sec"))
+    ...     ("original_value",    "input_key", spq.as_is),
+    ...     ("transformed_value", "input_key", spq.to_str)
     ... ]
     >>> output_df = Mapper(mapping).transform(input_df)
     >>> output_df.show(truncate=False)
-    +----------+
-    |unix_ts   |
-    +----------+
-    |1581540839|
-    |-4887839  |
-    |4737139200|
-    +----------+
-    >>> input_df.select(
-    ...     spq.unix_timestamp_to_unix_timestamp("time_ms", name="timestamp", output_type=T.TimestampType())
-    ... ).show(truncate=False)
-    +-------------------+
-    |timestamp            |
-    +-------------------+
-    |2020-02-12 21:53:59|
-    |1969-11-05 11:16:01|
-    |2120-02-12 01:00:00|
-    +-------------------+
+    +--------------+-----------------+
+    |original_value|transformed_value|
+    +--------------+-----------------+
+    |123456        |123456           |
+    |-123456       |-123456          |
+    +--------------+-----------------+
 
     Returns
     -------
     partial or Column
-        This method returns a suitable type depending on how you called it. This ensures compability
-        with Spooq's mapper transformer - with or without explicit parameters as well as direct calls via select,
+        This method returns a suitable type depending on how it was called. This ensures compability
+        with Spooq's mapper transformer - with or without explicit parameters - as well as direct calls via select,
         withColumn, where, ...
     """
 
-    def _inner_func(source_column, name, input_time_unit, output_time_unit, alt_src_cols, output_type):
-        if alt_src_cols:
-            source_column = _coalesce_source_columns(source_column, alt_src_cols)
-        if input_time_unit == "ms":
-            source_column = source_column / 1_000.0
-
-        output_column = source_column.cast(T.DoubleType())
-
-        if output_time_unit == "ms":
-            output_column = output_column * 1_000.0
-
-        return output_column.cast(output_type).alias(name)
+    def _inner_func(source_column, name, alt_src_cols):
+        source_column = _coalesce_source_columns(source_column, alt_src_cols)
+        return source_column.cast(T.StringType()).alias(name)
 
     args = dict(
-        input_time_unit=kwargs.get("input_time_unit", "ms"),
-        output_time_unit=kwargs.get("output_time_unit", "sec"),
         alt_src_cols=kwargs.get("alt_src_cols", False),
-        output_type=kwargs.get("output_type", T.LongType()),
     )
 
     return _get_executable_function(_inner_func, source_column, name, **args)
+
+
+def to_int(source_column=None, name=None, **kwargs: Any) -> Union[partial, Column]:
+    """
+    Syntactic sugar for calling ``to_num(output_type=T.IntegerType())``
+
+    https://spooq.rtfd.io/en/latest/transformer/mapper_transformations.html#to_num
+
+    Parameters
+    ----------
+    source_column : str or Column
+        Input column. Can be a name, pyspark column or pyspark function
+    name : str, default -> derived from input column
+        Name of the output column. (``.alias(name)``)
+
+    Keyword Arguments
+    -----------------
+    alt_src_cols : str, default -> no coalescing, only source_column
+        Coalesce with source_column and columns from this parameter.
+
+    Returns
+    -------
+    partial or Column
+        This method returns a suitable type depending on how it was called. This ensures compability
+        with Spooq's mapper transformer - with or without explicit parameters - as well as direct calls via select,
+        withColumn, where, ...
+    """
+
+    args = dict(
+        alt_src_cols=kwargs.get("alt_src_cols", False),
+        output_type=T.IntegerType(),
+    )
+
+    return to_num(source_column, name, **args)
+
+
+def to_long(source_column=None, name=None, **kwargs: Any) -> Union[partial, Column]:
+    """
+    Syntactic sugar for calling ``to_num(output_type=T.LongType())``
+
+    https://spooq.rtfd.io/en/latest/transformer/mapper_transformations.html#to_num
+
+    Parameters
+    ----------
+    source_column : str or Column
+        Input column. Can be a name, pyspark column or pyspark function
+    name : str, default -> derived from input column
+        Name of the output column. (``.alias(name)``)
+
+    Keyword Arguments
+    -----------------
+    alt_src_cols : str, default -> no coalescing, only source_column
+        Coalesce with source_column and columns from this parameter.
+
+    Returns
+    -------
+    partial or Column
+        This method returns a suitable type depending on how it was called. This ensures compability
+        with Spooq's mapper transformer - with or without explicit parameters - as well as direct calls via select,
+        withColumn, where, ...
+    """
+
+    args = dict(
+        alt_src_cols=kwargs.get("alt_src_cols", False),
+        output_type=T.LongType(),
+    )
+
+    return to_num(source_column, name, **args)
+
+
+def to_float(source_column=None, name=None, **kwargs: Any) -> Union[partial, Column]:
+    """
+    Syntactic sugar for calling ``to_num(output_type=T.FloatType())``
+
+    https://spooq.rtfd.io/en/latest/transformer/mapper_transformations.html#to_num
+
+    Parameters
+    ----------
+    source_column : str or Column
+        Input column. Can be a name, pyspark column or pyspark function
+    name : str, default -> derived from input column
+        Name of the output column. (``.alias(name)``)
+
+    Keyword Arguments
+    -----------------
+    alt_src_cols : str, default -> no coalescing, only source_column
+        Coalesce with source_column and columns from this parameter.
+
+    Returns
+    -------
+    partial or Column
+        This method returns a suitable type depending on how it was called. This ensures compability
+        with Spooq's mapper transformer - with or without explicit parameters - as well as direct calls via select,
+        withColumn, where, ...
+    """
+
+    args = dict(
+        alt_src_cols=kwargs.get("alt_src_cols", False),
+        output_type=T.FloatType(),
+    )
+
+    return to_num(source_column, name, **args)
+
+
+def to_double(source_column=None, name=None, **kwargs: Any) -> Union[partial, Column]:
+    """
+    Syntactic sugar for calling ``to_num(output_type=T.DoubleType())``
+
+    https://spooq.rtfd.io/en/latest/transformer/mapper_transformations.html#to_num
+
+    Parameters
+    ----------
+    source_column : str or Column
+        Input column. Can be a name, pyspark column or pyspark function
+    name : str, default -> derived from input column
+        Name of the output column. (``.alias(name)``)
+
+    Keyword Arguments
+    -----------------
+    alt_src_cols : str, default -> no coalescing, only source_column
+        Coalesce with source_column and columns from this parameter.
+
+    Returns
+    -------
+    partial or Column
+        This method returns a suitable type depending on how it was called. This ensures compability
+        with Spooq's mapper transformer - with or without explicit parameters - as well as direct calls via select,
+        withColumn, where, ...
+    """
+
+    args = dict(
+        alt_src_cols=kwargs.get("alt_src_cols", False),
+        output_type=T.DoubleType(),
+    )
+
+    return to_num(source_column, name, **args)

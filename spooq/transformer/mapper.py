@@ -19,14 +19,15 @@ class Mapper(Transformer):
     --------
     >>> from pyspark.sql import functions as F
     >>> from spooq.transformer import Mapper
+    >>> from spooq.transformer import mapper_transformations as spq
     >>>
     >>> mapping = [
-    >>>     ("id",            "data.relationships.food.data.id",  "StringType"),
-    >>>     ("version",       "data.version",                     "extended_string_to_int"),
-    >>>     ("type",          "elem.attributes.type",             "StringType"),
-    >>>     ("created_at",    "elem.attributes.created_at",       "str_to_timestamp"),
-    >>>     ("created_on",    "elem.attributes.created_at",       "extended_string_to_date"),
-    >>>     ("process_date",  F.current_timestamp(),              "DateType"),
+    >>>     ("id",            "data.relationships.food.data.id",  spq.to_str),
+    >>>     ("version",       "data.version",                     spq.to_num(output_type=T.IntegerType())),
+    >>>     ("type",          "elem.attributes.type",             spq.to_str),
+    >>>     ("created_at",    "elem.attributes.created_at",       spq.to_timestamp),
+    >>>     ("created_on",    "elem.attributes.created_at",       spq.to_timestamp(output_type=T.DateType())),
+    >>>     ("process_date",  F.current_timestamp(),              T.DateType()),
     >>> ]
     >>> mapper = Mapper(mapping=mapping)
     >>> mapper.transform(input_df).printSchema()

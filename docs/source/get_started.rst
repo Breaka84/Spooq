@@ -25,14 +25,14 @@ Application Code for Creating a User Table
     from spooq.transformer import mapper_transformations as spq
 
     users_mapping = [
-        ("id",              "id",                     spq.str_to_num),
+        ("id",              "id",                     spq.to_num),
         ("guid",            "guid",                   "StringType"),
         ("forename",        "attributes.first_name",  "StringType"),
         ("surename",        "attributes.last_name",   "StringType"),
-        ("gender",          "attributes.gender",      spq.apply_func(func=F.lower)),
+        ("gender",          "attributes.gender",      spq.apply(func=F.lower)),
         ("has_email",       "attributes.email",       spq.has_value),
         ("has_university",  "attributes.university",  spq.has_value),
-        ("created_at",      "meta.created_at_ms",     spq.str_to_timestamp),
+        ("created_at",      "meta.created_at_ms",     spq.to_timestamp),
     ]
 
     # Extract
@@ -85,10 +85,10 @@ Application Code for Creating a Friends_Mapping Table
     from spooq.transformer import mapper_transformations as spq
 
     friends_mapping = [
-        ("id",          "id",                  spq.str_to_num),
+        ("id",          "id",                  spq.to_num),
         ("guid",        "guid",                "StringType"),
-        ("friend_id",   "friend.id",           spq.str_to_num),
-        ("created_at",  "meta.created_at_ms",  spq.str_to_timestamp),
+        ("friend_id",   "friend.id",           spq.to_num),
+        ("created_at",  "meta.created_at_ms",  spq.to_timestamp),
     ]
 
     # Extract
@@ -156,14 +156,14 @@ Spooq for activities and steps which are not directly supported.
     from spooq.transformer import mapper_transformations as spq
 
     mapping = [
-        ("id",              "id",                     spq.str_to_num),
+        ("id",              "id",                     spq.to_num),
         ("guid",            "guid",                   "StringType"),
         ("forename",        "attributes.first_name",  "StringType"),
         ("surename",        "attributes.last_name",   "StringType"),
-        ("gender",          "attributes.gender",      spq.apply_func(func=F.lower)),
+        ("gender",          "attributes.gender",      spq.apply(func=F.lower)),
         ("has_email",       "attributes.email",       spq.has_value),
         ("has_university",  "attributes.university",  spq.has_value),
-        ("created_at",      "meta.created_at_ms",     spq.str_to_timestamp),
+        ("created_at",      "meta.created_at_ms",     spq.to_timestamp),
         ("friends",         "attributes.friends",     "as_is"),
     ]
 
@@ -196,7 +196,7 @@ Spooq for activities and steps which are not directly supported.
         mapping=[
             ("id",          "id",          "StringType"),
             ("guid",        "guid",        "StringType"),
-            ("friend_id",   "friend.id",   spq.str_to_num),
+            ("friend_id",   "friend.id",   spq.to_num),
             ("created_at",  "created_at",  "TimestampType"),
         ]
     ).transform(friends_df)

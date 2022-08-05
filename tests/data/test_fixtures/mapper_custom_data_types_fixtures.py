@@ -271,7 +271,7 @@ fixtures_for_str_to_double = [
     ("2k",                            None),
 ]
 
-fixtures_for_str_to_bool_base = [
+fixtures_for_to_bool_base = [
     ("1",        True),
     ("1.0",      None),
     ("TRUE",     True),
@@ -308,7 +308,7 @@ fixtures_for_str_to_bool_base = [
     (False,      False),
 ]
 
-fixtures_for_str_to_bool_default = [
+fixtures_for_to_bool_default = [
     ("enabled",  True),
     ("ENABLED",  True),
     ("disabled", False),
@@ -317,9 +317,9 @@ fixtures_for_str_to_bool_default = [
     ("ON",       True),
     ("off",      False),
     ("Off",      False),
-] + fixtures_for_str_to_bool_base
+] + fixtures_for_to_bool_base
 
-fixtures_for_str_to_bool_true_values_as_argument = [
+fixtures_for_to_bool_true_values_as_argument = [
     ("Sure",    True),
     ("sure",    True),
     ("surely",  None),
@@ -327,7 +327,7 @@ fixtures_for_str_to_bool_true_values_as_argument = [
     ("ok",      True),
 ]
 
-fixtures_for_str_to_bool_false_values_as_argument = [
+fixtures_for_to_bool_false_values_as_argument = [
     ("Nope",    False),
     ("nope",    False),
     ("Nope!",   None),
@@ -335,20 +335,20 @@ fixtures_for_str_to_bool_false_values_as_argument = [
     ("Nok",     False),
 ]
 
-fixtures_for_str_to_bool_true_and_false_values_as_argument = set(
-    fixtures_for_str_to_bool_false_values_as_argument + fixtures_for_str_to_bool_false_values_as_argument
+fixtures_for_to_bool_true_and_false_values_as_argument = set(
+    fixtures_for_to_bool_false_values_as_argument + fixtures_for_to_bool_false_values_as_argument
 )
 
-fixtures_for_str_to_bool_true_values_added = set(
-    fixtures_for_str_to_bool_base + fixtures_for_str_to_bool_true_values_as_argument
+fixtures_for_to_bool_true_values_added = set(
+    fixtures_for_to_bool_base + fixtures_for_to_bool_true_values_as_argument
 )
 
-fixtures_for_str_to_bool_false_values_added = set(
-    fixtures_for_str_to_bool_base + fixtures_for_str_to_bool_false_values_as_argument
+fixtures_for_to_bool_false_values_added = set(
+    fixtures_for_to_bool_base + fixtures_for_to_bool_false_values_as_argument
 )
 
-fixtures_for_str_to_bool_true_and_false_values_added = set(
-    fixtures_for_str_to_bool_true_values_added.union(fixtures_for_str_to_bool_false_values_added)
+fixtures_for_to_bool_true_and_false_values_added = set(
+    fixtures_for_to_bool_true_values_added.union(fixtures_for_to_bool_false_values_added)
 )
 
 fixtures_for_extended_string_to_timestamp_spark2 = [
@@ -384,7 +384,7 @@ fixtures_for_extended_string_to_timestamp_spark2 = [
     ("2k",                         None),
 ]
 
-fixtures_for_str_to_timestamp_default = [
+fixtures_for_to_timestamp_default = [
     ("2020-08-12T12:43:14+0000",    datetime.datetime(2020, 8, 12, 12, 43, 14)),
     ("2020-08-12T12:43:14+00:00",   datetime.datetime(2020, 8, 12, 12, 43, 14)),
     ("2020-08-12T12:43:14.543000",  datetime.datetime(2020, 8, 12, 12, 43, 14, 543000)),
@@ -423,7 +423,7 @@ fixtures_for_str_to_timestamp_default = [
     ("1.547035982469E12",           None),
 ]
 
-fixtures_for_str_to_timestamp_custom_input_format = [
+fixtures_for_to_timestamp_custom_input_format = [
     # input_value,           # input_format             # expected_output
     ("20",                   "yy",                      "2020-01-01 00:00:00"),
     ("20",                   "yyyy",                    None),
@@ -441,7 +441,7 @@ fixtures_for_str_to_timestamp_custom_input_format = [
     ("2020/12/24 20:07:35",  "yyyy/MM/dd HH:mm:ss",     "2020-12-24 20:07:35"),
 ]
 
-fixtures_for_str_to_timestamp_custom_output_format = [
+fixtures_for_to_timestamp_custom_output_format = [
     # Input date is "2020-12-24 20:07:35.253"
     # date_format,           # expected string
     ("yy",                   "20"),
@@ -454,7 +454,7 @@ fixtures_for_str_to_timestamp_custom_output_format = [
     ("yyyy/MM/dd HH:mm:ss",  "2020/12/24 20:07:35"),
 ]
 
-fixtures_for_str_to_timestamp_max_valid_timestamp_in_sec = [
+fixtures_for_to_timestamp_max_valid_timestamp_in_sec = [
     # Input date is 1608840455 "2020-12-24 20:07:35"
     # max_valid_timestamp,  # expected timestamp
     (4102358400,            "2020-12-24 20:07:35"), #datetime.datetime(2020, 12, 24, 20,  7, 35)),       # max valid: 2099-12-31 00:00:00 UTC, default
@@ -462,12 +462,25 @@ fixtures_for_str_to_timestamp_max_valid_timestamp_in_sec = [
     (1608685200,            "1970-01-19 14:54:00.455"), #datetime.datetime(1970, 1,  19,  2, 53, 56, 400)),  # max valid: 2020-12-23 01:00:00 UTC
 ]
 
-fixtures_for_str_to_timestamp_min_max_limits = [
+fixtures_for_to_timestamp_min_max_limits = [
     # input_value,      # expected timestamp
-    (-62135514321000,   "0001-01-02 00:00:00"),  # Minimum of datetime Python lib
+    (-62135514321000,   "0001-01-01 22:54"),  # Minimum supported
     (-62135514321001,   None),  # Minimum of datetime Python lib (-1ms)
-    (253402210800000,   "9999-12-31 00:00:00"),  # Maximum of datetime Python lib
+    (253402210800000,   "9999-12-30 23:00"),  # Maximum supported
     (253402210800001,   None),  # Maximum of datetime Python lib (+1ms)
+]
+
+fixtures_for_to_str = [
+    (12345,       "12345"),
+    (-12345,      "-12345"),
+    (12345.0,     "12345.0"),
+    (-12345.0,    "-12345.0"),
+    ("Hello",     "Hello"),
+    ("   Hello",  "   Hello"),
+    ("Hello   ",  "Hello   "),
+    (True,        "true"),
+    (False,       "false"),
+    (None,        None),
 ]
 
 fixtures_for_extended_string_unix_timestamp_ms_to_timestamp_spark2 = [
@@ -828,7 +841,7 @@ fixtures_for_map_values_integer_for_string = [
     (False, 0),
 ]
 
-fixtures_for_apply_func_set_to_lower_case = [
+fixtures_for_apply_set_to_lower_case = [
     # func = F.lower
     # input_value,   # expected_output
     (-1,            "-1"),
@@ -840,7 +853,7 @@ fixtures_for_apply_func_set_to_lower_case = [
     (None,          None),
 ]
 
-fixtures_for_apply_func_check_if_user_still_has_hotmail = [
+fixtures_for_apply_check_if_user_still_has_hotmail = [
     # input_value,   # expected_output
     ("sarajishvilileqso@gmx.at", False),
     ("jnnqn@astrinurdin.art",    False),
@@ -849,7 +862,7 @@ fixtures_for_apply_func_check_if_user_still_has_hotmail = [
     ("sdsxcx@gmail.com",         False),
 ]
 
-fixtures_for_apply_func_check_if_number_is_even = [
+fixtures_for_apply_check_if_number_is_even = [
     # input_value,   # expected_output
     ("21474836470",  True),
     ("21474836473",  False),
