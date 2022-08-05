@@ -17,17 +17,17 @@ class Mapper(Transformer):
 
     Examples
     --------
-    >>> from pyspark.sql import functions as F
+    >>> from pyspark.sql import functions as F, types as T
     >>> from spooq.transformer import Mapper
     >>> from spooq.transformer import mapper_transformations as spq
     >>>
     >>> mapping = [
     >>>     ("id",            "data.relationships.food.data.id",  spq.to_str),
-    >>>     ("version",       "data.version",                     spq.to_num(output_type=T.IntegerType())),
-    >>>     ("type",          "elem.attributes.type",             spq.to_str),
+    >>>     ("version",       "data.version",                     spq.to_int),
+    >>>     ("type",          "elem.attributes.type",             "StringType"),
     >>>     ("created_at",    "elem.attributes.created_at",       spq.to_timestamp),
     >>>     ("created_on",    "elem.attributes.created_at",       spq.to_timestamp(output_type=T.DateType())),
-    >>>     ("process_date",  F.current_timestamp(),              T.DateType()),
+    >>>     ("processed_at",  F.current_timestamp(),              T.StringType()),
     >>> ]
     >>> mapper = Mapper(mapping=mapping)
     >>> mapper.transform(input_df).printSchema()
@@ -37,8 +37,7 @@ class Mapper(Transformer):
      |-- type: string (nullable = true)
      |-- created_at: timestamp (nullable = true)
      |-- created_on: date (nullable = true)
-     |-- process_date: date (nullable = false)
-
+     |-- processed_at: timestamp (nullable = false)
 
     Parameters
     ----------
@@ -211,6 +210,7 @@ class Mapper(Transformer):
             data_transformation_type = "spark_data_transformation"
 
         elif isinstance(data_transformation, str):
+            # Todo: try to _parse_datatype_string
             if hasattr(T, data_transformation.replace("()", "")):
                 data_transformation_type = "spark_data_transformation_string"
             else:
