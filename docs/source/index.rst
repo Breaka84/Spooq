@@ -26,12 +26,12 @@ Example
          Row(
             struct_a=Row(idx="000_123_456", sts="enabled", ts="1597069446000"),
             struct_b=Row(itms="1,2,4", sts="whitelisted", ts="2020-08-12T12:43:14+0000"),
-            struct_c=Row(email="abc@def.com", gender="F", dt="2020-08-12", cmt="fine"),
+            struct_c=Row(email="abc@def.com", gndr="F", dt="2020-08-05", cmt="fine"),
          ),
          Row(
             struct_a=Row(idx="000_654_321", sts="off", ts="1597069500784"),
             struct_b=Row(itms="5", sts="blacklisted", ts="2020-07-01T12:43:14+0000"),
-            struct_c=Row(email="ghi@def.com", gndr="m", dt="2020-07-01", cmt="faulty"),
+            struct_c=Row(email="", gndr="m", dt="2020-06-27", cmt="faulty"),
          ),
       ],
       schema="""
@@ -52,31 +52,33 @@ Example
     |    |-- ts: string (nullable = true)
     |-- c: struct (nullable = true)
     |    |-- email: string (nullable = true)
-    |    |-- gender: string (nullable = true)
+    |    |-- gndr: string (nullable = true)
     |    |-- dt: string (nullable = true)
     |    |-- cmt: string (nullable = true)
 
    mapping = [
-      ("index",          "a.idx",    spq.to_int),
-      ("is_enabled",     "a.sts",    spq.to_bool),
-      ("a_updated_at",   "a.ts",     spq.to_timestamp),
-      ("items",          "b.itms",   spq.str_to_array(cast="int")),
-      ("block_status",   "b.sts",    spq.map_values(mapping={"whitelisted": "allowed", "blacklisted": "blocked"})),
-      ("b_updated_at",   "b.ts",     spq.to_timestamp),
-      ("has_email",      "c.email",  spq.has_value),
-      ("gender",         "c.gndr",   spq.apply(func=F.lower)),
-      ("creation_date",  "c.dt",     spq.to_timestamp(cast="date")),
-      ("comment",        "c.cmt",    "string"),  # alternatively: spq.to_str or spq.as_is(cast="string")
+       # output_name     # source                # transformation
+      ("index",          "a.idx",                spq.to_int),
+      ("is_enabled",     "a.sts",                spq.to_bool),
+      ("a_updated_at",   "a.ts",                 spq.to_timestamp),
+      ("items",          "b.itms",               spq.str_to_array(cast="int")),
+      ("block_status",   "b.sts",                spq.map_values(mapping={"whitelisted": "allowed", "blacklisted": "blocked"})),
+      ("b_updated_at",   "b.ts",                 spq.to_timestamp),
+      ("has_email",      "c.email",              spq.has_value),
+      ("gender",         "c.gndr",               spq.apply(func=F.lower)),
+      ("creation_date",  "c.dt",                 spq.to_timestamp(cast="date")),
+      ("processed_at",   F.current_timestamp(),  spq.as_is),
+      ("comment",        "c.cmt",                "string"),  # alternatively: spq.to_str or spq.as_is(cast="string")
    ]
    output_df = Mapper(mapping).transform(input_df)
 
    output_df.show(truncate=False)
-   +------+----------+-----------------------+---------+------------+-------------------+---------+------+-------------+-------+
-   |index |is_enabled|a_updated_at           |items    |block_status|b_updated_at       |has_email|gender|creation_date|comment|
-   +------+----------+-----------------------+---------+------------+-------------------+---------+------+-------------+-------+
-   |123456|true      |2020-08-10 16:24:06    |[1, 2, 4]|allowed     |2020-08-12 14:43:14|true     |f     |2020-08-12   |fine   |
-   |654321|false     |2020-08-10 16:25:00.784|[5]      |blocked     |2020-07-01 14:43:14|true     |m     |2020-07-01   |faulty |
-   +------+----------+-----------------------+---------+------------+-------------------+---------+------+-------------+-------+
+   +------+----------+-----------------------+---------+------------+-------------------+---------+------+-------------+-----------------------+-------+
+   |index |is_enabled|a_updated_at           |items    |block_status|b_updated_at       |has_email|gender|creation_date|processed_at           |comment|
+   +------+----------+-----------------------+---------+------------+-------------------+---------+------+-------------+-----------------------+-------+
+   |123456|true      |2020-08-10 16:24:06    |[1, 2, 4]|allowed     |2020-08-12 14:43:14|true     |f     |2020-08-12   |2022-08-11 18:08:17.339|fine   |
+   |654321|false     |2020-08-10 16:25:00.784|[5]      |blocked     |2020-07-01 14:43:14|false    |m     |2020-07-01   |2022-08-11 18:08:17.339|faulty |
+   +------+----------+-----------------------+---------+------------+-------------------+---------+------+-------------+-----------------------+-------+
 
    output_df.printSchema()
    root
@@ -90,8 +92,8 @@ Example
     |-- has_email: boolean (nullable = false)
     |-- gender: string (nullable = true)
     |-- creation_date: date (nullable = true)
+    |-- processed_at: timestamp (nullable = false)
     |-- comment: string (nullable = true)
-
 
 Table of Content
 ================
