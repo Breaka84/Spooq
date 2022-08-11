@@ -53,13 +53,13 @@ class Mapper(Transformer):
     nullify_missing_columns : :any:`bool`, Defaults to False
         Specifies if the mapping transformation should use NULL if a referenced input
         column is missing in the provided DataFrame. Only one of `nullify_missing_columns` and `skip_missing_columns`
-        can be set to True. If non of the two is set to True then an exception will be raised in case the input
+        can be set to True. If none of the two is set to True then an exception will be raised in case the input
         column was not found.
 
     skip_missing_columns : :any:`bool`, Defaults to False
         Specifies if the mapping transformation should be skipped if a referenced input
         column is missing in the provided DataFrame. Only one of `nullify_missing_columns` and `skip_missing_columns`
-        can be set to True. If non of the two is set to True then an exception will be raised in case the input
+        can be set to True. If none of the two is set to True then an exception will be raised in case the input
         column was not found.
 
     ignore_ambiguous_columns : :any:`bool`, Defaults to False
@@ -133,6 +133,7 @@ class Mapper(Transformer):
         mode="replace",
     ):
         super(Mapper, self).__init__()
+        self.logger.warn("Parameter `ignore_missing_columns` is deprecated, use `nullify_missing_columns` instead!")
         warnings.warn(
             message="Parameter `ignore_missing_columns` is deprecated, use `nullify_missing_columns` instead!",
             category=FutureWarning

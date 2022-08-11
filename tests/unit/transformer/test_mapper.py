@@ -210,7 +210,7 @@ class TestNullifyMissingColumns(object):
         assert len(mapping) == len(mapped_df.columns)
 
     def test_missing_columns_are_nullified(self, mapped_df, mapping):
-        attribute_columns = [item[0] for item in mapping if item[1].startswith("attributes.")]
+        attribute_columns = [name for name, source, _ in mapping if source.startswith("attributes.")]
         filter = " AND ".join([f"{column} is NULL" for column in attribute_columns])
         assert mapped_df.filter(filter).count() == mapped_df.count()
 
@@ -230,7 +230,7 @@ class TestSkipMissingColumns(object):
         return transformer.transform(input_df)
 
     def test_missing_columns_are_skipped(self, mapped_df, mapping):
-        attribute_columns = [item[0] for item in mapping if item[1].startswith("attributes.")]
+        attribute_columns = [name for name, source, _ in mapping if source.startswith("attributes.")]
         assert not any([column in mapped_df.columns for column in attribute_columns])
 
 

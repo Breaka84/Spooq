@@ -2,7 +2,7 @@
 Changelog
 =========
 
-3.4.0 (2022-08-11)
+3.3.8 (2022-08-11)
 -------------------
 * [MOD] Mapper: Add additional parameter allowing skipping of transformations in case the source column is missing:
 
