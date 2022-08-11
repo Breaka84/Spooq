@@ -179,7 +179,7 @@ class TestExceptionForMissingInputColumns(object):
 
     @pytest.fixture(scope="class")
     def transformer(self, mapping):
-        return Mapper(mapping=mapping, ignore_missing_columns=False)
+        return Mapper(mapping=mapping, ignore_missing_columns=False, skip_missing_columns=False, nullify_missing_columns=False)
 
     def test_missing_column_raises_exception(self, input_df, transformer):
         input_df = input_df.drop("attributes")
@@ -190,6 +190,58 @@ class TestExceptionForMissingInputColumns(object):
         input_df = spark_session.createDataFrame([], schema=T.StructType())
         with pytest.raises(AnalysisException):
             transformer.transform(input_df)
+
+
+class TestNullifyMissingColumns(object):
+    """
+    Nullify input columns in case it does not exist
+    """
+
+    @pytest.fixture(scope="class")
+    def transformer(self, mapping):
+        return Mapper(mapping=mapping, skip_missing_columns=False, nullify_missing_columns=True)
+
+    @pytest.fixture(scope="class")
+    def mapped_df(self, input_df, transformer):
+        input_df = input_df.drop("attributes")
+        return transformer.transform(input_df)
+
+    def test_missing_columns_are_not_skipped(self, mapped_df, mapping):
+        assert len(mapping) == len(mapped_df.columns)
+
+    def test_missing_columns_are_nullified(self, mapped_df, mapping):
+        attribute_columns = [name for name, source, _ in mapping if source.startswith("attributes.")]
+        filter = " AND ".join([f"{column} is NULL" for column in attribute_columns])
+        assert mapped_df.filter(filter).count() == mapped_df.count()
+
+
+class TestSkipMissingColumns(object):
+    """
+    Skip mapping transformation in case the input column does not exist
+    """
+
+    @pytest.fixture(scope="class")
+    def transformer(self, mapping):
+        return Mapper(mapping=mapping, skip_missing_columns=True, nullify_missing_columns=False)
+
+    @pytest.fixture(scope="class")
+    def mapped_df(self, input_df, transformer):
+        input_df = input_df.drop("attributes")
+        return transformer.transform(input_df)
+
+    def test_missing_columns_are_skipped(self, mapped_df, mapping):
+        attribute_columns = [name for name, source, _ in mapping if source.startswith("attributes.")]
+        assert not any([column in mapped_df.columns for column in attribute_columns])
+
+
+class TestExceptionWhenBothSkippingAndNullifying(object):
+    """
+    Raise an exception in case both parameters skip_missing_columns and nullify_missing_columns are True
+    """
+
+    def test_invalid_parameter_setting_raises_exception(self, input_df, transformer):
+        with pytest.raises(ValueError):
+            Mapper(mapping=mapping, skip_missing_columns=True, nullify_missing_columns=True)
 
 
 class TestDataTypesOfMappedDataFrame(object):

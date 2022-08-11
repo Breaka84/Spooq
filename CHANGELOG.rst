@@ -2,6 +2,14 @@
 Changelog
 =========
 
+3.3.8 (2022-08-11)
+-------------------
+* [MOD] Mapper: Add additional parameter allowing skipping of transformations in case the source column is missing:
+
+    - `nullify_missing_columns`: set source column to null in case it does not exist
+    - `skip_missing_columns`: skip transformation in case the source column does not exist
+    - `ignore_missing_columns`: DEPRECATED -> use `nullify_missing_columns` instead
+
 3.3.7 (2022-03-15)
 -------------------
 * [FIX] Fix long overflow in extended_string_to_timestamp

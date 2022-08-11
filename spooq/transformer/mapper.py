@@ -1,4 +1,5 @@
 from __future__ import absolute_import
+import warnings
 from builtins import str
 from pyspark.sql.utils import AnalysisException
 from pyspark.sql import functions as F
@@ -47,8 +48,19 @@ class Mapper(Transformer):
         :py:mod:`spooq.transformer.mapper_custom_data_types` module for more information.
 
     ignore_missing_columns : :any:`bool`, Defaults to False
+        DEPRECATED: please use nullify_missing_columns instead!
+
+    nullify_missing_columns : :any:`bool`, Defaults to False
         Specifies if the mapping transformation should use NULL if a referenced input
-        column is missing in the provided DataFrame. If set to False, it will raise an exception.
+        column is missing in the provided DataFrame. Only one of `nullify_missing_columns` and `skip_missing_columns`
+        can be set to True. If none of the two is set to True then an exception will be raised in case the input
+        column was not found.
+
+    skip_missing_columns : :any:`bool`, Defaults to False
+        Specifies if the mapping transformation should be skipped if a referenced input
+        column is missing in the provided DataFrame. Only one of `nullify_missing_columns` and `skip_missing_columns`
+        can be set to True. If none of the two is set to True then an exception will be raised in case the input
+        column was not found.
 
     ignore_ambiguous_columns : :any:`bool`, Defaults to False
         It can happen that the input DataFrame has ambiguous column names (like "Key" vs "key") which will
@@ -111,10 +123,29 @@ class Mapper(Transformer):
     Attention: Decimal is NOT SUPPORTED by Hive! Please use Double instead!
     """
 
-    def __init__(self, mapping, ignore_missing_columns=False, ignore_ambiguous_columns=False, mode="replace"):
+    def __init__(
+        self,
+        mapping,
+        ignore_missing_columns=False,
+        ignore_ambiguous_columns=False,
+        nullify_missing_columns=False,
+        skip_missing_columns=False,
+        mode="replace",
+    ):
         super(Mapper, self).__init__()
+        self.logger.warn("Parameter `ignore_missing_columns` is deprecated, use `nullify_missing_columns` instead!")
+        warnings.warn(
+            message="Parameter `ignore_missing_columns` is deprecated, use `nullify_missing_columns` instead!",
+            category=FutureWarning
+        )
         self.mapping = mapping
-        self.ignore_missing_columns = ignore_missing_columns
+        self.nullify_missing_columns = nullify_missing_columns or ignore_missing_columns
+        self.skip_missing_columns = skip_missing_columns
+        if self.nullify_missing_columns and self.skip_missing_columns:
+            raise ValueError(
+                "Only one of the parameters `nullify_missing_columns` (before `ignore_missing_columns`) and "
+                "`skip_missing_columns` can be set to True!"
+            )
         self.ignore_ambiguous_columns = ignore_ambiguous_columns
         self.mode = mode
 
@@ -177,9 +208,14 @@ class Mapper(Transformer):
                 source_column = F.col(source_column)
 
         except AnalysisException as e:
-            if isinstance(source_column, str) and self.ignore_missing_columns:
+            if isinstance(source_column, str) and self.skip_missing_columns:
                 self.logger.warn(
-                    f"Missing column ({str(source_column)}) replaced with NULL (via ignore_missing_columns=True): {e.desc}"
+                    f"Missing column ({str(source_column)}) skipped (via skip_missing_columns=True): {e.desc}"
+                )
+                return None
+            elif isinstance(source_column, str) and self.nullify_missing_columns:
+                self.logger.warn(
+                    f"Missing column ({str(source_column)}) replaced with NULL (via nullify_missing_columns=True): {e.desc}"
                 )
                 source_column = F.lit(None)
             elif "ambiguous" in e.desc.lower() and self.ignore_ambiguous_columns:
@@ -188,10 +224,12 @@ class Mapper(Transformer):
                 )
                 return None
             else:
-                self.logger.exception(
-                    'Column: "{}" cannot be resolved '.format(str(source_column))
-                    + 'but is referenced in the mapping by column: "{}".\n'.format(name)
-                )
+                self.logger.exception(f"""
+                Column: '{source_column}' cannot be resolved but is referenced in the mapping by column: '{name}'.
+                You can make use of the following parameters to handle missing input columns:
+                - `nullify_missing_columns`: set missing source column to null
+                - `skip_missing_columns`: skip the transformation
+                """)
                 raise e
         return source_column
 
