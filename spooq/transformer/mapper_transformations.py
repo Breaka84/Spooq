@@ -29,8 +29,6 @@ COLUMN_NAME_PATTERN = re.compile(r".*\'(.*)\'")
 
 
 def _coalesce_source_columns(source_column, alt_src_cols):
-    # print("_coalesce_source_columns")
-    # import IPython; IPython.embed()
     if alt_src_cols is None or alt_src_cols is False:
         return source_column
     if not isinstance(alt_src_cols, (list, tuple, set)):
@@ -503,9 +501,14 @@ def str_to_array(source_column=None, name=None, **kwargs: Any) -> partial:
     def _inner_func(source_column, name, alt_src_cols, cast):
         source_column = _coalesce_source_columns(source_column, alt_src_cols)
 
+        if isinstance(cast, str):
+            output_type = f"array<{cast}>"
+        else:
+            output_type = T.ArrayType(cast)
+
         return (
             F.split(F.regexp_replace(source_column, r"^\s*\[*\s*|\s*\]*\s*$", ""), r"\s*,\s*")
-            .cast(T.ArrayType(cast))
+            .cast(output_type)
             .alias(name)
         )
 
@@ -906,9 +909,6 @@ def apply(source_column=None, name=None, **kwargs: Any) -> partial:
         func = kwargs["func"]
     except TypeError:
         raise TypeError("'apply' transformation is missing the custom function (f.e. func=F.lower)")
-
-    # print("apply")
-    # import IPython; IPython.embed()
 
     args = dict(
         func=func,

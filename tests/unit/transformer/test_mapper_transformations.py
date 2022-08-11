@@ -3,7 +3,7 @@ from functools import partial
 import datetime as dt
 
 import pytest
-from chispa import assert_df_equality
+from chispa import assert_df_equality,assert_approx_df_equality
 import semver
 from pyspark.sql import Row
 from pyspark.sql import functions as F, types as T
@@ -269,6 +269,60 @@ class TestGenericFunctionality:
                 assert col.jsonValue()["type"]["elementType"] == "string"
             else:
                 assert isinstance(col.dataType, T.StringType)
+
+    def test_spark_data_types_via_simple_strings(self, spark_session, input_df):
+        # fmt:off
+        mapping = [
+            ("col_string",              "str_2",                                     "string"),
+            ("col_int",                 "int_2",                                     "int"),
+            ("col_long",                "int_2",                                     "long"),
+            ("col_float",               "float_2",                                   "float"),
+            ("col_double",              "float_2",                                   "double"),
+            ("col_bool",                "str_bool_2",                                "boolean"),
+            ("col_timestamp",           "str_ts_2",                                  "timestamp"),
+            ("col_date",                "str_ts_2",                                  "date"),
+            ("col_array_int",           F.split("str_array_2", r"\s*,\s*"),          "array<int>"),
+            ("col_array_string",        F.split("str_array_2", r"\s*,\s*"),          "array<string>"),
+            ("col_map",                 F.create_map("str_2", "str_int_2"),          "map<string, int>"),
+        ]
+        # fmt:on
+
+        output_df = Mapper(mapping).transform(input_df)
+        expected_df = spark_session.createDataFrame(
+            data=[
+                Row(
+                    col_string="Hello",
+                    col_int=1637335255,
+                    col_long=1637335255,
+                    col_float=1.8,
+                    col_double=1.8,
+                    col_bool=True,
+                    col_timestamp="2020-08-12 12:43:14",
+                    col_date="2020-08-12",
+                    col_array_int=[1, 2, 3],
+                    col_array_string=["1", "2", "3"],
+                    col_map={"Hello": 1637335255},
+                )
+            ],
+            schema="""
+                col_string         string,
+                col_int            int,
+                col_long           long,
+                col_float          float,
+                col_double         double,
+                col_bool           boolean,
+                col_timestamp      string,
+                col_date           string,
+                col_array_int      array<int>,
+                col_array_string   array<string>,
+                col_map            map<string, int>
+            """
+        ).withColumn(
+            "col_timestamp", F.col("col_timestamp").cast("timestamp")
+        ).withColumn(
+            "col_date", F.col("col_date").cast("date")
+        )
+        assert_approx_df_equality(expected_df, output_df, ignore_nullable=True, precision=1/1000000)
 
     def test_direct_call_with_named_arguments(self, input_df, expected_df):
         output_df = input_df.select(
@@ -602,6 +656,7 @@ class TestToString:
         mapping = [("mapped_name", "attributes.data.some_attribute", spq.to_str())]
         output_df = Mapper(mapping).transform(input_df)
         assert_df_equality(expected_df, output_df)
+
 
 class TestStringToArray:
     @pytest.mark.parametrize(

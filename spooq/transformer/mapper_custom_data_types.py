@@ -183,7 +183,7 @@ def _generate_select_expression_for_timestamp_ms_to_s(source_column, name):
 
     Please use :dt.:`~spooq.transformer.mapper_transformations.apply` with a lambda instead.
     """
-    return spq.apply(func=lambda val: val / 1000.0, cast="long")(source_column, name)
+    return spq.apply(func=lambda val: F.lit(val).cast("double") / 1000.0, cast="long")(source_column, name)
 
 
 def _generate_select_expression_for_timestamp_s_to_ms(source_column, name):
@@ -192,7 +192,7 @@ def _generate_select_expression_for_timestamp_s_to_ms(source_column, name):
 
     Please use :dt.:`~spooq.transformer.mapper_transformations.apply` with a lambda instead.
     """
-    return spq.apply(func=lambda val: val * 1000.0, cast="long")(source_column, name)
+    return spq.apply(func=lambda val: F.lit(val).cast("double") * 1000.0, cast="long")(source_column, name)
 
 
 def _generate_select_expression_for_timestamp_s_to_s(source_column, name):
@@ -333,7 +333,7 @@ def _generate_select_expression_for_unix_timestamp_ms_to_spark_timestamp(source_
 
     Please use :dt.:`~spooq.transformer.mapper_transformations.to_timestamp` directly instead.
     """
-    return spq.unix_timestamp_to_unix_timestamp(input_time_unit="ms", output_time_unit="sec", cast="timestamp")(source_column, name)
+    return spq.to_timestamp()(source_column, name)
 
 
 def _generate_select_expression_for_extended_string_to_int(source_column, name):
@@ -389,7 +389,7 @@ def _generate_select_expression_for_extended_string_to_timestamp(source_column, 
     """
     Deprecated!
 
-    Please use :dt.:`~spooq.transformer.mapper_transformations.to_timestamp` directly instead.
+    Please use :dt.:`~spooq.transformer.mapper_transformations.to_timestamp`.
     """
     return spq.to_timestamp()(source_column, name)
 
@@ -398,8 +398,7 @@ def _generate_select_expression_for_extended_string_to_date(source_column, name)
     """
     Deprecated!
 
-    Please use :dt.:`~spooq.transformer.mapper_transformations.to_timestamp`
-    with ``cast="date"`` directly instead.
+    Please use :dt.:`~spooq.transformer.mapper_transformations.to_timestamp` and cast to date instead.
     """
     return spq.to_timestamp(cast="date")(source_column, name)
 
@@ -408,17 +407,15 @@ def _generate_select_expression_for_extended_string_unix_timestamp_ms_to_timesta
     """
     Deprecated!
 
-    Please use :dt.:`~spooq.transformer.mapper_transformations.apply` with a lambda and the proper
-    casts instead.
+    Please use :dt.:`~spooq.transformer.mapper_transformations.to_timestamp`.
     """
-    return spq.apply(func=lambda val: val / 1000.0, cast="timestamp")(source_column, name)
+    return spq.to_timestamp()(source_column, name)
 
 
 def _generate_select_expression_for_extended_string_unix_timestamp_ms_to_date(source_column, name):
     """
     Deprecated!
 
-    Please use :dt.:`~spooq.transformer.mapper_transformations.apply` with a lambda and the proper
-    casts instead.
+    Please use :dt.:`~spooq.transformer.mapper_transformations.to_timestamp` and cast to date instead.
     """
-    return spq.apply(func=lambda val: val / 1000.0, cast="timestamp")(source_column, name).cast("date")
+    return spq.to_timestamp(cast="date")(source_column, name)

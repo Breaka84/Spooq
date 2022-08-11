@@ -1,11 +1,13 @@
 from builtins import object
 import json
-import pytest
 import datetime
+
+import pytest
 import pandas as pd
 from pyspark.sql import functions as F
 from pyspark.sql import Row
 from pyspark.sql import types as T
+import semver
 
 import spooq.transformer.mapper_custom_data_types as custom_types
 from spooq.transformer import Mapper
@@ -271,23 +273,29 @@ class TestExtendedStringConversions(object):
     @pytest.mark.parametrize(
         argnames=("input_value", "expected_value"),
         argvalues=fixtures_for_to_timestamp_default,
-        ids=[
-            parameters_to_string_id(actual, expected) for actual, expected in fixtures_for_to_timestamp_default
-        ],
+        ids=[parameters_to_string_id(actual, expected) for actual, expected in fixtures_for_to_timestamp_default],
     )
-    def test_extended_string_to_timestamp(self, spark_session, input_value, expected_value):
+    def test_extended_string_to_timestamp(self, spark_session, spark_context, input_value, expected_value):
         # test uses timezone set to GMT / UTC (pytest.ini)!
         input_df = self.create_input_df(input_value, spark_session)
         output_df = Mapper(mapping=[("output_key", "input_key", "to_timestamp")]).transform(input_df)
-        # workaround via pandas necessary due to bug with direct conversion
-        # to python datetime wrt timezone conversions (https://issues.apache.org/jira/browse/SPARK-32123)
-        output_pd_df = output_df.toPandas()
-        output_value = output_pd_df.iloc[0]["output_key"]
-        if isinstance(output_value, type(pd.NaT)):
-            actual_value = None
+        actual_value = output_df.select(F.date_format("output_key", "yyyy-MM-dd HH:mm:ss:SSSSSS").alias("output_key")).first().output_key
+
+        if isinstance(expected_value, dict):
+            expected_value = next(
+                expected_value[version]
+                for version
+                in expected_value.keys()
+                if semver.match(spark_context.version, version)
+            )
+        if isinstance(expected_value, str):
+            expected_value_ = expected_value
+        elif isinstance(expected_value, datetime.datetime):
+            expected_value_ = datetime.datetime.strftime(expected_value, "%Y-%m-%d %H:%M:%S:%f")
         else:
-            actual_value = output_value.to_pydatetime()
-        assert actual_value == expected_value
+            expected_value_ = None
+
+        assert expected_value_ == actual_value
         assert isinstance(output_df.schema["output_key"].dataType, T.TimestampType)
 
     @only_spark2
@@ -670,19 +678,23 @@ class TestTimestampMethods(object):
 
     # fmt: off
     @pytest.mark.parametrize(
-        argnames="input_value",
-        argvalues=[1591627696951, 0, -1, 1]
+        argnames="input_value, expected_value",
+        argvalues=[
+            (1591627696951, "2020-06-08 14:48:16.951"),
+            (0, "1970-01-01 00:00:00"),
+            (-1, "1969-12-31 23:59:59"),
+            (1, "1970-01-01 00:00:01"),
+        ]
     )
     # fmt: on
-    def test_generate_select_expression_for_unix_timestamp_ms_to_spark_timestamp(self, input_value, spark_session):
+    def test_generate_select_expression_for_unix_timestamp_ms_to_spark_timestamp(self, input_value, expected_value, spark_session):
         input_df = spark_session.createDataFrame(
             [Row(input_column=input_value)], schema=T.StructType([T.StructField("input_column", T.LongType(), True)])
         )
         output_df = Mapper(
             mapping=[("output_column", "input_column", "unix_timestamp_ms_to_spark_timestamp")]
         ).transform(input_df)
-        expected_value = datetime.datetime.fromtimestamp(input_value / 1000.0)
-        assert output_df.first().output_column == expected_value, "Processing of column value"
+        assert output_df.select(F.col("output_column").cast("string")).first().output_column == expected_value, "Processing of column value"
         assert output_df.schema.fieldNames() == ["output_column"], "Renaming of column"
         assert output_df.schema["output_column"].dataType.typeName() == "timestamp", "Casting of column"
 
