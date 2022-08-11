@@ -171,10 +171,10 @@ def _generate_select_expression_for_timestamp_ms_to_ms(source_column, name):
     """
     Deprecated!
 
-    Please just use :dt.:`~spooq.transformer.mapper_transformations.as_is` with ``T.LongType()`` as data_type.
+    Please just use :dt.:`~spooq.transformer.mapper_transformations.as_is` with ``"long"`` as data_type.
     This method doesn't do any cleansing anymore!
     """
-    return spq.as_is(output_type=T.LongType())(source_column, name)
+    return spq.as_is(cast="long")(source_column, name)
 
 
 def _generate_select_expression_for_timestamp_ms_to_s(source_column, name):
@@ -183,7 +183,7 @@ def _generate_select_expression_for_timestamp_ms_to_s(source_column, name):
 
     Please use :dt.:`~spooq.transformer.mapper_transformations.apply` with a lambda instead.
     """
-    return spq.apply(func=lambda val: val / 1000.0, output_type=T.LongType())(source_column, name)
+    return spq.apply(func=lambda val: val / 1000.0, cast="long")(source_column, name)
 
 
 def _generate_select_expression_for_timestamp_s_to_ms(source_column, name):
@@ -192,37 +192,37 @@ def _generate_select_expression_for_timestamp_s_to_ms(source_column, name):
 
     Please use :dt.:`~spooq.transformer.mapper_transformations.apply` with a lambda instead.
     """
-    return spq.apply(func=lambda val: val * 1000.0, output_type=T.LongType())(source_column, name)
+    return spq.apply(func=lambda val: val * 1000.0, cast="long")(source_column, name)
 
 
 def _generate_select_expression_for_timestamp_s_to_s(source_column, name):
     """
     Deprecated!
 
-    Please just use :dt.:`~spooq.transformer.mapper_transformations.as_is` with ``T.LongType()`` as data_type.
+    Please just use :dt.:`~spooq.transformer.mapper_transformations.as_is` with ``"long"`` as data_type.
     This method doesn't do any cleansing anymore!
     """
-    return spq.as_is(output_type=T.LongType())(source_column, name)
+    return spq.as_is(cast="long")(source_column, name)
 
 
 def _generate_select_expression_for_StringNull(source_column, name):  # noqa: N802
     """
     Deprecated!
 
-    Please just use ``F.lit(None)`` as source_column and ``T.StringType()`` as data_type!
+    Please just use ``F.lit(None)`` as source_column and ``"string"`` as data_type!
     """
 
-    return F.lit(None).cast(T.StringType()).alias(name)
+    return F.lit(None).cast("string").alias(name)
 
 
 def _generate_select_expression_for_IntNull(source_column, name):  # noqa: N802
     """
     Deprecated!
 
-    Please just use ``F.lit(None)`` as source_column and ``T.IntegerType()`` as data_type!
+    Please just use ``F.lit(None)`` as source_column and ``"int"`` as data_type!
     """
 
-    return F.lit(None).cast(T.IntegerType()).alias(name)
+    return F.lit(None).cast("int").alias(name)
 
 
 def _generate_select_expression_for_StringBoolean(source_column, name):  # noqa: N802
@@ -257,7 +257,7 @@ def _generate_select_expression_for_StringBoolean(source_column, name):  # noqa:
         F.when(source_column.isNull(), F.lit(None))
             .when(source_column == "", F.lit(None))
             .otherwise("1")
-            .cast(T.StringType())
+            .cast("string")
             .alias(name)
     )
 
@@ -291,7 +291,7 @@ def _generate_select_expression_for_IntBoolean(source_column, name):  # noqa: N8
     ----
     ``0`` (zero) or negative numbers are still considered as valid values and therefore converted to ``1``.
     """
-    return F.when(source_column.isNull(), F.lit(None)).otherwise(1).cast(T.IntegerType()).alias(name)
+    return F.when(source_column.isNull(), F.lit(None)).otherwise(1).cast("int").alias(name)
 
 
 def _generate_select_expression_for_TimestampMonth(source_column, name):  # noqa: N802
@@ -305,7 +305,7 @@ def _generate_select_expression_for_TimestampMonth(source_column, name):  # noqa
         source_column=source_column,
         name=name,
         func=_truncate_day,
-        output_type=T.TimestampType()
+        cast="timestamp"
     )
 
 
@@ -333,7 +333,7 @@ def _generate_select_expression_for_unix_timestamp_ms_to_spark_timestamp(source_
 
     Please use :dt.:`~spooq.transformer.mapper_transformations.to_timestamp` directly instead.
     """
-    return spq.unix_timestamp_to_unix_timestamp(input_time_unit="ms", output_time_unit="sec", output_type=T.TimestampType())(source_column, name)
+    return spq.unix_timestamp_to_unix_timestamp(input_time_unit="ms", output_time_unit="sec", cast="timestamp")(source_column, name)
 
 
 def _generate_select_expression_for_extended_string_to_int(source_column, name):
@@ -341,9 +341,9 @@ def _generate_select_expression_for_extended_string_to_int(source_column, name):
     Deprecated!
 
     Please use :dt.:`~spooq.transformer.mapper_transformations.to_num` directly instead
-    and define the ``output_type`` as ``T.IntegerType()``.
+    and define the ``cast`` as ``"int"``.
     """
-    return spq.to_num(output_type=T.IntegerType())(source_column, name)
+    return spq.to_num(cast="int")(source_column, name)
 
 
 def _generate_select_expression_for_extended_string_to_long(source_column, name):
@@ -351,9 +351,9 @@ def _generate_select_expression_for_extended_string_to_long(source_column, name)
     Deprecated!
 
     Please use :dt.:`~spooq.transformer.mapper_transformations.to_num` directly instead
-    and define the ``output_type`` as ``T.LongType()``.
+    and define the ``cast`` as ``"long"``.
     """
-    return spq.to_num(output_type=T.LongType())(source_column, name)
+    return spq.to_num(cast="long")(source_column, name)
 
 
 def _generate_select_expression_for_extended_string_to_float(source_column, name):
@@ -361,9 +361,9 @@ def _generate_select_expression_for_extended_string_to_float(source_column, name
     Deprecated!
 
     Please use :dt.:`~spooq.transformer.mapper_transformations.to_num` directly instead
-    and define the ``output_type`` as ``T.FloatType()``.
+    and define the ``cast`` as ``"float"``.
     """
-    return spq.to_num(output_type=T.FloatType())(source_column, name)
+    return spq.to_num(cast="float")(source_column, name)
 
 
 def _generate_select_expression_for_extended_string_to_double(source_column, name):
@@ -371,9 +371,9 @@ def _generate_select_expression_for_extended_string_to_double(source_column, nam
     Deprecated!
 
     Please use :dt.:`~spooq.transformer.mapper_transformations.to_num` directly instead
-    and define the ``output_type`` as ``T.DoubleType()``.
+    and define the ``cast`` as ``"double"``.
     """
-    return spq.to_num(output_type=T.DoubleType())(source_column, name)
+    return spq.to_num(cast="double")(source_column, name)
 
 
 def _generate_select_expression_for_extended_string_to_boolean(source_column, name):
@@ -399,9 +399,9 @@ def _generate_select_expression_for_extended_string_to_date(source_column, name)
     Deprecated!
 
     Please use :dt.:`~spooq.transformer.mapper_transformations.to_timestamp`
-    with ``output_type=T.DateType()`` directly instead.
+    with ``cast="date"`` directly instead.
     """
-    return spq.to_timestamp(output_type=T.DateType())(source_column, name)
+    return spq.to_timestamp(cast="date")(source_column, name)
 
 
 def _generate_select_expression_for_extended_string_unix_timestamp_ms_to_timestamp(source_column, name):
@@ -411,7 +411,7 @@ def _generate_select_expression_for_extended_string_unix_timestamp_ms_to_timesta
     Please use :dt.:`~spooq.transformer.mapper_transformations.apply` with a lambda and the proper
     casts instead.
     """
-    return spq.apply(func=lambda val: val / 1000.0, output_type=T.TimestampType())(source_column, name)
+    return spq.apply(func=lambda val: val / 1000.0, cast="timestamp")(source_column, name)
 
 
 def _generate_select_expression_for_extended_string_unix_timestamp_ms_to_date(source_column, name):
@@ -421,4 +421,4 @@ def _generate_select_expression_for_extended_string_unix_timestamp_ms_to_date(so
     Please use :dt.:`~spooq.transformer.mapper_transformations.apply` with a lambda and the proper
     casts instead.
     """
-    return spq.apply(func=lambda val: val / 1000.0, output_type=T.TimestampType())(source_column, name).cast(T.DateType())
+    return spq.apply(func=lambda val: val / 1000.0, cast="timestamp")(source_column, name).cast("date")

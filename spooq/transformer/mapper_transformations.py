@@ -5,9 +5,9 @@ or directly within a ``select`` or ``withColumn`` statement.
 
 All functions support following generic functionalities:
     alt_src_cols: Alternative source columns that will be used within a coalesce function if provided
-    output_type: Explicit casting after the transformation (sane defaults are set for each function)
+    cast: Explicit casting after the transformation (sane defaults are set for each function)
 
-``to_str`` is the exception with a hardcoded output_type that cannot be changed
+``to_str`` is the exception with a hardcoded cast that cannot be changed
 
 All examples assume following code has been executed before:
 
@@ -73,8 +73,8 @@ def as_is(source_column: Union[str, Column] = None, name: str = None, **kwargs) 
     -----------------
     alt_src_cols : str, default -> no coalescing, only source_column
         Coalesce with source_column and columns from this parameter.
-    output_type : T.DataType(), default -> no casting, same return data type as input data type
-        Applies provided datatype on output column (``.cast(output_type)``)
+    cast : T.DataType(), default -> no casting, same return data type as input data type
+        Applies provided datatype on output column (``.cast(cast)``)
 
     Examples
     --------
@@ -105,15 +105,15 @@ def as_is(source_column: Union[str, Column] = None, name: str = None, **kwargs) 
         withColumn, where, ...
     """
 
-    def _inner_func(source_column, name, alt_src_cols, output_type):
+    def _inner_func(source_column, name, alt_src_cols, cast):
         source_column = _coalesce_source_columns(source_column, alt_src_cols)
-        if output_type:
-            source_column = source_column.cast(output_type)
+        if cast:
+            source_column = source_column.cast(cast)
         return source_column.alias(name)
 
     args = dict(
         alt_src_cols=kwargs.get("alt_src_cols", False),
-        output_type=kwargs.get("output_type", False),
+        cast=kwargs.get("cast", False),
     )
 
     return _get_executable_function(_inner_func, source_column, name, **args)
@@ -140,8 +140,8 @@ def to_num(source_column=None, name=None, **kwargs: Any) -> Union[partial, Colum
     -----------------
     alt_src_cols : str, default -> no coalescing, only source_column
         Coalesce with source_column and columns from this parameter.
-    output_type : T.DataType(), default -> T.LongType()
-        Applies provided datatype on output column (``.cast(output_type)``)
+    cast : T.DataType(), default -> T.LongType()
+        Applies provided datatype on output column (``.cast(cast)``)
 
     Examples
     --------
@@ -174,13 +174,13 @@ def to_num(source_column=None, name=None, **kwargs: Any) -> Union[partial, Colum
         withColumn, where, ...
     """
 
-    def _inner_func(source_column, name, alt_src_cols, output_type):
+    def _inner_func(source_column, name, alt_src_cols, cast):
         source_column = _coalesce_source_columns(source_column, alt_src_cols)
-        return F.regexp_replace(F.trim(source_column), "_", "").cast(output_type).alias(name)
+        return F.regexp_replace(F.trim(source_column), "_", "").cast(cast).alias(name)
 
     args = dict(
         alt_src_cols=kwargs.get("alt_src_cols", False),
-        output_type=kwargs.get("output_type", T.LongType()),
+        cast=kwargs.get("cast", T.LongType()),
     )
 
     return _get_executable_function(_inner_func, source_column, name, **args)
@@ -215,8 +215,8 @@ def to_bool(source_column=None, name=None, **kwargs: Any) -> partial:
         Defines whether additionally provided true/false values replace or extend the default list
     alt_src_cols : str, default -> no coalescing, only source_column
         Coalesce with source_column and columns from this parameter.
-    output_type : T.DataType(), default -> T.BooleanType()
-        Applies provided datatype on output column (``.cast(output_type)``)
+    cast : T.DataType(), default -> T.BooleanType()
+        Applies provided datatype on output column (``.cast(cast)``)
 
     Warning
     ---------
@@ -280,7 +280,7 @@ def to_bool(source_column=None, name=None, **kwargs: Any) -> partial:
         withColumn, where, ...
     """
 
-    def _inner_func(source_column, name, true_values, false_values, case_sensitive, alt_src_cols, output_type):
+    def _inner_func(source_column, name, true_values, false_values, case_sensitive, alt_src_cols, cast):
         source_column = _coalesce_source_columns(source_column, alt_src_cols)
         if case_sensitive:
             true_condition = F.trim(source_column).isin(true_values)
@@ -297,14 +297,14 @@ def to_bool(source_column=None, name=None, **kwargs: Any) -> partial:
                 .when(false_condition, F.lit(False))
                 .otherwise(F.trim(source_column).cast(T.BooleanType()))
             )
-            .cast(output_type)
+            .cast(cast)
             .alias(name)
         )
 
     args = dict(
         case_sensitive=kwargs.get("case_sensitive", False),
         alt_src_cols=kwargs.get("alt_src_cols", False),
-        output_type=kwargs.get("output_type", T.BooleanType()),
+        cast=kwargs.get("cast", T.BooleanType()),
     )
 
     if kwargs.get("replace_default_values"):
@@ -351,8 +351,8 @@ def to_timestamp(source_column=None, name=None, **kwargs: Any) -> partial:
         Defines the overall allowed range to keep the timestamps within Python's ``datetime`` library limits
     alt_src_cols : str, default -> no coalescing, only source_column
         Coalesce with source_column and columns from this parameter.
-    output_type : T.DataType(), default -> T.TimestampType()
-        Applies provided datatype on output column (``.cast(output_type)``)
+    cast : T.DataType(), default -> T.TimestampType()
+        Applies provided datatype on output column (``.cast(cast)``)
 
     Warning
     ---------
@@ -396,7 +396,7 @@ def to_timestamp(source_column=None, name=None, **kwargs: Any) -> partial:
 
     def _inner_func(
             source_column,
-            name, max_timestamp_sec, input_format, output_format, min_timestamp_ms, max_timestamp_ms, alt_src_cols, output_type):
+            name, max_timestamp_sec, input_format, output_format, min_timestamp_ms, max_timestamp_ms, alt_src_cols, cast):
         source_column = _coalesce_source_columns(source_column, alt_src_cols)
 
         if input_format:
@@ -428,8 +428,8 @@ def to_timestamp(source_column=None, name=None, **kwargs: Any) -> partial:
             )
         if output_format:
             output_col = F.date_format(output_col, output_format)
-            output_type = T.StringType()
-        return output_col.cast(output_type).alias(name)
+            cast = T.StringType()
+        return output_col.cast(cast).alias(name)
 
     args = dict(
         max_timestamp_sec=kwargs.get("max_timestamp_sec", 4102358400),
@@ -438,7 +438,7 @@ def to_timestamp(source_column=None, name=None, **kwargs: Any) -> partial:
         min_timestamp_ms=kwargs.get("min_timestamp_ms", -62135514321000),
         max_timestamp_ms=kwargs.get("max_timestamp_ms", 253402210800000),
         alt_src_cols=kwargs.get("alt_src_cols", False),
-        output_type=kwargs.get("output_type", T.TimestampType()),
+        cast=kwargs.get("cast", T.TimestampType()),
     )
 
     return _get_executable_function(_inner_func, source_column, name, **args)
@@ -461,8 +461,8 @@ def str_to_array(source_column=None, name=None, **kwargs: Any) -> partial:
     -----------------
     alt_src_cols : str, default -> no coalescing, only source_column
         Coalesce with source_column and columns from this parameter.
-    output_type : T.DataType(), default -> T.StringType()
-        Applies provided datatype on the elements of the output array (``.cast(T.ArrayType(output_type))``)
+    cast : T.DataType(), default -> T.StringType()
+        Applies provided datatype on the elements of the output array (``.cast(T.ArrayType(cast))``)
 
     Examples
     --------
@@ -500,18 +500,18 @@ def str_to_array(source_column=None, name=None, **kwargs: Any) -> partial:
         withColumn, where, ...
     """
 
-    def _inner_func(source_column, name, alt_src_cols, output_type):
+    def _inner_func(source_column, name, alt_src_cols, cast):
         source_column = _coalesce_source_columns(source_column, alt_src_cols)
 
         return (
             F.split(F.regexp_replace(source_column, r"^\s*\[*\s*|\s*\]*\s*$", ""), r"\s*,\s*")
-            .cast(T.ArrayType(output_type))
+            .cast(T.ArrayType(cast))
             .alias(name)
         )
 
     args = dict(
         alt_src_cols=kwargs.get("alt_src_cols", False),
-        output_type=kwargs.get("output_type", T.StringType()),
+        cast=kwargs.get("cast", T.StringType()),
     )
 
     return _get_executable_function(_inner_func, source_column, name, **args)
@@ -542,8 +542,8 @@ def map_values(source_column=None, name=None, **kwargs: Any) -> partial:
         Please choose among ['equals', 'regex' and 'sql_like'] for the comparison of input value and mapping key.
     alt_src_cols : str, default -> no coalescing, only source_column
         Coalesce with source_column and columns from this parameter.
-    output_type : T.DataType(), default -> T.StringType()
-        Applies provided datatype on output column (``.cast(output_type)``)
+    cast : T.DataType(), default -> T.StringType()
+        Applies provided datatype on output column (``.cast(cast)``)
 
     Hint
     ----
@@ -612,7 +612,7 @@ def map_values(source_column=None, name=None, **kwargs: Any) -> partial:
         withColumn, where, ...
     """
 
-    def _inner_func(source_column, name, mapping, default, ignore_case, pattern_type, alt_src_cols, output_type):
+    def _inner_func(source_column, name, mapping, default, ignore_case, pattern_type, alt_src_cols, cast):
         source_column = _coalesce_source_columns(source_column, alt_src_cols)
 
         if isinstance(default, str) and default == "source_column":
@@ -621,10 +621,10 @@ def map_values(source_column=None, name=None, **kwargs: Any) -> partial:
             default = F.lit(default)
 
         if ignore_case and pattern_type != "regex":
-            mapping = {str(key).lower(): F.lit(value).cast(output_type) for key, value in mapping.items()}
+            mapping = {str(key).lower(): F.lit(value).cast(cast) for key, value in mapping.items()}
             source_column = F.lower(source_column)
         else:
-            mapping = {key: F.lit(value).cast(output_type) for key, value in mapping.items()}
+            mapping = {key: F.lit(value).cast(cast) for key, value in mapping.items()}
 
         keys = list(mapping.keys())
         if pattern_type == "equals":
@@ -646,7 +646,7 @@ def map_values(source_column=None, name=None, **kwargs: Any) -> partial:
             raise ValueError(f"pattern_type <{pattern_type}> not recognized. "
                              "Please choose among ['equals' (default), 'regex' and 'sql_like']")
 
-        when_clause = when_clause.otherwise(default.cast(output_type))
+        when_clause = when_clause.otherwise(default.cast(cast))
 
         return when_clause.alias(name)
 
@@ -663,7 +663,7 @@ def map_values(source_column=None, name=None, **kwargs: Any) -> partial:
         ignore_case=kwargs.get("ignore_case", True),
         pattern_type=kwargs.get("pattern_type", "equals"),
         alt_src_cols=kwargs.get("alt_src_cols", False),
-        output_type=kwargs.get("output_type", T.StringType()),
+        cast=kwargs.get("cast", T.StringType()),
     )
 
     return _get_executable_function(_inner_func, source_column, name, **args)
@@ -686,8 +686,8 @@ def meters_to_cm(source_column=None, name=None, **kwargs: Any) -> partial:
     -----------------
     alt_src_cols : str, default -> no coalescing, only source_column
         Coalesce with source_column and columns from this parameter.
-    output_type : T.DataType(), default -> T.IntegerType()
-        Applies provided datatype on output column (``.cast(output_type)``)
+    cast : T.DataType(), default -> T.IntegerType()
+        Applies provided datatype on output column (``.cast(cast)``)
 
     Examples
     --------
@@ -715,13 +715,13 @@ def meters_to_cm(source_column=None, name=None, **kwargs: Any) -> partial:
         withColumn, where, ...
     """
 
-    def _inner_func(source_column, name, alt_src_cols, output_type):
+    def _inner_func(source_column, name, alt_src_cols, cast):
         source_column = _coalesce_source_columns(source_column, alt_src_cols)
-        return (source_column * 100).cast(output_type).alias(name)
+        return (source_column * 100).cast(cast).alias(name)
 
     args = dict(
         alt_src_cols=kwargs.get("alt_src_cols", False),
-        output_type=kwargs.get("output_type", T.IntegerType()),
+        cast=kwargs.get("cast", T.IntegerType()),
     )
 
     return _get_executable_function(_inner_func, source_column, name, **args)
@@ -751,8 +751,8 @@ def has_value(source_column=None, name=None, **kwargs: Any) -> partial:
     -----------------
     alt_src_cols : str, default -> no coalescing, only source_column
         Coalesce with source_column and columns from this parameter.
-    output_type : T.DataType(), default -> T.BooleanType()
-        Applies provided datatype on output column (``.cast(output_type)``)
+    cast : T.DataType(), default -> T.BooleanType()
+        Applies provided datatype on output column (``.cast(cast)``)
 
     Examples
     --------
@@ -787,18 +787,18 @@ def has_value(source_column=None, name=None, **kwargs: Any) -> partial:
         withColumn, where, ...
     """
 
-    def _inner_func(source_column, name, alt_src_cols, output_type):
+    def _inner_func(source_column, name, alt_src_cols, cast):
         source_column = _coalesce_source_columns(source_column, alt_src_cols)
         return (
             F.when((source_column.isNotNull()) & (source_column.cast(T.StringType()) != ""), F.lit(True))
             .otherwise(F.lit(False))
-            .cast(output_type)
+            .cast(cast)
             .alias(name)
         )
 
     args = dict(
         alt_src_cols=kwargs.get("alt_src_cols", False),
-        output_type=kwargs.get("output_type", T.BooleanType()),
+        cast=kwargs.get("cast", T.BooleanType()),
     )
 
     return _get_executable_function(_inner_func, source_column, name, **args)
@@ -823,8 +823,8 @@ def apply(source_column=None, name=None, **kwargs: Any) -> partial:
         Function that takes the source column as single argument
     alt_src_cols : str, default -> no coalescing, only source_column
         Coalesce with source_column and columns from this parameter.
-    output_type : T.DataType(), default -> no casting
-        Applies provided datatype on output column (``.cast(output_type)``)
+    cast : T.DataType(), default -> no casting
+        Applies provided datatype on output column (``.cast(cast)``)
 
     Examples
     --------
@@ -895,11 +895,11 @@ def apply(source_column=None, name=None, **kwargs: Any) -> partial:
         withColumn, where, ...
     """
 
-    def _inner_func(source_column, name, func, alt_src_cols, output_type):
+    def _inner_func(source_column, name, func, alt_src_cols, cast):
         source_column = _coalesce_source_columns(source_column, alt_src_cols)
         source_column = func(source_column)
-        if output_type:
-            source_column = source_column.cast(output_type)
+        if cast:
+            source_column = source_column.cast(cast)
         return source_column.alias(name)
 
     try:
@@ -913,7 +913,7 @@ def apply(source_column=None, name=None, **kwargs: Any) -> partial:
     args = dict(
         func=func,
         alt_src_cols=kwargs.get("alt_src_cols", False),
-        output_type=kwargs.get("output_type", False),
+        cast=kwargs.get("cast", False),
     )
 
     return _get_executable_function(_inner_func, source_column, name, **args)
@@ -938,8 +938,8 @@ def to_json_string(source_column=None, name=None, **kwargs: Any) -> partial:
     -----------------
     alt_src_cols : str, default -> no coalescing, only source_column
         Coalesce with source_column and columns from this parameter.
-    output_type : T.DataType(), default -> no casting, same return data type as input data type
-        Applies provided datatype on output column (``.cast(output_type)``)
+    cast : T.DataType(), default -> no casting, same return data type as input data type
+        Applies provided datatype on output column (``.cast(cast)``)
 
     Examples
     --------
@@ -970,7 +970,7 @@ def to_json_string(source_column=None, name=None, **kwargs: Any) -> partial:
         withColumn, where, ...
     """
 
-    def _inner_func(source_column, name, alt_src_cols, output_type):
+    def _inner_func(source_column, name, alt_src_cols, cast):
         def _to_json(col):
             if not col:
                 return None
@@ -984,12 +984,12 @@ def to_json_string(source_column=None, name=None, **kwargs: Any) -> partial:
 
         source_column = _coalesce_source_columns(source_column, alt_src_cols)
 
-        udf_to_json = F.udf(_to_json, output_type)
+        udf_to_json = F.udf(_to_json, cast)
         return udf_to_json(source_column).alias(name)
 
     args = dict(
         alt_src_cols=kwargs.get("alt_src_cols", False),
-        output_type=kwargs.get("output_type", T.StringType()),
+        cast=kwargs.get("cast", T.StringType()),
     )
 
     return _get_executable_function(_inner_func, source_column, name, **args)
@@ -1019,8 +1019,8 @@ def to_json_string(source_column=None, name=None, **kwargs: Any) -> partial:
 #         Possible Values: ["ms", "sec"]
 #     alt_src_cols : str, default -> no coalescing, only source_column
 #         Coalesce with source_column and columns from this parameter.
-#     output_type : T.DataType(), default -> no casting, same return data type as input data type
-#         Applies provided datatype on output column (``.cast(output_type)``)
+#     cast : T.DataType(), default -> no casting, same return data type as input data type
+#         Applies provided datatype on output column (``.cast(cast)``)
 #
 #     Examples
 #     --------
@@ -1042,7 +1042,7 @@ def to_json_string(source_column=None, name=None, **kwargs: Any) -> partial:
 #     |4737139200|
 #     +----------+
 #     >>> input_df.select(
-#     ...     spq.unix_timestamp_to_unix_timestamp("time_ms", name="timestamp", output_type=T.TimestampType())
+#     ...     spq.unix_timestamp_to_unix_timestamp("time_ms", name="timestamp", cast=T.TimestampType())
 #     ... ).show(truncate=False)
 #     +-------------------+
 #     |timestamp            |
@@ -1060,7 +1060,7 @@ def to_json_string(source_column=None, name=None, **kwargs: Any) -> partial:
 #         withColumn, where, ...
 #     """
 #
-#     def _inner_func(source_column, name, input_time_unit, output_time_unit, alt_src_cols, output_type):
+#     def _inner_func(source_column, name, input_time_unit, output_time_unit, alt_src_cols, cast):
 #         if alt_src_cols:
 #             source_column = _coalesce_source_columns(source_column, alt_src_cols)
 #         if input_time_unit == "ms":
@@ -1071,13 +1071,13 @@ def to_json_string(source_column=None, name=None, **kwargs: Any) -> partial:
 #         if output_time_unit == "ms":
 #             output_column = output_column * 1_000.0
 #
-#         return output_column.cast(output_type).alias(name)
+#         return output_column.cast(cast).alias(name)
 #
 #     args = dict(
 #         input_time_unit=kwargs.get("input_time_unit", "ms"),
 #         output_time_unit=kwargs.get("output_time_unit", "sec"),
 #         alt_src_cols=kwargs.get("alt_src_cols", False),
-#         output_type=kwargs.get("output_type", T.LongType()),
+#         cast=kwargs.get("cast", T.LongType()),
 #     )
 #
 #     return _get_executable_function(_inner_func, source_column, name, **args)
@@ -1102,8 +1102,8 @@ def to_str(source_column=None, name=None, **kwargs: Any) -> Union[partial, Colum
     -----------------
     alt_src_cols : str, default -> no coalescing, only source_column
         Coalesce with source_column and columns from this parameter.
-    output_type : T.DataType(), default -> T.StringType()
-        Applies provided datatype on output column (``.cast(output_type)``)
+    cast : T.DataType(), default -> T.StringType()
+        Applies provided datatype on output column (``.cast(cast)``)
 
     Examples
     --------
@@ -1147,7 +1147,7 @@ def to_str(source_column=None, name=None, **kwargs: Any) -> Union[partial, Colum
 
 def to_int(source_column=None, name=None, **kwargs: Any) -> Union[partial, Column]:
     """
-    Syntactic sugar for calling ``to_num(output_type=T.IntegerType())``
+    Syntactic sugar for calling ``to_num(cast=T.IntegerType())``
 
     https://spooq.rtfd.io/en/latest/transformer/mapper_transformations.html#to_num
 
@@ -1173,7 +1173,7 @@ def to_int(source_column=None, name=None, **kwargs: Any) -> Union[partial, Colum
 
     args = dict(
         alt_src_cols=kwargs.get("alt_src_cols", False),
-        output_type=T.IntegerType(),
+        cast=T.IntegerType(),
     )
 
     return to_num(source_column, name, **args)
@@ -1181,7 +1181,7 @@ def to_int(source_column=None, name=None, **kwargs: Any) -> Union[partial, Colum
 
 def to_long(source_column=None, name=None, **kwargs: Any) -> Union[partial, Column]:
     """
-    Syntactic sugar for calling ``to_num(output_type=T.LongType())``
+    Syntactic sugar for calling ``to_num(cast=T.LongType())``
 
     https://spooq.rtfd.io/en/latest/transformer/mapper_transformations.html#to_num
 
@@ -1207,7 +1207,7 @@ def to_long(source_column=None, name=None, **kwargs: Any) -> Union[partial, Colu
 
     args = dict(
         alt_src_cols=kwargs.get("alt_src_cols", False),
-        output_type=T.LongType(),
+        cast=T.LongType(),
     )
 
     return to_num(source_column, name, **args)
@@ -1215,7 +1215,7 @@ def to_long(source_column=None, name=None, **kwargs: Any) -> Union[partial, Colu
 
 def to_float(source_column=None, name=None, **kwargs: Any) -> Union[partial, Column]:
     """
-    Syntactic sugar for calling ``to_num(output_type=T.FloatType())``
+    Syntactic sugar for calling ``to_num(cast=T.FloatType())``
 
     https://spooq.rtfd.io/en/latest/transformer/mapper_transformations.html#to_num
 
@@ -1241,7 +1241,7 @@ def to_float(source_column=None, name=None, **kwargs: Any) -> Union[partial, Col
 
     args = dict(
         alt_src_cols=kwargs.get("alt_src_cols", False),
-        output_type=T.FloatType(),
+        cast=T.FloatType(),
     )
 
     return to_num(source_column, name, **args)
@@ -1249,7 +1249,7 @@ def to_float(source_column=None, name=None, **kwargs: Any) -> Union[partial, Col
 
 def to_double(source_column=None, name=None, **kwargs: Any) -> Union[partial, Column]:
     """
-    Syntactic sugar for calling ``to_num(output_type=T.DoubleType())``
+    Syntactic sugar for calling ``to_num(cast=T.DoubleType())``
 
     https://spooq.rtfd.io/en/latest/transformer/mapper_transformations.html#to_num
 
@@ -1275,7 +1275,7 @@ def to_double(source_column=None, name=None, **kwargs: Any) -> Union[partial, Co
 
     args = dict(
         alt_src_cols=kwargs.get("alt_src_cols", False),
-        output_type=T.DoubleType(),
+        cast=T.DoubleType(),
     )
 
     return to_num(source_column, name, **args)

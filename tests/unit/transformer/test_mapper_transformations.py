@@ -155,7 +155,7 @@ class TestGenericFunctionality:
         mapping = [
             ("main_transformation_function",                          "str_2",              spq.as_is),
             ("main_transformation_function_call",                     "str_2",              spq.as_is()),
-            ("main_transformation_function_call_with_params",         "str_2",              spq.as_is(output_type=T.StringType())),
+            ("main_transformation_function_call_with_params",         "str_2",              spq.as_is(cast="string")),
             ("main_transformation_function_as_source",                F.col("str_2"),       spq.as_is),
             ("main_transformation_literal_as_source",                 F.lit("Hi!"),         spq.as_is),
             ("convenience_transformation_function",                   "str_int_2",          spq.to_int),
@@ -249,17 +249,17 @@ class TestGenericFunctionality:
     def test_output_type_casting(self, input_df):
         # fmt:off
         mapping = [
-            ("as_is",         "str_2",        spq.as_is(output_type=T.StringType())),
-            ("m_to_cm",       "float_2",      spq.meters_to_cm(output_type=T.StringType())),
-            ("has_val",       "int_2",        spq.has_value(output_type=T.StringType())),
-            ("to_num",        "str_int_2",    spq.to_num(output_type=T.StringType())),
-            ("to_bool",       "str_bool_2",   spq.to_bool(output_type=T.StringType())),
-            ("to_timestamp",  "str_ts_2",     spq.to_timestamp(output_type=T.StringType(),
+            ("as_is",         "str_2",        spq.as_is(cast="string")),
+            ("m_to_cm",       "float_2",      spq.meters_to_cm(cast="string")),
+            ("has_val",       "int_2",        spq.has_value(cast="string")),
+            ("to_num",        "str_int_2",    spq.to_num(cast="string")),
+            ("to_bool",       "str_bool_2",   spq.to_bool(cast="string")),
+            ("to_timestamp",  "str_ts_2",     spq.to_timestamp(cast="string",
                                                                output_format="yyyy-MM-dd HH:mm")),
             ("to_str",        "int_1",        spq.to_str),
-            ("str_to_array",  "str_array_2",  spq.str_to_array(output_type=T.StringType())),
-            ("apply",         "str_2",        spq.apply(output_type=T.StringType(), func=F.lower)),
-            ("map_vals",      "str_key_2",    spq.map_values(output_type=T.StringType(), mapping={"Y": "Yes"})),
+            ("str_to_array",  "str_array_2",  spq.str_to_array(cast="string")),
+            ("apply",         "str_2",        spq.apply(cast="string", func=F.lower)),
+            ("map_vals",      "str_key_2",    spq.map_values(cast="string", mapping={"Y": "Yes"})),
         ]
         # fmt:on
 
@@ -540,7 +540,7 @@ class TestToTimestamp:
         mapping = [(
             "mapped_name",
             "attributes.data.some_attribute",
-            spq.to_timestamp(input_format=input_format, output_type=T.StringType())
+            spq.to_timestamp(input_format=input_format, cast="string")
         )]
         output_df = Mapper(mapping).transform(input_df)
         expected_df_ = expected_df.select(F.col("mapped_name").cast(T.StringType()))
@@ -572,7 +572,7 @@ class TestToTimestamp:
         mapping = [(
             "mapped_name",
             "attributes.data.some_attribute",
-            spq.to_timestamp(max_timestamp_sec=max_valid_timestamp, output_type=T.StringType())
+            spq.to_timestamp(max_timestamp_sec=max_valid_timestamp, cast="string")
         )]
         output_df = Mapper(mapping).transform(input_df)
         expected_df = spark_session.createDataFrame([Row(mapped_name=expected_timestamp)], schema="mapped_name string")
@@ -611,7 +611,7 @@ class TestStringToArray:
         ids=get_ids_for_fixture(fixtures_for_str_to_array_str_to_int),
     )
     def test_array_containing_integers(self, spark_session, input_df, expected_df):
-        mapping = [("mapped_name", "attributes.data.some_attribute", spq.str_to_array(output_type=T.IntegerType()))]
+        mapping = [("mapped_name", "attributes.data.some_attribute", spq.str_to_array(cast="int"))]
         output_df = Mapper(mapping).transform(input_df)
         expected_df_ = spark_session.createDataFrame(
             expected_df.rdd,
@@ -702,7 +702,7 @@ class TestMapValues:
             mapping={"%white%": F.lit(True), "%black%": F.lit(True)},
             pattern_type="sql_like",
             default=F.lit(False),
-            output_type=T.BooleanType(),
+            cast="boolean",
         ))]
         output_df = Mapper(mapping).transform(input_df)
         expected_df_ = expected_df.select(F.col("mapped_name").cast(T.BooleanType()).alias("mapped_name"))
@@ -719,7 +719,7 @@ class TestMapValues:
             mapping={r"(?i)white": True, r"(?i)^.*black.*$": True},
             pattern_type="regex",
             default=False,
-            output_type=T.BooleanType(),
+            cast="boolean",
         ))]
         output_df = Mapper(mapping).transform(input_df)
         expected_df_ = expected_df.select(F.col("mapped_name").cast(T.BooleanType()).alias("mapped_name"))
@@ -747,7 +747,7 @@ class TestMapValues:
     def test_map_values_integer_for_string(self, input_df, expected_df):
         mapping = [("mapped_name", "attributes.data.some_attribute", spq.map_values(
             mapping={"0": -99999},
-            output_type=T.LongType(),
+            cast="long",
         ))]
         output_df = Mapper(mapping).transform(input_df)
         expected_df_ = expected_df.select(F.col("mapped_name").cast(T.LongType()).alias("mapped_name"))
@@ -762,7 +762,7 @@ class TestMapValues:
     def test_map_values_integer_for_integer(self, input_df, expected_df):
         mapping = [("mapped_name", "attributes.data.some_attribute", spq.map_values(
             mapping={0: -99999},
-            output_type=T.LongType()
+            cast="long"
         ))]
         output_df = Mapper(mapping).transform(input_df)
         expected_df_ = expected_df.select(F.col("mapped_name").cast(T.LongType()).alias("mapped_name"))
@@ -825,7 +825,7 @@ class TestApplyFunction:
 
         mapping = [("mapped_name", "attributes.data.some_attribute", spq.apply(
             func=_is_even,
-            output_type=T.BooleanType()
+            cast="boolean"
         ))]
         output_df = Mapper(mapping).transform(input_df)
         assert_df_equality(expected_df, output_df, ignore_nullable=True)
@@ -839,7 +839,7 @@ class TestApplyFunction:
     def test_apply_lambda_function(self, input_df, expected_df):
         mapping = [("mapped_name", "attributes.data.some_attribute", spq.apply(
             func=lambda val: F.coalesce(val.cast(T.LongType()) % 2 == 0, F.lit(False)),
-            output_type=T.BooleanType()
+            cast="boolean"
         ))]
         output_df = Mapper(mapping).transform(input_df)
         assert_df_equality(expected_df, output_df, ignore_nullable=True)
@@ -859,7 +859,7 @@ class TestApplyFunction:
 
         mapping = [("mapped_name", "attributes.data.some_attribute", spq.apply(
             func=partial(_has_hotmail_email, email_suffix="hotmail.com"),
-            output_type=T.BooleanType()
+            cast="boolean"
         ))]
         output_df = Mapper(mapping).transform(input_df)
         expected_df_ = expected_df.select(F.col("mapped_name").cast(T.BooleanType()).alias("mapped_name"))
