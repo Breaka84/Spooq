@@ -4,6 +4,7 @@ Custom Mapping Transformations
 ------------------------------
 
 .. automodule:: spooq.transformer.mapper_transformations
+    :no-members:
 
 as_is
 ###################################
@@ -54,6 +55,9 @@ to_json_string
 ###################################
 
 .. automethod:: spooq.transformer.mapper_transformations.to_json_string
+
+Convenience Transformations (Syntactic Sugar)
+---------------------------------------------
 
 to_str
 ###################################
