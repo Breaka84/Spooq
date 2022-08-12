@@ -31,7 +31,7 @@ class Mapper(Transformer):
     >>>     ("type",          "elem.attributes.type",             "string"),
     >>>     ("created_at",    "elem.attributes.created_at",       spq.to_timestamp),
     >>>     ("created_on",    "elem.attributes.created_at",       spq.to_timestamp(cast="date")),
-    >>>     ("processed_at",  F.current_timestamp(),              "string",
+    >>>     ("processed_at",  F.current_timestamp(),              spq.as_is,
     >>> ]
     >>> mapper = Mapper(mapping=mapping)
     >>> mapper.transform(input_df).printSchema()
@@ -46,7 +46,6 @@ class Mapper(Transformer):
     Parameters
     ----------
     mapping  : :class:`list` of :any:`tuple` containing three elements, respectively.
-        # The elements can be of :any:`str`, :class:`~pyspark.sql.Column`, :mod:`~pyspark.sql.functions` or :mod:`~spooq.transformer.mapper_transformations`
         This is the main parameter for this transformation. It gives information
         about the column names for the output DataFrame, the column names (paths)
         from the input DataFrame, and their data types. Custom data types are also supported, which can
@@ -129,11 +128,12 @@ class Mapper(Transformer):
         mode: str = "replace",
     ):
         super(Mapper, self).__init__()
-        self.logger.warn("Parameter `ignore_missing_columns` is deprecated, use `nullify_missing_columns` instead!")
-        warnings.warn(
-            message="Parameter `ignore_missing_columns` is deprecated, use `nullify_missing_columns` instead!",
-            category=FutureWarning
-        )
+        if ignore_missing_columns:
+            self.logger.warn("Parameter `ignore_missing_columns` is deprecated, use `nullify_missing_columns` instead!")
+            warnings.warn(
+                message="Parameter `ignore_missing_columns` is deprecated, use `nullify_missing_columns` instead!",
+                category=FutureWarning
+            )
         self.mapping = mapping
         self.skip_missing_columns = skip_missing_columns
         self.nullify_missing_columns = nullify_missing_columns or ignore_missing_columns

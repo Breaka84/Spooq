@@ -154,27 +154,30 @@ class TestGenericFunctionality:
         # fmt:off
         mapping = [
             ("main_transformation_function",                          "str_2",              spq.as_is),
+            ("main_transformation_function_as_string",                "str_2",              "as_is"),
             ("main_transformation_function_call",                     "str_2",              spq.as_is()),
             ("main_transformation_function_call_with_params",         "str_2",              spq.as_is(cast="string")),
             ("main_transformation_function_as_source",                F.col("str_2"),       spq.as_is),
             ("main_transformation_literal_as_source",                 F.lit("Hi!"),         spq.as_is),
-            ("convenience_transformation_function",                   "str_int_2",          spq.to_int),
+            ("convenience_transformation_function",                   "str_int_2",          "to_int"),
+            ("convenience_transformation_function_as_string",         "str_int_2",          spq.to_int),
             ("convenience_transformation_function_call",              "str_int_2",          spq.to_int()),
             ("convenience_transformation_function_call_with_params",  "str_int_2",          spq.to_int(alt_src_cols=None)),
             ("convenience_transformation_function_as_source",         F.col("str_int_2"),   spq.to_int),
             ("convenience_transformation_literal_as_source",          F.lit("1637335255"),  spq.to_int),
-
         ]
         # fmt:on
 
         expected_df = spark_session.createDataFrame([
             Row(
                 main_transformation_function="Hello",
+                main_transformation_function_as_string="Hello",
                 main_transformation_function_call="Hello",
                 main_transformation_function_call_with_params="Hello",
                 main_transformation_function_as_source="Hello",
                 main_transformation_literal_as_source="Hi!",
                 convenience_transformation_function=1637335255,
+                convenience_transformation_function_as_string=1637335255,
                 convenience_transformation_function_call=1637335255,
                 convenience_transformation_function_call_with_params=1637335255,
                 convenience_transformation_function_as_source=1637335255,
@@ -183,11 +186,13 @@ class TestGenericFunctionality:
             ],
             schema=(
                 "main_transformation_function STRING, "
+                "main_transformation_function_as_string STRING, "
                 "main_transformation_function_call STRING, "
                 "main_transformation_function_call_with_params STRING, "
                 "main_transformation_function_as_source STRING, "
                 "main_transformation_literal_as_source STRING, "
                 "convenience_transformation_function INTEGER, "
+                "convenience_transformation_function_as_string INTEGER, "
                 "convenience_transformation_function_call INTEGER, "
                 "convenience_transformation_function_call_with_params INTEGER, "
                 "convenience_transformation_function_as_source INTEGER, "

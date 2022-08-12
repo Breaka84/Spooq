@@ -9,7 +9,11 @@ For injecting your **own custom data types**, please have a visit to the
 :py:meth:`add_custom_data_type` method!
 """
 import sys
+from functools import wraps
 from functools import partial
+import logging
+import warnings
+
 from pyspark.sql import functions as F
 from pyspark.sql import types as T
 
@@ -122,6 +126,25 @@ def _get_select_expression_for_custom_type(source_column, name, data_type):
         raise AttributeError(error_msg)
 
 
+def deprecated(func):
+    @wraps(func)
+    def deprecation_warning(*args, **kwargs):
+        nice_name = str(func.__name__).replace("_generate_select_expression_for_", "")
+        logging.getLogger("spooq").warning(
+            f"The function {nice_name} is deprecated!"
+        )
+        warnings.warn(
+            message=(
+                f"The function {nice_name} is deprecated! "
+                f"Please have a look at its docstring for alternatives:\n{func.__doc__}"
+            ),
+            category=FutureWarning
+        )
+        return func(*args, **kwargs)
+    return deprecation_warning
+
+
+@deprecated
 def _generate_select_expression_for_as_is(source_column, name):
     """
     Deprecated!
@@ -131,6 +154,7 @@ def _generate_select_expression_for_as_is(source_column, name):
     return spq.as_is()(source_column, name)
 
 
+@deprecated
 def _generate_select_expression_for_keep(source_column, name):
     """
     Deprecated!
@@ -140,6 +164,7 @@ def _generate_select_expression_for_keep(source_column, name):
     return spq.as_is()(source_column, name)
 
 
+@deprecated
 def _generate_select_expression_for_no_change(source_column, name):
     """
     Deprecated!
@@ -149,7 +174,8 @@ def _generate_select_expression_for_no_change(source_column, name):
     return spq.as_is()(source_column, name)
 
 
-def test_generate_select_expression_without_casting(source_column, name):
+@deprecated
+def _generate_select_expression_without_casting(source_column, name):
     """
     Deprecated!
 
@@ -158,6 +184,7 @@ def test_generate_select_expression_without_casting(source_column, name):
     return spq.as_is()(source_column, name)
 
 
+@deprecated
 def _generate_select_expression_for_json_string(source_column, name):
     """
     Deprecated!
@@ -167,16 +194,18 @@ def _generate_select_expression_for_json_string(source_column, name):
     return spq.to_json_string()(source_column, name)
 
 
+@deprecated
 def _generate_select_expression_for_timestamp_ms_to_ms(source_column, name):
     """
     Deprecated!
 
-    Please just use :dt.:`~spooq.transformer.mapper_transformations.as_is` with ``"long"`` as data_type.
+    Please just use :dt.:`~spooq.transformer.mapper_transformations.as_is` with ``"long"`` as data_type instead.
     This method doesn't do any cleansing anymore!
     """
     return spq.as_is(cast="long")(source_column, name)
 
 
+@deprecated
 def _generate_select_expression_for_timestamp_ms_to_s(source_column, name):
     """
     Deprecated!
@@ -186,6 +215,7 @@ def _generate_select_expression_for_timestamp_ms_to_s(source_column, name):
     return spq.apply(func=lambda val: F.lit(val).cast("double") / 1000.0, cast="long")(source_column, name)
 
 
+@deprecated
 def _generate_select_expression_for_timestamp_s_to_ms(source_column, name):
     """
     Deprecated!
@@ -195,36 +225,40 @@ def _generate_select_expression_for_timestamp_s_to_ms(source_column, name):
     return spq.apply(func=lambda val: F.lit(val).cast("double") * 1000.0, cast="long")(source_column, name)
 
 
+@deprecated
 def _generate_select_expression_for_timestamp_s_to_s(source_column, name):
     """
     Deprecated!
 
-    Please just use :dt.:`~spooq.transformer.mapper_transformations.as_is` with ``"long"`` as data_type.
+    Please just use :dt.:`~spooq.transformer.mapper_transformations.as_is` with ``"long"`` as data_type instead.
     This method doesn't do any cleansing anymore!
     """
     return spq.as_is(cast="long")(source_column, name)
 
 
+@deprecated
 def _generate_select_expression_for_StringNull(source_column, name):  # noqa: N802
     """
     Deprecated!
 
-    Please just use ``F.lit(None)`` as source_column and ``"string"`` as data_type!
+    Please just use ``F.lit(None)`` as source_column and ``"string"`` as data_type instead!
     """
 
     return F.lit(None).cast("string").alias(name)
 
 
+@deprecated
 def _generate_select_expression_for_IntNull(source_column, name):  # noqa: N802
     """
     Deprecated!
 
-    Please just use ``F.lit(None)`` as source_column and ``"int"`` as data_type!
+    Please just use ``F.lit(None)`` as source_column and ``"int"`` as data_type instead!
     """
 
     return F.lit(None).cast("int").alias(name)
 
 
+@deprecated
 def _generate_select_expression_for_StringBoolean(source_column, name):  # noqa: N802
     """
     Deprecated!
@@ -262,6 +296,7 @@ def _generate_select_expression_for_StringBoolean(source_column, name):  # noqa:
     )
 
 
+@deprecated
 def _generate_select_expression_for_IntBoolean(source_column, name):  # noqa: N802
     """
     Deprecated!
@@ -294,6 +329,7 @@ def _generate_select_expression_for_IntBoolean(source_column, name):  # noqa: N8
     return F.when(source_column.isNull(), F.lit(None)).otherwise(1).cast("int").alias(name)
 
 
+@deprecated
 def _generate_select_expression_for_TimestampMonth(source_column, name):  # noqa: N802
     """
     Deprecated!
@@ -309,6 +345,7 @@ def _generate_select_expression_for_TimestampMonth(source_column, name):  # noqa
     )
 
 
+@deprecated
 def _generate_select_expression_for_meters_to_cm(source_column, name):
     """
     Deprecated!
@@ -318,6 +355,7 @@ def _generate_select_expression_for_meters_to_cm(source_column, name):
     return spq.meters_to_cm()(source_column, name)
 
 
+@deprecated
 def _generate_select_expression_for_has_value(source_column, name):
     """
     Deprecated!
@@ -327,6 +365,7 @@ def _generate_select_expression_for_has_value(source_column, name):
     return spq.has_value()(source_column, name)
 
 
+@deprecated
 def _generate_select_expression_for_unix_timestamp_ms_to_spark_timestamp(source_column, name):
     """
     Deprecated!
@@ -336,6 +375,7 @@ def _generate_select_expression_for_unix_timestamp_ms_to_spark_timestamp(source_
     return spq.to_timestamp()(source_column, name)
 
 
+@deprecated
 def _generate_select_expression_for_extended_string_to_int(source_column, name):
     """
     Deprecated!
@@ -346,6 +386,7 @@ def _generate_select_expression_for_extended_string_to_int(source_column, name):
     return spq.to_num(cast="int")(source_column, name)
 
 
+@deprecated
 def _generate_select_expression_for_extended_string_to_long(source_column, name):
     """
     Deprecated!
@@ -356,6 +397,7 @@ def _generate_select_expression_for_extended_string_to_long(source_column, name)
     return spq.to_num(cast="long")(source_column, name)
 
 
+@deprecated
 def _generate_select_expression_for_extended_string_to_float(source_column, name):
     """
     Deprecated!
@@ -366,6 +408,7 @@ def _generate_select_expression_for_extended_string_to_float(source_column, name
     return spq.to_num(cast="float")(source_column, name)
 
 
+@deprecated
 def _generate_select_expression_for_extended_string_to_double(source_column, name):
     """
     Deprecated!
@@ -376,6 +419,7 @@ def _generate_select_expression_for_extended_string_to_double(source_column, nam
     return spq.to_num(cast="double")(source_column, name)
 
 
+@deprecated
 def _generate_select_expression_for_extended_string_to_boolean(source_column, name):
     """
     Deprecated!
@@ -385,15 +429,17 @@ def _generate_select_expression_for_extended_string_to_boolean(source_column, na
     return spq.to_bool()(source_column, name)
 
 
+@deprecated
 def _generate_select_expression_for_extended_string_to_timestamp(source_column, name):
     """
     Deprecated!
 
-    Please use :dt.:`~spooq.transformer.mapper_transformations.to_timestamp`.
+    Please use :dt.:`~spooq.transformer.mapper_transformations.to_timestamp` instead.
     """
     return spq.to_timestamp()(source_column, name)
 
 
+@deprecated
 def _generate_select_expression_for_extended_string_to_date(source_column, name):
     """
     Deprecated!
@@ -403,15 +449,17 @@ def _generate_select_expression_for_extended_string_to_date(source_column, name)
     return spq.to_timestamp(cast="date")(source_column, name)
 
 
+@deprecated
 def _generate_select_expression_for_extended_string_unix_timestamp_ms_to_timestamp(source_column, name):
     """
     Deprecated!
 
-    Please use :dt.:`~spooq.transformer.mapper_transformations.to_timestamp`.
+    Please use :dt.:`~spooq.transformer.mapper_transformations.to_timestamp` instead.
     """
     return spq.to_timestamp()(source_column, name)
 
 
+@deprecated
 def _generate_select_expression_for_extended_string_unix_timestamp_ms_to_date(source_column, name):
     """
     Deprecated!
