@@ -1,6 +1,7 @@
 from functools import partial
 from types import FunctionType
 from typing import Union, List, Tuple, Any, Callable
+import warnings
 
 from pyspark.sql.utils import AnalysisException, ParseException
 from pyspark.sql import (
@@ -52,14 +53,25 @@ class Mapper(Transformer):
         clean, pivot, anonymize, ... the data itself. Please have a look at the
         :py:mod:`spooq.transformer.mapper_custom_data_types` module for more information.
 
-    ignore_missing_columns : :any:`bool`, Defaults to False
+    skip_missing_columns : :any:`bool`, Defaults to False
+        Specifies if the mapping transformation should be skipped if a referenced input
+        column is missing in the provided DataFrame. Only one of `nullify_missing_columns` and `skip_missing_columns`
+        can be set to True. If none of the two is set to True then an exception will be raised in case the input
+        column was not found.
+
+    nullify_missing_columns : :any:`bool`, Defaults to False
         Specifies if the mapping transformation should use NULL if a referenced input
-        column is missing in the provided DataFrame. If set to False, it will raise an exception.
+        column is missing in the provided DataFrame. Only one of `nullify_missing_columns` and `skip_missing_columns`
+        can be set to True. If none of the two is set to True then an exception will be raised in case the input
+        column was not found.
 
     ignore_ambiguous_columns : :any:`bool`, Defaults to False
         It can happen that the input DataFrame has ambiguous column names (like "Key" vs "key") which will
         raise an exception with Spark when reading. This flag surpresses this exception and skips those affected
         columns.
+
+    ignore_missing_columns : :any:`bool`, Defaults to False
+        DEPRECATED: please use nullify_missing_columns instead!
 
     mode : :any:`str`, Defaults to "replace"
         Defines weather the mapping should fully replace the schema of the input DataFrame or just add to it.
@@ -110,13 +122,26 @@ class Mapper(Transformer):
     def __init__(
         self,
         mapping: List[Tuple[Any, Any, Any]],
-        ignore_missing_columns: bool = False,
+        skip_missing_columns: bool = False,
+        nullify_missing_columns: bool = False,
         ignore_ambiguous_columns: bool = False,
+        ignore_missing_columns: bool = False,
         mode: str = "replace",
     ):
         super(Mapper, self).__init__()
+        self.logger.warn("Parameter `ignore_missing_columns` is deprecated, use `nullify_missing_columns` instead!")
+        warnings.warn(
+            message="Parameter `ignore_missing_columns` is deprecated, use `nullify_missing_columns` instead!",
+            category=FutureWarning
+        )
         self.mapping = mapping
-        self.ignore_missing_columns = ignore_missing_columns
+        self.skip_missing_columns = skip_missing_columns
+        self.nullify_missing_columns = nullify_missing_columns or ignore_missing_columns
+        if self.nullify_missing_columns and self.skip_missing_columns:
+            raise ValueError(
+                "Only one of the parameters `nullify_missing_columns` (before `ignore_missing_columns`) and "
+                "`skip_missing_columns` can be set to True!"
+            )
         self.ignore_ambiguous_columns = ignore_ambiguous_columns
         self.mode = mode
 
@@ -182,10 +207,14 @@ class Mapper(Transformer):
                 source_column = F.col(source_column)
 
         except AnalysisException as e:
-            if isinstance(source_column, str) and self.ignore_missing_columns:
+            if isinstance(source_column, str) and self.skip_missing_columns:
                 self.logger.warn(
-                    f"Missing column ({str(source_column)}) "
-                    f"replaced with NULL (via ignore_missing_columns=True): {e.desc}"
+                    f"Missing column ({source_column}) skipped (via skip_missing_columns=True): {e.desc}"
+                )
+                return None
+            elif isinstance(source_column, str) and self.nullify_missing_columns:
+                self.logger.warn(
+                    f"Missing column ({source_column}) replaced with NULL (via nullify_missing_columns=True): {e.desc}"
                 )
                 source_column = F.lit(None)
             elif "ambiguous" in e.desc.lower() and self.ignore_ambiguous_columns:
@@ -194,9 +223,12 @@ class Mapper(Transformer):
                 )
                 return None
             else:
-                self.logger.exception(
-                    f"Column: '{source_column}' cannot be resolved but is referenced in the mapping by column: '{name}'"
-                )
+                self.logger.exception(f"""
+                Column: '{source_column}' cannot be resolved but is referenced in the mapping by column: '{name}'.
+                You can make use of the following parameters to handle missing input columns:
+                - `nullify_missing_columns`: set missing source column to null
+                - `skip_missing_columns`: skip the transformation
+                """)
                 raise e
         return source_column
 
