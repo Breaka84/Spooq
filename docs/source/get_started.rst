@@ -1,9 +1,6 @@
 Get Started
 ======================================================================================================================
 
-.. uml:: ./diagrams/from_thesis/data_flow.puml
-    :caption: Typical Data Flow of a Spooq Data Pipeline
-
 This section will guide you through a simple ETL pipeline built with Spooq to showcase how to use this library.
 
 Sample Input Data:
@@ -26,9 +23,9 @@ Application Code for Creating a User Table
 
     users_mapping = [
         ("id",              "id",                     spq.to_num),
-        ("guid",            "guid",                   "StringType"),
-        ("forename",        "attributes.first_name",  "StringType"),
-        ("surename",        "attributes.last_name",   "StringType"),
+        ("guid",            "guid",                   "string"),
+        ("forename",        "attributes.first_name",  "string"),
+        ("surename",        "attributes.last_name",   "string"),
         ("gender",          "attributes.gender",      spq.apply(func=F.lower)),
         ("has_email",       "attributes.email",       spq.has_value),
         ("has_university",  "attributes.university",  spq.has_value),
@@ -86,7 +83,7 @@ Application Code for Creating a Friends_Mapping Table
 
     friends_mapping = [
         ("id",          "id",                  spq.to_num),
-        ("guid",        "guid",                "StringType"),
+        ("guid",        "guid",                "string"),
         ("friend_id",   "friend.id",           spq.to_num),
         ("created_at",  "meta.created_at_ms",  spq.to_timestamp),
     ]
@@ -157,9 +154,9 @@ Spooq for activities and steps which are not directly supported.
 
     mapping = [
         ("id",              "id",                     spq.to_num),
-        ("guid",            "guid",                   "StringType"),
-        ("forename",        "attributes.first_name",  "StringType"),
-        ("surename",        "attributes.last_name",   "StringType"),
+        ("guid",            "guid",                   "string"),
+        ("forename",        "attributes.first_name",  "string"),
+        ("surename",        "attributes.last_name",   "string"),
         ("gender",          "attributes.gender",      spq.apply(func=F.lower)),
         ("has_email",       "attributes.email",       spq.has_value),
         ("has_university",  "attributes.university",  spq.has_value),
@@ -194,8 +191,8 @@ Spooq for activities and steps which are not directly supported.
     )
     friends_df = Mapper(
         mapping=[
-            ("id",          "id",          "StringType"),
-            ("guid",        "guid",        "StringType"),
+            ("id",          "id",          "string"),
+            ("guid",        "guid",        "string"),
             ("friend_id",   "friend.id",   spq.to_num),
             ("created_at",  "created_at",  "TimestampType"),
         ]
@@ -210,3 +207,9 @@ Spooq for activities and steps which are not directly supported.
         ],
         repartition_size=20,
     ).load(friends_df)
+
+Dataflow Chart
+--------------
+
+.. uml:: ./diagrams/from_thesis/data_flow.puml
+    :caption: Typical Data Flow of a Spooq Data Pipeline

@@ -12,7 +12,6 @@ Build wheel file
 ----------------
 .. code-block:: bash
 
-    $ cd spooq
     $ python setup.py sdist bdist_wheel
 
 The output is stored as ``dist/Spooq-<VERSION_NUMBER>-py3-none-any.whl`` and Spooq-<VERSION_NUMBER>.tar.gz.
@@ -22,10 +21,9 @@ Build egg file
 
 .. code-block:: bash
 
-    $ cd spooq
     $ python setup.py bdist_egg
 
-The output is stored as ``dist/Spooq-<VERSION_NUMBER>-py3.7.egg``
+The output is stored as ``dist/Spooq-<VERSION_NUMBER>-py3.8.egg``
 
 Build zip file
 --------------

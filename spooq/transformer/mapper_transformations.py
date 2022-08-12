@@ -4,10 +4,12 @@ These methods can be used with the :py:class:`~spooq.transformer.mapper.Mapper` 
 or directly within a ``select`` or ``withColumn`` statement.
 
 All functions support following generic functionalities:
-    alt_src_cols: Alternative source columns that will be used within a coalesce function if provided
-    cast: Explicit casting after the transformation (sane defaults are set for each function)
 
-``to_str`` is the exception with a hardcoded cast that cannot be changed
+    - ``alt_src_cols``: Alternative source columns that will be used within a coalesce function if provided
+    - ``cast``: Explicit casting after the transformation (sane defaults are set for each function)
+
+``to_str``, ``to_int``, ``to_long``, ``to_float``, ``to_double`` are convenience methods with
+a hardcoded cast that cannot be changed.
 
 All examples assume following code has been executed before:
 
@@ -18,7 +20,7 @@ All examples assume following code has been executed before:
 """
 import re
 from functools import partial
-from typing import Any, Union, List, Callable
+from typing import Any, Union, List, Tuple, Set, Callable
 import json
 
 from pyspark.sql import functions as F, types as T
@@ -28,7 +30,10 @@ from pyspark.sql.column import Column
 COLUMN_NAME_PATTERN = re.compile(r".*\'(.*)\'")
 
 
-def _coalesce_source_columns(source_column, alt_src_cols):
+def _coalesce_source_columns(
+    source_column: Union[str, Column],
+    alt_src_cols: Union[str, Column, List[Union[str, Column]], Tuple[Union[str, Column]], Set[Union[str, Column]]],
+) -> Column:
     if alt_src_cols is None or alt_src_cols is False:
         return source_column
     if not isinstance(alt_src_cols, (list, tuple, set)):
@@ -36,7 +41,9 @@ def _coalesce_source_columns(source_column, alt_src_cols):
     return F.coalesce(source_column, *alt_src_cols)
 
 
-def _get_executable_function(inner_func, source_column, name, **kwargs):
+def _get_executable_function(
+    inner_func: Callable, source_column: Union[str, Column], name: str, **kwargs
+) -> Union[partial, Column]:
     direct_call = True
 
     if isinstance(source_column, str):
@@ -119,7 +126,7 @@ def as_is(source_column: Union[str, Column] = None, name: str = None, **kwargs) 
 
 def to_num(source_column=None, name=None, **kwargs: Any) -> Union[partial, Column]:
     """
-    More robust conversion from StringType to number data types (Default: LongType).
+    More robust conversion to number data types (Default: LongType).
     This method is able to additionally handle (compared to implicit Spark conversion):
 
         * Preceding and/or trailing whitespace
@@ -186,7 +193,7 @@ def to_num(source_column=None, name=None, **kwargs: Any) -> Union[partial, Colum
 
 def to_bool(source_column=None, name=None, **kwargs: Any) -> partial:
     """
-    More robust conversion from StringType to BooleanType.
+    More robust conversion to BooleanType.
     This method is able to additionally handle (compared to implicit Spark conversion):
 
         * Preceding and/or trailing whitespace
@@ -317,7 +324,7 @@ def to_bool(source_column=None, name=None, **kwargs: Any) -> partial:
 
 def to_timestamp(source_column=None, name=None, **kwargs: Any) -> partial:
     """
-    More robust conversion from StringType to TimestampType (or as a formatted string).
+    More robust conversion to TimestampType (or as a formatted string).
     This method supports following input types:
 
         * Unix timestamps in seconds
@@ -393,20 +400,21 @@ def to_timestamp(source_column=None, name=None, **kwargs: Any) -> partial:
     """
 
     def _inner_func(
-            source_column,
-            name, max_timestamp_sec, input_format, output_format, min_timestamp_ms, max_timestamp_ms, alt_src_cols, cast):
+        source_column,
+        name,
+        max_timestamp_sec,
+        input_format,
+        output_format,
+        min_timestamp_ms,
+        max_timestamp_ms,
+        alt_src_cols,
+        cast,
+    ):
         source_column = _coalesce_source_columns(source_column, alt_src_cols)
 
         if input_format:
             output_col = (
-                F.unix_timestamp(
-                    source_column.cast(T.StringType()),
-                    input_format
-                ).cast(
-                    T.TimestampType()
-                ).alias(
-                    name
-                )
+                F.unix_timestamp(source_column.cast(T.StringType()), input_format).cast(T.TimestampType()).alias(name)
             )
         else:
             output_col = (
@@ -646,8 +654,10 @@ def map_values(source_column=None, name=None, **kwargs: Any) -> partial:
                 when_clause = when_clause.when(source_column.rlike(key), mapping[key])
 
         else:
-            raise ValueError(f"pattern_type <{pattern_type}> not recognized. "
-                             "Please choose among ['equals' (default), 'regex' and 'sql_like']")
+            raise ValueError(
+                f"pattern_type <{pattern_type}> not recognized. "
+                "Please choose among ['equals' (default), 'regex' and 'sql_like']"
+            )
 
         when_clause = when_clause.otherwise(default.cast(cast))
 
@@ -699,16 +709,19 @@ def meters_to_cm(source_column=None, name=None, **kwargs: Any) -> partial:
     ...     Row(size_in_m=1.65),
     ...     Row(size_in_m=2.05)
     ... ])
-    >>> mapping = [("size_in_cm", "size_in_m", spq.meters_to_cm)]
+    >>> mapping = [
+    ...     ("original_value",  "size_in_m",  spq.as_is),
+    ...     ("size_in_cm",      "size_in_m",  spq.meters_to_cm),
+    ... ]
     >>> output_df = Mapper(mapping).transform(input_df)
     >>> output_df.show(truncate=False)
-    +----------+
-    |size_in_cm|
-    +----------+
-    |180       |
-    |165       |
-    |204       |
-    +----------+
+    +--------------+----------+
+    |original_value|size_in_cm|
+    +--------------+----------+
+    |1.8           |180       |
+    |1.65          |165       |
+    |2.05          |204       |
+    +--------------+----------+
 
     Returns
     -------
@@ -768,8 +781,8 @@ def has_value(source_column=None, name=None, **kwargs: Any) -> partial:
     ...     ], schema="input_key string"
     ... )
     >>> mapping = [
-    ...     ("original_value", "input_key", spq.as_is),
-    ...     ("does_it_have_value", "input_key", spq.has_value)
+    ...     ("original_value",      "input_key",  spq.as_is),
+    ...     ("does_it_have_value",  "input_key",  spq.has_value)
     ... ]
     >>> output_df = Mapper(mapping).transform(input_df)
     >>> output_df.show(truncate=False)
@@ -994,96 +1007,9 @@ def to_json_string(source_column=None, name=None, **kwargs: Any) -> partial:
 
     return _get_executable_function(_inner_func, source_column, name, **args)
 
-#
-# def unix_timestamp_to_unix_timestamp(source_column=None, name=None, **kwargs: Any) -> partial:
-#     """
-#     Converts a unix timestamp (number) between milliseconds and seconds
-#     and casts it to a :any:`pyspark.sql.types.LongType`.
-#
-#     https://spooq.rtfd.io/en/latest/transformer/mapper_transformations.html#unix_timestamp_to_unix_timestamp
-#
-#     Parameters
-#     ----------
-#     source_column : str or Column
-#         Input column. Can be a name, pyspark column or pyspark function
-#     name : str, default -> derived from input column
-#         Name of the output column. (``.alias(name)``)
-#
-#     Keyword Arguments
-#     -----------------
-#     input_time_unit : str, default -> "ms"
-#         Defines the time unit of the source value.
-#         Possible Values: ["ms", "sec"]
-#     output_time_unit : str, default -> "sec"
-#         Defines the time unit of the target value.
-#         Possible Values: ["ms", "sec"]
-#     alt_src_cols : str, default -> no coalescing, only source_column
-#         Coalesce with source_column and columns from this parameter.
-#     cast : T.DataType(), default -> no casting, same return data type as input data type
-#         Applies provided datatype on output column (``.cast(cast)``)
-#
-#     Examples
-#     --------
-#     >>> input_df = spark.createDataFrame([
-#     ...     Row(time_ms=1581540839000),  # 2020-02-12 21:53:59
-#     ...     Row(time_ms=-4887839000),    # 1969-11-05 11:16:01
-#     ...     Row(time_ms=4737139200000)   # 2120-02-12 01:00:00
-#     ... ])
-#     >>> mapping = [
-#     ...     ("unix_ts", "time_ms", spq.unix_timestamp_to_unix_timestamp(input_time_unit="ms", output_time_unit="sec"))
-#     ... ]
-#     >>> output_df = Mapper(mapping).transform(input_df)
-#     >>> output_df.show(truncate=False)
-#     +----------+
-#     |unix_ts   |
-#     +----------+
-#     |1581540839|
-#     |-4887839  |
-#     |4737139200|
-#     +----------+
-#     >>> input_df.select(
-#     ...     spq.unix_timestamp_to_unix_timestamp("time_ms", name="timestamp", cast=T.TimestampType())
-#     ... ).show(truncate=False)
-#     +-------------------+
-#     |timestamp            |
-#     +-------------------+
-#     |2020-02-12 21:53:59|
-#     |1969-11-05 11:16:01|
-#     |2120-02-12 01:00:00|
-#     +-------------------+
-#
-#     Returns
-#     -------
-#     partial or Column
-#         This method returns a suitable type depending on how you called it. This ensures compability
-#         with Spooq's mapper transformer - with or without explicit parameters as well as direct calls via select,
-#         withColumn, where, ...
-#     """
-#
-#     def _inner_func(source_column, name, input_time_unit, output_time_unit, alt_src_cols, cast):
-#         if alt_src_cols:
-#             source_column = _coalesce_source_columns(source_column, alt_src_cols)
-#         if input_time_unit == "ms":
-#             source_column = source_column / 1_000.0
-#
-#         output_column = source_column.cast(T.DoubleType())
-#
-#         if output_time_unit == "ms":
-#             output_column = output_column * 1_000.0
-#
-#         return output_column.cast(cast).alias(name)
-#
-#     args = dict(
-#         input_time_unit=kwargs.get("input_time_unit", "ms"),
-#         output_time_unit=kwargs.get("output_time_unit", "sec"),
-#         alt_src_cols=kwargs.get("alt_src_cols", False),
-#         cast=kwargs.get("cast", T.LongType()),
-#     )
-#
-#     return _get_executable_function(_inner_func, source_column, name, **args)
 
+# Convenience Methods
 
-# Convenience Methods #
 
 def to_str(source_column=None, name=None, **kwargs: Any) -> Union[partial, Column]:
     """
@@ -1102,8 +1028,6 @@ def to_str(source_column=None, name=None, **kwargs: Any) -> Union[partial, Colum
     -----------------
     alt_src_cols : str, default -> no coalescing, only source_column
         Coalesce with source_column and columns from this parameter.
-    cast : T.DataType(), default -> T.StringType()
-        Applies provided datatype on output column (``.cast(cast)``)
 
     Examples
     --------
@@ -1147,7 +1071,7 @@ def to_str(source_column=None, name=None, **kwargs: Any) -> Union[partial, Colum
 
 def to_int(source_column=None, name=None, **kwargs: Any) -> Union[partial, Column]:
     """
-    Syntactic sugar for calling ``to_num(cast=T.IntegerType())``
+    Syntactic sugar for calling ``to_num(cast="int")``
 
     https://spooq.rtfd.io/en/latest/transformer/mapper_transformations.html#to_num
 
@@ -1173,7 +1097,7 @@ def to_int(source_column=None, name=None, **kwargs: Any) -> Union[partial, Colum
 
     args = dict(
         alt_src_cols=kwargs.get("alt_src_cols", False),
-        cast=T.IntegerType(),
+        cast="int",
     )
 
     return to_num(source_column, name, **args)
@@ -1181,7 +1105,7 @@ def to_int(source_column=None, name=None, **kwargs: Any) -> Union[partial, Colum
 
 def to_long(source_column=None, name=None, **kwargs: Any) -> Union[partial, Column]:
     """
-    Syntactic sugar for calling ``to_num(cast=T.LongType())``
+    Syntactic sugar for calling ``to_num(cast="long")``
 
     https://spooq.rtfd.io/en/latest/transformer/mapper_transformations.html#to_num
 
@@ -1207,7 +1131,7 @@ def to_long(source_column=None, name=None, **kwargs: Any) -> Union[partial, Colu
 
     args = dict(
         alt_src_cols=kwargs.get("alt_src_cols", False),
-        cast=T.LongType(),
+        cast="long",
     )
 
     return to_num(source_column, name, **args)
@@ -1215,7 +1139,7 @@ def to_long(source_column=None, name=None, **kwargs: Any) -> Union[partial, Colu
 
 def to_float(source_column=None, name=None, **kwargs: Any) -> Union[partial, Column]:
     """
-    Syntactic sugar for calling ``to_num(cast=T.FloatType())``
+    Syntactic sugar for calling ``to_num(cast="float")``
 
     https://spooq.rtfd.io/en/latest/transformer/mapper_transformations.html#to_num
 
@@ -1241,7 +1165,7 @@ def to_float(source_column=None, name=None, **kwargs: Any) -> Union[partial, Col
 
     args = dict(
         alt_src_cols=kwargs.get("alt_src_cols", False),
-        cast=T.FloatType(),
+        cast="float",
     )
 
     return to_num(source_column, name, **args)
@@ -1249,7 +1173,7 @@ def to_float(source_column=None, name=None, **kwargs: Any) -> Union[partial, Col
 
 def to_double(source_column=None, name=None, **kwargs: Any) -> Union[partial, Column]:
     """
-    Syntactic sugar for calling ``to_num(cast=T.DoubleType())``
+    Syntactic sugar for calling ``to_num(cast="double")``
 
     https://spooq.rtfd.io/en/latest/transformer/mapper_transformations.html#to_num
 
@@ -1275,7 +1199,7 @@ def to_double(source_column=None, name=None, **kwargs: Any) -> Union[partial, Co
 
     args = dict(
         alt_src_cols=kwargs.get("alt_src_cols", False),
-        cast=T.DoubleType(),
+        cast="double",
     )
 
     return to_num(source_column, name, **args)

@@ -56,29 +56,31 @@ Example
     |    |-- dt: string (nullable = true)
     |    |-- cmt: string (nullable = true)
 
+
    mapping = [
        # output_name     # source                # transformation
-      ("index",          "a.idx",                spq.to_int),
-      ("is_enabled",     "a.sts",                spq.to_bool),
-      ("a_updated_at",   "a.ts",                 spq.to_timestamp),
-      ("items",          "b.itms",               spq.str_to_array(cast="int")),
-      ("block_status",   "b.sts",                spq.map_values(mapping={"whitelisted": "allowed", "blacklisted": "blocked"})),
-      ("b_updated_at",   "b.ts",                 spq.to_timestamp),
-      ("has_email",      "c.email",              spq.has_value),
-      ("gender",         "c.gndr",               spq.apply(func=F.lower)),
-      ("creation_date",  "c.dt",                 spq.to_timestamp(cast="date")),
-      ("processed_at",   F.current_timestamp(),  spq.as_is),
-      ("comment",        "c.cmt",                "string"),  # alternatively: spq.to_str or spq.as_is(cast="string")
+      ("index",          "a.idx",                spq.to_int),  # removes leading zeros and underline characters
+      ("is_enabled",     "a.sts",                spq.to_bool),  # recognizes additional words like "on", "off", "disabled", "enabled", ...
+      ("a_updated_at",   "a.ts",                 spq.to_timestamp),  # supports unix timestamps in ms or seconds and strings
+      ("items",          "b.itms",               spq.str_to_array(cast="int")),  # splits a comma delimited string into an array and casts its elements
+      ("block_status",   "b.sts",                spq.map_values(mapping={"whitelisted": "allowed", "blacklisted": "blocked"})),  # applies lookup dictionary
+      ("b_updated_at",   "b.ts",                 spq.to_timestamp),  # supports unix timestamps in ms or seconds and strings
+      ("has_email",      "c.email",              spq.has_value),  # interprets also empty strings as no value, although, zeros are values
+      ("gender",         "c.gndr",               spq.apply(func=F.lower)),  # applies provided function to all values
+      ("creation_date",  "c.dt",                 spq.to_timestamp(cast="date")),  # explicitly casts result after transformation
+      ("processed_at",   F.current_timestamp(),  spq.as_is),  # source column is a function, no transformation to the results
+      ("comment",        "c.cmt",                "string"),  # no transformation, only cast; alternatively: spq.to_str or spq.as_is(cast="string")
    ]
    output_df = Mapper(mapping).transform(input_df)
 
    output_df.show(truncate=False)
-   +------+----------+-----------------------+---------+------------+-------------------+---------+------+-------------+-----------------------+-------+
-   |index |is_enabled|a_updated_at           |items    |block_status|b_updated_at       |has_email|gender|creation_date|processed_at           |comment|
-   +------+----------+-----------------------+---------+------------+-------------------+---------+------+-------------+-----------------------+-------+
-   |123456|true      |2020-08-10 16:24:06    |[1, 2, 4]|allowed     |2020-08-12 14:43:14|true     |f     |2020-08-12   |2022-08-11 18:08:17.339|fine   |
-   |654321|false     |2020-08-10 16:25:00.784|[5]      |blocked     |2020-07-01 14:43:14|false    |m     |2020-07-01   |2022-08-11 18:08:17.339|faulty |
-   +------+----------+-----------------------+---------+------------+-------------------+---------+------+-------------+-----------------------+-------+
+   +------+----------+-----------------------+---------+------------+-------------------+---------+------+-------------+----------------------+-------+
+   |index |is_enabled|a_updated_at           |items    |block_status|b_updated_at       |has_email|gender|creation_date|processed_at          |comment|
+   +------+----------+-----------------------+---------+------------+-------------------+---------+------+-------------+----------------------+-------+
+   |123456|true      |2020-08-10 16:24:06    |[1, 2, 4]|allowed     |2020-08-12 14:43:14|true     |f     |2020-08-05   |2022-08-12 09:17:09.83|fine   |
+   |654321|false     |2020-08-10 16:25:00.784|[5]      |blocked     |2020-07-01 14:43:14|false    |m     |2020-06-27   |2022-08-12 09:17:09.83|faulty |
+   +------+----------+-----------------------+---------+------------+-------------------+---------+------+-------------+----------------------+-------+
+
 
    output_df.printSchema()
    root
@@ -94,6 +96,7 @@ Example
     |-- creation_date: date (nullable = true)
     |-- processed_at: timestamp (nullable = false)
     |-- comment: string (nullable = true)
+
 
 Table of Content
 ================
