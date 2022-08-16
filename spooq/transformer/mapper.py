@@ -139,10 +139,12 @@ class Mapper(Transformer):
 
         if "ignore_missing_columns" in kwargs:
             message = "Parameter `ignore_missing_columns` is deprecated, use `missing_column_handling` instead!"
+            if kwargs["ignore_missing_columns"]:
+                message += "\n`missing_column_handling` was set to `nullify` because you defined " \
+                           "`ignore_missing_columns=True`!"
+                self.missing_column_handling = "nullify"
             self.logger.warn(message)
             warnings.warn(message=message, category=FutureWarning)
-            if kwargs["ignore_missing_columns"]:
-                self.missing_column_handling = "nullify"
 
         if self.missing_column_handling not in ["raise_error", "skip", "nullify"]:
             raise ValueError("""Only the following values are allowed for `missing_column_handling`: 
