@@ -47,9 +47,6 @@ class Mapper(Transformer):
         clean, pivot, anonymize, ... the data itself. Please have a look at the
         :py:mod:`spooq.transformer.mapper_custom_data_types` module for more information.
 
-    ignore_missing_columns : :any:`bool`, Defaults to False
-        DEPRECATED: please use missing_column_handling instead!
-
     missing_column_handling : :any:`str`, Defaults to 'raise_error'
         Specifies how to proceed in case a source column does not exist in the source DataFrame:
             * raise_error (default)
@@ -80,6 +77,13 @@ class Mapper(Transformer):
                 exists in the input DataFrame, its position is kept.
                 => output schema: new columns + input columns
 
+
+    Keyword Arguments
+    -----------------
+    ignore_missing_columns : :any:`bool`, Defaults to False
+        DEPRECATED: please use missing_column_handling instead!
+
+
     Note
     ----
     Let's talk about Mappings:
@@ -105,10 +109,9 @@ class Mapper(Transformer):
     Note
     ----
     The available input columns can vary from batch to batch if you use schema inference
-    (f.e. on json data) for the extraction. Ignoring missing columns on the input DataFrame is
-    highly encouraged in this case. Although, if you have tight control over the structure
-    of the extracted DataFrame, setting `ignore_missing_columns` to True is advised
-    as it can uncover typos and bugs.
+    (f.e. on json data) for the extraction. Via the parameter `missing_column_handling` you can specify a strategy on
+    how to handle missing columns on the input DataFrame.
+    It is advised to use the 'raise_error' option as it can uncover typos and bugs.
 
     Note
     ----
@@ -136,11 +139,10 @@ class Mapper(Transformer):
 
         if "ignore_missing_columns" in kwargs:
             message = "Parameter `ignore_missing_columns` is deprecated, use `missing_column_handling` instead!"
-            if kwargs["ignore_missing_columns"] and missing_column_handling != "nullify":
-                raise ValueError(message)
-            else:
-                self.logger.warn(message)
-                warnings.warn(message=message, category=FutureWarning)
+            self.logger.warn(message)
+            warnings.warn(message=message, category=FutureWarning)
+            if kwargs["ignore_missing_columns"]:
+                self.missing_column_handling = "nullify"
 
         if self.missing_column_handling not in ["raise_error", "skip", "nullify"]:
             raise ValueError("""Only the following values are allowed for `missing_column_handling`: 
