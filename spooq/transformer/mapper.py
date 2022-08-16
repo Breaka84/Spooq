@@ -135,13 +135,9 @@ class Mapper(Transformer):
         self.mode = mode
 
         if "ignore_missing_columns" in kwargs:
-            self.logger.warn("Parameter `ignore_missing_columns` is deprecated, use `missing_column_handling` "
-                             "parameter instead!")
-            warnings.warn(
-                message="Parameter `ignore_missing_columns` is deprecated, use `missing_column_handling` "
-                        "parameter instead!",
-                category=FutureWarning
-            )
+            warning = "Parameter `ignore_missing_columns` is deprecated, use `missing_column_handling` instead!"
+            self.logger.warn(warning)
+            warnings.warn(message=warning, category=FutureWarning)
             if kwargs["ignore_missing_columns"]:
                 self.missing_column_handling = "nullify"
 
