@@ -48,19 +48,16 @@ class Mapper(Transformer):
         :py:mod:`spooq.transformer.mapper_custom_data_types` module for more information.
 
     ignore_missing_columns : :any:`bool`, Defaults to False
-        DEPRECATED: please use nullify_missing_columns instead!
+        DEPRECATED: please use missing_columns_handling instead!
 
-    nullify_missing_columns : :any:`bool`, Defaults to False
-        Specifies if the mapping transformation should use NULL if a referenced input
-        column is missing in the provided DataFrame. Only one of `nullify_missing_columns` and `skip_missing_columns`
-        can be set to True. If none of the two is set to True then an exception will be raised in case the input
-        column was not found.
-
-    skip_missing_columns : :any:`bool`, Defaults to False
-        Specifies if the mapping transformation should be skipped if a referenced input
-        column is missing in the provided DataFrame. Only one of `nullify_missing_columns` and `skip_missing_columns`
-        can be set to True. If none of the two is set to True then an exception will be raised in case the input
-        column was not found.
+    missing_columns_handling : :any:`str`, Defaults to 'raise_error'
+        Specifies how to proceed in case a source column does not exist in the source DataFrame:
+            * raise_error (default)
+                Raise an exception
+            * nullify
+                Create source column filled with null
+            * skip
+                Skip the mapping transformation
 
     ignore_ambiguous_columns : :any:`bool`, Defaults to False
         It can happen that the input DataFrame has ambiguous column names (like "Key" vs "key") which will
@@ -126,28 +123,33 @@ class Mapper(Transformer):
     def __init__(
         self,
         mapping,
-        ignore_missing_columns=False,
         ignore_ambiguous_columns=False,
-        nullify_missing_columns=False,
-        skip_missing_columns=False,
+        missing_column_handling="raise_error",
         mode="replace",
+        **kwargs
     ):
         super(Mapper, self).__init__()
-        self.logger.warn("Parameter `ignore_missing_columns` is deprecated, use `nullify_missing_columns` instead!")
-        warnings.warn(
-            message="Parameter `ignore_missing_columns` is deprecated, use `nullify_missing_columns` instead!",
-            category=FutureWarning
-        )
         self.mapping = mapping
-        self.nullify_missing_columns = nullify_missing_columns or ignore_missing_columns
-        self.skip_missing_columns = skip_missing_columns
-        if self.nullify_missing_columns and self.skip_missing_columns:
-            raise ValueError(
-                "Only one of the parameters `nullify_missing_columns` (before `ignore_missing_columns`) and "
-                "`skip_missing_columns` can be set to True!"
-            )
+        self.missing_column_handling = missing_column_handling
         self.ignore_ambiguous_columns = ignore_ambiguous_columns
         self.mode = mode
+
+        if "ignore_missing_columns" in kwargs:
+            self.logger.warn("Parameter `ignore_missing_columns` is deprecated, use `missing_column_handling` "
+                             "parameter instead!")
+            warnings.warn(
+                message="Parameter `ignore_missing_columns` is deprecated, use `missing_column_handling` "
+                        "parameter instead!",
+                category=FutureWarning
+            )
+            if kwargs["ignore_missing_columns"]:
+                self.missing_column_handling = "nullify"
+
+        if self.missing_column_handling not in ["raise_error", "skip", "nullify"]:
+            raise ValueError("""Only the following values are allowed for `missing_column_handling`: 
+                - raise_error: raise an exception in case the source column is missing
+                - skip: skip transformation in case the source is missing
+                - nullify: set source column to null in case it is missing""")
 
     def transform(self, input_df):
         self.logger.info("Generating SQL Select-Expression for Mapping...")
@@ -208,14 +210,14 @@ class Mapper(Transformer):
                 source_column = F.col(source_column)
 
         except AnalysisException as e:
-            if isinstance(source_column, str) and self.skip_missing_columns:
+            if isinstance(source_column, str) and self.missing_column_handling == "skip":
                 self.logger.warn(
-                    f"Missing column ({str(source_column)}) skipped (via skip_missing_columns=True): {e.desc}"
+                    f"Missing column ({str(source_column)}) skipped (via missing_column_handling='skip'): {e.desc}"
                 )
                 return None
-            elif isinstance(source_column, str) and self.nullify_missing_columns:
+            elif isinstance(source_column, str) and self.missing_column_handling == "nullify":
                 self.logger.warn(
-                    f"Missing column ({str(source_column)}) replaced with NULL (via nullify_missing_columns=True): {e.desc}"
+                    f"Missing column ({str(source_column)}) replaced with NULL (via missing_column_handling='nullify'): {e.desc}"
                 )
                 source_column = F.lit(None)
             elif "ambiguous" in e.desc.lower() and self.ignore_ambiguous_columns:

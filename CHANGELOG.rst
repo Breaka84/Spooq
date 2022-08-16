@@ -2,6 +2,10 @@
 Changelog
 =========
 
+3.3.9 (2022-08-16)
+* [MOD] Mapper: Replace missing column parameters (`nullify_missing_columns`, `skip_missing_columns`,
+`ignore_missing_columns`) with one single parameter: `missing_column_handling`
+
 3.3.8 (2022-08-11)
 -------------------
 * [MOD] Mapper: Add additional parameter allowing skipping of transformations in case the source column is missing:
