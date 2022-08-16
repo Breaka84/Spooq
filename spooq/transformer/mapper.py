@@ -48,9 +48,9 @@ class Mapper(Transformer):
         :py:mod:`spooq.transformer.mapper_custom_data_types` module for more information.
 
     ignore_missing_columns : :any:`bool`, Defaults to False
-        DEPRECATED: please use missing_columns_handling instead!
+        DEPRECATED: please use missing_column_handling instead!
 
-    missing_columns_handling : :any:`str`, Defaults to 'raise_error'
+    missing_column_handling : :any:`str`, Defaults to 'raise_error'
         Specifies how to proceed in case a source column does not exist in the source DataFrame:
             * raise_error (default)
                 Raise an exception
