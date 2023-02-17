@@ -47,7 +47,7 @@ twine = "*"
 pandas = "*"
 future = "*"
 spooq = {path = ".", editable = true}
-pyspark = "==3.0.1"
+pyspark = "==3.2.2"
 requests = "*"
 
 [requires]
