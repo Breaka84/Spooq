@@ -1,4 +1,4 @@
-name: Tests Python 3.7
+name: Tests Python 3.8
 
 on:
   push:
@@ -34,10 +34,10 @@ jobs:
       uses: actions/setup-java@v1
       with:
         java-version: '8'
-    - name: Set up Python 3.7
+    - name: Set up Python 3.8
       uses: actions/setup-python@v2
       with:
-        python-version: 3.7
+        python-version: 3.8
     - name: Install pipenv
       run: pip install pipenv
     - name: Run tests with Pyspark ${{ matrix.python-version }}
