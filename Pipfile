@@ -46,7 +46,7 @@ semver = "*"
 pandas = "*"
 future = "*"
 spooq = {path = ".", editable = true}
-pyspark = "==3.2.1"
+pyspark = "==3.3.0"
 requests = "*"
 
 [requires]
