@@ -12,7 +12,7 @@ Changelog
 * [ADD] Mapper: ``map_values`` transformation
 * [ADD] Mapper: ``apply`` transformation
 * [MOD] Tests use now Python 3.8
-* [MOD] Spark 3.2.1 compatibility
+* [MOD] Spark 3.3.0 compatibility (Tested for all Spark version from 3.0 to 3.3)
 * [MOD] Clean up documentation
 
 3.3.8 (2022-08-11)

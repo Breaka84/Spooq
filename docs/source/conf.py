@@ -50,6 +50,7 @@ extensions = [
     'sphinx.ext.todo',
     'sphinx.ext.coverage',
     'sphinx.ext.viewcode',
+    'sphinx.ext.autosummary',
 #    'sphinx.ext.githubpages',
     'sphinx.ext.napoleon',
     'sphinx.ext.intersphinx',
@@ -250,6 +251,13 @@ intersphinx_mapping = {
     'pyspark':        ('https://spark.apache.org/docs/3.2.1/api/python/', None)
 
 }
+
+rst_epilog = """
+.. |SPARK_FUNCTION| replace:: :py:func:`pyspark.sql.functions <pyspark.sql.functions.abs>`
+.. |SPARK_COLUMN| replace:: :class:`~pyspark.sql.Column`
+.. |SPARK_DATAFRAME| replace:: :class:`~pyspark.sql.DataFrame`
+"""
+
 
 # app setup hook
 git_doc_root = 'https://github.com/Breaka84/Spooq'

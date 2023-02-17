@@ -1,7 +1,6 @@
 Open
 ====
-\[ ] Add ``_parse_datatype_string`` in T for simple string data type support
-\[ ] Check Documentation!
+\[ ] Check Documentation for dead links (see DataFrame substitute!
 \[ ] Get some cookies
 
 Done

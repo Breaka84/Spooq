@@ -65,8 +65,6 @@ def as_is(source_column: Union[str, Column] = None, name: str = None, **kwargs) 
     Returns a renamed column without any casting. This is especially useful if you need to
     keep a complex data type (f.e. array, list or struct).
 
-    https://spooq.rtfd.io/en/latest/transformer/mapper_transformations.html#as-is
-
     Parameters
     ----------
     source_column : str or Column
@@ -87,6 +85,12 @@ def as_is(source_column: Union[str, Column] = None, name: str = None, **kwargs) 
     ...     Row(friends=[Row(first_name="Gianni", id=3993, last_name="Weber"),
     ...                  Row(first_name="Arielle", id=17484, last_name="Greaves")]),
     ... ])
+    >>>
+    >>> input_df.select(spq.as_is("friends.first_name")).show(truncate=False)
+    +-----------------+
+    |[Gianni, Arielle]|
+    +-----------------+
+    >>>
     >>> mapping = [("my_friends", "friends", spq.as_is)]
     >>> output_df = Mapper(mapping).transform(input_df)
     >>> output_df.show(truncate=False)
@@ -95,12 +99,7 @@ def as_is(source_column: Union[str, Column] = None, name: str = None, **kwargs) 
     +--------------------------------------------------+
     |[[Gianni, 3993, Weber], [Arielle, 17484, Greaves]]|
     +--------------------------------------------------+
-    >>> input_df.select(spq.as_is("friends.first_name")).show(truncate=False)
-    +-----------------+
-    |first_name       |
-    +-----------------+
-    |[Gianni, Arielle]|
-    +-----------------+
+
 
     Returns
     -------
@@ -130,9 +129,7 @@ def to_num(source_column=None, name=None, **kwargs: Any) -> Union[partial, Colum
     This method is able to additionally handle (compared to implicit Spark conversion):
 
         * Preceding and/or trailing whitespace
-        * underscores as thousand separators
-
-    https://spooq.rtfd.io/en/latest/transformer/mapper_transformations.html#to_num
+        * underscores as 'thousand' separators
 
     Parameters
     ----------
@@ -157,6 +154,14 @@ def to_num(source_column=None, name=None, **kwargs: Any) -> Union[partial, Colum
     ...         Row(input_string="123_456")
     ...     ], schema="input_key string"
     ... )
+    >>>
+    >>> input_df.select(spq.to_num("input_key")).show(truncate=False)
+    +---------+
+    |123456   |
+    |null     |
+    |123456   |
+    +---------+
+    >>>
     >>> mapping = [
     ...     ("original_value",    "input_key", spq.as_is),
     ...     ("transformed_value", "input_key", spq.to_num)
@@ -198,8 +203,6 @@ def to_bool(source_column=None, name=None, **kwargs: Any) -> partial:
 
         * Preceding and/or trailing whitespace
         * Define additional strings for true/false values ("on"/"off", "enabled"/"disabled" are added by default)
-
-    https://spooq.rtfd.io/en/latest/transformer/mapper_transformations.html#to_bool
 
     Parameters
     ----------
@@ -258,12 +261,23 @@ def to_bool(source_column=None, name=None, **kwargs: Any) -> partial:
     ...         Row(input_string="123"),
     ...         Row(input_string="1"),
     ...         Row(input_string="Enabled"),
+    ...         Row(input_string="?"),
     ...         Row(input_string="n")
     ...     ], schema="input_key string"
     ... )
+    >>>
+    >>> input_df.select(spq.to_bool("input_key", false_values=["?"])).show(truncate=False)
+    +---------+
+    |false    |
+    |null     |
+    |true     |
+    |false    |
+    |false    |
+    +---------+
+    >>>
     >>> mapping = [
     ...     ("original_value",    "input_key", spq.as_is),
-    ...     ("transformed_value", "input_key", spq.to_bool)
+    ...     ("transformed_value", "input_key", spq.to_bool(false_values=["?"]))
     ... ]
     >>> output_df = Mapper(mapping).transform(input_df)
     >>> output_df.show(truncate=False)
@@ -274,6 +288,7 @@ def to_bool(source_column=None, name=None, **kwargs: Any) -> partial:
     |123           |null             |
     |1             |true             |
     |Enabled       |true             |
+    |?             |false            |
     |n             |false            |
     +--------------+-----------------+
 
@@ -333,8 +348,6 @@ def to_timestamp(source_column=None, name=None, **kwargs: Any) -> partial:
         * Timestamps in any custom format (via ``input_format``)
         * Preceding and/or trailing whitespace
 
-    https://spooq.rtfd.io/en/latest/transformer/mapper_transformations.html#to_timestamp
-
     Parameters
     ----------
     source_column : str or Column
@@ -370,12 +383,21 @@ def to_timestamp(source_column=None, name=None, **kwargs: Any) -> partial:
     --------
     >>> input_df = spark.createDataFrame(
     ...     [
-    ...         Row(input_string="2020-08-12T12:43:14+0000"),
-    ...         Row(input_string="1597069446"),
-    ...         Row(input_string="1597069446000"),
-    ...         Row(input_string="2020-08-12"),
+    ...         Row(input_key="2020-08-12T12:43:14+0000"),
+    ...         Row(input_key="1597069446"),
+    ...         Row(input_key="1597069446000"),
+    ...         Row(input_key="2020-08-12"),
     ...     ], schema="input_key string"
     ... )
+    >>>
+    >>> input_df.select(spq.to_timestamp("input_key")).show(truncate=False)
+    +-------------------+
+    |2020-08-12 14:43:14|
+    |2020-08-10 16:24:06|
+    |2020-08-10 16:24:06|
+    |2020-08-12 00:00:00|
+    +-------------------+
+    >>>
     >>> mapping = [
     ...     ("original_value",    "input_key", spq.as_is),
     ...     ("transformed_value", "input_key", spq.to_timestamp)
@@ -454,8 +476,6 @@ def str_to_array(source_column=None, name=None, **kwargs: Any) -> partial:
     """
     Splits a string into a list (ArrayType).
 
-    https://spooq.rtfd.io/en/latest/transformer/mapper_transformations.html#str_to_array
-
     Parameters
     ----------
     source_column : str or Column
@@ -474,11 +494,19 @@ def str_to_array(source_column=None, name=None, **kwargs: Any) -> partial:
     --------
     >>> input_df = spark.createDataFrame(
     ...     [
-    ...         Row(input_column="[item1,item2,3]"),
-    ...         Row(input_column="item1,it[e]m2,it em3"),
-    ...         Row(input_column="    item1,   item2    ,   item3")
+    ...         Row(input_key="[item1,item2,3]"),
+    ...         Row(input_key="item1,it[e]m2,it em3"),
+    ...         Row(input_key="    item1,   item2    ,   item3")
     ...     ], schema="input_key string"
     ... )
+    >>>
+    >>> input_df.select(spq.str_to_array("input_key")).show(truncate=False)
+    +------------------------+
+    |[item1, item2, 3]       |
+    |[item1, it[e]m2, it em3]|
+    |[item1, item2, item3]   |
+    +------------------------+
+    >>>
     >>> mapping = [
     ...     ("original_value",    "input_key", spq.as_is),
     ...     ("transformed_value", "input_key", spq.str_to_array)
@@ -531,8 +559,6 @@ def str_to_array(source_column=None, name=None, **kwargs: Any) -> partial:
 def map_values(source_column=None, name=None, **kwargs: Any) -> partial:
     """
     Maps input values to specified output values.
-
-    https://spooq.rtfd.io/en/latest/transformer/mapper_transformations.html#map_values
 
     Parameters
     ----------
@@ -598,6 +624,17 @@ def map_values(source_column=None, name=None, **kwargs: Any) -> partial:
     ...     ], schema="input_key string"
     ... )
     >>> substitute_mapping = {"whitelist": "allowlist", "blacklist": "blocklist"}
+    >>>
+    >>> input_df.select(spq.map_values("input_key", mapping=substitute_mapping)).show(truncate=False)
+    +------------+
+    |allowlist   |
+    |allowlist   |
+    |blocklist   |
+    |blocklist   |
+    |blocklist   |
+    |Shoppinglist|
+    +------------+
+    >>>
     >>> mapping = [
     ...     ("original_value",    "input_key", spq.as_is),
     ...     ("transformed_value", "input_key", spq.map_values(mapping=substitute_mapping))
@@ -686,8 +723,6 @@ def meters_to_cm(source_column=None, name=None, **kwargs: Any) -> partial:
     """
     Converts meters to cm and casts the result to an IntegerType.
 
-    https://spooq.rtfd.io/en/latest/transformer/mapper_transformations.html#meters_to_cm
-
     Parameters
     ----------
     source_column : str or Column
@@ -709,6 +744,14 @@ def meters_to_cm(source_column=None, name=None, **kwargs: Any) -> partial:
     ...     Row(size_in_m=1.65),
     ...     Row(size_in_m=2.05)
     ... ])
+    >>>
+    >>> input_df.select(spq.meters_to_cm("size_in_m")).show(truncate=False)
+    +---------+
+    |180      |
+    |165      |
+    |204      |
+    +---------+
+    >>>
     >>> mapping = [
     ...     ("original_value",  "size_in_m",  spq.as_is),
     ...     ("size_in_cm",      "size_in_m",  spq.meters_to_cm),
@@ -750,8 +793,6 @@ def has_value(source_column=None, name=None, **kwargs: Any) -> partial:
         - not "" (empty string)
         - otherwise it returns False
 
-    https://spooq.rtfd.io/en/latest/transformer/mapper_transformations.html#has_value
-
     Warning
     -------
     This means that it will return True for values which would indicate a False value. Like "false" or 0!!!
@@ -780,20 +821,29 @@ def has_value(source_column=None, name=None, **kwargs: Any) -> partial:
     ...         Row(input_key="")
     ...     ], schema="input_key string"
     ... )
+    >>>
+    >>> input_df.select(spq.has_value("input_key")).show(truncate=False)
+    +---------+
+    |true     |
+    |false    |
+    |true     |
+    |false    |
+    +---------+
+    >>>
     >>> mapping = [
     ...     ("original_value",      "input_key",  spq.as_is),
-    ...     ("does_it_have_value",  "input_key",  spq.has_value)
+    ...     ("has_value",  "input_key",  spq.has_value)
     ... ]
     >>> output_df = Mapper(mapping).transform(input_df)
     >>> output_df.show(truncate=False)
-    +--------------+------------------+
-    |original_value|does_it_have_value|
-    +--------------+------------------+
-    |false         |true              |
-    |null          |false             |
-    |some text     |true              |
-    |              |false             |
-    +--------------+------------------+
+    +--------------+---------+
+    |original_value|has_value|
+    +--------------+---------+
+    |false         |true     |
+    |null          |false    |
+    |some text     |true     |
+    |              |false    |
+    +--------------+---------+
 
     Returns
     -------
@@ -824,8 +874,6 @@ def apply(source_column=None, name=None, **kwargs: Any) -> partial:
     """
     Applies a function / partial
 
-    https://spooq.rtfd.io/en/latest/transformer/mapper_transformations.html#apply
-
     Parameters
     ----------
     source_column : str or Column
@@ -854,6 +902,17 @@ def apply(source_column=None, name=None, **kwargs: Any) -> partial:
     ...         ("M", ),
     ...     ], schema="input_key string"
     ... )
+    >>>
+    >>> input_df.select(spq.apply("input_key", func=F.lower)).show(truncate=False)
+    +---------+
+    |f        |
+    |f        |
+    |x        |
+    |x        |
+    |m        |
+    |m        |
+    +---------+
+    >>>
     >>> mapping = [
     ...     ("original_value",    "input_key", spq.as_is),
     ...     ("transformed_value", "input_key", spq.apply(func=F.lower))
@@ -888,20 +947,20 @@ def apply(source_column=None, name=None, **kwargs: Any) -> partial:
     ...     ).otherwise(F.lit(False))
     ...
     >>> mapping = [
-    ...     ("original_value",    "input_key", spq.as_is),
-    ...     ("transformed_value", "input_key", spq.apply(func=_has_hotmail))
+    ...     ("original_value", "input_key", spq.as_is),
+    ...     ("over_sixty",     "input_key", spq.apply(func=_has_hotmail))
     ... ]
     >>> output_df = Mapper(mapping).transform(input_df)
     >>> output_df.show(truncate=False)
-    +------------------------+-----------------+
-    |original_value          |transformed_value|
-    +------------------------+-----------------+
-    |sarajishvilileqso@gmx.at|false            |
-    |jnnqn@astrinurdin.art   |false            |
-    |321aw@hotmail.com       |true             |
-    |techbrenda@hotmail.com  |true             |
-    |sdsxcx@gmail.com        |false            |
-    +------------------------+-----------------+
+    +------------------------+----------+
+    |original_value          |over_sixty|
+    +------------------------+----------+
+    |sarajishvilileqso@gmx.at|false     |
+    |jnnqn@astrinurdin.art   |false     |
+    |321aw@hotmail.com       |true      |
+    |techbrenda@hotmail.com  |true      |
+    |sdsxcx@gmail.com        |false     |
+    +------------------------+----------+
 
     Returns
     -------
@@ -938,8 +997,6 @@ def to_json_string(source_column=None, name=None, **kwargs: Any) -> partial:
     This function also supports NULL and strings as input in comparison to Spark's built-in ``to_json``.
     The unicode representation of a column will be returned if an error occurs.
 
-    https://spooq.rtfd.io/en/latest/transformer/mapper_transformations.html#to_json_string
-
     Parameters
     ----------
     source_column : str or Column
@@ -960,6 +1017,12 @@ def to_json_string(source_column=None, name=None, **kwargs: Any) -> partial:
     ...     Row(friends=[Row(first_name="Gianni", id=3993, last_name="Weber"),
     ...                  Row(first_name="Arielle", id=17484, last_name="Greaves")]),
     ... ])
+    >>>
+    >>> input_df.select(spq.to_json_string("friends")).show(truncate=False)
+    +----------------------------------------------------------------------------------------------------------------------------+
+    |[{"first_name": "Gianni", "id": 3993, "last_name": "Weber"}, {"first_name": "Arielle", "id": 17484, "last_name": "Greaves"}]|
+    +----------------------------------------------------------------------------------------------------------------------------+
+    >>>
     >>> mapping = [("friends_json", "friends", spq.to_json_string)]
     >>> output_df = Mapper(mapping).transform(input_df)
     >>> output_df.show(truncate=False)
@@ -1015,8 +1078,6 @@ def to_str(source_column=None, name=None, **kwargs: Any) -> Union[partial, Colum
     """
     Convenience transformation that only casts to string.
 
-    https://spooq.rtfd.io/en/latest/transformer/mapper_transformations.html#to_str
-
     Parameters
     ----------
     source_column : str or Column
@@ -1033,10 +1094,17 @@ def to_str(source_column=None, name=None, **kwargs: Any) -> Union[partial, Colum
     --------
     >>> input_df = spark.createDataFrame(
     ...     [
-    ...         Row(input_string=123456),
-    ...         Row(input_string=-123456),
+    ...         Row(input_key=123456),
+    ...         Row(input_key=-123456),
     ...     ], schema="input_key int"
     ... )
+    >>>
+    >>> input_df.select(spq.to_str("input_key")).show(truncate=False)
+    +---------+
+    |123456   |
+    |-123456  |
+    +---------+
+    >>>
     >>> mapping = [
     ...     ("original_value",    "input_key", spq.as_is),
     ...     ("transformed_value", "input_key", spq.to_str)
@@ -1073,8 +1141,6 @@ def to_int(source_column=None, name=None, **kwargs: Any) -> Union[partial, Colum
     """
     Syntactic sugar for calling ``to_num(cast="int")``
 
-    https://spooq.rtfd.io/en/latest/transformer/mapper_transformations.html#to_num
-
     Parameters
     ----------
     source_column : str or Column
@@ -1106,8 +1172,6 @@ def to_int(source_column=None, name=None, **kwargs: Any) -> Union[partial, Colum
 def to_long(source_column=None, name=None, **kwargs: Any) -> Union[partial, Column]:
     """
     Syntactic sugar for calling ``to_num(cast="long")``
-
-    https://spooq.rtfd.io/en/latest/transformer/mapper_transformations.html#to_num
 
     Parameters
     ----------
@@ -1141,8 +1205,6 @@ def to_float(source_column=None, name=None, **kwargs: Any) -> Union[partial, Col
     """
     Syntactic sugar for calling ``to_num(cast="float")``
 
-    https://spooq.rtfd.io/en/latest/transformer/mapper_transformations.html#to_num
-
     Parameters
     ----------
     source_column : str or Column
@@ -1174,8 +1236,6 @@ def to_float(source_column=None, name=None, **kwargs: Any) -> Union[partial, Col
 def to_double(source_column=None, name=None, **kwargs: Any) -> Union[partial, Column]:
     """
     Syntactic sugar for calling ``to_num(cast="double")``
-
-    https://spooq.rtfd.io/en/latest/transformer/mapper_transformations.html#to_num
 
     Parameters
     ----------

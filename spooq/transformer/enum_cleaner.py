@@ -88,7 +88,7 @@ class EnumCleaner(BaseCleaner):
 
     Returns
     -------
-    :any:`pyspark.sql.DataFrame`
+    |SPARK_DATAFRAME|
         The transformed DataFrame
 
     Raises

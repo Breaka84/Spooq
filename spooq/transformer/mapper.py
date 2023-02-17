@@ -107,7 +107,7 @@ class Mapper(Transformer):
         DataTypes can be types from :py:mod:`pyspark.sql.types` (like T.StringType()),
         simple strings supported by PySpark (like "string") and custom transformations provided by spooq
         (like spq.to_timestamp). You can find more information about the transformations at
-        https://spooq.rtfd.io/en/latest/transformer/mapper_transformations.html.
+        https://spooq.rtfd.io/en/latest/transformer/mapper.html#module-spooq.transformer.mapper_transformations.
 
     Note
     ----

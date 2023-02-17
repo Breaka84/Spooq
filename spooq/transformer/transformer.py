@@ -1,11 +1,11 @@
 """
-Transformers take a :py:class:`pyspark.sql.DataFrame` as an input, transform it accordingly
-and return a :py:class:`pyspark.sql.DataFrame`.
+Transformers take a |SPARK_DATAFRAME| as an input, transform it accordingly
+and return a |SPARK_DATAFRAME|.
 
 Each Transformer class has to have a `transform` method which takes no arguments
-and returns a :py:class:`pyspark.sql.DataFrame`.
+and returns a |SPARK_DATAFRAME|.
 
-Possible transformation methods can be Selecting the most up to date record by id,
+Possible transformation methods can be Selecting the most up-to-date record by id,
 Exploding an array, Filter (on an exploded array), Apply basic threshold cleansing or
 Map the incoming DataFrame to at provided structure.
 """
@@ -36,17 +36,17 @@ class Transformer(object):
 
         Parameters
         ----------
-        input_df : :py:class:`pyspark.sql.DataFrame`
+        input_df : |SPARK_DATAFRAME|
             Input DataFrame
 
         Returns
         -------
-        :py:class:`pyspark.sql.DataFrame`
+        |SPARK_DATAFRAME|
             Transformed DataFrame.
 
         Note
         ----
-        This method does only take the Input DataFrame as a parameters. All other needed parameters
+        This method does only take the Input DataFrame as a parameters. Any other needed parameters
         are defined in the initialization of the Transformator Object.
         """
         raise NotImplementedError("This method has to be implemented in the subclasses")
