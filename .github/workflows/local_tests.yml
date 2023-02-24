@@ -1,12 +1,9 @@
-name: Tests
-
-on:
-  pull_request:
-    types: [labeled]
+name: Run Github Action Tests locally
+on: workflow_dispatch
 
 jobs:
-  test_on_label:
-    if: github.event.label.name == 'test-it'
+  unit_tests:
+    if: ${{ env.ACT }}
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -39,3 +36,4 @@ jobs:
         pipenv install --dev
         pipenv install $PIP_PACKAGES
         pipenv run pytest
+        
