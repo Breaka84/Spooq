@@ -11,7 +11,7 @@ import semver
 
 import spooq.transformer.mapper_custom_data_types as custom_types
 from spooq.transformer import Mapper
-from ...data.test_fixtures.mapper_custom_data_types_fixtures import (
+from tests.data.test_fixtures.mapper_custom_data_types_fixtures import (
     fixtures_for_has_value,
     fixtures_for_str_to_int,
     fixtures_for_str_to_long,
@@ -29,7 +29,7 @@ from ...data.test_fixtures.mapper_custom_data_types_fixtures import (
     fixtures_for_timestamp_ms_to_s,
     fixtures_for_timestamp_s_to_ms,
 )
-from ...helpers.skip_conditions import only_spark2, only_spark3
+from tests.helpers.skip_conditions import only_spark2, only_spark3
 
 
 def get_spark_data_type(input_value):

@@ -10,7 +10,7 @@ from pyspark.sql import functions as F, types as T
 
 from spooq.transformer import mapper_transformations as spq
 from spooq.transformer import Mapper
-from ...data.test_fixtures.mapper_custom_data_types_fixtures import *
+from tests.data.test_fixtures.mapper_custom_data_types_fixtures import *
 
 
 @pytest.fixture()
