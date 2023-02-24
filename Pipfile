@@ -19,7 +19,6 @@ pytest-html = "*"
 pytest-pspec = "*"
 pytest-mock = "*"
 pytest-random-order = "*"
-pytest-spark = "*"
 mock = "*"
 pytest-env = "*"
 chispa = "*"
@@ -46,7 +45,8 @@ semver = "*"
 pandas = "*"
 future = "*"
 spooq = {path = ".", editable = true}
-pyspark = "==3.3.0"
+pyspark = "==3.3.2"
+delta-spark = "==2.2.0"
 requests = "*"
 
 [requires]

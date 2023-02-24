@@ -11,23 +11,31 @@ jobs:
       matrix:
         include:
           - pyspark-version: 3.0.1
-            pyspark-pip-package: "pyspark==3.0.1"
+            pip-packages: "pyspark==3.0.1 delta-spark==0.8.0"
           - pyspark-version: 3.0.2
-            pyspark-pip-package: "pyspark==3.0.2"
+            pip-packages: "pyspark==3.0.2 delta-spark==0.8.0"
           - pyspark-version: 3.0.3
-            pyspark-pip-package: "pyspark==3.0.3"
+            pip-packages: "pyspark==3.0.3 delta-spark==0.8.0"
           - pyspark-version: 3.1.1
-            pyspark-pip-package: "pyspark==3.1.1"
+            pip-packages: "pyspark==3.1.1 delta-spark==1.0.1"
           - pyspark-version: 3.1.2
-            pyspark-pip-package: "pyspark==3.1.2"
+            pip-packages: "pyspark==3.1.2 delta-spark==1.0.1"
+          - pyspark-version: 3.1.3
+            pip-packages: "pyspark==3.1.3 delta-spark==1.0.1"
           - pyspark-version: 3.2.0
-            pyspark-pip-package: "pyspark==3.2.0"
+            pip-packages: "pyspark==3.2.0 delta-spark==2.0.2"
           - pyspark-version: 3.2.1
-            pyspark-pip-package: "pyspark==3.2.1"
+            pip-packages: "pyspark==3.2.1 delta-spark==2.0.2"
           - pyspark-version: 3.2.2
-            pyspark-pip-package: "pyspark==3.2.2"
+            pip-packages: "pyspark==3.2.2 delta-spark==2.0.2"
+          - pyspark-version: 3.2.3
+            pip-packages: "pyspark==3.2.3 delta-spark==2.0.2"
           - pyspark-version: 3.3.0
-            pyspark-pip-package: "pyspark==3.3.0"
+            pip-packages: "pyspark==3.3.0 delta-spark==2.2.0"
+          - pyspark-version: 3.3.1
+            pip-packages: "pyspark==3.3.1 delta-spark==2.2.0"
+          - pyspark-version: 3.3.2
+            pip-packages: "pyspark==3.3.2 delta-spark==2.2.0"
     steps:
     - uses: actions/checkout@v2
     - name: Set up Java 1.8
@@ -43,10 +51,10 @@ jobs:
     - name: Run tests with Pyspark ${{ matrix.python-version }}
       env:
         PYSPARK_VERSION_NUMBER: ${{ matrix.pyspark-version }}
-        PYSPARK_PIP_PACKAGE: ${{ matrix.pyspark-pip-package }}
+        PIP_PACKAGES: ${{ matrix.pip-packages }}
       working-directory: ./tests
       run: |
-        echo "Installing Pyspark ${PYSPARK_VERSION_NUMBER} from pip package ${PYSPARK_PIP_PACKAGE}"
+        echo "Installing Pyspark ${{ PYSPARK_VERSION_NUMBER }} from pip package ${{ PIP_PACKAGES }}"
         pipenv install --dev
-        pipenv install $PYSPARK_PIP_PACKAGE
+        pipenv install $PIP_PACKAGES
         pipenv run pytest
