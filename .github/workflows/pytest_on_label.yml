@@ -39,7 +39,7 @@ jobs:
         PIP_PACKAGES: ${{ matrix.pip-packages }}
       working-directory: ./tests
       run: |
-        echo "Installing Pyspark ${{ PYSPARK_VERSION_NUMBER }} from pip package ${{ PIP_PACKAGES }}"
+        echo "Installing Pyspark $PYSPARK_VERSION_NUMBER from pip package $PIP_PACKAGES"
         pipenv install --dev
         pipenv install $PIP_PACKAGES
         pipenv run pytest
