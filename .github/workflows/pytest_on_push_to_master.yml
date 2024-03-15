@@ -8,6 +8,7 @@ jobs:
   push_to_master:
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
         include:
           # Spark 3.1
