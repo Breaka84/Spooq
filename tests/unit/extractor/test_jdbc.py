@@ -55,18 +55,6 @@ def spooq_values_pd_df(spark_session, default_params):
     spark_session.sql("DROP DATABASE IF EXISTS {db} CASCADE".format(db=default_params["spooq_values_db"]))
 
 
-@pytest.fixture()
-def sqlite_url(spark_session, tmp_path):
-    with open("data/schema_v2/create_MOCK_DATA.sql", "r") as sql_script:
-        ddl = sql_script.read()
-    db_file = str(tmp_path + "/db_file")
-    conn = sqlite3.connect(db_file)
-    conn.executescript(ddl)
-    conn.commit()
-    yield "jdbc:sqlite:" + db_file
-    conn.close()
-
-
 class TestJDBCExtractorIncremental(object):
     """Testing of spooq.extractor.JDBCExtractorIncremental
 

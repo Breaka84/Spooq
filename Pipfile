@@ -42,12 +42,13 @@ pytest-html-reporter = "*"
 semver = "*"
 
 [packages]
-pandas = "*"
+pandas = "<2.0"
 future = "*"
 spooq = {path = ".", editable = true}
-pyspark = "==3.3.2"
-delta-spark = "==2.2.0"
+pyspark = "==3.4.2"
+delta-spark = "==2.4.0"
 requests = "*"
+build = "*"
 
 [requires]
 python_version = "3.8"

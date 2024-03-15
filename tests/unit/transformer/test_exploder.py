@@ -5,6 +5,7 @@ import json
 from pyspark.sql import functions as sql_funcs
 from pyspark.sql import Row
 
+from tests import DATA_FOLDER
 from spooq.transformer import Exploder
 
 
@@ -24,7 +25,7 @@ class TestBasicAttributes(object):
 class TestExploding(object):
     @pytest.fixture(scope="module")
     def input_df(self, spark_session):
-        return spark_session.read.parquet("data/schema_v1/parquetFiles")
+        return spark_session.read.parquet(f"{DATA_FOLDER}/schema_v1/parquetFiles")
 
     @pytest.fixture()
     def default_params(self):
