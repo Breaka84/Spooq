@@ -13,33 +13,33 @@
       {
         "first_name": "Noémie",
         "last_name": "Tibbles",
-        "id": 9952
+        "id": "9952"
       },
       {
         "first_name": "Bérangère",
         "last_name": null,
-        "id": 3391
+        "id": "3391"
       },
       {
         "first_name": "Danièle",
         "last_name": null,
-        "id": 9637
+        "id": "9637"
       },
       {
         "first_name": null,
         "last_name": null,
-        "id": 9939
+        "id": "9939"
       },
       {
         "first_name": "Anaëlle",
         "last_name": null,
-        "id": 18994
+        "id": "18994"
       }
     ]
   },
   "meta": {
-    "created_at_sec": 1547371284,
-    "created_at_ms": 1547204429000,
-    "version": 24
+    "created_at_sec": "1547371284",
+    "created_at_ms": "1547204429000",
+    "version": "24"
   }
 }

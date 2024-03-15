@@ -104,7 +104,7 @@ class JDBCExtractorFullLoad(JDBCExtractor):
 
         Returns
         -------
-        :py:class:`pyspark.sql.DataFrame`
+        |SPARK_DATAFRAME|
             PySpark dataframe from the input JDBC connection.
 
         """

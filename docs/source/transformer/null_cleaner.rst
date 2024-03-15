@@ -10,4 +10,5 @@ Base Class
 
 .. automodule:: spooq.transformer.base_cleaner
     :members:
+    :noindex:
 

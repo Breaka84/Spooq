@@ -2,6 +2,41 @@
 Changelog
 =========
 
+3.4.0 (2024-03-15)
+-------------------
+* [MOD] Mapper: Custom transformations can now also be used with ``select``, ``withColumn`` or ``where`` clauses
+* [MOD] Mapper: Custom transformations can now be passed as python objects with or without parameters
+* [MOD] Mapper: Spark's built-in data types can now be passed as simple strings (f.e. "string")
+* [MOD] Mapper: Renaming (shortening) of most custom Mapper transformations (https://spooq.rtfd.io/en/latest/transformer/mapper_transformations.html)
+* [ADD] Mapper: ``str_to_array`` transformation
+* [ADD] Mapper: ``map_values`` transformation
+* [ADD] Mapper: ``apply`` transformation
+* [MOD] Tests use now Python 3.8
+* [MOD] Spark 3.3.0 compatibility (Tested for all Spark version from 3.0 to 3.3)
+* [MOD] Clean up documentation
+* [FIX] Tests with github actions
+
+3.3.9 (2022-08-16)
+------------------
+* [MOD] Mapper: Replace missing column parameters (`nullify_missing_columns`, `skip_missing_columns`,
+`ignore_missing_columns`) with one single parameter: `missing_column_handling`
+
+3.3.8 (2022-08-11)
+-------------------
+* [MOD] Mapper: Add additional parameter allowing skipping of transformations in case the source column is missing:
+
+    - `nullify_missing_columns`: set source column to null in case it does not exist
+    - `skip_missing_columns`: skip transformation in case the source column does not exist
+    - `ignore_missing_columns`: DEPRECATED -> use `nullify_missing_columns` instead
+
+3.3.7 (2022-03-15)
+-------------------
+* [FIX] Fix long overflow in extended_string_to_timestamp
+
+3.3.6 (2021-11-19)
+-------------------
+* [FIX] Fix Cleaners logs in case of field type different than string
+
 3.3.5 (2021-11-16)
 -------------------
 * [ADD] Add Null Cleaner spooq.transformer.NullCleaner

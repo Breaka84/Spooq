@@ -11,11 +11,8 @@ Transformers
     mapper
     threshold_cleaner
     enum_cleaner
+    null_cleaner
     newest_by_group
-
-Class Diagram of Transformer Subpackage
-------------------------------------------------
-.. uml:: ../diagrams/from_thesis/class_diagram/transformers.puml
 
 Create your own Transformer
 ------------------------------------------------------------------------------

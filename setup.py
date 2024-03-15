@@ -34,9 +34,7 @@ requirements = [
 setup(
     name="Spooq",
     version=version_string,
-    description="""
-        Spooq is a PySpark based helper library for ETL data ingestion pipeline in Data Lakes.
-    """,
+    description="Spooq is a PySpark based helper library for ETL data ingestion pipeline in Data Lakes.",
     long_description=readme + "\n\n" + history,
     # long_description=sphinx_index,
     long_description_content_type="text/markdown",
@@ -54,12 +52,12 @@ setup(
     keywords=[
         "spooq", "spark", "hive", "cloudera", "hadoop", "etl",
         "data ingestion", "data wrangling", "databricks", "big data",
-        "batch", "streaming"
+        "batch", "streaming", "data engineering"
     ],
     classifiers=[
-        "Development Status :: 4 - Beta",
-        "Intended Audience :: Developers",
+        "Development Status :: 5 - Production/Stable",
+        "Intended Audience :: Data Engineers",
         "Natural Language :: English",
-        "Programming Language :: Python :: 3.7",
+        "Programming Language :: Python :: 3.8",
     ]
 )

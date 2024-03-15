@@ -1,10 +1,9 @@
 from __future__ import absolute_import
 from builtins import object
 import pytest
-import json
 
 from spooq.pipeline import PipelineFactory, Pipeline
-from . import etl_pipeline_user_params, elt_pipeline_business_params
+from tests.unit.pipeline import etl_pipeline_user_params, elt_pipeline_business_params
 
 
 @pytest.mark.parametrize(

@@ -39,7 +39,7 @@ class BaseCleaner(Transformer):
             return (F.when(F.col(temporary_col_name) == F.col(col_name), F.lit(None))
                 .otherwise(F.when(F.col(temporary_col_name).isNull() & F.col(col_name).isNull(), F.lit(None))
                 .otherwise(F.when(F.col(temporary_col_name).isNull() & F.col(col_name).isNotNull(), F.lit("null"))
-                .otherwise(F.col(temporary_col_name))))
+                .otherwise(F.col(temporary_col_name).cast("string"))))
             )
 
         for column_name, temporary_column_name in zip(column_names, temporary_column_names):

@@ -1,35 +1,37 @@
 .. _dev_setup:
 
-Setup for Development, Testing, Documenting
-===========================================
+Contribute
+==========
 
-**Attention: The current version of Spooq is designed (and tested) for Python 2.7/3.7/3.8 on ubuntu, manjaro linux and WSL2 (Windows Subsystem Linux).**
+You can either fork Spooq and create a PR on github or get in contact with the authors to get access to the repo.
+
+Spooq was built with extensibility in mind which results in clearly separated and independent modules and classes.
 
 Prerequisites
 -------------
 
-* python 3.7
-* Java 8 (jdk8-openjdk)
+* python 3.8
+* Java 8+ (jdk8-openjdk)
 * pipenv
 * Latex (for PDF documentation)
 
 Setting up the Environment
 --------------------------
-The requirements are stored in the file `Pipfile` separated for production and development packages.
+The requirements are stored in the file ``Pipfile`` separated for production and development packages.
 
-To install the packages needed for development and testing run the following command:
+Run the following command to install the packages needed for development and testing:
 
 .. code-block:: bash
 
     $ pipenv install --dev
 
-This will create a virtual environment in `~/.local/share/virtualenvs`.
+This will create a virtual environment in ``~/.local/share/virtualenvs``.
 
 If you want to have your virtual environment installed as a sub-folder (.venv) you have to set the
-environment variable `PIPENV_VENV_IN_PROJECT` to 1.
+environment variable ``PIPENV_VENV_IN_PROJECT`` to 1.
 
 To remove a virtual environment created with pipenv just change in the folder where you created it
-and execute `pipenv --rm`.
+and execute ``pipenv --rm``.
 
 Activate the Virtual Environment
 --------------------------------
@@ -45,7 +47,7 @@ Activate the Virtual Environment
     $ exit
     # or close the shell
 
-For more commands of pipenv call `pipenv -h`.
+For more commands of pipenv call ``pipenv -h`` or got to `their documentation <https://pipenv.pypa.io/en/latest/>`_
 
 Creating Your Own Components
 ----------------------------------
@@ -90,7 +92,7 @@ Shuffles the order of execution for the tests to avoid / discover dependencies o
 
 Randomization is set by a seed number. To re-test the same order of execution where you found
 an error, just set the seed value to the same as for the failing test.
-To temporarily disable this feature run with `pytest -p no:random-order -v`
+To temporarily disable this feature run with ``pytest -p no:random-order -v``
 
 `cov <https://pytest-cov.readthedocs.io/en/v2.6.0/>`_
 *******************************************************
@@ -112,10 +114,11 @@ Generates an HTML for the test coverage
 ***************************************************
 
 To use ipdb (IPython Debugger) add following code at your breakpoint::
+
     >>> import ipdb
     >>> ipdb.set_trace()
 
-You have to start pytest with `-s` if you want to use interactive debugger.
+You have to start pytest with ``-s`` if you want to use interactive debugger.
 
 .. code-block:: bash
 
@@ -127,8 +130,8 @@ This project uses `Sphinx <https://www.sphinx-doc.org/en/1.8/>`_ for creating it
 Graphs and diagrams are produced with PlantUML.
 
 The main documentation content is defined as docstrings within the source code.
-To view the current documentation open `docs/build/html/index.html`
-or `docs/build/latex/spooq.pdf` in your application of choice.
+To view the current documentation open ``docs/build/html/index.html``
+or ``docs/build/latex/spooq.pdf`` in your application of choice.
 
 Although, if you are reading this, you have probably already found the documentation...
 
@@ -161,7 +164,7 @@ TeX Live - a compatible latex distribution. But beware, the download size is hug
 
 Configuration
 ^^^^^^^^^^^^^
-Themes, plugins, settings, ... are defined in `docs/source/conf.py`.
+Themes, plugins, settings, ... are defined in ``docs/source/conf.py``.
 
 `napoleon <https://sphinxcontrib-napoleon.readthedocs.io/en/latest/>`_
 ******************************************************************************************************
@@ -169,8 +172,8 @@ Enables support for parsing docstrings in NumPy / Google Style
 
 `intersphinx <http://www.sphinx-doc.org/en/master/usage/extensions/intersphinx.html>`_
 ******************************************************************************************************
-Allows linking to other projects’ documentation. E.g., PySpark, Python2
-To add an external project, at the documentation link to `intersphinx_mapping` in `conf.py`
+Allows linking to other projects’ documentation. E.g., PySpark, Python3
+To add an external project, at the documentation link to ``intersphinx_mapping`` in ``conf.py``
 
 `recommonmark <https://recommonmark.readthedocs.io/en/latest/>`_
 ******************************************************************************************************
@@ -180,5 +183,70 @@ of rst.
 `plantuml <https://github.com/sphinx-contrib/plantuml/>`_
 ******************************************************************************************************
 Allows for inline Plant UML code (uml directive) which is automatically rendered into an
-svg image and placed in the document. Allows also to source puml-files. See :ref:`architecture`
+svg image and placed in the document. Allows also to source puml-files.
 for an example.
+
+Release a new Version on PyPi
+--------------------------------
+
+Things to consider
+^^^^^^^^^^^^^^^^^^^^
+
+Version Bump
+************
+
+For any update on PyPi we need a new version number.
+You can manually edit the file `spooq/_version.py` to change the version number.
+This is reflected in the `setup.py` and consequently in the release version number.
+
+Documentation
+*************
+
+Please don't forget to also update the documentation accordingly.
+This is either done directly in the source code as docstrings or for more overview-centered topics
+in the rst file under `docs/source`.
+
+Changelog
+*********
+
+
+Please add your changes to the CHANGELOG.rst
+
+Automatic Publishing via Github Action
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+The current Spooq version is automatically published on PyPi after a release on github is created.
+
+
+Manual Publishing from Command Line
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Create the Distribution Files
+*****************************
+
+.. code-block:: bash
+
+    $ python setup.py sdist bdist_wheel
+
+Upload to Test-PyPi
+*******************
+
+.. code-block:: bash
+
+    $ pipenv shell
+    $ twine upload --repository-url https://test.pypi.org/legacy/ dist/
+
+Your new version is available at https://test.pypi.org/project/Spooq/.
+Beware, that the test PyPi uses different credentials than the real PyPi.
+You can get the credentials from your favourite collaborator.
+
+Upload to Real PyPi
+*******************
+
+.. code-block:: bash
+
+    $ pipenv shell
+    $ twine upload dist/
+
+Your new version is available at https://pypi.org/project/Spooq/.
+You can get the credentials from your favourite collaborator.

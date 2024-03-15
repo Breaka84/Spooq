@@ -7,18 +7,18 @@ from pyspark.sql import Row
 from pyspark.sql.utils import AnalysisException
 from chispa.dataframe_comparer import assert_df_equality
 
-
+from tests import DATA_FOLDER
 from spooq.transformer import Mapper
 
 
 @pytest.fixture(scope="module")
 def transformer(mapping):
-    return Mapper(mapping=mapping, ignore_missing_columns=True)
+    return Mapper(mapping=mapping, missing_column_handling="nullify")
 
 
 @pytest.fixture(scope="module")
 def input_df(spark_session):
-    return spark_session.read.parquet("data/schema_v1/parquetFiles")
+    return spark_session.read.parquet(f"{DATA_FOLDER}/schema_v1/parquetFiles")
 
 
 @pytest.fixture(scope="module")
@@ -135,12 +135,12 @@ class TestMultipleMappings(object):
 
     def test_appending_a_mapping(self, mapped_df, new_mapping, input_columns, new_columns):
         """Output schema is correct for added mapping at the end of the input schema"""
-        new_mapped_df = Mapper(mapping=new_mapping, mode="append", ignore_missing_columns=True).transform(mapped_df)
+        new_mapped_df = Mapper(mapping=new_mapping, mode="append", missing_column_handling="nullify").transform(mapped_df)
         assert input_columns + new_columns == new_mapped_df.columns
 
     def test_prepending_a_mapping(self, mapped_df, new_mapping, input_columns, new_columns):
         """Output schema is correct for added mapping at the beginning of the input schema"""
-        new_mapped_df = Mapper(mapping=new_mapping, mode="prepend", ignore_missing_columns=True).transform(mapped_df)
+        new_mapped_df = Mapper(mapping=new_mapping, mode="prepend", missing_column_handling="nullify").transform(mapped_df)
         assert new_columns + input_columns == new_mapped_df.columns
 
     def test_appending_a_mapping_with_duplicated_columns(self, input_columns, mapped_df):
@@ -152,7 +152,7 @@ class TestMultipleMappings(object):
         ]
         new_columns = [name for (name, path, data_type) in new_mapping]
         new_columns_deduplicated = [x for x in new_columns if x not in input_columns]
-        new_mapped_df = Mapper(mapping=new_mapping, mode="append", ignore_missing_columns=True).transform(mapped_df)
+        new_mapped_df = Mapper(mapping=new_mapping, mode="append", missing_column_handling="nullify").transform(mapped_df)
         assert input_columns + new_columns_deduplicated == new_mapped_df.columns
         assert mapped_df.schema["birthday"].dataType == T.TimestampType()
         assert new_mapped_df.schema["birthday"].dataType == T.DateType()
@@ -166,7 +166,7 @@ class TestMultipleMappings(object):
         ]
         new_columns = [name for (name, path, data_type) in new_mapping]
         new_columns_deduplicated = [x for x in new_columns if x not in input_columns]
-        new_mapped_df = Mapper(mapping=new_mapping, mode="prepend", ignore_missing_columns=True).transform(mapped_df)
+        new_mapped_df = Mapper(mapping=new_mapping, mode="prepend", missing_column_handling="nullify").transform(mapped_df)
         assert new_columns_deduplicated + input_columns == new_mapped_df.columns
         assert mapped_df.schema["birthday"].dataType == T.TimestampType()
         assert new_mapped_df.schema["birthday"].dataType == T.DateType()
@@ -179,7 +179,7 @@ class TestExceptionForMissingInputColumns(object):
 
     @pytest.fixture(scope="class")
     def transformer(self, mapping):
-        return Mapper(mapping=mapping, ignore_missing_columns=False)
+        return Mapper(mapping=mapping, missing_column_handling="raise_error")
 
     def test_missing_column_raises_exception(self, input_df, transformer):
         input_df = input_df.drop("attributes")
@@ -190,6 +190,58 @@ class TestExceptionForMissingInputColumns(object):
         input_df = spark_session.createDataFrame([], schema=T.StructType())
         with pytest.raises(AnalysisException):
             transformer.transform(input_df)
+
+
+class TestNullifyMissingColumns(object):
+    """
+    Nullify input columns in case it does not exist
+    """
+
+    @pytest.fixture(scope="class")
+    def transformer(self, mapping):
+        return Mapper(mapping=mapping, missing_column_handling="nullify")
+
+    @pytest.fixture(scope="class")
+    def mapped_df(self, input_df, transformer):
+        input_df = input_df.drop("attributes")
+        return transformer.transform(input_df)
+
+    def test_missing_columns_are_not_skipped(self, mapped_df, mapping):
+        assert len(mapping) == len(mapped_df.columns)
+
+    def test_missing_columns_are_nullified(self, mapped_df, mapping):
+        attribute_columns = [name for name, source, _ in mapping if source.startswith("attributes.")]
+        filter = " AND ".join([f"{column} is NULL" for column in attribute_columns])
+        assert mapped_df.filter(filter).count() == mapped_df.count()
+
+
+class TestSkipMissingColumns(object):
+    """
+    Skip mapping transformation in case the input column does not exist
+    """
+
+    @pytest.fixture(scope="class")
+    def transformer(self, mapping):
+        return Mapper(mapping=mapping, missing_column_handling="skip")
+
+    @pytest.fixture(scope="class")
+    def mapped_df(self, input_df, transformer):
+        input_df = input_df.drop("attributes")
+        return transformer.transform(input_df)
+
+    def test_missing_columns_are_skipped(self, mapped_df, mapping):
+        attribute_columns = [name for name, source, _ in mapping if source.startswith("attributes.")]
+        assert not any([column in mapped_df.columns for column in attribute_columns])
+
+
+class TestExceptionWhenInvalidHandling(object):
+    """
+    Raise an exception in case both parameters skip_missing_columns and nullify_missing_columns are True
+    """
+
+    def test_invalid_parameter_setting_raises_exception(self, input_df, transformer):
+        with pytest.raises(ValueError):
+            Mapper(mapping=mapping, missing_column_handling="invalid")
 
 
 class TestDataTypesOfMappedDataFrame(object):
