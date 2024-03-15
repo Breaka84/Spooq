@@ -56,7 +56,7 @@ setup(
     ],
     classifiers=[
         "Development Status :: 5 - Production/Stable",
-        "Intended Audience :: Data Engineers",
+        "Intended Audience :: Developers",
         "Natural Language :: English",
         "Programming Language :: Python :: 3.8",
     ]
