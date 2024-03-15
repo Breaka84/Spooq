@@ -2,6 +2,7 @@ from builtins import object
 import pytest
 from copy import deepcopy
 
+from tests import DATA_FOLDER
 from spooq import extractor as E
 from spooq import transformer as T
 from spooq import loader as L
@@ -13,7 +14,7 @@ class TestPipeline(object):
 
     @pytest.fixture()
     def extractor_params(self):
-        return {"input_path": "data/schema_v1/sequenceFiles"}
+        return {"input_path": f"{DATA_FOLDER}/schema_v1/sequenceFiles"}
 
     @pytest.fixture()
     def transformer_params(self):

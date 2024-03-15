@@ -7,7 +7,7 @@ from pyspark.sql import Row
 from pyspark.sql.utils import AnalysisException
 from chispa.dataframe_comparer import assert_df_equality
 
-
+from tests import DATA_FOLDER
 from spooq.transformer import Mapper
 
 
@@ -18,7 +18,7 @@ def transformer(mapping):
 
 @pytest.fixture(scope="module")
 def input_df(spark_session):
-    return spark_session.read.parquet("data/schema_v1/parquetFiles")
+    return spark_session.read.parquet(f"{DATA_FOLDER}/schema_v1/parquetFiles")
 
 
 @pytest.fixture(scope="module")

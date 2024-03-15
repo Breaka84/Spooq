@@ -9,6 +9,7 @@ from pyspark.sql.functions import lit
 from pyspark.sql import types as sql_types
 from py4j.protocol import Py4JJavaError
 
+from tests import DATA_FOLDER
 from spooq.loader import HiveLoader
 
 
@@ -67,7 +68,7 @@ class TestSinglePartitionColumn(object):
     @pytest.fixture()
     def input_df(self, spark_session, default_params, full_table_name):
 
-        df = spark_session.read.parquet("data/schema_v1/parquetFiles")
+        df = spark_session.read.parquet(f"{DATA_FOLDER}/schema_v1/parquetFiles")
         df = df.withColumn("partition_key_int", df.meta.version % 10)  # 0-9
         spark_session.conf.set("hive.exec.dynamic.partition", "true")
         spark_session.conf.set("hive.exec.dynamic.partition.mode", "nonstrict")
@@ -306,7 +307,7 @@ class TestMultiplePartitionColumn(object):
     @pytest.fixture()
     def input_df(self, spark_session, default_params, full_table_name):
 
-        df = spark_session.read.parquet("data/schema_v1/parquetFiles")
+        df = spark_session.read.parquet(f"{DATA_FOLDER}/schema_v1/parquetFiles")
         df = df.withColumn("partition_key_int", df.meta.version % 10)  # 0-9
         df = df.withColumn("partition_key_str", convert_int_to_ascii_char(df.partition_key_int + 100))  # d-m
         spark_session.conf.set("hive.exec.dynamic.partition", "true")

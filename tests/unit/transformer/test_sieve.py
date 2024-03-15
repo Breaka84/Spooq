@@ -3,6 +3,7 @@ from builtins import object
 import pytest
 from pyspark.sql import functions as F
 
+from tests import DATA_FOLDER
 from spooq.transformer import Sieve
 
 
@@ -26,7 +27,7 @@ class TestBasicAttributes(object):
 class TestFiltering(object):
     @pytest.fixture(scope="class")
     def input_df(self, spark_session):
-        return spark_session.read.parquet("data/schema_v1/parquetFiles")
+        return spark_session.read.parquet(f"{DATA_FOLDER}/schema_v1/parquetFiles")
 
     def test_comparison(self, input_df):
         filter_expression = """attributes.gender = "F" """

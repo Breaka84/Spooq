@@ -3,6 +3,7 @@ from builtins import object
 import pytest
 from pyspark.sql.dataframe import DataFrame
 
+from tests import DATA_FOLDER
 from spooq.extractor import JSONExtractor
 from spooq.extractor.tools import infer_input_path_from_partition
 
@@ -55,13 +56,13 @@ class TestPathManipulation(object):
         assert expected_path == default_extractor._get_path(*input_params)
 
 
-@pytest.mark.parametrize("input_path", ["data/schema_v1/sequenceFiles", "data/schema_v1/textFiles"])
+@pytest.mark.parametrize("input_path", [f"{DATA_FOLDER}/schema_v1/sequenceFiles", f"{DATA_FOLDER}/schema_v1/textFiles"])
 class TestExtraction(object):
     """Extraction of JSON Files"""
 
     @pytest.fixture(scope="class")
     def expected_df(self, spark_session):
-        df = spark_session.read.parquet("data/schema_v1/parquetFiles/*")
+        df = spark_session.read.parquet(f"{DATA_FOLDER}/schema_v1/parquetFiles/*")
         df = df.drop("birthday")  # duplicated column due to manual date conversions in parquet
         return df
 

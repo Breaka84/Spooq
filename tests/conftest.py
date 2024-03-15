@@ -1,3 +1,5 @@
+from pathlib import Path
+
 import pytest
 from pyspark.sql import SparkSession
 from pyspark import SparkContext
@@ -13,3 +15,6 @@ def spark_session() -> SparkSession:
 @pytest.fixture(scope="session")
 def spark_context(spark_session: SparkSession) -> SparkContext:
     return spark_session.sparkContext
+
+def get_data_folder() -> Path:
+    return Path(__file__).parent.joinpath("data").resolve()
