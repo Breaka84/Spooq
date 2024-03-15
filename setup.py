@@ -16,7 +16,7 @@ with open(version_filename, "rt") as version_filename:
     else:
         raise RuntimeError("Unable to find version string in %s." % (version_filename,))
 
-with open("README.rst") as readme_file:
+with open("readme.rst") as readme_file:
     readme = readme_file.read()
 
 with open("CHANGELOG.rst") as history_file:
