@@ -136,7 +136,7 @@ Installation
 Online Documentation
 =====================
 
-For a more details please consult the online documentation at |Onlinedocs|.
+For a more details please consult the online documentation at |Onlinedocs|
 
 Changelog
 ============
@@ -151,7 +151,7 @@ Please see |Contribute| for more information.
 License
 =========
 
-This library is licensed under the |License|.
+This library is licensed under the |License|
 
 -------------------------------------------------------------------------------------------------------------
 
@@ -162,7 +162,7 @@ This library is licensed under the |License|.
 .. |Onlinedocs| image:: https://about.readthedocs.com/theme/img/logo-wordmark-dark.svg
    :target: https://spooq.readthedocs.io/
    :alt: Online Documentation
-   :width: 240px
+   :width: 120px
 
 .. |License| image:: https://img.shields.io/badge/license-MIT-blue.svg
    :target: https://github.com/Breaka84/Spooq/blob/master/LICENSE
