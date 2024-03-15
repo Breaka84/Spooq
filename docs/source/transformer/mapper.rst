@@ -6,119 +6,64 @@ Class
 
 .. autoclass:: spooq.transformer.mapper.Mapper
 
-Activity Diagram
----------------------------------------------
-# todo: update to new logic
+Custom Transformations
+------------------------------------------------
 
-.. uml:: ../diagrams/from_thesis/activity/mapper_1.puml
+.. automodule:: spooq.transformer.mapper_transformations
+    :no-members:
 
-Available Custom Mapping Methods
---------------------------------------------
+.. autosummary::
+   :toctree: transformations
 
-as_is / keep / no_change / without_casting (aliases)
-***********************************************************************
-Only renaming applied. No casting / transformation.
-
-unix_timestamp_ms_to_spark_timestamp
-***********************************************************************
-unix timestamp in ms (LongType) -> timestamp (TimestampType)
-
-extended_string_to_int
-***********************************************************************
-Number (IntegerType, FloatType, StringType) -> Number (IntegerType)
-
-extended_string_to_long
-***********************************************************************
-Number (IntegerType, FloatType, StringType) -> Number (LongType)
-
-extended_string_to_float
-***********************************************************************
-Number (IntegerType, FloatType, StringType) -> Number (FloatType)
-
-extended_string_to_double
-***********************************************************************
-Number (IntegerType, FloatType, StringType) -> Number (DoubleType)
-
-extended_string_to_boolean
-***********************************************************************
-Number (IntegerType, FloatType, StringType, BooleanType) -> boolean (BooleanType)
-
-extended_string_to_timestamp
-***********************************************************************
-unix timestamp in s or text (IntegerType, FloatType, StringType) -> timestamp (TimestampType)
-
-extended_string_to_date
-***********************************************************************
-unix timestamp in s or text (IntegerType, FloatType, StringType) -> date (DateType)
-
-extended_string_unix_timestamp_ms_to_timestamp
-***********************************************************************
-unix timestamp in ms or text (IntegerType, FloatType, StringType) -> timestamp (TimestampType)
-
-extended_string_unix_timestamp_ms_to_date
-***********************************************************************
-unix timestamp in ms or text (IntegerType, FloatType, StringType) -> date (DateType)
-
-meters_to_cm
-***********************************************************************
-Number (IntegerType, FloatType, StringType) -> Number * 100 (IntegerType)
-
-has_value
-***********************************************************************
-Any data -> False if NULL or empty string, otherwise True (BooleanType)
-
-json_string
-***********************************************************************
-Any input data type will be returned as json (StringType).
-Complex data types are supported!
-
-timestamp_ms_to_ms
-***********************************************************************
-Unix timestamp in ms (LongType) -> Unix timestamp in ms (LongType) if
-timestamp is between 1970 and 2099
-
-timestamp_ms_to_s
-***********************************************************************
-Unix timestamp in ms (LongType) -> Unix timestamp in s (LongType) if
-timestamp is between 1970 and 2099
-
-timestamp_s_to_ms
-***********************************************************************
-Unix timestamp in s (LongType) -> Unix timestamp in ms (LongType) if
-timestamp is between 1970 and 2099
-
-timestamp_s_to_s
-***********************************************************************
-Unix timestamp in s (LongType) -> Unix timestamp in s (LongType) if
-timestamp is between 1970 and 2099
-
-StringNull
-***********************************************************************
-Any data -> NULL (StringType)
-
-IntNull
-***********************************************************************
-Any data -> NULL (IntegerType)
-
-StringBoolean
-***********************************************************************
-Any data -> "1" (StringType) if source columns contains any valid data, otherwise NULL
-
-IntBoolean
-***********************************************************************
-Any data -> 1 (IntegerType) if source columns contains any valid data, otherwise NULL
-
-TimestampMonth
-***********************************************************************
-Timestamp (TimestampType / DateType) -> 1st day of the input value's month (TimestampType)
+   spooq.transformer.mapper_transformations.as_is
+   spooq.transformer.mapper_transformations.to_num
+   spooq.transformer.mapper_transformations.to_bool
+   spooq.transformer.mapper_transformations.to_timestamp
+   spooq.transformer.mapper_transformations.str_to_array
+   spooq.transformer.mapper_transformations.map_values
+   spooq.transformer.mapper_transformations.meters_to_cm
+   spooq.transformer.mapper_transformations.has_value
+   spooq.transformer.mapper_transformations.apply
+   spooq.transformer.mapper_transformations.to_json_string
+   spooq.transformer.mapper_transformations.to_str
+   spooq.transformer.mapper_transformations.to_int
+   spooq.transformer.mapper_transformations.to_long
+   spooq.transformer.mapper_transformations.to_float
+   spooq.transformer.mapper_transformations.to_double
 
 
-Custom Mapping Methods Details
---------------------------------------------
+Custom Mapping Functions as Strings [DEPRECATED]
+------------------------------------------------
 
 .. automodule:: spooq.transformer.mapper_custom_data_types
-    :members:
-    :ignore-module-all:
-    :member-order: bysource
-    :private-members:
-    :undoc-members:
+    :no-members:
+
+.. autosummary::
+   :toctree: custom_transformations_as_string
+
+   spooq.transformer.mapper_custom_data_types._generate_select_expression_for_IntBoolean
+   spooq.transformer.mapper_custom_data_types._generate_select_expression_for_IntNull
+   spooq.transformer.mapper_custom_data_types._generate_select_expression_for_StringBoolean
+   spooq.transformer.mapper_custom_data_types._generate_select_expression_for_StringNull
+   spooq.transformer.mapper_custom_data_types._generate_select_expression_for_TimestampMonth
+   spooq.transformer.mapper_custom_data_types._generate_select_expression_for_as_is
+   spooq.transformer.mapper_custom_data_types._generate_select_expression_for_extended_string_to_boolean
+   spooq.transformer.mapper_custom_data_types._generate_select_expression_for_extended_string_to_date
+   spooq.transformer.mapper_custom_data_types._generate_select_expression_for_extended_string_to_double
+   spooq.transformer.mapper_custom_data_types._generate_select_expression_for_extended_string_to_float
+   spooq.transformer.mapper_custom_data_types._generate_select_expression_for_extended_string_to_int
+   spooq.transformer.mapper_custom_data_types._generate_select_expression_for_extended_string_to_long
+   spooq.transformer.mapper_custom_data_types._generate_select_expression_for_extended_string_to_timestamp
+   spooq.transformer.mapper_custom_data_types._generate_select_expression_for_extended_string_unix_timestamp_ms_to_date
+   spooq.transformer.mapper_custom_data_types._generate_select_expression_for_extended_string_unix_timestamp_ms_to_timestamp
+   spooq.transformer.mapper_custom_data_types._generate_select_expression_for_has_value
+   spooq.transformer.mapper_custom_data_types._generate_select_expression_for_json_string
+   spooq.transformer.mapper_custom_data_types._generate_select_expression_for_keep
+   spooq.transformer.mapper_custom_data_types._generate_select_expression_for_meters_to_cm
+   spooq.transformer.mapper_custom_data_types._generate_select_expression_for_no_change
+   spooq.transformer.mapper_custom_data_types._generate_select_expression_for_timestamp_ms_to_ms
+   spooq.transformer.mapper_custom_data_types._generate_select_expression_for_timestamp_ms_to_s
+   spooq.transformer.mapper_custom_data_types._generate_select_expression_for_timestamp_s_to_ms
+   spooq.transformer.mapper_custom_data_types._generate_select_expression_for_timestamp_s_to_s
+   spooq.transformer.mapper_custom_data_types._generate_select_expression_for_unix_timestamp_ms_to_spark_timestamp
+   spooq.transformer.mapper_custom_data_types._generate_select_expression_without_casting

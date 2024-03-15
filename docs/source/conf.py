@@ -50,6 +50,7 @@ extensions = [
     'sphinx.ext.todo',
     'sphinx.ext.coverage',
     'sphinx.ext.viewcode',
+    'sphinx.ext.autosummary',
 #    'sphinx.ext.githubpages',
     'sphinx.ext.napoleon',
     'sphinx.ext.intersphinx',
@@ -96,12 +97,14 @@ pygments_style = 'default'
 #
 # html_theme = 'alabaster'
 html_theme = 'sphinx_rtd_theme'
+# html_style = 'css/make_content_wider.css'
 # html_theme = 'groundwork'
 # html_theme = 'agogo'
-# html_theme_options = {
-    # "pagewidth": "200em",
-    # "documentwidth": "50%",
-# }
+html_theme_options = {
+    'body_max_width': '75%',
+    # 'pagewidth': '75%',
+    # 'documentwidth': '75%',
+}
 
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the
@@ -242,12 +245,19 @@ add_module_names = False
 todo_include_todos = True
 
 intersphinx_mapping = {
-    'python':         ('https://docs.python.org/3.7', None),
-	'pyExceptions':   ('https://pyexceptions.readthedocs.io/en/stable/', None),
-	'pyMetaClasses':  ('https://pymetaclasses.readthedocs.io/en/latest/', None),
-    'pyspark':        ('https://spark.apache.org/docs/3.0.1/api/python/', None)
+    'python':         ('https://docs.python.org/3.8', None),
+	# 'pyExceptions':   ('https://pyexceptions.readthedocs.io/en/stable/', None),
+	# 'pyMetaClasses':  ('https://pymetaclasses.readthedocs.io/en/latest/', None),
+    'pyspark':        ('https://spark.apache.org/docs/3.2.1/api/python/', None)
 
 }
+
+rst_epilog = """
+.. |SPARK_FUNCTION| replace:: :py:func:`pyspark.sql.functions <pyspark.sql.functions.abs>`
+.. |SPARK_COLUMN| replace:: :class:`~pyspark.sql.Column`
+.. |SPARK_DATAFRAME| replace:: :class:`~pyspark.sql.DataFrame`
+"""
+
 
 # app setup hook
 git_doc_root = 'https://github.com/Breaka84/Spooq'
@@ -266,6 +276,7 @@ def setup(app):
     # }, True)
     # app.add_transform(AutoStructify)
     # app.connect("autodoc-skip-member", skip)
+    # app.add_css_file("source/_static/make_content_wider.css")
     pass
 
 # Configure PlantUML

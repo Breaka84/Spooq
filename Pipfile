@@ -9,7 +9,6 @@ ipython = "*"
 pudb = "*"
 pytest-pudb = "*"
 # jedi = "==0.17.2"  # fixes ipython bug
-
 # Testing
 doubles = "*"
 Faker = "*"
@@ -20,11 +19,9 @@ pytest-html = "*"
 pytest-pspec = "*"
 pytest-mock = "*"
 pytest-random-order = "*"
-pytest-spark = "*"
 mock = "*"
 pytest-env = "*"
 chispa = "*"
-
 # Documentation
 recommonmark = "*"
 sphinx = "*"
@@ -38,17 +35,19 @@ pyarrow = "*"
 sphinx-markdown-builder = "*"
 sphinx-jekyll-builder = "*"
 grip = "*"
-
 # Others
 bump2version = "*"
 twine = "*"
+pytest-html-reporter = "*"
+semver = "*"
 
 [packages]
 pandas = "*"
 future = "*"
 spooq = {path = ".", editable = true}
-pyspark = "==3.2.2"
+pyspark = "==3.3.2"
+delta-spark = "==2.2.0"
 requests = "*"
 
 [requires]
-python_version = "3.7"
+python_version = "3.8"

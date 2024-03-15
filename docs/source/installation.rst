@@ -1,4 +1,4 @@
-Installation / Deployment
+Installation
 =========================
 
 Via Pip
@@ -12,33 +12,28 @@ Build wheel file
 ----------------
 .. code-block:: bash
 
-    $ cd spooq
     $ python setup.py sdist bdist_wheel
 
-The output is stored as `dist/Spooq-<VERSION_NUMBER>-py3-none-any.whl` and Spooq-<VERSION_NUMBER>.tar.gz.
+The output is stored as ``dist/Spooq-<VERSION_NUMBER>-py3-none-any.whl`` and Spooq-<VERSION_NUMBER>.tar.gz.
 
 Build egg file
 --------------
 
 .. code-block:: bash
 
-    $ cd spooq
     $ python setup.py bdist_egg
 
-The output is stored as `dist/Spooq-<VERSION_NUMBER>-py3.7.egg`
+The output is stored as ``dist/Spooq-<VERSION_NUMBER>-py3.8.egg``
 
 Build zip file
 --------------
 
 .. code-block:: bash
 
-    $ cd spooq
-    $ rm temp.zip
-    $ zip -r temp.zip spooq
-    $ mv temp.zip Spooq_$(grep "__version__" spooq/_version.py | \
-        cut -d " " -f 3 | tr -d \").zip
+    $ zip_file_name="Spooq-$(grep "__version__" spooq/_version.py | cut -d " " -f 3 | tr -d \").zip"
+    $ zip -r $zip_file_name spooq
 
-The output is stored as `Spooq-<VERSION_NUMBER>.zip`.
+The output is stored as ``Spooq-<VERSION_NUMBER>.zip``.
 
 Include pre-build package (egg or zip) with Spark
 ---------------------------------------------------------
@@ -49,7 +44,7 @@ For Submitting or Launching Spark:
 
     $ pyspark --py-files Spooq-<VERSION_NUMBER>.egg
 
-The library still has to be imported in the pyspark application!
+The library has still to be imported in the pyspark application!
 
 Within Running Spark Session:
 

@@ -31,7 +31,7 @@ class Extractor(object):
 
         Returns
         -------
-        :py:class:`pyspark.sql.DataFrame`
+        |SPARK_DATAFRAME|
 
         Note
         ----

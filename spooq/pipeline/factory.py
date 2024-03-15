@@ -84,7 +84,7 @@ class PipelineFactory(object):
 
         Returns
         -------
-        :py:class:`pyspark.sql.DataFrame`
+        |SPARK_DATAFRAME|
             If the loader component is by-passed (in the case of ad_hoc use cases).
 
         :any:`None`

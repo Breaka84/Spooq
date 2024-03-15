@@ -1,10 +1,15 @@
-from __future__ import absolute_import
+from functools import partial
+from types import FunctionType
+from typing import Union, List, Tuple, Any, Callable
 import warnings
-from builtins import str
-from pyspark.sql.utils import AnalysisException
-from pyspark.sql import functions as F
-from pyspark.sql import types as T
-from pyspark.sql.column import Column
+
+from pyspark.sql.utils import AnalysisException, ParseException
+from pyspark.sql import (
+    functions as F,
+    types as T,
+    DataFrame,
+    Column,
+)
 
 from .transformer import Transformer
 from .mapper_custom_data_types import _get_select_expression_for_custom_type
@@ -16,16 +21,17 @@ class Mapper(Transformer):
 
     Examples
     --------
-    >>> from pyspark.sql import functions as F
+    >>> from pyspark.sql import functions as F, types as T
     >>> from spooq.transformer import Mapper
+    >>> from spooq.transformer import mapper_transformations as spq
     >>>
     >>> mapping = [
-    >>>     ("id",            "data.relationships.food.data.id",  "StringType"),
-    >>>     ("version",       "data.version",                     "extended_string_to_int"),
-    >>>     ("type",          "elem.attributes.type",             "StringType"),
-    >>>     ("created_at",    "elem.attributes.created_at",       "extended_string_to_timestamp"),
-    >>>     ("created_on",    "elem.attributes.created_at",       "extended_string_to_date"),
-    >>>     ("process_date",  F.current_timestamp(),              "DateType"),
+    >>>     ("id",            "data.relationships.food.data.id",  spq.to_str),
+    >>>     ("version",       "data.version",                     spq.to_int),
+    >>>     ("type",          "elem.attributes.type",             "string"),
+    >>>     ("created_at",    "elem.attributes.created_at",       spq.to_timestamp),
+    >>>     ("created_on",    "elem.attributes.created_at",       spq.to_timestamp(cast="date")),
+    >>>     ("processed_at",  F.current_timestamp(),              spq.as_is,
     >>> ]
     >>> mapper = Mapper(mapping=mapping)
     >>> mapper.transform(input_df).printSchema()
@@ -35,12 +41,11 @@ class Mapper(Transformer):
      |-- type: string (nullable = true)
      |-- created_at: timestamp (nullable = true)
      |-- created_on: date (nullable = true)
-     |-- process_date: date (nullable = false)
-
+     |-- processed_at: timestamp (nullable = false)
 
     Parameters
     ----------
-    mapping  : :class:`list` of :any:`tuple` containing three :any:`str` or :class:`~pyspark.sql.Column` or :mod:`~pyspark.sql.functions`
+    mapping  : :class:`list` of :any:`tuple` containing three elements, respectively.
         This is the main parameter for this transformation. It gives information
         about the column names for the output DataFrame, the column names (paths)
         from the input DataFrame, and their data types. Custom data types are also supported, which can
@@ -92,19 +97,18 @@ class Mapper(Transformer):
 
     * Column Name: :any:`str`
         Sets the name of the column in the resulting output DataFrame.
-    * Source Path / Name / Column / Function: :any:`str` or :class:`~pyspark.sql.Column` or :mod:`~pyspark.sql.functions`
+    * Source Path / Name / Column / Function: :any:`str`, :class:`~pyspark.sql.Column` or :mod:`~pyspark.sql.functions`
         Points to the name of the column in the input DataFrame. If the input
         is a flat DataFrame, it will essentially be the column name. If it is of complex
         type, it will point to the path of the actual value. For example: ``data.relationships.sample.data.id``,
         where id is the value we want. It is also possible to directly pass
         a PySpark Column which will get evaluated. This can contain arbitrary logic supported by Spark. For example:
         ``F.current_date()`` or ``F.when(F.col("size") == 180, F.lit("tall")).otherwise(F.lit("tiny"))``.
-    * DataType: :any:`str` or :class:`~pyspark.sql.types.DataType`
-        DataTypes can be types from :any:`pyspark.sql.types`, selected custom datatypes or
-        injected, ad-hoc custom datatypes.
-        The datatype will be interpreted as a PySpark built-in if it is a member of :any:`pyspark.sql.types` module.
-        If it is not an importable PySpark data type, a method to construct the statement will be
-        called by the data type's name.
+    * DataType: :any:`str`, :class:`~pyspark.sql.types.DataType` or :mod:`~spooq.transformer.mapper_transformations`
+        DataTypes can be types from :py:mod:`pyspark.sql.types` (like T.StringType()),
+        simple strings supported by PySpark (like "string") and custom transformations provided by spooq
+        (like spq.to_timestamp). You can find more information about the transformations at
+        https://spooq.rtfd.io/en/latest/transformer/mapper.html#module-spooq.transformer.mapper_transformations.
 
     Note
     ----
@@ -112,23 +116,14 @@ class Mapper(Transformer):
     (f.e. on json data) for the extraction. Via the parameter `missing_column_handling` you can specify a strategy on
     how to handle missing columns on the input DataFrame.
     It is advised to use the 'raise_error' option as it can uncover typos and bugs.
-
-    Note
-    ----
-    Please see :py:mod:`spooq.transformer.mapper_custom_data_types` for all available custom
-    data types and how to inject your own.
-
-    Note
-    ----
-    Attention: Decimal is NOT SUPPORTED by Hive! Please use Double instead!
     """
 
     def __init__(
         self,
-        mapping,
-        ignore_ambiguous_columns=False,
-        missing_column_handling="raise_error",
-        mode="replace",
+        mapping: List[Tuple[Any, Any, Any]],
+        ignore_ambiguous_columns: bool = False,
+        missing_column_handling: str = "raise_error",
+        mode: str = "replace",
         **kwargs
     ):
         super(Mapper, self).__init__()
@@ -152,7 +147,7 @@ class Mapper(Transformer):
                 - skip: skip transformation in case the source is missing
                 - nullify: set source column to null in case it is missing""")
 
-    def transform(self, input_df):
+    def transform(self, input_df: DataFrame) -> DataFrame:
         self.logger.info("Generating SQL Select-Expression for Mapping...")
         self.logger.debug("Input Schema/Mapping:")
         self.logger.debug("\n" + "\n".join(["\t".join(map(str, mapping_line)) for mapping_line in self.mapping]))
@@ -161,18 +156,19 @@ class Mapper(Transformer):
         select_expressions = []
         with_column_expressions = []
 
-        for (name, source_column, data_type) in self.mapping:
+        for (name, source_column, data_transformation) in self.mapping:
             self.logger.debug("generating Select statement for attribute: {nm}".format(nm=name))
-
+            self.logger.debug(
+                f"generate mapping for name: {name}, "
+                f"source_column: {source_column}, "
+                f"data_transformation: {data_transformation}"
+            )
             source_column = self._get_spark_column(source_column, name, input_df)
             if source_column is None:
                 continue
-            data_type, data_type_is_spark_builtin = self._get_spark_data_type(data_type)
-            select_expression = self._get_select_expression(name, source_column, data_type, data_type_is_spark_builtin)
+            select_expression = self._get_select_expression(name, source_column, data_transformation)
 
-            self.logger.debug(
-                "Select-Expression for Attribute {nm}: {sql_expr}".format(nm=name, sql_expr=str(select_expression))
-            )
+            self.logger.debug(f"Select-Expression for Attribute {name}: {select_expression}")
             if self.mode != "replace" and name in input_columns:
                 with_column_expressions.append((name, select_expression))
             else:
@@ -200,7 +196,9 @@ class Mapper(Transformer):
                 df_to_return = df_to_return.withColumn(name, expression)
         return df_to_return
 
-    def _get_spark_column(self, source_column, name, input_df):
+    def _get_spark_column(
+        self, source_column: Union[str, Column], name: str, input_df: DataFrame
+    ) -> Union[Column, None]:
         """
         Returns the provided source column as a Pyspark.sql.Column and marks if it is missing or not.
         Supports source column definition as a string or a Pyspark.sql.Column (including functions).
@@ -223,7 +221,7 @@ class Mapper(Transformer):
                 source_column = F.lit(None)
             elif "ambiguous" in e.desc.lower() and self.ignore_ambiguous_columns:
                 self.logger.warn(
-                    f'Exception ignored (via ignore_ambiguous_columns=True) for column "{str(source_column)}": {e.desc}'
+                    f'Exception ignored (via ignore_ambiguous_columns=True) for column "{source_column}": {e.desc}'
                 )
                 return None
             else:
@@ -236,34 +234,54 @@ class Mapper(Transformer):
                 raise e
         return source_column
 
-    @staticmethod
-    def _get_spark_data_type(data_type):
-        """
-        Returns the provided data_type as a Pyspark.sql.type.DataType (for spark-built-ins)
-        or as a string (for custom spooq transformations) and marks if it is built-in or not.
-        Supports source column definition as a string or a Pyspark.sql.Column (including functions).
-        """
-        if isinstance(data_type, T.DataType):
-            data_type_is_spark_builtin = True
-        elif isinstance(data_type, str):
-            data_type = data_type.replace("()", "")
-            if hasattr(T, data_type):
-                data_type_is_spark_builtin = True
-                data_type = getattr(T, data_type)()
-            else:
-                data_type_is_spark_builtin = False
-        else:
-            raise ValueError(
-                'data_type not supported! class: "{}", name: "{}"'.format(type(data_type).__name__, str(data_type))
-            )
-        return data_type, data_type_is_spark_builtin
-
-    @staticmethod
-    def _get_select_expression(name, source_column, data_type, data_type_is_spark_builtin):
+    def _get_select_expression(
+        self, name: str, source_column: Union[str, Column], data_transformation: Union[str, Column, Callable]
+    ) -> Column:
         """
         Returns a valid pyspark sql select-expression with cast and alias, depending on the input parameters.
         """
-        if data_type_is_spark_builtin:
-            return source_column.cast(data_type).alias(name)
-        else:  # Custom Data Type
-            return _get_select_expression_for_custom_type(source_column, name, data_type)
+        self.logger.debug(f"name: {name}, source_column: {source_column}, data_transformation: {data_transformation}")
+        try:
+            return self._get_select_expression_for_spark_transformation(name, source_column, data_transformation)
+        except ValueError:
+            return self._get_select_expression_for_spooq_transformation(name, source_column, data_transformation)
+
+    @staticmethod
+    def _get_select_expression_for_spark_transformation(
+        name: str, source_column: Union[str, Column], data_transformation: Union[str, Column, Callable]
+    ) -> Column:
+        data_type = None
+        try:
+            data_type = getattr(T, str(data_transformation).replace("()", ""))()
+        except AttributeError:
+            pass
+        try:
+            data_type = T._parse_datatype_string(str(data_transformation))
+        except ParseException:
+            pass
+
+        if data_type is None:
+            raise ValueError(f"No suitable Spark Data Type found for {data_transformation}")
+
+        return source_column.cast(data_type).alias(name)
+
+    @staticmethod
+    def _get_select_expression_for_spooq_transformation(
+        name: str, source_column: Union[str, Column], data_transformation: Union[str, Column, Callable]
+    ) -> Column:
+        if isinstance(data_transformation, FunctionType):
+            try:  # Function returns a partial
+                spooq_partial = data_transformation()
+                return spooq_partial(source_column=source_column, name=name)
+            except TypeError as e:  # Function is directly callable
+                if "required positional arguments" not in str(e):
+                    raise e
+                return data_transformation(source_column=source_column, name=name)
+
+        elif isinstance(data_transformation, partial):
+            args = data_transformation.keywords
+            args.setdefault("source_column", source_column)
+            args.setdefault("name", name)
+            return data_transformation(**args)
+        else:  # spooq_function_string
+            return _get_select_expression_for_custom_type(source_column, name, data_transformation)

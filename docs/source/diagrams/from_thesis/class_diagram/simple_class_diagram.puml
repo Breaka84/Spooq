@@ -29,16 +29,20 @@ hide empty members
   namespace transformer{
 
     class Transformer
-    Transformer <|-- Exploder
-    class Exploder
-    Transformer <|-- Mapper
-    class Mapper
-    Transformer <|-- NewestByGroup
-    class NewestByGroup
     Transformer <|-- Sieve
     class Sieve
+    Transformer <|-- Exploder
+    class Exploder
+    Transformer <|-- EnumCleaner
+    class EnumCleaner
+    Transformer <|-- NullCleaner
+    class NullCleaner
     Transformer <|-- ThresholdCleaner
     class ThresholdCleaner
+    Transformer <|-- NewestByGroup
+    class NewestByGroup
+    Transformer <|-- Mapper
+    class Mapper
 
   }
   namespace loader {

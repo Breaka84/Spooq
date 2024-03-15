@@ -2,7 +2,21 @@
 Changelog
 =========
 
+3.4.0 (2022-08-12)
+-------------------
+* [MOD] Mapper: Custom transformations can now also be used with ``select``, ``withColumn`` or ``where`` clauses
+* [MOD] Mapper: Custom transformations can now be passed as python objects with or without parameters
+* [MOD] Mapper: Spark's built-in data types can now be passed as simple strings (f.e. "string")
+* [MOD] Mapper: Renaming (shortening) of most custom Mapper transformations (https://spooq.rtfd.io/en/latest/transformer/mapper_transformations.html)
+* [ADD] Mapper: ``str_to_array`` transformation
+* [ADD] Mapper: ``map_values`` transformation
+* [ADD] Mapper: ``apply`` transformation
+* [MOD] Tests use now Python 3.8
+* [MOD] Spark 3.3.0 compatibility (Tested for all Spark version from 3.0 to 3.3)
+* [MOD] Clean up documentation
+
 3.3.9 (2022-08-16)
+------------------
 * [MOD] Mapper: Replace missing column parameters (`nullify_missing_columns`, `skip_missing_columns`,
 `ignore_missing_columns`) with one single parameter: `missing_column_handling`
 

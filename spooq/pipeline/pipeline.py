@@ -102,7 +102,7 @@ class Pipeline(object):
 
         Returns
         -------
-        input_df : :any:`pyspark.sql.DataFrame`
+        input_df : |SPARK_DATAFRAME|
             **If** the ``bypass_loader`` attribute was set to True in the Pipeline class,
             the output DataFrame from the Transformer(s) will be directly returned.
 
@@ -120,7 +120,7 @@ class Pipeline(object):
 
         Returns
         -------
-        :any:`pyspark.sql.DataFrame`
+        |SPARK_DATAFRAME|
             The output_df from the Extractor used as the input for the Transformer (chain).
         """
         if self.bypass_extractor:
@@ -135,12 +135,12 @@ class Pipeline(object):
 
         Parameters
         ----------
-        input_df : :any:`pyspark.sql.DataFrame`
+        input_df : |SPARK_DATAFRAME|
             The output DataFrame of the Extractor Object.
 
         Returns
         -------
-        :any:`pyspark.sql.DataFrame`
+        |SPARK_DATAFRAME|
             The input DataFrame for the Loader.
         """
         transformed_df = input_df
@@ -156,12 +156,12 @@ class Pipeline(object):
 
         Parameters
         ----------
-        input_df : :any:`pyspark.sql.DataFrame`
+        input_df : |SPARK_DATAFRAME|
             The output DataFrame from the Transformer(s).
 
         Returns
         -------
-        input_df : :any:`pyspark.sql.DataFrame`
+        input_df : |SPARK_DATAFRAME|
             **If** the ``bypass_loader`` attribute was set to True in the Pipeline class,
             the output DataFrame from the Transformer(s) will be directly returned.
         """

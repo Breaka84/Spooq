@@ -1,5 +1,5 @@
 """
-Loaders take a :py:class:`pyspark.sql.DataFrame` as an input and save it to a sink.
+Loaders take a |SPARK_DATAFRAME| as an input and save it to a sink.
 
 Each Loader class has to have a `load` method which takes a DataFrame as single paremter.
 
@@ -34,7 +34,7 @@ class Loader(object):
 
         Parameters
         ----------
-        input_df : :any:`pyspark.sql.DataFrame`
+        input_df : |SPARK_DATAFRAME|
             Input DataFrame which has to be loaded to a target destination.
 
         Note

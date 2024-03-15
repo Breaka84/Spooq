@@ -16,8 +16,9 @@ from .base_cleaner import BaseCleaner
 
 class ThresholdCleaner(BaseCleaner):
     """
-    Sets outiers within a DataFrame to a default value.
-    Takes a dictionary with valid value ranges for each column to be cleaned.
+    Cleanes values based on defined boundaries and optionally logs the original values.
+    The valid value ranges are provided via dictionary for each column to be cleaned. Boundaries can either be of
+    static or dynamic nature that resolve to numbers, timetamps or dates.
 
     Examples
     --------
@@ -26,9 +27,8 @@ class ThresholdCleaner(BaseCleaner):
     >>> transformer = ThresholdCleaner(
     >>>     thresholds={
     >>>         "created_at": {
-    >>>             "min": 0,
-    >>>             "max": 1580737513,
-    >>>             "default": F.current_date()
+    >>>             "min": F.date_sub(F.current_date(), 365 * 10),  # Ten years ago
+    >>>             "max": F.current_date()
     >>>         },
     >>>         "size_cm": {
     >>>             "min": 70,
@@ -42,32 +42,31 @@ class ThresholdCleaner(BaseCleaner):
     >>> from pyspark.sql import Row
     >>>
     >>> input_df = spark.createDataFrame([
-    >>>     Row(id=0, integers=-5, some_factor=-0.75),
-    >>>     Row(id=1, integers= 5, some_factor= 1.25),
-    >>>     Row(id=2, integers=15, some_factor= 0.67),
+    >>>     Row(id=0, integers=-5, doubles=-0.75),
+    >>>     Row(id=1, integers= 5, doubles= 1.25),
+    >>>     Row(id=2, integers=15, doubles= 0.67),
     >>> ])
     >>> transformer = ThresholdCleaner(
     >>>     thresholds={
-    >>>         "integers":    {"min":  0, "max": 10},
-    >>>         "some_factor": {"min": -1, "max":  1}
+    >>>         "integers": {"min":  0, "max": 10},
+    >>>         "doubles":  {"min": -1, "max":  1}
     >>>     },
     >>>     column_to_log_cleansed_values="cleansed_values_threshold",
     >>>     store_as_map=True,
     >>> )
     >>> output_df = transformer.transform(input_df)
-    >>> output_df.show()
-    +---+--------+-----------+-------------------------+
-    | id|integers|some_factor|cleansed_values_threshold|
-    +---+--------+-----------+-------------------------+
-    |  0|    null|      -0.75|         [integers -> -5]|
-    |  1|       5|       null|     [some_factor -> 1...|
-    |  2|    null|       0.67|         [integers -> 15]|
-    +---+--------+-----------+-------------------------+
-    #  Remark: ``some_factor -> 1...`` from the df.show() is a bug, the stored value correctly holds ``"1.25"``
+    >>> output_df.show(truncate=False)
+    +---+--------+-----------+---------------------+
+    |id |integers|doubles|cleansed_values_threshold|
+    +---+--------+-------+-------------------------+
+    |0  |null    |-0.75  |{integers -> -5}         |
+    |1  |5       |null   |{doubles -> 1.25}        |
+    |2  |null    |0.67   |{integers -> 15}         |
+    +---+--------+-------+-------------------------+
     >>> output_df.printSchema()
      |-- id: long (nullable = true)
      |-- integers: long (nullable = true)
-     |-- some_factor: double (nullable = true)
+     |-- doubles: double (nullable = true)
      |-- cleansed_values_threshold: map (nullable = false)
      |    |-- key: string
      |    |-- value: string (valueContainsNull = true)
@@ -82,27 +81,28 @@ class ThresholdCleaner(BaseCleaner):
         name is given, nothing will be logged.
 
     store_as_map : :any:`bool`, Defaults to False
-        Specifies if the logged cleansed values should be stored in a column as :any:`pyspark.sql.types.MapType` with
-        stringified values or as :any:`pyspark.sql.types.StructType` with the original respective data types.
+        Specifies if the logged cleansed values should be stored in a column as :class:`~pyspark.sql.types.MapType` with
+        stringified values or as :class:`~pyspark.sql.types.StructType` with the original respective data types.
 
     Note
     ----
     Following cleansing rule attributes per column are supported:
 
-        * min, mandatory - any
+        * min, mandatory: :any:`str`, :any:`int`, |SPARK_COLUMN|, |SPARK_FUNCTION|
             A number or timestamp/date which serves as the lower limit for allowed values. Values
-            below this threshold will be cleansed.
-        * max, mandatory - any
+            below this threshold will be cleansed. Supports literals, Spark functions and Columns.
+        * max, mandatory: :any:`str`, :any:`int`, |SPARK_COLUMN|, |SPARK_FUNCTION|
             A number or timestamp/date which serves as the upper limit for allowed values. Values
-            above this threshold will be cleansed.
-        * default, defaults to None - :class:`~pyspark.sql.column.Column` or any primitive Python value
-            If a value gets cleansed it gets replaced with the provided default value.
+            above this threshold will be cleansed. Supports literals, Spark functions and Columns.
+        * default, defaults to None: :any:`str`, :any:`int`, |SPARK_COLUMN|, |SPARK_FUNCTION|
+            If a value gets cleansed it gets replaced with the provided default value. Supports literals,
+            Spark functions and Columns.
 
-    The :meth:`pyspark.sql.functions.between` method is used internally.
+    The :py:meth:`~pyspark.sql.Column.between` method is used internally.
 
     Returns
     -------
-    :any:`pyspark.sql.DataFrame`
+    |SPARK_DATAFRAME|
         The transformed DataFrame
 
     Raises

@@ -41,7 +41,7 @@ class JSONExtractor(Extractor):
 
     Returns
     -------
-    :any:`pyspark.sql.DataFrame`
+    |SPARK_DATAFRAME|
         The extracted data set as a PySpark DataFrame
 
     Raises
@@ -91,7 +91,7 @@ class JSONExtractor(Extractor):
 
         Returns
         -------
-        :py:class:`pyspark.sql.DataFrame`
+        |SPARK_DATAFRAME|
             Complex PySpark DataFrame deserialized from the input JSON Files
 
         """
@@ -196,7 +196,7 @@ class JSONExtractor(Extractor):
 
         Returns
         -------
-        :any:`pyspark.sql.DataFrame`
+        |SPARK_DATAFRAME|
             Complex DataFrame with set of all found Attributes from input JSON Files
 
         See Also
