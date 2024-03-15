@@ -2,7 +2,7 @@
 Changelog
 =========
 
-3.4.0 (2022-08-12)
+3.4.0 (2024-03-15)
 -------------------
 * [MOD] Mapper: Custom transformations can now also be used with ``select``, ``withColumn`` or ``where`` clauses
 * [MOD] Mapper: Custom transformations can now be passed as python objects with or without parameters
@@ -14,6 +14,7 @@ Changelog
 * [MOD] Tests use now Python 3.8
 * [MOD] Spark 3.3.0 compatibility (Tested for all Spark version from 3.0 to 3.3)
 * [MOD] Clean up documentation
+* [FIX] Tests with github actions
 
 3.3.9 (2022-08-16)
 ------------------
