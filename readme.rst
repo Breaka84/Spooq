@@ -104,7 +104,8 @@ Features / Components
 
 `Transformers <https://spooq.readthedocs.io/en/latest/transformer/overview.html>`_
 ----------------------------------------------------------------------------------
-  
+
+* `Custom Mapping Transformations <https://spooq.readthedocs.io/en/latest/transformer/mapper.html#module-spooq.transformer.mapper_transformations>`_
 * `Exploder <https://spooq.readthedocs.io/en/latest/transformer/exploder.html>`_
 * `Filter <https://spooq.readthedocs.io/en/latest/transformer/sieve.html>`_
 * `Mapper (Restructuring of complex DataFrames) <https://spooq.readthedocs.io/en/latest/transformer/mapper.html>`_
@@ -161,6 +162,7 @@ This library is licensed under the |License|.
 .. |Onlinedocs| image:: https://about.readthedocs.com/theme/img/logo-wordmark-dark.svg
    :target: https://spooq.readthedocs.io/
    :alt: Online Documentation
+   :width: 240px
 
 .. |License| image:: https://img.shields.io/badge/license-MIT-blue.svg
    :target: https://github.com/Breaka84/Spooq/blob/master/LICENSE
