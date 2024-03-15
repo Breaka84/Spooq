@@ -17,6 +17,12 @@ import sys
 sys.path.insert(0, os.path.abspath('../../spooq'))
 # sys.path[0:0] = [os.path.abspath('_themes/foundation-sphinx-theme')]
 
+# Fixes broken plantUML
+# https://github.com/mgaitan/sphinxcontrib-mermaid/issues/72
+import errno
+import sphinx.util.osutil
+sphinx.util.osutil.ENOENT = errno.ENOENT
+
 # import easydev
 # from recommonmark.parser import CommonMarkParser
 # from recommonmark.transform import AutoStructify
