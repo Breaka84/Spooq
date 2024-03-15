@@ -48,6 +48,7 @@ spooq = {path = ".", editable = true}
 pyspark = "==3.4.2"
 delta-spark = "==2.4.0"
 requests = "*"
+build = "*"
 
 [requires]
 python_version = "3.8"
