@@ -16,7 +16,7 @@ with open(version_filename, "rt") as version_filename:
     else:
         raise RuntimeError("Unable to find version string in %s." % (version_filename,))
 
-with open("README.md") as readme_file:
+with open("readme.rst") as readme_file:
     readme = readme_file.read()
 
 with open("CHANGELOG.rst") as history_file:
@@ -37,7 +37,7 @@ setup(
     description="Spooq is a PySpark based helper library for ETL data ingestion pipeline in Data Lakes.",
     long_description=readme + "\n\n" + history,
     # long_description=sphinx_index,
-    long_description_content_type="text/markdown",
+    long_description_content_type="text/x-rst",
     author="David Hohensinn",
     author_email="breaka@gmx.at",
     url="https://github.com/Breaka84/Spooq",
