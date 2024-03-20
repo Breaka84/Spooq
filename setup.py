@@ -19,8 +19,6 @@ with open(version_filename, "rt") as version_filename:
 with open("readme.rst") as readme_file:
     readme = readme_file.read()
 
-with open("CHANGELOG.rst") as history_file:
-    history = history_file.read()
 
 with open("docs/source/index.rst") as sphinx_index_file:
     sphinx_index = sphinx_index_file.read()
@@ -35,7 +33,7 @@ setup(
     name="Spooq",
     version=version_string,
     description="Spooq is a PySpark based helper library for ETL data ingestion pipeline in Data Lakes.",
-    long_description=readme + "\n\n" + history,
+    long_description=readme,
     author="David Hohensinn",
     author_email="breaka@gmx.at",
     url="https://github.com/Breaka84/Spooq",
