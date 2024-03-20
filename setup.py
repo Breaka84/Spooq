@@ -36,8 +36,6 @@ setup(
     version=version_string,
     description="Spooq is a PySpark based helper library for ETL data ingestion pipeline in Data Lakes.",
     long_description=readme + "\n\n" + history,
-    # long_description=sphinx_index,
-    long_description_content_type="text/x-rst",
     author="David Hohensinn",
     author_email="breaka@gmx.at",
     url="https://github.com/Breaka84/Spooq",
