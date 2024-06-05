@@ -1,5 +1,8 @@
 from builtins import str
 from builtins import object
+from typing import List
+from copy import deepcopy
+
 import pytest
 from pyspark.sql import functions as F
 from pyspark.sql import types as T
@@ -7,8 +10,10 @@ from pyspark.sql import Row
 from pyspark.sql.utils import AnalysisException
 from chispa.dataframe_comparer import assert_df_equality
 
+from spooq.transformer.mapper import DataTypeValidationFailed
 from tests import DATA_FOLDER
 from spooq.transformer import Mapper
+from spooq.transformer import mapper_transformations as spq
 
 
 @pytest.fixture(scope="module")
@@ -56,25 +61,27 @@ def mapping():
     |-- birthday: timestamp (nullable = true)
     """
     return [
-        ("id", "id", "IntegerType"),
-        ("guid", "guid", "StringType()"),
-        ("created_at", "meta.created_at_sec", "timestamp_s_to_s"),
-        ("created_at_ms", "meta.created_at_ms", "timestamp_ms_to_ms"),
-        ("version", "meta.version", "IntegerType()"),
-        ("birthday", "birthday", "TimestampType"),
-        ("location_struct", "location", "as_is"),
-        ("latitude", "location.latitude", "DoubleType"),
-        ("longitude", "location.longitude", "DoubleType"),
-        ("birthday_str", "attributes.birthday", "StringType"),
-        ("email", "attributes.email", "StringType"),
-        ("myspace", "attributes.myspace", "StringType"),
-        ("first_name", "attributes.first_name", "StringBoolean"),
-        ("last_name", "attributes.last_name", "StringBoolean"),
-        ("gender", "attributes.gender", "StringType"),
-        ("ip_address", "attributes.ip_address", "StringType"),
-        ("university", "attributes.university", "StringType"),
-        ("friends", "attributes.friends", "no_change"),
-        ("friends_json", "attributes.friends", "json_string"),
+        # fmt: off
+        ("id",              "id",                    spq.to_int),
+        ("guid",            "guid",                  spq.to_str),
+        ("created_at",      "meta.created_at_sec",   T.LongType()),
+        ("created_at_ms",   "meta.created_at_ms",    T.LongType()),
+        ("version",         "meta.version",          spq.to_int),
+        ("birthday",        "birthday",              spq.to_timestamp),
+        ("location_struct", "location",              spq.as_is),
+        ("latitude",        "location.latitude",     spq.to_double),
+        ("longitude",       "location.longitude",    spq.to_double),
+        ("birthday_str",    "attributes.birthday",   spq.to_str),
+        ("email",           "attributes.email",      spq.to_str),
+        ("myspace",         "attributes.myspace",    spq.to_str),
+        ("has_first_name",  "attributes.first_name", spq.has_value),
+        ("has_last_name",   "attributes.last_name",  spq.has_value),
+        ("gender",          "attributes.gender",     spq.to_str),
+        ("ip_address",      "attributes.ip_address", spq.to_str),
+        ("university",      "attributes.university", spq.to_str),
+        ("friends",         "attributes.friends",    spq.as_is),
+        ("friends_json",    "attributes.friends",    spq.to_json_string),
+        # fmt: on
     ]
 
 
@@ -210,7 +217,10 @@ class TestNullifyMissingColumns(object):
         assert len(mapping) == len(mapped_df.columns)
 
     def test_missing_columns_are_nullified(self, mapped_df, mapping):
-        attribute_columns = [name for name, source, _ in mapping if source.startswith("attributes.")]
+        attribute_columns = [
+            name for name, source, transformation in mapping 
+            if source.startswith("attributes.") and not transformation == spq.has_value
+        ]
         filter = " AND ".join([f"{column} is NULL" for column in attribute_columns])
         assert mapped_df.filter(filter).count() == mapped_df.count()
 
@@ -259,8 +269,8 @@ class TestDataTypesOfMappedDataFrame(object):
             ("birthday_str", "string"),
             ("email", "string"),
             ("myspace", "string"),
-            ("first_name", "string"),
-            ("last_name", "string"),
+            ("has_first_name", "boolean"),
+            ("has_last_name", "boolean"),
             ("gender", "string"),
             ("ip_address", "string"),
             ("university", "string"),
@@ -299,3 +309,64 @@ class TestAmbiguousColumnNames:
         transformer = Mapper(mapping, ignore_ambiguous_columns=True)
         output_df = transformer.transform(input_df)
         assert_df_equality(expected_output_df, output_df)
+
+
+class TestValidateDataTypes:
+    @pytest.fixture(scope="class")
+    def input_df(self, spark_session):
+        return spark_session.createDataFrame(
+            [Row(col_a=123, col_b="Hello", col_c=123456789)], 
+            schema="col_a int, col_b string, col_c long"
+        )
+
+    @pytest.fixture(scope="class")
+    def matching_mapping(self) -> List[tuple]:
+        # fmt: off
+        return [
+            ("col_a", "col_a", T.IntegerType()),
+            ("col_b", "col_b", T.StringType()),
+            ("col_c", "col_c", T.LongType()),
+        ]
+        # fmt: on
+
+    def test_matching_mapping_with_casting(self, input_df, matching_mapping):
+        transformer = Mapper(matching_mapping)
+        assert_df_equality(input_df, transformer.transform(input_df))
+
+    def test_matching_mapping_with_validation(self, input_df, matching_mapping):
+        transformer = Mapper(matching_mapping, mode="rename_and_validate")
+        assert_df_equality(input_df, transformer.transform(input_df))
+
+    def test_mismatching_mapping_with_casting(self, input_df, matching_mapping):
+        mapping_ = deepcopy(matching_mapping)
+        mapping_[0] = ("col_a", "col_a", T.StringType())
+        transformer = Mapper(mapping_)
+        mapped_df = transformer.transform(input_df)
+        assert input_df.columns == mapped_df.columns
+        assert mapped_df.schema["col_a"].jsonValue()["type"] == "string"
+
+    def test_mismatching_mapping_with_validation(self, input_df, matching_mapping):
+        mapping_ = deepcopy(matching_mapping)
+        mapping_[0] = ("col_a", "col_a", T.StringType())
+        transformer = Mapper(mapping_, mode="rename_and_validate")
+        with pytest.raises(DataTypeValidationFailed, match="col_a"):
+            transformer.transform(input_df)
+
+    def test_spooq_transformation_raises_exception(self, input_df, matching_mapping):
+        mapping_ = deepcopy(matching_mapping)
+        mapping_[0] = ("col_a", "col_a", spq.to_int)
+        transformer = Mapper(mapping_, mode="rename_and_validate")
+        with pytest.raises(DataTypeValidationFailed, match="Spooq transformations are not allowed in 'rename_and_validate' mode"):
+            transformer.transform(input_df)
+
+    def test_spooq_transformation_as_is(self, input_df, matching_mapping):
+        mapping_ = deepcopy(matching_mapping)
+        mapping_[0] = ("col_a", "col_a", spq.as_is)
+        transformer = Mapper(mapping_, mode="rename_and_validate")
+        assert_df_equality(input_df, transformer.transform(input_df))
+
+    def test_spooq_transformation_as_is_string(self, input_df, matching_mapping):
+        mapping_ = deepcopy(matching_mapping)
+        mapping_[0] = ("col_a", "col_a", "as_is")
+        transformer = Mapper(mapping_, mode="rename_and_validate")
+        assert_df_equality(input_df, transformer.transform(input_df))

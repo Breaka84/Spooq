@@ -13,11 +13,15 @@ from pyspark.sql import (
 
 from .transformer import Transformer
 from .mapper_custom_data_types import _get_select_expression_for_custom_type
+from .mapper_transformations import as_is
+
+class DataTypeValidationFailed(ValueError):
+    pass
 
 
 class Mapper(Transformer):
     """
-    Constructs and applies a PySpark SQL expression, based on the provided mapping.
+    Selects, transforms and casts or validates a DataFrame based on the provided mapping.
 
     Examples
     --------
@@ -67,20 +71,25 @@ class Mapper(Transformer):
         columns.
 
     mode : :any:`str`, Defaults to "replace"
-        Defines weather the mapping should fully replace the schema of the input DataFrame or just add to it.
+        Defines the operation mode of the mapping transformation.    
         Following modes are supported:
 
             * replace
                 The output schema is the same as the provided mapping.
-                => output schema: new columns
+                => output schema: columns from mapping
             * append
                 The columns provided in the mapping are added at the end of the input schema. If a column already
                 exists in the input DataFrame, its position is kept.
-                => output schema: input columns + new columns
+                => output schema: input columns + columns from mapping
             * prepend
                 The columns provided in the mapping are added at the beginning of the input schema. If a column already
                 exists in the input DataFrame, its position is kept.
-                => output schema: new columns + input columns
+                => output schema: columns from mapping + input columns
+            * rename_and_validate
+                All built-in, custom transformations (except renaming) and casts are disabled. The Mapper only 
+                renames the columns and validates that the output data type is the same as the input data type. The 
+                transformation will fail if any spooq / custom transformations (except `as_is`) are defined!
+                => output schema: columns from mapping
 
 
     Keyword Arguments
@@ -132,13 +141,23 @@ class Mapper(Transformer):
         self.ignore_ambiguous_columns = ignore_ambiguous_columns
         self.mode = mode
 
+        if self.mode not in ["replace", "append", "prepend", "rename_and_validate"]:
+            raise ValueError(f"""Value: '{mode}' was used as mode for the Mapper transformer. 
+                Only the following values are allowed for `mode`: 
+                - replace: The output schema is the same as the provided mapping.
+                - append: The columns provided in the mapping are added at the end of the input schema.
+                - prepend: The columns provided in the mapping are added at the beginning of the input schema.
+                - rename_and_validate: The Mapper only renames the columns and validates that the output data 
+                  type is the same as the input data type.
+            """)
+
         if "ignore_missing_columns" in kwargs:
             message = "Parameter `ignore_missing_columns` is deprecated, use `missing_column_handling` instead!"
             if kwargs["ignore_missing_columns"]:
                 message += "\n`missing_column_handling` was set to `nullify` because you defined " \
                            "`ignore_missing_columns=True`!"
                 self.missing_column_handling = "nullify"
-            self.logger.warn(message)
+            self.logger.warning(message)
             warnings.warn(message=message, category=FutureWarning)
 
         if self.missing_column_handling not in ["raise_error", "skip", "nullify"]:
@@ -155,24 +174,55 @@ class Mapper(Transformer):
         input_columns = input_df.columns
         select_expressions = []
         with_column_expressions = []
+        validation_errors = []
 
         for (name, source_column, data_transformation) in self.mapping:
-            self.logger.debug("generating Select statement for attribute: {nm}".format(nm=name))
+            self.logger.debug(f"generating Select statement for attribute: {name}")
             self.logger.debug(
                 f"generate mapping for name: {name}, "
                 f"source_column: {source_column}, "
                 f"data_transformation: {data_transformation}"
             )
-            source_column = self._get_spark_column(source_column, name, input_df)
+            source_column: Column = self._get_source_spark_column(source_column, name, input_df)
             if source_column is None:
+                if self.mode == "rename_and_validate":
+                    validation_errors.append(DataTypeValidationFailed(f"Input column: {source_column} not found!"))
                 continue
-            select_expression = self._get_select_expression(name, source_column, data_transformation)
+
+            source_spark_data_type: T.DataType = self._get_spark_data_type(input_df.select(source_column).dtypes[0][1])
+            target_transformation: Union[T.DataType, Column] = (
+                self._get_spark_data_type(data_transformation) 
+                or self._get_spooq_transformation(name, source_column, data_transformation)
+            )
+
+            if self.mode == "rename_and_validate":
+                try:
+                    self._validate_data_type(
+                        name,
+                        source_spark_data_type,
+                        data_transformation, 
+                        target_transformation,
+                    )
+                except DataTypeValidationFailed as e:
+                    self.logger.warning(e)
+                    validation_errors.append(e)
+
+            if isinstance(target_transformation, T.DataType):
+                if target_transformation != source_spark_data_type:
+                    select_expression = source_column.cast(target_transformation).alias(name)
+                else:
+                    select_expression = source_column.alias(name)
+            else:
+                select_expression = target_transformation
 
             self.logger.debug(f"Select-Expression for Attribute {name}: {select_expression}")
-            if self.mode != "replace" and name in input_columns:
+            if self.mode in ["append", "prepend"] and name in input_columns:
                 with_column_expressions.append((name, select_expression))
             else:
                 select_expressions.append(select_expression)
+
+        if validation_errors:
+            raise DataTypeValidationFailed(f"Validation has failed!\n{validation_errors}")
 
         self.logger.info("SQL Select-Expression for new mapping generated!")
         self.logger.debug("SQL Select-Expressions for new mapping:\n" + "\n".join(str(select_expressions).split(",")))
@@ -181,27 +231,20 @@ class Mapper(Transformer):
             df_to_return = input_df.select(select_expressions + ["*"])
         elif self.mode == "append":
             df_to_return = input_df.select(["*"] + select_expressions)
-        elif self.mode == "replace":
-            df_to_return = input_df.select(select_expressions)
         else:
-            exception_message = (
-                "Only 'prepend', 'append' and 'replace' are allowed for Mapper mode!"
-                "Value: '{val}' was used as mode for the Mapper transformer."
-            )
-            self.logger.exception(exception_message)
-            raise ValueError(exception_message)
+            df_to_return = input_df.select(select_expressions)
 
         if with_column_expressions:
             for name, expression in with_column_expressions:
                 df_to_return = df_to_return.withColumn(name, expression)
         return df_to_return
 
-    def _get_spark_column(
+    def _get_source_spark_column(
         self, source_column: Union[str, Column], name: str, input_df: DataFrame
     ) -> Union[Column, None]:
         """
-        Returns the provided source column as a Pyspark.sql.Column and marks if it is missing or not.
-        Supports source column definition as a string or a Pyspark.sql.Column (including functions).
+        Returns the provided source column as a Column.
+        Supports source column definition as a string or a Column (including functions).
         """
         try:
             input_df.select(source_column)
@@ -210,17 +253,17 @@ class Mapper(Transformer):
 
         except AnalysisException as e:
             if isinstance(source_column, str) and self.missing_column_handling == "skip":
-                self.logger.warn(
+                self.logger.warning(
                     f"Missing column ({str(source_column)}) skipped (via missing_column_handling='skip'): {e.desc}"
                 )
                 return None
             elif isinstance(source_column, str) and self.missing_column_handling == "nullify":
-                self.logger.warn(
+                self.logger.warning(
                     f"Missing column ({str(source_column)}) replaced with NULL (via missing_column_handling='nullify'): {e.desc}"
                 )
                 source_column = F.lit(None)
             elif "ambiguous" in e.desc.lower() and self.ignore_ambiguous_columns:
-                self.logger.warn(
+                self.logger.warning(
                     f'Exception ignored (via ignore_ambiguous_columns=True) for column "{source_column}": {e.desc}'
                 )
                 return None
@@ -228,60 +271,87 @@ class Mapper(Transformer):
                 self.logger.exception(f"""
                 Column: '{source_column}' cannot be resolved but is referenced in the mapping by column: '{name}'.
                 You can make use of the following parameters to handle missing input columns:
-                - `nullify_missing_columns`: set missing source column to null
-                - `skip_missing_columns`: skip the transformation
+                - missing_column_handling='nullify': set missing source column to null
+                - missing_column_handling='skip': skip the transformation
                 """)
                 raise e
         return source_column
 
-    def _get_select_expression(
-        self, name: str, source_column: Union[str, Column], data_transformation: Union[str, Column, Callable]
-    ) -> Column:
+    def _get_spark_data_type(
+        self, data_transformation: Union[str, Column, Callable, T.DataType]
+    ) -> T.DataType:
         """
-        Returns a valid pyspark sql select-expression with cast and alias, depending on the input parameters.
+        Returns the PySpark data type as Python object (None if not found). Supports Python objects and strings.
         """
-        self.logger.debug(f"name: {name}, source_column: {source_column}, data_transformation: {data_transformation}")
-        try:
-            return self._get_select_expression_for_spark_transformation(name, source_column, data_transformation)
-        except ValueError:
-            return self._get_select_expression_for_spooq_transformation(name, source_column, data_transformation)
-
-    @staticmethod
-    def _get_select_expression_for_spark_transformation(
-        name: str, source_column: Union[str, Column], data_transformation: Union[str, Column, Callable]
-    ) -> Column:
         data_type = None
-        try:
-            data_type = getattr(T, str(data_transformation).replace("()", ""))()
-        except AttributeError:
-            pass
-        try:
-            data_type = T._parse_datatype_string(str(data_transformation))
-        except ParseException:
-            pass
+        
+        if isinstance(data_transformation, T.DataType):
+            data_type = data_transformation  # Spark datatype as Python object
+            
+        elif isinstance(data_transformation, str):
+            data_type_ = data_transformation.replace("()", "")
+            try:
+                data_type = getattr(T, data_type_)()  # Spark datatype as string
+            except AttributeError:
+                try:
+                    data_type = T._parse_datatype_string(data_type_)  # Spark datatype as short string
+                except ParseException:
+                    pass
 
-        if data_type is None:
-            raise ValueError(f"No suitable Spark Data Type found for {data_transformation}")
+        return data_type
 
-        return source_column.cast(data_type).alias(name)
+    def _validate_data_type(
+        self, 
+        name: str,
+        source_spark_data_type: T.DataType, 
+        original_data_transformation: Union[str, T.DataType, Callable],
+        target_transformation: Union[T.DataType, Column], 
+    ):
+        """
+        Validates that the input and output data types are the same. NULL sources and as_is transformations are valid.
+        """
+        if isinstance(target_transformation, T.DataType):
+            if isinstance(target_transformation, T.NullType):
+                self.logger.warning(
+                    f"The data type of column {name} could not be validated because the source "
+                    "data type is NULL!"
+                )
+            elif target_transformation != source_spark_data_type:
+                raise DataTypeValidationFailed(
+                    f"The mode is set to `rename_and_validate` but the target data_type ({target_transformation}) "
+                    f"does not match the source data_type ({source_spark_data_type}) for the column: {name}!"
+                )
+            else:
+                self.logger.debug(f"No validation errors found for column: {name}")
+        else:
+            if original_data_transformation in [as_is, "as_is"]:
+                pass
+            else:
+                raise DataTypeValidationFailed(
+                    f"Spooq transformations are not allowed in 'rename_and_validate' mode! Name: {name}, transformation: {original_data_transformation}"
+                )
 
-    @staticmethod
-    def _get_select_expression_for_spooq_transformation(
-        name: str, source_column: Union[str, Column], data_transformation: Union[str, Column, Callable]
+    def _get_spooq_transformation(
+        self, name: str, source_column: Union[str, Column], data_transformation: Union[str, Callable]
     ) -> Column:
+        """
+        Applies the defined spooq transformation and returns the target column.
+        """
+        self.logger.debug(
+            f"Get spooq transformation for column: {name} (source: {source_column}) with "
+            f"following requested transformation: {data_transformation}"
+        )
         if isinstance(data_transformation, FunctionType):
-            try:  # Function returns a partial
-                spooq_partial = data_transformation()
-                return spooq_partial(source_column=source_column, name=name)
-            except TypeError as e:  # Function is directly callable
-                if "required positional arguments" not in str(e):
-                    raise e
-                return data_transformation(source_column=source_column, name=name)
+            # function without brackets / parameters (f.e.: `spq.as_is`)
+            spooq_partial = data_transformation()
+            return spooq_partial(source_column=source_column, name=name)
 
-        elif isinstance(data_transformation, partial):
+        elif isinstance(data_transformation, partial):  
+            # function with brackets / parameters (f.e.: `spq.as_is()` or `spq.as_is(cast="string")`)
             args = data_transformation.keywords
             args.setdefault("source_column", source_column)
             args.setdefault("name", name)
             return data_transformation(**args)
-        else:  # spooq_function_string
+        else:  
+            # spooq_function_string (f.e.: `"as_is"`)
             return _get_select_expression_for_custom_type(source_column, name, data_transformation)
