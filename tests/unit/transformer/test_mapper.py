@@ -218,7 +218,7 @@ class TestNullifyMissingColumns(object):
 
     def test_missing_columns_are_nullified(self, mapped_df, mapping):
         attribute_columns = [
-            name for name, source, transformation in mapping 
+            name for name, source, transformation in mapping
             if source.startswith("attributes.") and not transformation == spq.has_value
         ]
         filter = " AND ".join([f"{column} is NULL" for column in attribute_columns])
@@ -315,7 +315,7 @@ class TestValidateDataTypes:
     @pytest.fixture(scope="class")
     def input_df(self, spark_session):
         return spark_session.createDataFrame(
-            [Row(col_a=123, col_b="Hello", col_c=123456789)], 
+            [Row(col_a=123, col_b="Hello", col_c=123456789)],
             schema="col_a int, col_b string, col_c long"
         )
 
@@ -358,6 +358,29 @@ class TestValidateDataTypes:
         transformer = Mapper(mapping_, mode="rename_and_validate")
         with pytest.raises(DataTypeValidationFailed, match="Spooq transformations are not allowed in 'rename_and_validate' mode"):
             transformer.transform(input_df)
+
+    def test_mapper_raises_exception_for_missing_column(self, input_df, matching_mapping):
+        missing_column = "col_d"
+        mapping_ = deepcopy(matching_mapping)
+        mapping_.append((missing_column, missing_column, T.StringType()))
+        transformer = Mapper(mapping_, mode="rename_and_validate", missing_column_handling="raise_error")
+        with pytest.raises(AnalysisException, match=f"A column or function parameter with name `{missing_column}` cannot be resolved."):
+            transformer.transform(input_df)
+
+    def test_validation_raises_exception_for_skipped_column(self, input_df, matching_mapping):
+        skipped_column = "col_d"
+        mapping_ = deepcopy(matching_mapping)
+        mapping_.append((skipped_column, skipped_column, T.StringType()))
+        transformer = Mapper(mapping_, mode="rename_and_validate", missing_column_handling="skip")
+        with pytest.raises(DataTypeValidationFailed, match=f"Input column: {skipped_column} not found!"):
+            transformer.transform(input_df)
+
+    def test_validation_succeeds_for_nullified_column(self, input_df, matching_mapping):
+        column_to_nullify = "col_d"
+        mapping_ = deepcopy(matching_mapping)
+        mapping_.append((column_to_nullify, column_to_nullify, T.StringType()))
+        mapped_df = Mapper(mapping_, mode="rename_and_validate", missing_column_handling="nullify").transform(input_df)
+        assert mapped_df.schema[column_to_nullify].jsonValue()["type"] == "string"
 
     def test_spooq_transformation_as_is(self, input_df, matching_mapping):
         mapping_ = deepcopy(matching_mapping)

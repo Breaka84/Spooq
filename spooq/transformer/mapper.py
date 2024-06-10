@@ -71,7 +71,7 @@ class Mapper(Transformer):
         columns.
 
     mode : :any:`str`, Defaults to "replace"
-        Defines the operation mode of the mapping transformation.    
+        Defines the operation mode of the mapping transformation.
         Following modes are supported:
 
             * replace
@@ -86,8 +86,8 @@ class Mapper(Transformer):
                 exists in the input DataFrame, its position is kept.
                 => output schema: columns from mapping + input columns
             * rename_and_validate
-                All built-in, custom transformations (except renaming) and casts are disabled. The Mapper only 
-                renames the columns and validates that the output data type is the same as the input data type. The 
+                All built-in, custom transformations (except renaming) and casts are disabled. The Mapper only
+                renames the columns and validates that the output data type is the same as the input data type. The
                 transformation will fail if any spooq / custom transformations (except `as_is`) are defined!
                 => output schema: columns from mapping
 
@@ -142,12 +142,12 @@ class Mapper(Transformer):
         self.mode = mode
 
         if self.mode not in ["replace", "append", "prepend", "rename_and_validate"]:
-            raise ValueError(f"""Value: '{mode}' was used as mode for the Mapper transformer. 
-                Only the following values are allowed for `mode`: 
+            raise ValueError(f"""Value: '{mode}' was used as mode for the Mapper transformer.
+                Only the following values are allowed for `mode`:
                 - replace: The output schema is the same as the provided mapping.
                 - append: The columns provided in the mapping are added at the end of the input schema.
                 - prepend: The columns provided in the mapping are added at the beginning of the input schema.
-                - rename_and_validate: The Mapper only renames the columns and validates that the output data 
+                - rename_and_validate: The Mapper only renames the columns and validates that the output data
                   type is the same as the input data type.
             """)
 
@@ -161,7 +161,7 @@ class Mapper(Transformer):
             warnings.warn(message=message, category=FutureWarning)
 
         if self.missing_column_handling not in ["raise_error", "skip", "nullify"]:
-            raise ValueError("""Only the following values are allowed for `missing_column_handling`: 
+            raise ValueError("""Only the following values are allowed for `missing_column_handling`:
                 - raise_error: raise an exception in case the source column is missing
                 - skip: skip transformation in case the source is missing
                 - nullify: set source column to null in case it is missing""")
@@ -186,12 +186,12 @@ class Mapper(Transformer):
             source_column: Column = self._get_source_spark_column(source_column, name, input_df)
             if source_column is None:
                 if self.mode == "rename_and_validate":
-                    validation_errors.append(DataTypeValidationFailed(f"Input column: {source_column} not found!"))
+                    validation_errors.append(DataTypeValidationFailed(f"Input column: {name} not found!"))
                 continue
 
             source_spark_data_type: T.DataType = self._get_spark_data_type(input_df.select(source_column).dtypes[0][1])
             target_transformation: Union[T.DataType, Column] = (
-                self._get_spark_data_type(data_transformation) 
+                self._get_spark_data_type(data_transformation)
                 or self._get_spooq_transformation(name, source_column, data_transformation)
             )
 
@@ -200,7 +200,7 @@ class Mapper(Transformer):
                     self._validate_data_type(
                         name,
                         source_spark_data_type,
-                        data_transformation, 
+                        data_transformation,
                         target_transformation,
                     )
                 except DataTypeValidationFailed as e:
@@ -284,10 +284,10 @@ class Mapper(Transformer):
         Returns the PySpark data type as Python object (None if not found). Supports Python objects and strings.
         """
         data_type = None
-        
+
         if isinstance(data_transformation, T.DataType):
             data_type = data_transformation  # Spark datatype as Python object
-            
+
         elif isinstance(data_transformation, str):
             data_type_ = data_transformation.replace("()", "")
             try:
@@ -301,17 +301,17 @@ class Mapper(Transformer):
         return data_type
 
     def _validate_data_type(
-        self, 
+        self,
         name: str,
-        source_spark_data_type: T.DataType, 
+        source_spark_data_type: T.DataType,
         original_data_transformation: Union[str, T.DataType, Callable],
-        target_transformation: Union[T.DataType, Column], 
+        target_transformation: Union[T.DataType, Column],
     ):
         """
         Validates that the input and output data types are the same. NULL sources and as_is transformations are valid.
         """
         if isinstance(target_transformation, T.DataType):
-            if isinstance(target_transformation, T.NullType):
+            if isinstance(source_spark_data_type, T.NullType):
                 self.logger.warning(
                     f"The data type of column {name} could not be validated because the source "
                     "data type is NULL!"
@@ -346,12 +346,12 @@ class Mapper(Transformer):
             spooq_partial = data_transformation()
             return spooq_partial(source_column=source_column, name=name)
 
-        elif isinstance(data_transformation, partial):  
+        elif isinstance(data_transformation, partial):
             # function with brackets / parameters (f.e.: `spq.as_is()` or `spq.as_is(cast="string")`)
             args = data_transformation.keywords
             args.setdefault("source_column", source_column)
             args.setdefault("name", name)
             return data_transformation(**args)
-        else:  
+        else:
             # spooq_function_string (f.e.: `"as_is"`)
             return _get_select_expression_for_custom_type(source_column, name, data_transformation)
