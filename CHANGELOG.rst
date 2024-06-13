@@ -2,6 +2,10 @@
 Changelog
 =========
 
+3.4.1 (2024-06-05)
+-------------------
+* [MOD] Mapper: Add validation mode
+
 3.4.0 (2024-03-15)
 -------------------
 * [MOD] Mapper: Custom transformations can now also be used with ``select``, ``withColumn`` or ``where`` clauses
