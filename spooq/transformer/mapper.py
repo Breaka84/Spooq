@@ -294,7 +294,7 @@ class Mapper(Transformer):
                 data_type = getattr(T, data_type_)()  # Spark datatype as string
             except AttributeError:
                 try:
-                    data_type = T._parse_datatype_string(data_type_)  # Spark datatype as short string
+                    data_type = T._parse_datatype_string("void" if data_type_ == "null" else data_type_)  # Spark datatype as short string
                 except ParseException:
                     pass
 
