@@ -142,12 +142,16 @@ class TestMultipleMappings(object):
 
     def test_appending_a_mapping(self, mapped_df, new_mapping, input_columns, new_columns):
         """Output schema is correct for added mapping at the end of the input schema"""
-        new_mapped_df = Mapper(mapping=new_mapping, mode="append", missing_column_handling="nullify").transform(mapped_df)
+        new_mapped_df = Mapper(mapping=new_mapping, mode="append", missing_column_handling="nullify").transform(
+            mapped_df
+        )
         assert input_columns + new_columns == new_mapped_df.columns
 
     def test_prepending_a_mapping(self, mapped_df, new_mapping, input_columns, new_columns):
         """Output schema is correct for added mapping at the beginning of the input schema"""
-        new_mapped_df = Mapper(mapping=new_mapping, mode="prepend", missing_column_handling="nullify").transform(mapped_df)
+        new_mapped_df = Mapper(mapping=new_mapping, mode="prepend", missing_column_handling="nullify").transform(
+            mapped_df
+        )
         assert new_columns + input_columns == new_mapped_df.columns
 
     def test_appending_a_mapping_with_duplicated_columns(self, input_columns, mapped_df):
@@ -159,7 +163,9 @@ class TestMultipleMappings(object):
         ]
         new_columns = [name for (name, path, data_type) in new_mapping]
         new_columns_deduplicated = [x for x in new_columns if x not in input_columns]
-        new_mapped_df = Mapper(mapping=new_mapping, mode="append", missing_column_handling="nullify").transform(mapped_df)
+        new_mapped_df = Mapper(mapping=new_mapping, mode="append", missing_column_handling="nullify").transform(
+            mapped_df
+        )
         assert input_columns + new_columns_deduplicated == new_mapped_df.columns
         assert mapped_df.schema["birthday"].dataType == T.TimestampType()
         assert new_mapped_df.schema["birthday"].dataType == T.DateType()
@@ -173,7 +179,9 @@ class TestMultipleMappings(object):
         ]
         new_columns = [name for (name, path, data_type) in new_mapping]
         new_columns_deduplicated = [x for x in new_columns if x not in input_columns]
-        new_mapped_df = Mapper(mapping=new_mapping, mode="prepend", missing_column_handling="nullify").transform(mapped_df)
+        new_mapped_df = Mapper(mapping=new_mapping, mode="prepend", missing_column_handling="nullify").transform(
+            mapped_df
+        )
         assert new_columns_deduplicated + input_columns == new_mapped_df.columns
         assert mapped_df.schema["birthday"].dataType == T.TimestampType()
         assert new_mapped_df.schema["birthday"].dataType == T.DateType()
@@ -218,7 +226,8 @@ class TestNullifyMissingColumns(object):
 
     def test_missing_columns_are_nullified(self, mapped_df, mapping):
         attribute_columns = [
-            name for name, source, transformation in mapping
+            name
+            for name, source, transformation in mapping
             if source.startswith("attributes.") and not transformation == spq.has_value
         ]
         filter = " AND ".join([f"{column} is NULL" for column in attribute_columns])
@@ -315,8 +324,7 @@ class TestValidateDataTypes:
     @pytest.fixture(scope="class")
     def input_df(self, spark_session):
         return spark_session.createDataFrame(
-            [Row(col_a=123, col_b="Hello", col_c=123456789)],
-            schema="col_a int, col_b string, col_c long"
+            [Row(col_a=123, col_b="Hello", col_c=123456789)], schema="col_a int, col_b string, col_c long"
         )
 
     @pytest.fixture(scope="class")
@@ -356,7 +364,9 @@ class TestValidateDataTypes:
         mapping_ = deepcopy(matching_mapping)
         mapping_[0] = ("col_a", "col_a", spq.to_int)
         transformer = Mapper(mapping_, mode="rename_and_validate")
-        with pytest.raises(DataTypeValidationFailed, match="Spooq transformations are not allowed in 'rename_and_validate' mode"):
+        with pytest.raises(
+            DataTypeValidationFailed, match="Spooq transformations are not allowed in 'rename_and_validate' mode"
+        ):
             transformer.transform(input_df)
 
     def test_mapper_raises_exception_for_missing_column(self, input_df, matching_mapping):
@@ -364,7 +374,13 @@ class TestValidateDataTypes:
         mapping_ = deepcopy(matching_mapping)
         mapping_.append((missing_column, missing_column, T.StringType()))
         transformer = Mapper(mapping_, mode="rename_and_validate", missing_column_handling="raise_error")
-        with pytest.raises(AnalysisException, match=f"A column or function parameter with name `{missing_column}` cannot be resolved."):
+        with pytest.raises(
+            AnalysisException,
+            match=f"A column or function parameter with name `{missing_column}` cannot be resolved.|"
+                  f"cannot resolve '{missing_column}' given input columns|"
+                  f"cannot resolve '`{missing_column}`' given input columns|"
+                  f"Column '{missing_column}' does not exist. Did you mean one of the following?",
+        ):
             transformer.transform(input_df)
 
     def test_validation_raises_exception_for_skipped_column(self, input_df, matching_mapping):
