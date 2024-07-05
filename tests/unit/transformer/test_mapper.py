@@ -109,19 +109,16 @@ class TestLenghtOfMappingTuple:
         return spark_session.range(0)
 
     def test_column_mapping_without_comments(self, input_df: DataFrame):
-        mapping = [ ( "id", "id", T.LongType() ) ]
+        mapping = [("id", "id", T.LongType())]
         output_df = Mapper(mapping).transform(input_df)
         assert_df_equality(input_df, output_df)
 
     def test_column_mapping_with_comments(self, input_df: DataFrame):
-        mapping = [ ( "id", "id", T.LongType(), "This column contains the ID" ) ]
+        mapping = [("id", "id", T.LongType(), "This column contains the ID")]
         output_df = Mapper(mapping).transform(input_df)
         assert_df_equality(input_df, output_df, ignore_metadata=True)
 
-    @pytest.mark.parametrize(
-        "num_of_elements",
-        (0, 1, 2, 5, 6)
-    )
+    @pytest.mark.parametrize("num_of_elements", (0, 1, 2, 5, 6))
     def test_unsupported_number_of_elements_for_column_mapping(self, input_df: DataFrame, num_of_elements: int):
         mapping = ["string" for x in range(0, num_of_elements)]
         with pytest.raises(ColumnMappingNotSupported):
@@ -172,16 +169,16 @@ class TestMultipleMappings(object):
 
     def test_appending_a_mapping(self, mapped_df, new_mapping, input_columns, new_columns):
         """Output schema is correct for added mapping at the end of the input schema"""
-        new_mapped_df = Mapper(mapping=new_mapping, mode=MapperMode.append, missing_column_handling=MissingColumnHandling.nullify).transform(
-            mapped_df
-        )
+        new_mapped_df = Mapper(
+            mapping=new_mapping, mode=MapperMode.append, missing_column_handling=MissingColumnHandling.nullify
+        ).transform(mapped_df)
         assert input_columns + new_columns == new_mapped_df.columns
 
     def test_prepending_a_mapping(self, mapped_df, new_mapping, input_columns, new_columns):
         """Output schema is correct for added mapping at the beginning of the input schema"""
-        new_mapped_df = Mapper(mapping=new_mapping, mode=MapperMode.prepend, missing_column_handling=MissingColumnHandling.nullify).transform(
-            mapped_df
-        )
+        new_mapped_df = Mapper(
+            mapping=new_mapping, mode=MapperMode.prepend, missing_column_handling=MissingColumnHandling.nullify
+        ).transform(mapped_df)
         assert new_columns + input_columns == new_mapped_df.columns
 
     def test_appending_a_mapping_with_duplicated_columns(self, input_columns, mapped_df):
@@ -193,9 +190,9 @@ class TestMultipleMappings(object):
         ]
         new_columns = [name for (name, path, data_type) in new_mapping]
         new_columns_deduplicated = [x for x in new_columns if x not in input_columns]
-        new_mapped_df = Mapper(mapping=new_mapping, mode=MapperMode.append, missing_column_handling=MissingColumnHandling.nullify).transform(
-            mapped_df
-        )
+        new_mapped_df = Mapper(
+            mapping=new_mapping, mode=MapperMode.append, missing_column_handling=MissingColumnHandling.nullify
+        ).transform(mapped_df)
         assert input_columns + new_columns_deduplicated == new_mapped_df.columns
         assert mapped_df.schema["birthday"].dataType == T.TimestampType()
         assert new_mapped_df.schema["birthday"].dataType == T.DateType()
@@ -209,9 +206,9 @@ class TestMultipleMappings(object):
         ]
         new_columns = [name for (name, path, data_type) in new_mapping]
         new_columns_deduplicated = [x for x in new_columns if x not in input_columns]
-        new_mapped_df = Mapper(mapping=new_mapping, mode=MapperMode.prepend, missing_column_handling=MissingColumnHandling.nullify).transform(
-            mapped_df
-        )
+        new_mapped_df = Mapper(
+            mapping=new_mapping, mode=MapperMode.prepend, missing_column_handling=MissingColumnHandling.nullify
+        ).transform(mapped_df)
         assert new_columns_deduplicated + input_columns == new_mapped_df.columns
         assert mapped_df.schema["birthday"].dataType == T.TimestampType()
         assert new_mapped_df.schema["birthday"].dataType == T.DateType()
@@ -403,13 +400,15 @@ class TestValidateDataTypes:
         missing_column = "col_d"
         mapping_ = deepcopy(matching_mapping)
         mapping_.append((missing_column, missing_column, T.StringType()))
-        transformer = Mapper(mapping_, mode=MapperMode.rename_and_validate, missing_column_handling=MissingColumnHandling.raise_error)
+        transformer = Mapper(
+            mapping_, mode=MapperMode.rename_and_validate, missing_column_handling=MissingColumnHandling.raise_error
+        )
         with pytest.raises(
             AnalysisException,
             match=f"A column or function parameter with name `{missing_column}` cannot be resolved.|"
-                  f"cannot resolve '{missing_column}' given input columns|"
-                  f"cannot resolve '`{missing_column}`' given input columns|"
-                  f"Column '{missing_column}' does not exist. Did you mean one of the following?",
+            f"cannot resolve '{missing_column}' given input columns|"
+            f"cannot resolve '`{missing_column}`' given input columns|"
+            f"Column '{missing_column}' does not exist. Did you mean one of the following?",
         ):
             transformer.transform(input_df)
 
@@ -417,7 +416,9 @@ class TestValidateDataTypes:
         skipped_column = "col_d"
         mapping_ = deepcopy(matching_mapping)
         mapping_.append((skipped_column, skipped_column, T.StringType()))
-        transformer = Mapper(mapping_, mode=MapperMode.rename_and_validate, missing_column_handling=MissingColumnHandling.skip)
+        transformer = Mapper(
+            mapping_, mode=MapperMode.rename_and_validate, missing_column_handling=MissingColumnHandling.skip
+        )
         with pytest.raises(DataTypeValidationFailed, match=f"Input column: {skipped_column} not found!"):
             transformer.transform(input_df)
 
@@ -425,7 +426,9 @@ class TestValidateDataTypes:
         column_to_nullify = "col_d"
         mapping_ = deepcopy(matching_mapping)
         mapping_.append((column_to_nullify, column_to_nullify, T.StringType()))
-        mapped_df = Mapper(mapping_, mode=MapperMode.rename_and_validate, missing_column_handling=MissingColumnHandling.nullify).transform(input_df)
+        mapped_df = Mapper(
+            mapping_, mode=MapperMode.rename_and_validate, missing_column_handling=MissingColumnHandling.nullify
+        ).transform(input_df)
         assert mapped_df.schema[column_to_nullify].jsonValue()["type"] == "string"
 
     def test_spooq_transformation_as_is(self, input_df, matching_mapping):
@@ -480,19 +483,32 @@ class TestColumnComments:
             ("col_a", "initial"),  # taken from referenced sql_source_table
             ("col_b", None),
             ("col_c", None),
-        ]
+        ],
     )
-    def test_fetch_comments_from_input_table(self, spark_session: SparkSession, column_name: str, expected_comment: str, mapping: List, input_table: str, random_string: str):
+    def test_fetch_comments_from_input_table(
+        self,
+        spark_session: SparkSession,
+        column_name: str,
+        expected_comment: str,
+        mapping: List,
+        input_table: str,
+        random_string: str,
+    ):
         mapping = [
             ("col_a", "col_a", spq.as_is),
             ("col_b", "col_b", spq.as_is),
             ("col_c", "col_c", spq.as_is),
         ]
         source_df = spark_session.table(input_table)
-        output_df = Mapper(mapping=mapping, annotator_options={"sql_source_table_identifier": input_table}).transform(source_df)
+        output_df = Mapper(mapping=mapping, annotator_options={"sql_source_table_identifier": input_table}).transform(
+            source_df
+        )
         output_df.write.saveAsTable(f"output_table_{random_string}")
         table_description_df = spark_session.sql(f"DESCRIBE output_table_{random_string}")
-        assert table_description_df.where(F.col("col_name") == column_name).rdd.map(lambda row: row.comment).collect()[0] == expected_comment
+        assert (
+            table_description_df.where(F.col("col_name") == column_name).rdd.map(lambda row: row.comment).collect()[0]
+            == expected_comment
+        )
 
     @pytest.mark.parametrize(
         argnames=["column_name", "expected_comment"],
@@ -500,9 +516,11 @@ class TestColumnComments:
             ("col_a", "initial"),  # taken from referenced sql_source_table
             ("col_x", None),
             ("col_y", "updated"),  # taken from mapping
-        ]
+        ],
     )
-    def test_fetch_comments_from_related_table(self, spark_session: SparkSession, column_name: str, expected_comment: str, input_table: str, random_string: str):
+    def test_fetch_comments_from_related_table(
+        self, spark_session: SparkSession, column_name: str, expected_comment: str, input_table: str, random_string: str
+    ):
         source_df = spark_session.createDataFrame([], "col_a int, col_x int, col_y int")
         mapping = [
             ("col_a", "col_a", spq.as_is),
@@ -512,7 +530,10 @@ class TestColumnComments:
         output_df = Mapper(mapping, annotator_options={"sql_source_table_identifier": input_table}).transform(source_df)
         output_df.write.saveAsTable(f"output_table_{random_string}")
         table_description_df = spark_session.sql(f"DESCRIBE output_table_{random_string}")
-        assert table_description_df.where(F.col("col_name") == column_name).rdd.map(lambda row: row.comment).collect()[0] == expected_comment
+        assert (
+            table_description_df.where(F.col("col_name") == column_name).rdd.map(lambda row: row.comment).collect()[0]
+            == expected_comment
+        )
 
     @pytest.mark.parametrize(
         argnames=["column_name", "expected_comment"],
@@ -520,14 +541,27 @@ class TestColumnComments:
             ("col_a", "initial"),
             ("col_b", "updated"),
             ("col_c", None),
-        ]
+        ],
     )
-    def test_insert_comments_to_input_table(self, spark_session: SparkSession, column_name: str, expected_comment: str, mapping: List, input_table: str, random_string: str):
+    def test_insert_comments_to_input_table(
+        self,
+        spark_session: SparkSession,
+        column_name: str,
+        expected_comment: str,
+        mapping: List,
+        input_table: str,
+        random_string: str,
+    ):
         source_df = spark_session.table(input_table)
-        output_df = Mapper(mapping, annotator_options={"mode": AnnotatorMode.insert, "sql_source_table_identifier": input_table}).transform(source_df)
+        output_df = Mapper(
+            mapping, annotator_options={"mode": AnnotatorMode.insert, "sql_source_table_identifier": input_table}
+        ).transform(source_df)
         output_df.write.saveAsTable(f"output_table_{random_string}")
         table_description_df = spark_session.sql(f"DESCRIBE output_table_{random_string}")
-        assert table_description_df.where(F.col("col_name") == column_name).rdd.map(lambda row: row.comment).collect()[0] == expected_comment
+        assert (
+            table_description_df.where(F.col("col_name") == column_name).rdd.map(lambda row: row.comment).collect()[0]
+            == expected_comment
+        )
 
     @pytest.mark.parametrize(
         argnames=["column_name", "expected_comment"],
@@ -535,11 +569,22 @@ class TestColumnComments:
             ("col_a", "updated"),
             ("col_b", "updated"),
             ("col_c", None),
-        ]
+        ],
     )
-    def test_upsert_comments_to_input_table(self, spark_session: SparkSession, column_name: str, expected_comment: str, mapping: List, input_table: str, random_string: str):
+    def test_upsert_comments_to_input_table(
+        self,
+        spark_session: SparkSession,
+        column_name: str,
+        expected_comment: str,
+        mapping: List,
+        input_table: str,
+        random_string: str,
+    ):
         source_df = spark_session.table(input_table)
         output_df = Mapper(mapping, annotator_options={"mode": AnnotatorMode.upsert}).transform(source_df)
         output_df.write.saveAsTable(f"output_table_{random_string}")
         table_description_df = spark_session.sql(f"DESCRIBE output_table_{random_string}")
-        assert table_description_df.where(F.col("col_name") == column_name).rdd.map(lambda row: row.comment).collect()[0] == expected_comment
+        assert (
+            table_description_df.where(F.col("col_name") == column_name).rdd.map(lambda row: row.comment).collect()[0]
+            == expected_comment
+        )
