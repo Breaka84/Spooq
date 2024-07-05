@@ -1,6 +1,12 @@
+[tool.pytest.ini_options]
+addopts = "--pspec --html=tests.html --self-contained-html"
+env = [
+  "D:SPOOQ_ENV = test"
+]
+
 [tool.black]
 line-length = 120
-target-version = ['py37']
+target-version = ['py38']
 include = '\.pyi?$'
 exclude = '''
 

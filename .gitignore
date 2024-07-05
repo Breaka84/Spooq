@@ -140,3 +140,19 @@ for_thesis/yelp_data_set/
 
 # Sphinx Build
 docs/build/html/
+
+archive/
+build/
+for_thesis/
+output.json
+pytest_html_report.html
+temp/
+out/
+tests.html
+tests/all_tests.html
+tests/archive/
+tests/output.json
+tests/pytest_html_report.html
+tests/tests.html
+tests/unit/archive/
+tests/unit/output.json
