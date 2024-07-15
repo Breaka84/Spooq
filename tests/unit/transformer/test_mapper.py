@@ -445,6 +445,14 @@ class TestValidateDataTypes:
 
 
 class TestColumnComments:
+
+
+    @pytest.fixture(scope="class")
+    def setup_database(self, spark_session: SparkSession):
+        spark_session.sql("CREATE DATABASE IF NOT EXISTS db")
+        yield
+        spark_session.sql("DROP DATABASE IF EXISTS db")
+
     @pytest.fixture(scope="module")
     def input_schema(self) -> str:
         return """
@@ -459,9 +467,9 @@ class TestColumnComments:
 
     @pytest.fixture()
     def input_table(self, spark_session: SparkSession, input_df: DataFrame) -> str:
-        input_df.write.saveAsTable(name="table_with_partial_comments", format="delta", mode="overwrite")
-        yield "table_with_partial_comments"
-        spark_session.sql("DROP TABLE table_with_partial_comments")
+        input_df.write.saveAsTable(name="db.table_with_partial_comments", format="delta", mode="overwrite")
+        yield "db.table_with_partial_comments"
+        spark_session.sql("DROP TABLE db.table_with_partial_comments")
 
     @pytest.fixture(scope="class")
     def mapping(self) -> List[tuple]:
@@ -528,8 +536,8 @@ class TestColumnComments:
             ("col_y", "col_y", spq.as_is, "updated"),
         ]
         output_df = Mapper(mapping, annotator_options={"sql_source_table_identifier": input_table}).transform(source_df)
-        output_df.write.saveAsTable(f"output_table_{random_string}")
-        table_description_df = spark_session.sql(f"DESCRIBE output_table_{random_string}")
+        output_df.write.saveAsTable(f"db.output_table_{random_string}")
+        table_description_df = spark_session.sql(f"DESCRIBE db.output_table_{random_string}")
         assert (
             table_description_df.where(F.col("col_name") == column_name).rdd.map(lambda row: row.comment).collect()[0]
             == expected_comment
@@ -556,8 +564,8 @@ class TestColumnComments:
         output_df = Mapper(
             mapping, annotator_options={"mode": AnnotatorMode.insert, "sql_source_table_identifier": input_table}
         ).transform(source_df)
-        output_df.write.saveAsTable(f"output_table_{random_string}")
-        table_description_df = spark_session.sql(f"DESCRIBE output_table_{random_string}")
+        output_df.write.saveAsTable(f"db.output_table_{random_string}")
+        table_description_df = spark_session.sql(f"DESCRIBE db.output_table_{random_string}")
         assert (
             table_description_df.where(F.col("col_name") == column_name).rdd.map(lambda row: row.comment).collect()[0]
             == expected_comment
@@ -582,8 +590,8 @@ class TestColumnComments:
     ):
         source_df = spark_session.table(input_table)
         output_df = Mapper(mapping, annotator_options={"mode": AnnotatorMode.upsert}).transform(source_df)
-        output_df.write.saveAsTable(f"output_table_{random_string}")
-        table_description_df = spark_session.sql(f"DESCRIBE output_table_{random_string}")
+        output_df.write.saveAsTable(f"db.output_table_{random_string}")
+        table_description_df = spark_session.sql(f"DESCRIBE db.output_table_{random_string}")
         assert (
             table_description_df.where(F.col("col_name") == column_name).rdd.map(lambda row: row.comment).collect()[0]
             == expected_comment
@@ -608,8 +616,8 @@ class TestColumnComments:
     ):
         source_df = spark_session.table(input_table)
         output_df = Mapper(mapping, mode=MapperMode.rename_and_validate, annotator_options={"mode": AnnotatorMode.upsert}).transform(source_df)
-        output_df.write.saveAsTable(f"output_table_{random_string}")
-        table_description_df = spark_session.sql(f"DESCRIBE output_table_{random_string}")
+        output_df.write.saveAsTable(f"db.output_table_{random_string}")
+        table_description_df = spark_session.sql(f"DESCRIBE db.output_table_{random_string}")
         assert (
             table_description_df.where(F.col("col_name") == column_name).rdd.map(lambda row: row.comment).collect()[0]
             == expected_comment
