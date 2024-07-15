@@ -511,8 +511,8 @@ class TestColumnComments:
         output_df = Mapper(mapping=mapping, annotator_options={"sql_source_table_identifier": input_table}).transform(
             source_df
         )
-        output_df.write.saveAsTable(f"output_table_{random_string}")
-        table_description_df = spark_session.sql(f"DESCRIBE output_table_{random_string}")
+        output_df.write.saveAsTable(f"db.output_table_{random_string}")
+        table_description_df = spark_session.sql(f"DESCRIBE db.output_table_{random_string}")
         assert (
             table_description_df.where(F.col("col_name") == column_name).rdd.map(lambda row: row.comment).collect()[0]
             == expected_comment
