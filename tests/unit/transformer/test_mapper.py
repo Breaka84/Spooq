@@ -466,7 +466,7 @@ class TestColumnComments:
         return spark_session.createDataFrame([Row(col_a=1, col_b=2, col_c=3)], input_schema)
 
     @pytest.fixture()
-    def input_table(self, spark_session: SparkSession, input_df: DataFrame) -> str:
+    def input_table(self, spark_session: SparkSession, input_df: DataFrame, setup_database) -> str:
         input_df.write.saveAsTable(name="db.table_with_partial_comments", format="delta", mode="overwrite")
         yield "db.table_with_partial_comments"
         spark_session.sql("DROP TABLE db.table_with_partial_comments")
