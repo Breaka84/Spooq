@@ -451,7 +451,7 @@ class TestColumnComments:
     def setup_database(self, spark_session: SparkSession):
         spark_session.sql("CREATE DATABASE IF NOT EXISTS db")
         yield
-        spark_session.sql("DROP DATABASE IF EXISTS db")
+        spark_session.sql("DROP DATABASE IF EXISTS db CASCADE")
 
     @pytest.fixture(scope="module")
     def input_schema(self) -> str:

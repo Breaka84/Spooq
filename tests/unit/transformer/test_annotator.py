@@ -15,7 +15,7 @@ from spooq.transformer.annotator import update_comment, ColumnNotFound, CommentN
 def setup_database(spark_session: SparkSession):
     spark_session.sql("CREATE DATABASE IF NOT EXISTS db")
     yield
-    spark_session.sql("DROP DATABASE IF EXISTS db")
+    spark_session.sql("DROP DATABASE IF EXISTS db CASCADE")
 
 
 @pytest.fixture(scope="module")
