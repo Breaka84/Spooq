@@ -13,7 +13,6 @@ from pyspark.sql import (
 )
 
 from spooq.transformer.annotator import Annotator
-
 from spooq.transformer.transformer import Transformer
 from spooq.transformer.mapper_custom_data_types import _get_select_expression_for_custom_type
 from spooq.transformer.mapper_transformations import as_is
@@ -33,7 +32,7 @@ MissingColumnHandling = Enum("missing_column_handling", ["raise_error", "skip", 
 
 class Mapper(Transformer):
     """
-    Selects, transforms, comments and casts a DataFrame based on the provided mapping.
+    Selects, transforms, comments and casts or validates a DataFrame based on the provided mapping.
 
     Examples
     --------
@@ -87,7 +86,7 @@ class Mapper(Transformer):
         columns.
 
     mode : :any:`spooq.transformer.mapper.MapperMode` | :any:`str`, Defaults to MapperMode.replace
-        Defines weather the mapping should fully replace the schema of the input DataFrame or just add to it.
+        Defines whether the mapping should fully replace the schema of the input DataFrame or just add to it.
         Following modes are supported:
 
             * replace

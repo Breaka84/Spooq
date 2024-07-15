@@ -588,3 +588,29 @@ class TestColumnComments:
             table_description_df.where(F.col("col_name") == column_name).rdd.map(lambda row: row.comment).collect()[0]
             == expected_comment
         )
+
+    @pytest.mark.parametrize(
+        argnames=["column_name", "expected_comment"],
+        argvalues=[
+            ("col_a", "updated"),
+            ("col_b", "updated"),
+            ("col_c", None),
+        ],
+    )
+    def test_upsert_comments_to_input_table_in_validation_mode(
+        self,
+        spark_session: SparkSession,
+        column_name: str,
+        expected_comment: str,
+        mapping: List,
+        input_table: str,
+        random_string: str,
+    ):
+        source_df = spark_session.table(input_table)
+        output_df = Mapper(mapping, mode=MapperMode.rename_and_validate, annotator_options={"mode": AnnotatorMode.upsert}).transform(source_df)
+        output_df.write.saveAsTable(f"output_table_{random_string}")
+        table_description_df = spark_session.sql(f"DESCRIBE output_table_{random_string}")
+        assert (
+            table_description_df.where(F.col("col_name") == column_name).rdd.map(lambda row: row.comment).collect()[0]
+            == expected_comment
+        )

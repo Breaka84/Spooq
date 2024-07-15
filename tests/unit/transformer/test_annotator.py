@@ -12,6 +12,13 @@ from spooq.transformer.annotator import update_comment, ColumnNotFound, CommentN
 
 
 @pytest.fixture(scope="module")
+def setup_database(spark_session: SparkSession):
+    spark_session.sql("CREATE DATABASE IF NOT EXISTS db")
+    yield
+    spark_session.sql("DROP DATABASE IF EXISTS db")
+
+
+@pytest.fixture(scope="module")
 def input_data():
     return [
         Row(col_a=1, col_b=2),
@@ -30,19 +37,19 @@ def input_df_with_partial_comments(input_data: List[Row], spark_session: SparkSe
 
 
 @pytest.fixture()
-def table_without_comments(spark_session: SparkSession, input_df_without_comments: DataFrame):
-    input_df_without_comments.write.saveAsTable(name="table_without_comments", format="delta", mode="overwrite")
-    yield "table_without_comments"
-    spark_session.sql("DROP TABLE table_without_comments")
+def table_without_comments(spark_session: SparkSession, input_df_without_comments: DataFrame, setup_database):
+    input_df_without_comments.write.saveAsTable(name="db.table_without_comments", format="delta", mode="overwrite")
+    yield "db.table_without_comments"
+    spark_session.sql("DROP TABLE db.table_without_comments")
 
 
 @pytest.fixture()
-def table_with_partial_comments(spark_session: SparkSession, input_df_with_partial_comments: DataFrame):
+def table_with_partial_comments(spark_session: SparkSession, input_df_with_partial_comments: DataFrame, setup_database):
     input_df_with_partial_comments.write.saveAsTable(
-        name="table_with_partial_comments", format="delta", mode="overwrite"
+        name="db.table_with_partial_comments", format="delta", mode="overwrite"
     )
-    yield "table_with_partial_comments"
-    spark_session.sql("DROP TABLE table_with_partial_comments")
+    yield "db.table_with_partial_comments"
+    spark_session.sql("DROP TABLE db.table_with_partial_comments")
 
 
 # @pytest.fixture(scope="module")

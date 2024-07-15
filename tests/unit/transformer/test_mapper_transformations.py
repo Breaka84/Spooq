@@ -27,7 +27,7 @@ def expected_df(request, spark_session, spark_context):
                 request.param[version]
                 for version
                 in request.param.keys()
-                if semver.match(spark_context.version, version)
+                if semver.Version.parse(spark_context.version).match(version)
             )
         except ValueError as e:
             if "match_expr" in str(e):

@@ -53,7 +53,7 @@ class Annotator(Transformer):
     def __init__(
         self,
         comments_mapping: Union[str, Path, dict] = None,
-        mode=AnnotatorMode.upsert,
+        mode: AnnotatorMode = AnnotatorMode.upsert,
         missing_column_handling: MissingColumnHandling = MissingColumnHandling.raise_error,
         sql_source_table_identifier: str = None,
     ):
