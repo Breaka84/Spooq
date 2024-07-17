@@ -6,6 +6,7 @@ Transformers
 
 .. toctree::
 
+    annotator
     exploder
     sieve
     mapper

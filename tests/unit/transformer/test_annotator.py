@@ -11,6 +11,12 @@ from spooq.transformer import Annotator
 from spooq.transformer.annotator import update_comment, ColumnNotFound, CommentNotFound, AnnotatorMode
 
 
+def test_debug(spark_session):
+    import IPython
+
+    IPython.embed()
+
+
 @pytest.fixture(scope="module")
 def setup_database(spark_session: SparkSession):
     spark_session.sql("CREATE DATABASE IF NOT EXISTS db")

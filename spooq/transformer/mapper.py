@@ -18,16 +18,29 @@ from spooq.transformer.mapper_custom_data_types import _get_select_expression_fo
 from spooq.transformer.mapper_transformations import as_is
 
 
+class MapperMode(Enum):
+    """Possible values: ['replace', 'append', 'prepend', 'rename_and_validate']"""
+
+    replace = "output schema = columns from mapping"
+    append = "output schema = input columns + columns from mapping"
+    prepend = "output schema = columns from mapping + input columns"
+    rename_and_validate = "output schema = columns from mapping"
+
+
+class MissingColumnHandling(Enum):
+    """Possible values: ['raise_error', 'skip', 'nullify']"""
+
+    raise_error = "Raise an exception"
+    skip = "Skip the mapping transformation"
+    nullify = "Create source column filled with null"
+
+
 class DataTypeValidationFailed(ValueError):
     pass
 
 
 class ColumnMappingNotSupported(ValueError):
     pass
-
-
-MapperMode = Enum("mapper_mode", ["replace", "append", "prepend", "rename_and_validate"])
-MissingColumnHandling = Enum("missing_column_handling", ["raise_error", "skip", "nullify"])
 
 
 class Mapper(Transformer):
@@ -63,7 +76,7 @@ class Mapper(Transformer):
 
     Parameters
     ----------
-    mapping  : :class:`list` of :any:`tuple` containing three or four elements, respectively.
+    mapping  : :class:`list` of :any:`tuple` containing three or four elements, respectively
         This is the main parameter for this transformation. It gives information
         about the column names for the output DataFrame, the column names (paths)
         from the input DataFrame, their data types and optionally a column comment.
@@ -71,7 +84,7 @@ class Mapper(Transformer):
         the data itself. Please have a look at the
         :py:mod:`spooq.transformer.mapper_transformations` module for more information.
 
-    missing_column_handling : :any:`str`, Defaults to 'raise_error'
+    missing_column_handling : :py:class:`MissingColumnHandling`, Defaults to ``MissingColumnHandling.raise_error``
         Specifies how to proceed in case a source column does not exist in the source DataFrame:
             * raise_error (default)
                 Raise an exception
@@ -85,21 +98,21 @@ class Mapper(Transformer):
         raise an exception with Spark when reading. This flag surpresses this exception and skips those affected
         columns.
 
-    mode : :any:`spooq.transformer.mapper.MapperMode` | :any:`str`, Defaults to MapperMode.replace
+    mode : :py:class:`MapperMode`, Defaults to ``MapperMode.replace``
         Defines whether the mapping should fully replace the schema of the input DataFrame or just add to it.
         Following modes are supported:
 
             * replace
                 The output schema is the same as the provided mapping.
-                => output schema: new columns
+                => output schema: columns from mapping
             * append
                 The columns provided in the mapping are added at the end of the input schema. If a column already
                 exists in the input DataFrame, its position is kept.
-                => output schema: input columns + new columns
+                => output schema: input columns + columns from mapping
             * prepend
                 The columns provided in the mapping are added at the beginning of the input schema. If a column already
                 exists in the input DataFrame, its position is kept.
-                => output schema: new columns + input columns
+                => output schema: columns from mapping + input columns
             * rename_and_validate
                 All built-in, custom transformations (except renaming) and casts are disabled. The Mapper only
                 renames the columns and validates that the output data type is the same as the input data type. The

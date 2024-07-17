@@ -3,8 +3,8 @@ Mapper
 
 Class
 -----
-
-.. autoclass:: spooq.transformer.mapper.Mapper
+.. automodule:: spooq.transformer.mapper
+    :members:
 
 Custom Transformations
 ------------------------------------------------
