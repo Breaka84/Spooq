@@ -8,13 +8,7 @@ from chispa.dataframe_comparer import assert_df_equality
 
 from tests import DATA_FOLDER
 from spooq.transformer import Annotator
-from spooq.transformer.annotator import update_comment, ColumnNotFound, CommentNotFound, AnnotatorMode
-
-
-def test_debug(spark_session):
-    import IPython
-
-    IPython.embed()
+from spooq.transformer.annotator import update_comment, ColumnNotFound, AnnotatorMode
 
 
 @pytest.fixture(scope="module")

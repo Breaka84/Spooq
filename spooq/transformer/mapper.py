@@ -24,7 +24,7 @@ class MapperMode(Enum):
     replace = "output schema = columns from mapping"
     append = "output schema = input columns + columns from mapping"
     prepend = "output schema = columns from mapping + input columns"
-    rename_and_validate = "output schema = columns from mapping"
+    rename_and_validate = "output schema = columns from mapping + validation"
 
 
 class MissingColumnHandling(Enum):
