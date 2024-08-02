@@ -52,17 +52,6 @@ def table_with_partial_comments(spark_session: SparkSession, input_df_with_parti
     spark_session.sql("DROP TABLE db.table_with_partial_comments")
 
 
-# @pytest.fixture(scope="module")
-# def input_df_with_comments(input_data: List[Row], spark_session: SparkSession):
-#     return spark_session.createDataFrame(
-#         input_data,
-#         schema="""
-#               col_a int COMMENT 'initial'
-#             , col_b int COMMENT 'initial'
-#         """
-#     )
-
-
 class TestUpdateCommentsMethod:
 
     @pytest.fixture(scope="class")
@@ -124,7 +113,7 @@ class TestAnnotatorTransformer:
             ("col_b", "updated"),
         ],
     )
-    def test_adding_comments_to_non_commmented_table(
+    def test_adding_comments_to_non_commented_table(
         self,
         column_name: str,
         expected_comment: str,
@@ -149,7 +138,7 @@ class TestAnnotatorTransformer:
             ("col_b", "updated"),
         ],
     )
-    def test_add_or_replace_comments_to_partially_commmented_table(
+    def test_add_or_replace_comments_to_partially_commented_table(
         self,
         column_name: str,
         expected_comment: str,
@@ -174,7 +163,7 @@ class TestAnnotatorTransformer:
             ("col_b", "updated"),
         ],
     )
-    def test_add_comments_to_partially_commmented_table(
+    def test_add_comments_to_partially_commented_table(
         self,
         column_name: str,
         expected_comment: str,
@@ -199,7 +188,7 @@ class TestAnnotatorTransformer:
             ("col_b", None),
         ],
     )
-    def test_only_fetch_comments_from_partially_commmented_table(
+    def test_only_fetch_comments_from_partially_commented_table(
         self,
         column_name: str,
         expected_comment: str,

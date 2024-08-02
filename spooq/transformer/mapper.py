@@ -26,6 +26,10 @@ class MapperMode(Enum):
     prepend = "output schema = columns from mapping + input columns"
     rename_and_validate = "output schema = columns from mapping + validation"
 
+    @classmethod
+    def to_string(cls) -> str:
+        return "\n".join([f"- {e.name}: {e.value}" for e in cls])
+
 
 class MissingColumnHandling(Enum):
     """Possible values: ['raise_error', 'skip', 'nullify']"""
@@ -394,7 +398,7 @@ class Mapper(Transformer):
         if isinstance(target_transformation, T.DataType):
             if isinstance(source_spark_data_type, T.NullType):
                 self.logger.warning(
-                    f"The data type of column {name} could not be validated because the source " "data type is NULL!"
+                    f"The data type of column {name} could not be validated because the source data type is NULL!"
                 )
             elif target_transformation != source_spark_data_type:
                 raise DataTypeValidationFailed(

@@ -1,3 +1,4 @@
+import logging
 from enum import Enum
 from pathlib import Path
 from typing import Dict, Union
@@ -55,9 +56,10 @@ def update_comment(
     comment: str,
     annotator_mode: AnnotatorMode = AnnotatorMode.upsert,
     missing_column_handling: MissingColumnHandling = MissingColumnHandling.raise_error,
+    logger: logging.Logger = None,
 ) -> DataFrame:
     """
-    Updates a single column's comment within the prodived dataframe.
+    Updates a single column's comment within the provided dataframe.
 
     Parameters
     ----------
@@ -78,8 +80,12 @@ def update_comment(
     Returns:
         |SPARK_DATAFRAME|: Dataframe with updated metadata (comment) for the specified column.
     """
+    logger = logger or logging.getLogger("spooq")
     if column_name not in df.columns:
         if missing_column_handling == MissingColumnHandling.skip:
+            logger.warning(
+                f"Column '{column_name}' was not found in the dataframe. MissingColumnHandling is set to 'skip'"
+            )
             return df
         else:
             raise ColumnNotFound(
@@ -90,6 +96,10 @@ def update_comment(
 
     existing_comment = df.schema[column_name].metadata.get("comment")
     if annotator_mode == AnnotatorMode.insert and existing_comment:
+        logger.info(
+            f"A comment already exists for column '{column_name}' but the annotation mode is set to insert only "
+            f"-> skipping the update. Existing comment: '{existing_comment}', New comment: '{comment}'"
+        )
         return df
 
     return df.withColumn(column_name, F.col(column_name).alias(column_name, metadata={"comment": comment}))
@@ -106,7 +116,8 @@ class Annotator(Transformer):
         Dictionary consisting of column names and comments
     mode : :py:class:`AnnotatorMode`, Defaults to ``AnnotatorMode.upsert``
         This mode defines how the transformer should react to existing column comments. ``insert`` will leave existing
-        untouched while ``upsert`` overwrites them if a new comment is provided.
+        untouched while ``upsert`` overwrites them if a new comment is provided. Existing columns are defined as
+        comments already defined in the dataframe or the sql_source_table!
     missing_column_handling : :py:class:`MissingColumnHandling`, Defaults to ``MissingColumnHandling.raise_error``
         This mode defines how the transformer should react to missing columns that are referenced in
         the ``comments_mapping``.
@@ -153,7 +164,7 @@ class Annotator(Transformer):
     >>> print(json.dumps({col["name"]: col["metadata"]["comment"] for col in output_df.schema.J["fields"]}, indent=2))
     {
     "col_A": "Updated comment from comments_mapping",
-    "col_B": "Initial Comment for col_B",
+    "col_B": "Comment from sql_source_table",
     "col_Y": "New comment from comments_mapping"
     }
 
@@ -195,17 +206,31 @@ class Annotator(Transformer):
                 sql_source_table_identifier=self.sql_source_table_identifier
             )
             self.logger.info(
-                f"Trying to apply {len(existing_comments_mapping)} existing comments "
-                f"from {self.sql_source_table_identifier} to dataframe!"
+                f"Trying to add {len(existing_comments_mapping)} existing comments "
+                f"from {self.sql_source_table_identifier} to provided comments_mapping!"
             )
-            input_df = Annotator(
-                comments_mapping=existing_comments_mapping,
-                mode=AnnotatorMode.insert,
-                missing_column_handling=MissingColumnHandling.skip,
-                sql_source_table_identifier=None,
-            ).transform(input_df)
+            for column, comment in existing_comments_mapping.items():
+                if not column in input_df.columns:
+                    self.logger.debug(
+                        f"Skipping to apply comment ('{comment}') fetched from the sql_source_table because "
+                        f"column: '{column}' was not found in the dataframe."
+                    )
+                    continue
+
+                if column in self.comments_mapping:
+                    self.logger.debug(
+                        f"Comment for column: '{column}' is both defined in the sql_source_table ('{comment}') "
+                        f"and the mapping ('{self.comments_mapping[column]}')."
+                    )
+                    if self.mode == AnnotatorMode.upsert:
+                        self.logger.debug("Using comment from mapping.")
+                        continue
+
+                self.logger.debug("Using comment from sql_source_table.")
+                self.comments_mapping[column] = comment
+
             self.logger.info(
-                f"Re-applied {len(set(input_df.columns).intersection(set(existing_comments_mapping)))} "
+                f"Added {len(set(input_df.columns).intersection(set(existing_comments_mapping)))} "
                 f"comments from {self.sql_source_table_identifier}!"
             )
 
@@ -217,5 +242,6 @@ class Annotator(Transformer):
                 comment=comment,
                 annotator_mode=self.mode,
                 missing_column_handling=self.missing_column_handling,
+                logger=self.logger,
             )
         return input_df
