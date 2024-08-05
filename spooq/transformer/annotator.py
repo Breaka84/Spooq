@@ -1,21 +1,21 @@
 import logging
-from enum import Enum
 from pathlib import Path
 from typing import Dict, Union
 
 from pyspark.sql import functions as F, types as T, DataFrame, SparkSession
 
+from spooq.shared import EnumMode
 from spooq.transformer.transformer import Transformer
 
 
-class AnnotatorMode(Enum):
+class AnnotatorMode(EnumMode):
     """Possible values: ['insert', 'upsert']"""
 
     insert = "Only add missing comments. Don't overwrite existing comments"
     upsert = "Insert missing comments. Overwrite existing comments"
 
 
-class MissingColumnHandling(Enum):
+class MissingColumnHandling(EnumMode):
     """Possible values: ['raise_error', 'skip']"""
 
     raise_error = "Raise an error when a comment was defined for a missing column"

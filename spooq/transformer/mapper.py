@@ -1,4 +1,3 @@
-from enum import Enum
 from functools import partial
 from types import FunctionType
 from typing import Union, List, Tuple, Any, Callable
@@ -12,13 +11,14 @@ from pyspark.sql import (
     Column,
 )
 
+from spooq.shared import EnumMode
 from spooq.transformer.annotator import Annotator
 from spooq.transformer.transformer import Transformer
 from spooq.transformer.mapper_custom_data_types import _get_select_expression_for_custom_type
 from spooq.transformer.mapper_transformations import as_is
 
 
-class MapperMode(Enum):
+class MapperMode(EnumMode):
     """Possible values: ['replace', 'append', 'prepend', 'rename_and_validate']"""
 
     replace = "output schema = columns from mapping"
@@ -26,12 +26,8 @@ class MapperMode(Enum):
     prepend = "output schema = columns from mapping + input columns"
     rename_and_validate = "output schema = columns from mapping + validation"
 
-    @classmethod
-    def to_string(cls) -> str:
-        return "\n".join([f"- {e.name}: {e.value}" for e in cls])
 
-
-class MissingColumnHandling(Enum):
+class MissingColumnHandling(EnumMode):
     """Possible values: ['raise_error', 'skip', 'nullify']"""
 
     raise_error = "Raise an exception"
@@ -188,14 +184,8 @@ class Mapper(Transformer):
                 self.mode = MapperMode[self.mode]
             except KeyError:
                 raise ValueError(
-                    f"""Value: '{self.mode}' was used as mode for the Mapper transformer.
-                    Only the following values are allowed for `mode`:
-                    - replace: The output schema is the same as the provided mapping.
-                    - append: The columns provided in the mapping are added at the end of the input schema.
-                    - prepend: The columns provided in the mapping are added at the beginning of the input schema.
-                    - rename_and_validate: The Mapper only renames the columns and validates that the output data
-                      type is the same as the input data type.
-                """
+                    f"Value: '{self.mode}' was used as mode for the Mapper transformer. "
+                    f"Only the following values are allowed for `mode`:\n{MapperMode.to_string()}"
                 )
 
         if isinstance(self.missing_column_handling, str):
@@ -209,10 +199,8 @@ class Mapper(Transformer):
                 self.missing_column_handling = MissingColumnHandling[self.missing_column_handling]
             except KeyError:
                 raise ValueError(
-                    """Only the following values are allowed for `missing_column_handling`:
-                    - raise_error: raise an exception in case the source column is missing
-                    - skip: skip transformation in case the source is missing
-                    - nullify: set source column to null in case it is missing"""
+                    "Only the following values are allowed for `missing_column_handling`:\n"
+                    f"{MissingColumnHandling.to_string()}"
                 )
 
         if "ignore_missing_columns" in kwargs:
@@ -352,12 +340,9 @@ class Mapper(Transformer):
                 return None
             else:
                 self.logger.exception(
-                    f"""
-                Column: '{source_column}' cannot be resolved but is referenced in the mapping by column: '{name}'.
-                You can make use of the following parameters to handle missing input columns:
-                - MissingColumnHandling.nullify: set missing source column to null
-                - MissingColumnHandling.skip: skip the transformation
-                """
+                    f"Column: '{source_column}' cannot be resolved but is referenced in the mapping by "
+                    f"column: '{name}'. You can make use of the following parameters to handle "
+                    f"missing input columns:\n{MissingColumnHandling.to_string()}"
                 )
                 raise e
         return source_column
