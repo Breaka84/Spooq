@@ -209,17 +209,17 @@ class Annotator(Transformer):
                 f"Trying to add {len(existing_comments_mapping)} existing comments "
                 f"from {self.sql_source_table_identifier} to provided comments_mapping!"
             )
-            for column, comment in existing_comments_mapping.items():
+            for column, existing_comment in existing_comments_mapping.items():
                 if not column in input_df.columns:
                     self.logger.debug(
-                        f"Skipping to apply comment ('{comment}') fetched from the sql_source_table because "
+                        f"Skipping to apply comment ('{existing_comment}') fetched from the sql_source_table because "
                         f"column: '{column}' was not found in the dataframe."
                     )
                     continue
 
                 if column in self.comments_mapping:
                     self.logger.debug(
-                        f"Comment for column: '{column}' is both defined in the sql_source_table ('{comment}') "
+                        f"Comment for column: '{column}' is both defined in the sql_source_table ('{existing_comment}') "
                         f"and the mapping ('{self.comments_mapping[column]}')."
                     )
                     if self.mode == AnnotatorMode.upsert:
@@ -227,7 +227,7 @@ class Annotator(Transformer):
                         continue
 
                 self.logger.debug("Using comment from sql_source_table.")
-                self.comments_mapping[column] = comment
+                self.comments_mapping[column] = existing_comment
 
             self.logger.info(
                 f"Added {len(set(input_df.columns).intersection(set(existing_comments_mapping)))} "
