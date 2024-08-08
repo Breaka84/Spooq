@@ -2,10 +2,11 @@
 Changelog
 =========
 
-3.4.2 (2024-07-17)
+3.4.2 (2024-08-08)
 -------------------
 * [ADD] Annotator: New transformer to load and apply comments to dataframes
 * [MOD] Mapper: Change mode and missing_column_handling from strings to Enums
+* [MOD] Mapper: Add support for column comments (via annotator)
 
 3.4.1 (2024-06-05)
 -------------------
