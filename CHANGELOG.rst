@@ -2,6 +2,11 @@
 Changelog
 =========
 
+3.4.2 (2024-07-17)
+-------------------
+* [ADD] Annotator: New transformer to load and apply comments to dataframes
+* [MOD] Mapper: Change mode and missing_column_handling from strings to Enums
+
 3.4.1 (2024-06-05)
 -------------------
 * [MOD] Mapper: Add validation mode
@@ -22,8 +27,7 @@ Changelog
 
 3.3.9 (2022-08-16)
 ------------------
-* [MOD] Mapper: Replace missing column parameters (`nullify_missing_columns`, `skip_missing_columns`,
-`ignore_missing_columns`) with one single parameter: `missing_column_handling`
+* [MOD] Mapper: Replace missing column parameters (`nullify_missing_columns`, `skip_missing_columns`, `ignore_missing_columns`) with one single parameter: `missing_column_handling`.
 
 3.3.8 (2022-08-11)
 -------------------

@@ -11,17 +11,41 @@ from pyspark.sql import (
     Column,
 )
 
-from .transformer import Transformer
-from .mapper_custom_data_types import _get_select_expression_for_custom_type
-from .mapper_transformations import as_is
+from spooq.shared import EnumMode
+from spooq.transformer.annotator import Annotator
+from spooq.transformer.transformer import Transformer
+from spooq.transformer.mapper_custom_data_types import _get_select_expression_for_custom_type
+from spooq.transformer.mapper_transformations import as_is
+
+
+class MapperMode(EnumMode):
+    """Possible values: ['replace', 'append', 'prepend', 'rename_and_validate']"""
+
+    replace = "output schema = columns from mapping"
+    append = "output schema = input columns + columns from mapping"
+    prepend = "output schema = columns from mapping + input columns"
+    rename_and_validate = "output schema = columns from mapping + validation"
+
+
+class MissingColumnHandling(EnumMode):
+    """Possible values: ['raise_error', 'skip', 'nullify']"""
+
+    raise_error = "Raise an exception"
+    skip = "Skip the mapping transformation"
+    nullify = "Create source column filled with null"
+
 
 class DataTypeValidationFailed(ValueError):
     pass
 
 
+class ColumnMappingNotSupported(ValueError):
+    pass
+
+
 class Mapper(Transformer):
     """
-    Selects, transforms and casts or validates a DataFrame based on the provided mapping.
+    Selects, transforms, comments and casts or validates a DataFrame based on the provided mapping.
 
     Examples
     --------
@@ -29,10 +53,13 @@ class Mapper(Transformer):
     >>> from spooq.transformer import Mapper
     >>> from spooq.transformer import mapper_transformations as spq
     >>>
+    >>> cmt_id = "Identifier for entity (UUID4)"
+    >>> cmt_type = "Type of entity ('type_a', 'type_b' or 'type_c')"
+    >>>
     >>> mapping = [
-    >>>     ("id",            "data.relationships.food.data.id",  spq.to_str),
+    >>>     ("id",            "data.relationships.food.data.id",  spq.to_str,                     cmt_id),
     >>>     ("version",       "data.version",                     spq.to_int),
-    >>>     ("type",          "elem.attributes.type",             "string"),
+    >>>     ("type",          "elem.attributes.type",             "string",                       cmt_type),
     >>>     ("created_at",    "elem.attributes.created_at",       spq.to_timestamp),
     >>>     ("created_on",    "elem.attributes.created_at",       spq.to_timestamp(cast="date")),
     >>>     ("processed_at",  F.current_timestamp(),              spq.as_is,
@@ -49,14 +76,15 @@ class Mapper(Transformer):
 
     Parameters
     ----------
-    mapping  : :class:`list` of :any:`tuple` containing three elements, respectively.
+    mapping  : :class:`list` of :any:`tuple` containing three or four elements, respectively
         This is the main parameter for this transformation. It gives information
         about the column names for the output DataFrame, the column names (paths)
-        from the input DataFrame, and their data types. Custom data types are also supported, which can
-        clean, pivot, anonymize, ... the data itself. Please have a look at the
-        :py:mod:`spooq.transformer.mapper_custom_data_types` module for more information.
+        from the input DataFrame, their data types and optionally a column comment.
+        Custom data types are also supported, which can clean, pivot, anonymize, ...
+        the data itself. Please have a look at the
+        :py:mod:`spooq.transformer.mapper_transformations` module for more information.
 
-    missing_column_handling : :any:`str`, Defaults to 'raise_error'
+    missing_column_handling : :py:class:`MissingColumnHandling`, Defaults to ``MissingColumnHandling.raise_error``
         Specifies how to proceed in case a source column does not exist in the source DataFrame:
             * raise_error (default)
                 Raise an exception
@@ -70,8 +98,8 @@ class Mapper(Transformer):
         raise an exception with Spark when reading. This flag surpresses this exception and skips those affected
         columns.
 
-    mode : :any:`str`, Defaults to "replace"
-        Defines the operation mode of the mapping transformation.
+    mode : :py:class:`MapperMode`, Defaults to ``MapperMode.replace``
+        Defines whether the mapping should fully replace the schema of the input DataFrame or just add to it.
         Following modes are supported:
 
             * replace
@@ -91,6 +119,9 @@ class Mapper(Transformer):
                 transformation will fail if any spooq / custom transformations (except `as_is`) are defined!
                 => output schema: columns from mapping
 
+    annotator_option : :any:`dict`, Defaults to {}
+        Options that are passed as parameters to the Annotator instance used by the Mapper
+        Transformer if comments are provided.
 
     Keyword Arguments
     -----------------
@@ -118,6 +149,8 @@ class Mapper(Transformer):
         simple strings supported by PySpark (like "string") and custom transformations provided by spooq
         (like spq.to_timestamp). You can find more information about the transformations at
         https://spooq.rtfd.io/en/latest/transformer/mapper.html#module-spooq.transformer.mapper_transformations.
+    * Comment: :any:`str` (optional)
+        Applies a comment to the respective column, if provided.
 
     Note
     ----
@@ -129,73 +162,102 @@ class Mapper(Transformer):
 
     def __init__(
         self,
-        mapping: List[Tuple[Any, Any, Any]],
+        mapping: List[Tuple],
         ignore_ambiguous_columns: bool = False,
-        missing_column_handling: str = "raise_error",
-        mode: str = "replace",
-        **kwargs
+        missing_column_handling: Union[MissingColumnHandling, str] = MissingColumnHandling.raise_error,
+        mode: Union[MapperMode, str] = MapperMode.replace,
+        annotator_options: dict = None,
+        **kwargs,
     ):
         super(Mapper, self).__init__()
         self.mapping = mapping
         self.missing_column_handling = missing_column_handling
         self.ignore_ambiguous_columns = ignore_ambiguous_columns
         self.mode = mode
+        self.annotator_options = annotator_options or {}
 
-        if self.mode not in ["replace", "append", "prepend", "rename_and_validate"]:
-            raise ValueError(f"""Value: '{mode}' was used as mode for the Mapper transformer.
-                Only the following values are allowed for `mode`:
-                - replace: The output schema is the same as the provided mapping.
-                - append: The columns provided in the mapping are added at the end of the input schema.
-                - prepend: The columns provided in the mapping are added at the beginning of the input schema.
-                - rename_and_validate: The Mapper only renames the columns and validates that the output data
-                  type is the same as the input data type.
-            """)
+        if isinstance(self.mode, str):
+            message = f"'mode' as string is deprecated, please provide the mode as a MapperMode object!"
+            self.logger.warning(message)
+            warnings.warn(message=message, category=FutureWarning)
+            try:
+                self.mode = MapperMode[self.mode]
+            except KeyError:
+                raise ValueError(
+                    f"Value: '{self.mode}' was used as mode for the Mapper transformer. "
+                    f"Only the following values are allowed for `mode`:\n{MapperMode.to_string()}"
+                )
+
+        if isinstance(self.missing_column_handling, str):
+            message = (
+                "'missing_column_handling' as string is deprecated, "
+                "please provide the parameter as a MissingColumnHandling object!"
+            )
+            self.logger.warning(message)
+            warnings.warn(message=message, category=FutureWarning)
+            try:
+                self.missing_column_handling = MissingColumnHandling[self.missing_column_handling]
+            except KeyError:
+                raise ValueError(
+                    "Only the following values are allowed for `missing_column_handling`:\n"
+                    f"{MissingColumnHandling.to_string()}"
+                )
 
         if "ignore_missing_columns" in kwargs:
             message = "Parameter `ignore_missing_columns` is deprecated, use `missing_column_handling` instead!"
             if kwargs["ignore_missing_columns"]:
-                message += "\n`missing_column_handling` was set to `nullify` because you defined " \
-                           "`ignore_missing_columns=True`!"
-                self.missing_column_handling = "nullify"
+                message += (
+                    "\n`missing_column_handling` was set to `nullify` because you defined "
+                    "`ignore_missing_columns=True`!"
+                )
+                self.missing_column_handling = MissingColumnHandling.nullify
             self.logger.warning(message)
             warnings.warn(message=message, category=FutureWarning)
-
-        if self.missing_column_handling not in ["raise_error", "skip", "nullify"]:
-            raise ValueError("""Only the following values are allowed for `missing_column_handling`:
-                - raise_error: raise an exception in case the source column is missing
-                - skip: skip transformation in case the source is missing
-                - nullify: set source column to null in case it is missing""")
 
     def transform(self, input_df: DataFrame) -> DataFrame:
         self.logger.info("Generating SQL Select-Expression for Mapping...")
         self.logger.debug("Input Schema/Mapping:")
         self.logger.debug("\n" + "\n".join(["\t".join(map(str, mapping_line)) for mapping_line in self.mapping]))
 
+        if not self.mapping:
+            raise ColumnMappingNotSupported("It seems like the provided mapping is empty!")
+
         input_columns = input_df.columns
         select_expressions = []
         with_column_expressions = []
         validation_errors = []
+        comments_mapping = {}
 
-        for (name, source_column, data_transformation) in self.mapping:
+        for column_mapping in self.mapping:
+            if len(column_mapping) == 3:
+                name, source_column, data_transformation, comment = *column_mapping, None
+            elif len(column_mapping) == 4:
+                name, source_column, data_transformation, comment = column_mapping
+            else:
+                raise ColumnMappingNotSupported(
+                    "Each mapping tuple (column) must contain at least 3 and at most 4 elements!\n"
+                    f"Following mapping contains {len(column_mapping)} elements: {column_mapping}"
+                )
             self.logger.debug(f"generating Select statement for attribute: {name}")
             self.logger.debug(
                 f"generate mapping for name: {name}, "
                 f"source_column: {source_column}, "
                 f"data_transformation: {data_transformation}"
+                f"comment: {comment}"
             )
+
             source_column: Column = self._get_source_spark_column(source_column, name, input_df)
             if source_column is None:
-                if self.mode == "rename_and_validate":
+                if self.mode == MapperMode.rename_and_validate:
                     validation_errors.append(DataTypeValidationFailed(f"Input column: {name} not found!"))
                 continue
 
             source_spark_data_type: T.DataType = self._get_spark_data_type(input_df.select(source_column).dtypes[0][1])
-            target_transformation: Union[T.DataType, Column] = (
-                self._get_spark_data_type(data_transformation)
-                or self._get_spooq_transformation(name, source_column, data_transformation)
-            )
+            target_transformation: Union[T.DataType, Column] = self._get_spark_data_type(
+                data_transformation
+            ) or self._get_spooq_transformation(name, source_column, data_transformation)
 
-            if self.mode == "rename_and_validate":
+            if self.mode == MapperMode.rename_and_validate:
                 try:
                     self._validate_data_type(
                         name,
@@ -216,10 +278,13 @@ class Mapper(Transformer):
                 select_expression = target_transformation
 
             self.logger.debug(f"Select-Expression for Attribute {name}: {select_expression}")
-            if self.mode in ["append", "prepend"] and name in input_columns:
+            if self.mode.name in ["append", "prepend"] and name in input_columns:
                 with_column_expressions.append((name, select_expression))
             else:
                 select_expressions.append(select_expression)
+
+            if comment:
+                comments_mapping[name] = comment
 
         if validation_errors:
             raise DataTypeValidationFailed(f"Validation has failed!\n{validation_errors}")
@@ -227,9 +292,10 @@ class Mapper(Transformer):
         self.logger.info("SQL Select-Expression for new mapping generated!")
         self.logger.debug("SQL Select-Expressions for new mapping:\n" + "\n".join(str(select_expressions).split(",")))
         self.logger.debug("SQL WithColumn-Expressions for new mapping: " + str(with_column_expressions))
-        if self.mode == "prepend":
+
+        if self.mode == MapperMode.prepend:
             df_to_return = input_df.select(select_expressions + ["*"])
-        elif self.mode == "append":
+        elif self.mode == MapperMode.append:
             df_to_return = input_df.select(["*"] + select_expressions)
         else:
             df_to_return = input_df.select(select_expressions)
@@ -237,6 +303,11 @@ class Mapper(Transformer):
         if with_column_expressions:
             for name, expression in with_column_expressions:
                 df_to_return = df_to_return.withColumn(name, expression)
+
+        if comments_mapping or self.annotator_options.get("sql_source_table_identifier"):
+            annotator = Annotator(comments_mapping=comments_mapping, **self.annotator_options)
+            df_to_return = annotator.transform(df_to_return)
+
         return df_to_return
 
     def _get_source_spark_column(
@@ -252,14 +323,14 @@ class Mapper(Transformer):
                 source_column = F.col(source_column)
 
         except AnalysisException as e:
-            if isinstance(source_column, str) and self.missing_column_handling == "skip":
+            if isinstance(source_column, str) and self.missing_column_handling == MissingColumnHandling.skip:
                 self.logger.warning(
-                    f"Missing column ({str(source_column)}) skipped (via missing_column_handling='skip'): {e.desc}"
+                    f"Missing column ({str(source_column)}) skipped (MissingColumnHandling.skip): {e.desc}"
                 )
                 return None
-            elif isinstance(source_column, str) and self.missing_column_handling == "nullify":
+            elif isinstance(source_column, str) and self.missing_column_handling == MissingColumnHandling.nullify:
                 self.logger.warning(
-                    f"Missing column ({str(source_column)}) replaced with NULL (via missing_column_handling='nullify'): {e.desc}"
+                    f"Missing column ({str(source_column)}) replaced with NULL (via MissingColumnHandling.nullify): {e.desc}"
                 )
                 source_column = F.lit(None)
             elif "ambiguous" in e.desc.lower() and self.ignore_ambiguous_columns:
@@ -268,18 +339,15 @@ class Mapper(Transformer):
                 )
                 return None
             else:
-                self.logger.exception(f"""
-                Column: '{source_column}' cannot be resolved but is referenced in the mapping by column: '{name}'.
-                You can make use of the following parameters to handle missing input columns:
-                - missing_column_handling='nullify': set missing source column to null
-                - missing_column_handling='skip': skip the transformation
-                """)
+                self.logger.exception(
+                    f"Column: '{source_column}' cannot be resolved but is referenced in the mapping by "
+                    f"column: '{name}'. You can make use of the following parameters to handle "
+                    f"missing input columns:\n{MissingColumnHandling.to_string()}"
+                )
                 raise e
         return source_column
 
-    def _get_spark_data_type(
-        self, data_transformation: Union[str, Column, Callable, T.DataType]
-    ) -> T.DataType:
+    def _get_spark_data_type(self, data_transformation: Union[str, Column, Callable, T.DataType]) -> T.DataType:
         """
         Returns the PySpark data type as Python object (None if not found). Supports Python objects and strings.
         """
@@ -294,7 +362,9 @@ class Mapper(Transformer):
                 data_type = getattr(T, data_type_)()  # Spark datatype as string
             except AttributeError:
                 try:
-                    data_type = T._parse_datatype_string("void" if data_type_ == "null" else data_type_)  # Spark datatype as short string
+                    data_type = T._parse_datatype_string(
+                        "void" if data_type_ == "null" else data_type_
+                    )  # Spark datatype as short string
                 except ParseException:
                     pass
 
@@ -313,8 +383,7 @@ class Mapper(Transformer):
         if isinstance(target_transformation, T.DataType):
             if isinstance(source_spark_data_type, T.NullType):
                 self.logger.warning(
-                    f"The data type of column {name} could not be validated because the source "
-                    "data type is NULL!"
+                    f"The data type of column {name} could not be validated because the source data type is NULL!"
                 )
             elif target_transformation != source_spark_data_type:
                 raise DataTypeValidationFailed(

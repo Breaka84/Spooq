@@ -41,6 +41,7 @@ twine = "*"
 pytest-html-reporter = "*"
 semver = "*"
 build = "*"
+black = "*"
 
 [packages]
 pandas = "<2.0"

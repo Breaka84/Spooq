@@ -1,10 +1,11 @@
-from .newest_by_group import NewestByGroup
-from .mapper import Mapper
-from .exploder import Exploder
-from .threshold_cleaner import ThresholdCleaner
-from .enum_cleaner import EnumCleaner
-from .null_cleaner import NullCleaner
-from .sieve import Sieve
+from spooq.transformer.newest_by_group import NewestByGroup
+from spooq.transformer.mapper import Mapper
+from spooq.transformer.exploder import Exploder
+from spooq.transformer.threshold_cleaner import ThresholdCleaner
+from spooq.transformer.enum_cleaner import EnumCleaner
+from spooq.transformer.null_cleaner import NullCleaner
+from spooq.transformer.sieve import Sieve
+from spooq.transformer.annotator import Annotator
 
 __all__ = [
     "NewestByGroup",
@@ -13,5 +14,6 @@ __all__ = [
     "ThresholdCleaner",
     "EnumCleaner",
     "Sieve",
-    "NullCleaner"
+    "NullCleaner",
+    "Annotator",
 ]
