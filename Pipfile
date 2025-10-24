@@ -44,12 +44,11 @@ build = "*"
 black = "*"
 
 [packages]
-pandas = "<2.0"
 future = "*"
 spooq = {path = ".", editable = true}
-pyspark = "==3.4.2"
-delta-spark = "==2.4.0"
+pyspark = "4.0.1"
+delta-spark = "4.0.0"
 requests = "*"
 
 [requires]
-python_version = "3.10"
+python_version = "3.11"
