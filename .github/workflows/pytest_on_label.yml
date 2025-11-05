@@ -41,8 +41,8 @@ jobs:
 
     - uses: actions/setup-java@v4
       with:
-        java-version: '25'
-        distribution: temurin
+        java-version: '17'
+        distribution: oracle
 
     - name: Set up Python 3.11
       uses: actions/setup-python@v2
