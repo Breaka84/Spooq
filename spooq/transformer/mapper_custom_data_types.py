@@ -212,7 +212,7 @@ def _generate_select_expression_for_timestamp_ms_to_s(source_column, name):
 
     Please use :dt.:`~spooq.transformer.mapper_transformations.apply` with a lambda instead.
     """
-    return spq.apply(func=lambda val: F.lit(val).cast("double") / 1000.0, cast="long")(source_column, name)
+    return spq.apply(func=lambda val: F.lit(val).try_cast("double") / 1000.0, cast="long")(source_column, name)
 
 
 @deprecated
@@ -222,7 +222,7 @@ def _generate_select_expression_for_timestamp_s_to_ms(source_column, name):
 
     Please use :dt.:`~spooq.transformer.mapper_transformations.apply` with a lambda instead.
     """
-    return spq.apply(func=lambda val: F.lit(val).cast("double") * 1000.0, cast="long")(source_column, name)
+    return spq.apply(func=lambda val: F.lit(val).try_cast("double") * 1000.0, cast="long")(source_column, name)
 
 
 @deprecated
@@ -244,7 +244,7 @@ def _generate_select_expression_for_StringNull(source_column, name):  # noqa: N8
     Please just use ``F.lit(None)`` as source_column and ``"string"`` as data_type instead!
     """
 
-    return F.lit(None).cast("string").alias(name)
+    return F.lit(None).try_cast("string").alias(name)
 
 
 @deprecated
@@ -255,7 +255,7 @@ def _generate_select_expression_for_IntNull(source_column, name):  # noqa: N802
     Please just use ``F.lit(None)`` as source_column and ``"int"`` as data_type instead!
     """
 
-    return F.lit(None).cast("int").alias(name)
+    return F.lit(None).try_cast("int").alias(name)
 
 
 @deprecated
@@ -289,9 +289,9 @@ def _generate_select_expression_for_StringBoolean(source_column, name):  # noqa:
     """
     return (
         F.when(source_column.isNull(), F.lit(None))
-            .when(source_column == "", F.lit(None))
+            .when(source_column.try_cast(T.StringType()) == "", F.lit(None))
             .otherwise("1")
-            .cast("string")
+            .try_cast("string")
             .alias(name)
     )
 
@@ -326,7 +326,7 @@ def _generate_select_expression_for_IntBoolean(source_column, name):  # noqa: N8
     ----
     ``0`` (zero) or negative numbers are still considered as valid values and therefore converted to ``1``.
     """
-    return F.when(source_column.isNull(), F.lit(None)).otherwise(1).cast("int").alias(name)
+    return F.when(source_column.isNull(), F.lit(None)).otherwise(1).try_cast("int").alias(name)
 
 
 @deprecated

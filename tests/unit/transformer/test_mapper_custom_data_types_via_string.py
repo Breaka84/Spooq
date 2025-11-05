@@ -575,7 +575,7 @@ class TestAnonymizingMethods(object):
     def test_generate_select_expression_for_TimestampMonth(self, input_value, value, spark_session, spark_context):
         source_key, name = "day_of_birth", "birthday"
         input_df = get_input_df(spark_session, spark_context, source_key, input_value)
-        input_df = input_df.withColumn(source_key, input_df["attributes"]["data"][source_key].cast(T.DateType()))
+        input_df = input_df.withColumn(source_key, input_df["attributes"]["data"][source_key].try_cast(T.DateType()))
         result_column = custom_types._generate_select_expression_for_TimestampMonth(
             source_column=input_df[source_key], name=name
         )
@@ -694,7 +694,7 @@ class TestTimestampMethods(object):
         output_df = Mapper(
             mapping=[("output_column", "input_column", "unix_timestamp_ms_to_spark_timestamp")]
         ).transform(input_df)
-        assert output_df.select(F.col("output_column").cast("string")).first().output_column == expected_value, "Processing of column value"
+        assert output_df.select(F.col("output_column").try_cast("string")).first().output_column == expected_value, "Processing of column value"
         assert output_df.schema.fieldNames() == ["output_column"], "Renaming of column"
         assert output_df.schema["output_column"].dataType.typeName() == "timestamp", "Casting of column"
 

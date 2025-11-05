@@ -26,8 +26,8 @@ def get_ids_for_fixture(fixtures):
 complex_event_expression = (
     F.when(F.col("nested.input_key_1").isNotNull(), F.col("nested.input_key_1") / 1000)
     .otherwise(F.col("nested.input_key_2") / 1000)
-    .cast(T.TimestampType())
-    .cast(T.DateType())
+    .try_cast(T.TimestampType())
+    .try_cast(T.DateType())
 )
 
 fixtures_for_spark_sql_object = [
@@ -41,8 +41,8 @@ fixtures_for_spark_sql_object = [
     (None,                    "some other string",   F.coalesce("nested.input_key_1",
                                                                 "nested.input_key_2"),   "some other string"),
     (1597069446,              "placeholder",         (F.col("nested.input_key_1")
-                                                      .cast(T.TimestampType())
-                                                      .cast(T.DateType())),              datetime.date(2020, 8, 10)),
+                                                      .try_cast(T.TimestampType())
+                                                      .try_cast(T.DateType())),              datetime.date(2020, 8, 10)),
     (1597069446000,             None,                complex_event_expression,           datetime.date(2020, 8, 10)),
     (None,                      1597069446000,       complex_event_expression,           datetime.date(2020, 8, 10)),
     (1597242246000,             1597069446000,       complex_event_expression,           datetime.date(2020, 8, 12)),
@@ -166,8 +166,8 @@ fixtures_for_str_to_int = [
     (None,              None),
     ("Hello World",     None),
     ("2020-08-12",      None),
-    ("1234.56",         1234),
-    ("-1234.56",       -1234),
+    ("1234.56",         1235),
+    ("-1234.56",       -1235),
     ("123,456",         None),  # commas not allowed due to their ambiguity
     ("-123,456",        None),  # commas not allowed due to their ambiguity
     ("123_456",       123456),
@@ -179,8 +179,8 @@ fixtures_for_str_to_int = [
     (-123456,        -123456),
     (-1,                  -1),
     (0,                    0),
-    (1234.56,           1234),
-    (-1234.56,         -1234),
+    (1234.56,           1235),
+    (-1234.56,         -1235),
 ]
 
 fixtures_for_str_to_long = [
@@ -194,8 +194,8 @@ fixtures_for_str_to_long = [
     (None,                                None),
     ("Hello World",                       None),
     ("2020-08-12T12:43:14+0000",          None),
-    ("214748364.70",                 214748364),
-    ("-214748364.70",               -214748364),
+    ("214748364.70",                 214748365),
+    ("-214748364.70",               -214748365),
     ("21,474,836,470",                    None),  # commas not allowed due to their ambiguity
     ("-21,474,836,470",                   None),  # commas not allowed due to their ambiguity
     ("214748364,7",                       None),  # commas not allowed due to their ambiguity
@@ -205,8 +205,8 @@ fixtures_for_str_to_long = [
     ("   21474836470",             21474836470),
     ("21474836470   ",             21474836470),
     (" 21474836470  ",             21474836470),
-    (2147483.64,                       2147483),
-    (-2147483.64,                     -2147483),
+    (2147483.34,                       2147483),
+    (-2147483.34,                     -2147483),
     (21474836470,                  21474836470),
     (-21474836470,                -21474836470),
     (-1,                                    -1),

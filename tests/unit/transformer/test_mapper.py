@@ -408,6 +408,7 @@ class TestValidateDataTypes:
             match=f"A column or function parameter with name `{missing_column}` cannot be resolved.|"
             f"cannot resolve '{missing_column}' given input columns|"
             f"cannot resolve '`{missing_column}`' given input columns|"
+            f"A column, variable, or function parameter with name `{missing_column}` cannot be resolved|"
             f"Column '{missing_column}' does not exist. Did you mean one of the following?",
         ):
             transformer.transform(input_df)

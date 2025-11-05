@@ -1,5 +1,5 @@
 [tool.pytest.ini_options]
-addopts = "--pspec --html=tests.html --self-contained-html"
+addopts = "--spec" # --html=tests.html --self-contained-html"
 env = [
   "D:SPOOQ_ENV = test"
 ]

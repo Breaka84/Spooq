@@ -60,6 +60,12 @@ def _get_executable_function(
         return partial(inner_func, **kwargs)
 
 
+def _datatype_is_of_integer_family(datatype: T.DataType | str) -> bool:
+    if isinstance(datatype, T.DataType):
+        datatype = datatype.simpleString()
+
+    return datatype in ["tinyint", "smallint", "int", "bigint"]
+
 def as_is(source_column: Union[str, Column] = None, name: str = None, **kwargs) -> Union[partial, Column]:
     """
     Returns a renamed column without any casting. This is especially useful if you need to
@@ -77,7 +83,7 @@ def as_is(source_column: Union[str, Column] = None, name: str = None, **kwargs) 
     alt_src_cols : str, default -> no coalescing, only source_column
         Coalesce with source_column and columns from this parameter.
     cast : T.DataType(), default -> no casting, same return data type as input data type
-        Applies provided datatype on output column (``.cast(cast)``)
+        Applies provided datatype on output column (``.try_cast(cast)``)
 
     Examples
     --------
@@ -112,7 +118,7 @@ def as_is(source_column: Union[str, Column] = None, name: str = None, **kwargs) 
     def _inner_func(source_column, name, alt_src_cols, cast):
         source_column = _coalesce_source_columns(source_column, alt_src_cols)
         if cast:
-            source_column = source_column.cast(cast)
+            source_column = source_column.try_cast(cast)
         return source_column.alias(name)
 
     args = dict(
@@ -143,7 +149,7 @@ def to_num(source_column=None, name=None, **kwargs: Any) -> Union[partial, Colum
     alt_src_cols : str, default -> no coalescing, only source_column
         Coalesce with source_column and columns from this parameter.
     cast : T.DataType(), default -> T.LongType()
-        Applies provided datatype on output column (``.cast(cast)``)
+        Applies provided datatype on output column (``.try_cast(cast)``)
 
     Examples
     --------
@@ -186,7 +192,18 @@ def to_num(source_column=None, name=None, **kwargs: Any) -> Union[partial, Colum
 
     def _inner_func(source_column, name, alt_src_cols, cast):
         source_column = _coalesce_source_columns(source_column, alt_src_cols)
-        return F.regexp_replace(F.trim(source_column), "_", "").cast(cast).alias(name)
+        source_column = F.regexp_replace(F.trim(source_column), "_", "")
+
+        if isinstance(cast, str):
+            cast = T._parse_datatype_string(cast)
+
+        if isinstance(cast, T.NumericType):
+            if _datatype_is_of_integer_family(cast):
+                source_column = F.round(source_column.try_cast(T.DoubleType()), 0)
+            else:
+                source_column = source_column.try_cast(T.DoubleType())
+
+        return source_column.try_cast(cast).alias(name)
 
     args = dict(
         alt_src_cols=kwargs.get("alt_src_cols", False),
@@ -224,7 +241,7 @@ def to_bool(source_column=None, name=None, **kwargs: Any) -> partial:
     alt_src_cols : str, default -> no coalescing, only source_column
         Coalesce with source_column and columns from this parameter.
     cast : T.DataType(), default -> T.BooleanType()
-        Applies provided datatype on output column (``.cast(cast)``)
+        Applies provided datatype on output column (``.try_cast(cast)``)
 
     Warning
     ---------
@@ -315,9 +332,9 @@ def to_bool(source_column=None, name=None, **kwargs: Any) -> partial:
             (
                 F.when(true_condition, F.lit(True))
                 .when(false_condition, F.lit(False))
-                .otherwise(F.trim(source_column).cast(T.BooleanType()))
+                .otherwise(F.trim(source_column).try_cast(T.BooleanType()))
             )
-            .cast(cast)
+            .try_cast(cast)
             .alias(name)
         )
 
@@ -370,7 +387,7 @@ def to_timestamp(source_column=None, name=None, **kwargs: Any) -> partial:
     alt_src_cols : str, default -> no coalescing, only source_column
         Coalesce with source_column and columns from this parameter.
     cast : T.DataType(), default -> T.TimestampType()
-        Applies provided datatype on output column (``.cast(cast)``)
+        Applies provided datatype on output column (``.try_cast(cast)``)
 
     Warning
     ---------
@@ -436,28 +453,28 @@ def to_timestamp(source_column=None, name=None, **kwargs: Any) -> partial:
 
         if input_format:
             output_col = (
-                F.unix_timestamp(source_column.cast(T.StringType()), input_format).cast(T.TimestampType()).alias(name)
+                F.try_to_timestamp(source_column.try_cast(T.StringType()), F.lit(input_format)).alias(name)
             )
         else:
             output_col = (
                 F.when(
-                    ~F.trim(source_column).cast(T.LongType()).between(min_timestamp_ms, max_timestamp_ms),
+                    ~F.trim(source_column).try_cast(T.LongType()).between(min_timestamp_ms, max_timestamp_ms),
                     F.lit(None),
                 )
                 .when(
-                    F.abs(F.trim(source_column).cast(T.LongType())).between(0, max_timestamp_sec),
-                    F.trim(source_column).cast(T.LongType()).cast(T.TimestampType()),
+                    F.abs(F.trim(source_column).try_cast(T.LongType())).between(0, max_timestamp_sec),
+                    F.try_to_timestamp(F.trim(source_column).try_cast(T.LongType())),
                 )
                 .when(
-                    F.abs(F.trim(source_column).cast(T.LongType())) > max_timestamp_sec,
-                    (F.trim(source_column) / 1000).cast(T.TimestampType()),
+                    F.abs(F.trim(source_column).try_cast(T.LongType())) > max_timestamp_sec,
+                    F.try_to_timestamp(F.trim(source_column) / 1000),
                 )
-                .otherwise(F.trim(source_column))
+                .otherwise(F.try_to_timestamp(F.trim(source_column)))
             )
         if output_format:
             output_col = F.date_format(output_col, output_format)
             cast = T.StringType()
-        return output_col.cast(cast).alias(name)
+        return output_col.try_cast(cast).alias(name)
 
     args = dict(
         max_timestamp_sec=kwargs.get("max_timestamp_sec", 4102358400),
@@ -488,7 +505,7 @@ def str_to_array(source_column=None, name=None, **kwargs: Any) -> partial:
     alt_src_cols : str, default -> no coalescing, only source_column
         Coalesce with source_column and columns from this parameter.
     cast : T.DataType(), default -> T.StringType()
-        Applies provided datatype on the elements of the output array (``.cast(T.ArrayType(cast))``)
+        Applies provided datatype on the elements of the output array (``.try_cast(T.ArrayType(cast))``)
 
     Examples
     --------
@@ -538,13 +555,24 @@ def str_to_array(source_column=None, name=None, **kwargs: Any) -> partial:
         source_column = _coalesce_source_columns(source_column, alt_src_cols)
 
         if isinstance(cast, str):
-            output_type = f"array<{cast}>"
+            cast = T._parse_datatype_string(cast)
+
+        if isinstance(cast, T.NumericType):
+            if _datatype_is_of_integer_family(cast):
+                transform_func = lambda x: F.round(x.try_cast(T.DoubleType()), 0)
+            else:
+                transform_func = lambda x: x.try_cast(T.DoubleType())
         else:
-            output_type = T.ArrayType(cast)
+            transform_func = lambda x: x
+
+        output_type = T.ArrayType(cast)
 
         return (
-            F.split(F.regexp_replace(source_column, r"^\s*\[*\s*|\s*\]*\s*$", ""), r"\s*,\s*")
-            .cast(output_type)
+            F.transform(
+                F.split(F.regexp_replace(source_column, r"^\s*\[*\s*|\s*\]*\s*$", ""), r"\s*,\s*"),
+                transform_func,
+            )
+            .try_cast(output_type)
             .alias(name)
         )
 
@@ -580,7 +608,7 @@ def map_values(source_column=None, name=None, **kwargs: Any) -> partial:
     alt_src_cols : str, default -> no coalescing, only source_column
         Coalesce with source_column and columns from this parameter.
     cast : T.DataType(), default -> T.StringType()
-        Applies provided datatype on output column (``.cast(cast)``)
+        Applies provided datatype on output column (``.try_cast(cast)``)
 
     Hint
     ----
@@ -669,26 +697,26 @@ def map_values(source_column=None, name=None, **kwargs: Any) -> partial:
             default = F.lit(default)
 
         if ignore_case and pattern_type != "regex":
-            mapping = {str(key).lower(): F.lit(value).cast(cast) for key, value in mapping.items()}
+            mapping = {str(key).lower(): F.lit(value).try_cast(cast) for key, value in mapping.items()}
             source_column = F.lower(source_column)
         else:
-            mapping = {key: F.lit(value).cast(cast) for key, value in mapping.items()}
+            mapping = {key: F.lit(value).try_cast(cast) for key, value in mapping.items()}
 
         keys = list(mapping.keys())
         if pattern_type == "equals":
-            when_clause = F.when(source_column == keys[0], mapping[keys[0]])
+            when_clause = F.when(source_column.cast(T.StringType()) == str(keys[0]), mapping[keys[0]])
             for key in keys[1:]:
-                when_clause = when_clause.when(source_column.cast(T.StringType()) == key, mapping[key])
+                when_clause = when_clause.when(source_column.try_cast(T.StringType()) == str(key), mapping[key])
 
         elif pattern_type == "sql_like":
-            when_clause = F.when(source_column.like(keys[0]), mapping[keys[0]])
+            when_clause = F.when(source_column.cast(T.StringType()).like(keys[0]), mapping[keys[0]])
             for key in keys[1:]:
-                when_clause = when_clause.when(source_column.like(key), mapping[key])
+                when_clause = when_clause.when(source_column.cast(T.StringType()).like(key), mapping[key])
 
         elif pattern_type == "regex":
-            when_clause = F.when(source_column.rlike(keys[0]), mapping[keys[0]])
+            when_clause = F.when(source_column.cast(T.StringType()).rlike(keys[0]), mapping[keys[0]])
             for key in keys[1:]:
-                when_clause = when_clause.when(source_column.rlike(key), mapping[key])
+                when_clause = when_clause.when(source_column.cast(T.StringType()).rlike(key), mapping[key])
 
         else:
             raise ValueError(
@@ -696,7 +724,7 @@ def map_values(source_column=None, name=None, **kwargs: Any) -> partial:
                 "Please choose among ['equals' (default), 'regex' and 'sql_like']"
             )
 
-        when_clause = when_clause.otherwise(default.cast(cast))
+        when_clause = when_clause.otherwise(default.try_cast(cast))
 
         return when_clause.alias(name)
 
@@ -735,7 +763,7 @@ def meters_to_cm(source_column=None, name=None, **kwargs: Any) -> partial:
     alt_src_cols : str, default -> no coalescing, only source_column
         Coalesce with source_column and columns from this parameter.
     cast : T.DataType(), default -> T.IntegerType()
-        Applies provided datatype on output column (``.cast(cast)``)
+        Applies provided datatype on output column (``.try_cast(cast)``)
 
     Examples
     --------
@@ -776,7 +804,13 @@ def meters_to_cm(source_column=None, name=None, **kwargs: Any) -> partial:
 
     def _inner_func(source_column, name, alt_src_cols, cast):
         source_column = _coalesce_source_columns(source_column, alt_src_cols)
-        return (source_column * 100).cast(cast).alias(name)
+        if not isinstance(cast, str):
+            cast = cast.simpleString()
+        if _datatype_is_of_integer_family(cast):
+            source_column_calculated = F.round(source_column.try_cast(T.DoubleType()) * 100, F.lit(0))
+        else:
+            source_column_calculated = source_column.try_cast(T.DoubleType()) * 100
+        return source_column_calculated.try_cast(cast).alias(name)
 
     args = dict(
         alt_src_cols=kwargs.get("alt_src_cols", False),
@@ -809,7 +843,7 @@ def has_value(source_column=None, name=None, **kwargs: Any) -> partial:
     alt_src_cols : str, default -> no coalescing, only source_column
         Coalesce with source_column and columns from this parameter.
     cast : T.DataType(), default -> T.BooleanType()
-        Applies provided datatype on output column (``.cast(cast)``)
+        Applies provided datatype on output column (``.try_cast(cast)``)
 
     Examples
     --------
@@ -856,9 +890,9 @@ def has_value(source_column=None, name=None, **kwargs: Any) -> partial:
     def _inner_func(source_column, name, alt_src_cols, cast):
         source_column = _coalesce_source_columns(source_column, alt_src_cols)
         return (
-            F.when((source_column.isNotNull()) & (source_column.cast(T.StringType()) != ""), F.lit(True))
+            F.when((source_column.isNotNull()) & (source_column.try_cast(T.StringType()) != ""), F.lit(True))
             .otherwise(F.lit(False))
-            .cast(cast)
+            .try_cast(cast)
             .alias(name)
         )
 
@@ -888,7 +922,7 @@ def apply(source_column=None, name=None, **kwargs: Any) -> partial:
     alt_src_cols : str, default -> no coalescing, only source_column
         Coalesce with source_column and columns from this parameter.
     cast : T.DataType(), default -> no casting
-        Applies provided datatype on output column (``.cast(cast)``)
+        Applies provided datatype on output column (``.try_cast(cast)``)
 
     Examples
     --------
@@ -942,7 +976,7 @@ def apply(source_column=None, name=None, **kwargs: Any) -> partial:
     ...
     >>> def _has_hotmail(source_column):
     ...     return F.when(
-    ...         source_column.cast(T.StringType()).endswith("@hotmail.com"),
+    ...         source_column.try_cast(T.StringType()).endswith("@hotmail.com"),
     ...         F.lit(True)
     ...     ).otherwise(F.lit(False))
     ...
@@ -974,7 +1008,7 @@ def apply(source_column=None, name=None, **kwargs: Any) -> partial:
         source_column = _coalesce_source_columns(source_column, alt_src_cols)
         source_column = func(source_column)
         if cast:
-            source_column = source_column.cast(cast)
+            source_column = source_column.try_cast(cast)
         return source_column.alias(name)
 
     try:
@@ -1009,7 +1043,7 @@ def to_json_string(source_column=None, name=None, **kwargs: Any) -> partial:
     alt_src_cols : str, default -> no coalescing, only source_column
         Coalesce with source_column and columns from this parameter.
     cast : T.DataType(), default -> no casting, same return data type as input data type
-        Applies provided datatype on output column (``.cast(cast)``)
+        Applies provided datatype on output column (``.try_cast(cast)``)
 
     Examples
     --------
@@ -1128,7 +1162,7 @@ def to_str(source_column=None, name=None, **kwargs: Any) -> Union[partial, Colum
 
     def _inner_func(source_column, name, alt_src_cols):
         source_column = _coalesce_source_columns(source_column, alt_src_cols)
-        return source_column.cast(T.StringType()).alias(name)
+        return source_column.try_cast(T.StringType()).alias(name)
 
     args = dict(
         alt_src_cols=kwargs.get("alt_src_cols", False),

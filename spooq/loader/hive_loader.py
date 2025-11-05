@@ -167,7 +167,7 @@ class HiveLoader(Loader):
                 )
                 input_df = input_df.withColumn(
                     partition_definition["column_name"],
-                    lit(partition_definition["default_value"]).cast(partition_definition["column_type"]()),
+                    lit(partition_definition["default_value"]).try_cast(partition_definition["column_type"]()),
                 )
         return input_df
 

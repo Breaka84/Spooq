@@ -32,6 +32,9 @@ jobs:
             pip-packages: "pyspark==3.5.0 delta-spark==3.0.0"
           - pyspark-version: 3.5.1
             pip-packages: "pyspark==3.5.1 delta-spark==3.1.0"
+          # Spark 4.0
+          - pyspark-version: 4.0.1
+            pip-packages: "pyspark==4.0.1 delta-spark==4.0.0"
     steps:
     - uses: actions/checkout@v2
     - name: Set up Java 1.8

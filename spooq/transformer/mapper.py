@@ -271,7 +271,7 @@ class Mapper(Transformer):
 
             if isinstance(target_transformation, T.DataType):
                 if target_transformation != source_spark_data_type:
-                    select_expression = source_column.cast(target_transformation).alias(name)
+                    select_expression = source_column.try_cast(target_transformation).alias(name)
                 else:
                     select_expression = source_column.alias(name)
             else:
@@ -325,17 +325,17 @@ class Mapper(Transformer):
         except AnalysisException as e:
             if isinstance(source_column, str) and self.missing_column_handling == MissingColumnHandling.skip:
                 self.logger.warning(
-                    f"Missing column ({str(source_column)}) skipped (MissingColumnHandling.skip): {e.desc}"
+                    f"Missing column ({str(source_column)}) skipped (MissingColumnHandling.skip): {e.getMessage()}"
                 )
                 return None
             elif isinstance(source_column, str) and self.missing_column_handling == MissingColumnHandling.nullify:
                 self.logger.warning(
-                    f"Missing column ({str(source_column)}) replaced with NULL (via MissingColumnHandling.nullify): {e.desc}"
+                    f"Missing column ({str(source_column)}) replaced with NULL (via MissingColumnHandling.nullify): {e.getMessage()}"
                 )
                 source_column = F.lit(None)
-            elif "ambiguous" in e.desc.lower() and self.ignore_ambiguous_columns:
+            elif "ambiguous" in e.getMessage().lower() and self.ignore_ambiguous_columns:
                 self.logger.warning(
-                    f'Exception ignored (via ignore_ambiguous_columns=True) for column "{source_column}": {e.desc}'
+                    f'Exception ignored (via ignore_ambiguous_columns=True) for column "{source_column}": {e.getMessage()}'
                 )
                 return None
             else:
