@@ -2,6 +2,10 @@
 Changelog
 =========
 
+4.0.0 (2025-11-05) - BREAKING CHANGES!
+--------------------------------------
+* [MOD] Spark 4+ support! Spark <4 is no longer supported. Please use Spooq version 3.4.2 for Spark 2.x and 3.x
+
 3.4.2 (2024-08-08)
 -------------------
 * [ADD] Annotator: New transformer to load and apply comments to dataframes
