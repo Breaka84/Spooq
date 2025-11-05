@@ -12,28 +12,7 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          # Spark 3.1
-          - pyspark-version: 3.1.3
-            pip-packages: "pyspark==3.1.3 delta-spark==1.0.1"
-          # Spark 3.2
-          - pyspark-version: 3.2.4
-            pip-packages: "pyspark==3.2.4 delta-spark==2.0.2"
-          # Spark 3.3
-          - pyspark-version: 3.3.4
-            pip-packages: "pyspark==3.3.4 delta-spark==2.3.0"
-          # Spark 3.4
-          - pyspark-version: 3.4.0
-            pip-packages: "pyspark==3.4.0 delta-spark==2.4.0"
-          - pyspark-version: 3.4.1
-            pip-packages: "pyspark==3.4.1 delta-spark==2.4.0"
-          - pyspark-version: 3.4.2
-            pip-packages: "pyspark==3.4.2 delta-spark==2.4.0"
-          # Spark 3.5
-          - pyspark-version: 3.5.0
-            pip-packages: "pyspark==3.5.0 delta-spark==3.0.0"
-          - pyspark-version: 3.5.1
-            pip-packages: "pyspark==3.5.1 delta-spark==3.1.0"
-          # Spark 4.0
+          # Spark 4.0.1
           - pyspark-version: 4.0.1
             pip-packages: "pyspark==4.0.1 delta-spark==4.0.0"
     steps:
@@ -64,21 +43,7 @@ jobs:
         echo "Installing Pyspark $PYSPARK_VERSION_NUMBER from pip package $PIP_PACKAGES"
         pipenv install $PIP_PACKAGES
 
-    - name: Debug Java Version
-      run: |
-        echo "java -version:"
-        java -version
-
-        echo "JAVA_PATH:"
-        echo $JAVA_PATH
-
-        echo "JAVA_HOME:"
-        echo $JAVA_HOME
-
-        echo "javac -version:"
-        javac -version
-
-    - name: Run tests with Pyspark ${{ matrix.python-version }}
+    - name: Run tests with Pyspark
       working-directory: ./tests
       run: |
         pipenv run pytest
