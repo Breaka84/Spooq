@@ -2,9 +2,9 @@
 Changelog
 =========
 
-4.0.0 (2025-11-05) - BREAKING CHANGES!
+4.0.0 (2025-12-01) - BREAKING CHANGES!
 --------------------------------------
-* [MOD] Spark 4+ support! Spark <4 is no longer supported. Please use Spooq version 3.4.2 for Spark 2.x and 3.x
+* [MOD] Spark 4+ support! Spark `<4` is no longer supported. Please use Spooq version 3.4.2 for Spark 2.x and 3.x versions.
 
 3.4.2 (2024-08-08)
 -------------------

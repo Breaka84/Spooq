@@ -3,7 +3,7 @@ from types import FunctionType
 from typing import Union, List, Tuple, Any, Callable
 import warnings
 
-from pyspark.sql.utils import AnalysisException, ParseException
+from pyspark.errors.exceptions.base import AnalysisException, ParseException
 from pyspark.sql import (
     functions as F,
     types as T,
