@@ -155,4 +155,4 @@ tests/output.json
 tests/pytest_html_report.html
 tests/tests.html
 tests/unit/archive/
-tests/unit/output.json
+tests/unit/output.json.DS_Store

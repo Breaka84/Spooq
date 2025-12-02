@@ -140,16 +140,22 @@ class EnumCleaner(BaseCleaner):
             if mode == "allow":
                 input_df = input_df.withColumn(
                     column_name,
-                    F.when(F.col(column_name).isNull(), F.lit(None))
-                    .otherwise(F.when(F.col(column_name).isin(elements), F.col(column_name)).otherwise(substitute))
-                    .cast(data_type),
+                    F.when(
+                        F.col(column_name).isNull(),
+                        F.lit(None)
+                    ).otherwise(
+                        F.when(
+                            F.col(column_name).isin(elements),
+                            F.col(column_name)
+                        ).otherwise(substitute.cast(data_type)))
+                    .try_cast(data_type),
                 )
             elif mode == "disallow":
                 input_df = input_df.withColumn(
                     column_name,
                     F.when(F.col(column_name).isNull(), F.lit(None))
                     .otherwise(F.when(F.col(column_name).isin(elements), substitute).otherwise(F.col(column_name)))
-                    .cast(data_type),
+                    .try_cast(data_type),
                 )
             elif mode == "NOT_DEFINED":
                 raise RuntimeError(

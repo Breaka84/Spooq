@@ -154,13 +154,11 @@ class TestGenericFunctionality:
         # fmt:off
         mapping = [
             ("main_transformation_function",                          "str_2",              spq.as_is),
-            ("main_transformation_function_as_string",                "str_2",              "as_is"),
             ("main_transformation_function_call",                     "str_2",              spq.as_is()),
             ("main_transformation_function_call_with_params",         "str_2",              spq.as_is(cast="string")),
             ("main_transformation_function_as_source",                F.col("str_2"),       spq.as_is),
             ("main_transformation_literal_as_source",                 F.lit("Hi!"),         spq.as_is),
-            ("convenience_transformation_function",                   "str_int_2",          "to_int"),
-            ("convenience_transformation_function_as_string",         "str_int_2",          spq.to_int),
+            ("convenience_transformation_function",                   "str_int_2",          spq.to_int),
             ("convenience_transformation_function_call",              "str_int_2",          spq.to_int()),
             ("convenience_transformation_function_call_with_params",  "str_int_2",          spq.to_int(alt_src_cols=None)),
             ("convenience_transformation_function_as_source",         F.col("str_int_2"),   spq.to_int),
@@ -171,13 +169,11 @@ class TestGenericFunctionality:
         expected_df = spark_session.createDataFrame([
             Row(
                 main_transformation_function="Hello",
-                main_transformation_function_as_string="Hello",
                 main_transformation_function_call="Hello",
                 main_transformation_function_call_with_params="Hello",
                 main_transformation_function_as_source="Hello",
                 main_transformation_literal_as_source="Hi!",
                 convenience_transformation_function=1637335255,
-                convenience_transformation_function_as_string=1637335255,
                 convenience_transformation_function_call=1637335255,
                 convenience_transformation_function_call_with_params=1637335255,
                 convenience_transformation_function_as_source=1637335255,
@@ -186,13 +182,11 @@ class TestGenericFunctionality:
             ],
             schema=(
                 "main_transformation_function STRING, "
-                "main_transformation_function_as_string STRING, "
                 "main_transformation_function_call STRING, "
                 "main_transformation_function_call_with_params STRING, "
                 "main_transformation_function_as_source STRING, "
                 "main_transformation_literal_as_source STRING, "
                 "convenience_transformation_function INTEGER, "
-                "convenience_transformation_function_as_string INTEGER, "
                 "convenience_transformation_function_call INTEGER, "
                 "convenience_transformation_function_call_with_params INTEGER, "
                 "convenience_transformation_function_as_source INTEGER, "
@@ -323,9 +317,9 @@ class TestGenericFunctionality:
                 col_map            map<string, int>
             """
         ).withColumn(
-            "col_timestamp", F.col("col_timestamp").cast("timestamp")
+            "col_timestamp", F.col("col_timestamp").try_cast("timestamp")
         ).withColumn(
-            "col_date", F.col("col_date").cast("date")
+            "col_date", F.col("col_date").try_cast("date")
         )
         assert_approx_df_equality(expected_df, output_df, ignore_nullable=True, precision=1/1000000)
 
@@ -433,7 +427,7 @@ class TestToNumber:
     def test_str_to_int(self, input_df, expected_df):
         mapping = [("mapped_name", "attributes.data.some_attribute", spq.to_int)]
         output_df = Mapper(mapping).transform(input_df)
-        expected_df_ = expected_df.select(F.col("mapped_name").cast(T.IntegerType()))
+        expected_df_ = expected_df.select(F.col("mapped_name").try_cast(T.IntegerType()))
         assert_df_equality(expected_df_, output_df)
 
     @pytest.mark.parametrize(
@@ -445,7 +439,7 @@ class TestToNumber:
     def test_str_to_long(self, input_df, expected_df):
         mapping = [("mapped_name", "attributes.data.some_attribute", spq.to_long)]
         output_df = Mapper(mapping).transform(input_df)
-        expected_df_ = expected_df.select(F.col("mapped_name").cast(T.LongType()))
+        expected_df_ = expected_df.select(F.col("mapped_name").try_cast(T.LongType()))
         assert_df_equality(expected_df_, output_df)
 
     @pytest.mark.parametrize(
@@ -457,7 +451,7 @@ class TestToNumber:
     def test_str_to_float(self, input_df, expected_df):
         mapping = [("mapped_name", "attributes.data.some_attribute", spq.to_float)]
         output_df = Mapper(mapping).transform(input_df)
-        expected_df_ = expected_df.select(F.col("mapped_name").cast(T.FloatType()))
+        expected_df_ = expected_df.select(F.col("mapped_name").try_cast(T.FloatType()))
         assert_df_equality(expected_df_, output_df)
 
     @pytest.mark.parametrize(
@@ -469,7 +463,7 @@ class TestToNumber:
     def test_str_to_double(self, input_df, expected_df):
         mapping = [("mapped_name", "attributes.data.some_attribute", spq.to_double)]
         output_df = Mapper(mapping).transform(input_df)
-        expected_df_ = expected_df.select(F.col("mapped_name").cast(T.DoubleType()))
+        expected_df_ = expected_df.select(F.col("mapped_name").try_cast(T.DoubleType()))
         assert_df_equality(expected_df_, output_df)
 
 
@@ -483,7 +477,7 @@ class TestToBoolean:
         def test_to_bool(self, input_df, expected_df):
             mapping = [("mapped_name", "attributes.data.some_attribute", spq.to_bool())]
             output_df = Mapper(mapping).transform(input_df)
-            expected_df_ = expected_df.select(F.col("mapped_name").cast(T.BooleanType()))
+            expected_df_ = expected_df.select(F.col("mapped_name").try_cast(T.BooleanType()))
             assert_df_equality(expected_df_, output_df)
 
         @pytest.mark.parametrize(
@@ -497,7 +491,7 @@ class TestToBoolean:
                 true_values=["sure", "OK"]
             ))]
             output_df = Mapper(mapping).transform(input_df)
-            expected_df_ = expected_df.select(F.col("mapped_name").cast(T.BooleanType()))
+            expected_df_ = expected_df.select(F.col("mapped_name").try_cast(T.BooleanType()))
             assert_df_equality(expected_df_, output_df)
 
         @pytest.mark.parametrize(
@@ -511,7 +505,7 @@ class TestToBoolean:
                 false_values=["nope", "NOK"]
             ))]
             output_df = Mapper(mapping).transform(input_df)
-            expected_df_ = expected_df.select(F.col("mapped_name").cast(T.BooleanType()))
+            expected_df_ = expected_df.select(F.col("mapped_name").try_cast(T.BooleanType()))
             assert_df_equality(expected_df_, output_df)
 
         @pytest.mark.parametrize(
@@ -526,7 +520,7 @@ class TestToBoolean:
                 false_values=["nope", "NOK"],
             ))]
             output_df = Mapper(mapping).transform(input_df)
-            expected_df_ = expected_df.select(F.col("mapped_name").cast(T.BooleanType()))
+            expected_df_ = expected_df.select(F.col("mapped_name").try_cast(T.BooleanType()))
             assert_df_equality(expected_df_, output_df)
 
         @pytest.mark.parametrize(
@@ -541,7 +535,7 @@ class TestToBoolean:
                 replace_default_values=True,
             ))]
             output_df = Mapper(mapping).transform(input_df)
-            expected_df_ = expected_df.select(F.col("mapped_name").cast(T.BooleanType()))
+            expected_df_ = expected_df.select(F.col("mapped_name").try_cast(T.BooleanType()))
             assert_df_equality(expected_df_, output_df)
 
         @pytest.mark.parametrize(
@@ -556,7 +550,7 @@ class TestToBoolean:
                 replace_default_values=True,
             ))]
             output_df = Mapper(mapping).transform(input_df)
-            expected_df_ = expected_df.select(F.col("mapped_name").cast(T.BooleanType()))
+            expected_df_ = expected_df.select(F.col("mapped_name").try_cast(T.BooleanType()))
             assert_df_equality(expected_df_, output_df)
 
         @pytest.mark.parametrize(
@@ -572,7 +566,7 @@ class TestToBoolean:
                 replace_default_values=True,
             ))]
             output_df = Mapper(mapping).transform(input_df)
-            expected_df_ = expected_df.select(F.col("mapped_name").cast(T.BooleanType()))
+            expected_df_ = expected_df.select(F.col("mapped_name").try_cast(T.BooleanType()))
             assert_df_equality(expected_df_, output_df)
 
 
@@ -586,7 +580,7 @@ class TestToTimestamp:
     def test_to_timestamp_default(self, input_df, expected_df):
         mapping = [("mapped_name", "attributes.data.some_attribute", spq.to_timestamp())]
         output_df = Mapper(mapping).transform(input_df)
-        expected_df_ = expected_df.select(F.col("mapped_name").cast(T.TimestampType()))
+        expected_df_ = expected_df.select(F.col("mapped_name").try_cast(T.TimestampType()))
         assert_df_equality(expected_df_, output_df)
 
     @pytest.mark.parametrize(
@@ -602,7 +596,7 @@ class TestToTimestamp:
             spq.to_timestamp(input_format=input_format, cast="string")
         )]
         output_df = Mapper(mapping).transform(input_df)
-        expected_df_ = expected_df.select(F.col("mapped_name").cast(T.StringType()))
+        expected_df_ = expected_df.select(F.col("mapped_name").try_cast(T.StringType()))
         assert_df_equality(expected_df_, output_df)
 
     @pytest.mark.parametrize(
@@ -635,7 +629,7 @@ class TestToTimestamp:
         )]
         output_df = Mapper(mapping).transform(input_df)
         expected_df = spark_session.createDataFrame([Row(mapped_name=expected_timestamp)], schema="mapped_name string")
-        expected_df_ = expected_df.select(F.col("mapped_name").cast(T.StringType()))
+        expected_df_ = expected_df.select(F.col("mapped_name").try_cast(T.StringType()))
         assert_df_equality(expected_df_, output_df)
 
     @pytest.mark.parametrize(
@@ -765,7 +759,7 @@ class TestMapValues:
             cast="boolean",
         ))]
         output_df = Mapper(mapping).transform(input_df)
-        expected_df_ = expected_df.select(F.col("mapped_name").cast(T.BooleanType()).alias("mapped_name"))
+        expected_df_ = expected_df.select(F.col("mapped_name").try_cast(T.BooleanType()).alias("mapped_name"))
         assert_df_equality(expected_df_, output_df, ignore_nullable=True)
 
     @pytest.mark.parametrize(
@@ -782,7 +776,7 @@ class TestMapValues:
             cast="boolean",
         ))]
         output_df = Mapper(mapping).transform(input_df)
-        expected_df_ = expected_df.select(F.col("mapped_name").cast(T.BooleanType()).alias("mapped_name"))
+        expected_df_ = expected_df.select(F.col("mapped_name").try_cast(T.BooleanType()).alias("mapped_name"))
         assert_df_equality(expected_df_, output_df, ignore_nullable=True)
 
     @pytest.mark.parametrize(
@@ -810,7 +804,7 @@ class TestMapValues:
             cast="long",
         ))]
         output_df = Mapper(mapping).transform(input_df)
-        expected_df_ = expected_df.select(F.col("mapped_name").cast(T.LongType()).alias("mapped_name"))
+        expected_df_ = expected_df.select(F.col("mapped_name").try_cast(T.LongType()).alias("mapped_name"))
         assert_df_equality(expected_df_, output_df, ignore_nullable=True)
 
     @pytest.mark.parametrize(
@@ -825,7 +819,7 @@ class TestMapValues:
             cast="long"
         ))]
         output_df = Mapper(mapping).transform(input_df)
-        expected_df_ = expected_df.select(F.col("mapped_name").cast(T.LongType()).alias("mapped_name"))
+        expected_df_ = expected_df.select(F.col("mapped_name").try_cast(T.LongType()).alias("mapped_name"))
         assert_df_equality(expected_df_, output_df, ignore_nullable=True)
 
 
@@ -839,7 +833,7 @@ class TestMetersToCm:
     def test_meters_to_cm(self, input_df, expected_df):
         mapping = [("mapped_name", "attributes.data.some_attribute", spq.meters_to_cm())]
         output_df = Mapper(mapping).transform(input_df)
-        expected_df_ = expected_df.select(F.col("mapped_name").cast(T.IntegerType()))
+        expected_df_ = expected_df.select(F.col("mapped_name").try_cast(T.IntegerType()))
         assert_df_equality(expected_df_, output_df)
 
 
@@ -853,7 +847,7 @@ class TestHasValue:
     def test_has_value(self, input_df, expected_df):
         mapping = [("mapped_name", "attributes.data.some_attribute", spq.has_value())]
         output_df = Mapper(mapping).transform(input_df)
-        expected_df_ = expected_df.select(F.col("mapped_name").cast(T.BooleanType()))
+        expected_df_ = expected_df.select(F.col("mapped_name").try_cast(T.BooleanType()))
         assert_df_equality(expected_df_, output_df, ignore_nullable=True)
 
 
@@ -867,7 +861,7 @@ class TestApplyFunction:
     def test_apply_without_parameters(self, input_df, expected_df):
         mapping = [("mapped_name", "attributes.data.some_attribute", spq.apply(func=F.lower))]
         output_df = Mapper(mapping).transform(input_df)
-        expected_df_ = expected_df.select(F.col("mapped_name").cast(T.StringType()).alias("mapped_name"))
+        expected_df_ = expected_df.select(F.col("mapped_name").try_cast(T.StringType()).alias("mapped_name"))
         assert_df_equality(expected_df_, output_df, ignore_nullable=True)
 
     @pytest.mark.parametrize(
@@ -879,7 +873,7 @@ class TestApplyFunction:
     def test_apply_custom_function(self, input_df, expected_df):
         def _is_even(source_column):
             return F.when(
-                source_column.cast(T.LongType()) % 2 == 0,
+                source_column.try_cast(T.LongType()) % 2 == 0,
                 F.lit(True)
             ).otherwise(F.lit(False))
 
@@ -898,7 +892,7 @@ class TestApplyFunction:
     )
     def test_apply_lambda_function(self, input_df, expected_df):
         mapping = [("mapped_name", "attributes.data.some_attribute", spq.apply(
-            func=lambda val: F.coalesce(val.cast(T.LongType()) % 2 == 0, F.lit(False)),
+            func=lambda val: F.coalesce(val.try_cast(T.LongType()) % 2 == 0, F.lit(False)),
             cast="boolean"
         ))]
         output_df = Mapper(mapping).transform(input_df)
@@ -913,7 +907,7 @@ class TestApplyFunction:
     def test_apply_custom_function_with_parameters(self, input_df, expected_df):
         def _has_hotmail_email(source_column, email_suffix):
             return F.when(
-                source_column.cast(T.StringType()).contains(email_suffix),
+                source_column.try_cast(T.StringType()).contains(email_suffix),
                 F.lit(True)
             ).otherwise(F.lit(False))
 
@@ -922,7 +916,7 @@ class TestApplyFunction:
             cast="boolean"
         ))]
         output_df = Mapper(mapping).transform(input_df)
-        expected_df_ = expected_df.select(F.col("mapped_name").cast(T.BooleanType()).alias("mapped_name"))
+        expected_df_ = expected_df.select(F.col("mapped_name").try_cast(T.BooleanType()).alias("mapped_name"))
         assert_df_equality(expected_df_, output_df, ignore_nullable=True)
 
 

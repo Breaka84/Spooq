@@ -32,8 +32,8 @@ def input_df(spark_session):
         ]
     )
     input_df = spark_session.createDataFrame(input_data, schema=schema)
-    input_df = input_df.withColumn("timestamps", F.col("timestamps").cast(T.TimestampType()))  # Workaround for Timezone
-    input_df = input_df.withColumn("datetimes", F.col("datetimes").cast(T.DateType()))  # Workaround for Timezone
+    input_df = input_df.withColumn("timestamps", F.col("timestamps").try_cast(T.TimestampType()))  # Workaround for Timezone
+    input_df = input_df.withColumn("datetimes", F.col("datetimes").try_cast(T.DateType()))  # Workaround for Timezone
     return input_df
 
 
@@ -106,7 +106,7 @@ class TestCleaning(object):
         thresholds_to_test = {column_name: thresholds[column_name]}
         transformer = ThresholdCleaner(thresholds=thresholds_to_test)
         df_cleaned = transformer.transform(input_df)
-        result = [x[column_name] for x in df_cleaned.select(F.col(column_name).cast(T.StringType())).collect()]
+        result = [x[column_name] for x in df_cleaned.select(F.col(column_name).try_cast(T.StringType())).collect()]
         expected = expected_result[column_name]
 
         pytest.approx(result, 0.01) == expected
@@ -139,10 +139,10 @@ class TestCleaning(object):
         )
 
         expected_result_df = expected_result_df.withColumn(
-            "timestamps", F.col("timestamps").cast(T.TimestampType())
+            "timestamps", F.col("timestamps").try_cast(T.TimestampType())
         )  # Workaround for Timezone
         expected_result_df = expected_result_df.withColumn(
-            "datetimes", F.col("datetimes").cast(T.DateType())
+            "datetimes", F.col("datetimes").try_cast(T.DateType())
         )  # Workaround for Timezone
 
         assert_df_equality(df_cleaned, expected_result_df, ignore_nullable=True)
@@ -349,10 +349,10 @@ class TestCleansedValuesAreLogged:
         )
 
         expected_result_df = expected_result_df.withColumn(
-            "timestamps", F.col("timestamps").cast(T.TimestampType())
+            "timestamps", F.col("timestamps").try_cast(T.TimestampType())
         )  # Workaround for Timezone
         expected_result_df = expected_result_df.withColumn(
-            "datetimes", F.col("datetimes").cast(T.DateType())
+            "datetimes", F.col("datetimes").try_cast(T.DateType())
         )  # Workaround for Timezone
 
         assert_df_equality(df_cleaned, expected_result_df, ignore_nullable=True)
@@ -493,10 +493,10 @@ class TestCleansedValuesAreLoggedAsMap:
         )
 
         expected_result_df = expected_result_df.withColumn(
-            "timestamps", F.col("timestamps").cast(T.TimestampType())
+            "timestamps", F.col("timestamps").try_cast(T.TimestampType())
         )  # Workaround for Timezone
         expected_result_df = expected_result_df.withColumn(
-            "datetimes", F.col("datetimes").cast(T.DateType())
+            "datetimes", F.col("datetimes").try_cast(T.DateType())
         )  # Workaround for Timezone
 
         assert_df_equality(df_cleaned, expected_result_df, ignore_nullable=True)

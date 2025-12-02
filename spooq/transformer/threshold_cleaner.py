@@ -158,7 +158,7 @@ class ThresholdCleaner(BaseCleaner):
                     input_df[column_name],
                 )
                 .otherwise(substitute)
-                .cast(data_type)
+                .try_cast(data_type)
             )
             self.logger.debug("Cleansing Expression for " + column_name + ": " + str(cleansing_expression))
             cleansing_expressions.append((column_name, cleansing_expression))

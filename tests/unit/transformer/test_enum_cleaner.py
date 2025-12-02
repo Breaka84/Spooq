@@ -264,7 +264,7 @@ class TestDynamicDefaultValues:
     def test_current_date(self, input_df, spark_session):
         """Substitute the cleansed values with the current date"""
         cleaning_definitions = dict(
-            status=dict(elements=["active", "inactive"], mode="allow", default=F.current_date())
+            status=dict(elements=["active", "inactive"], mode="allow", default=F.current_date().cast(T.StringType()))
         )
         expected_output_df = spark_session.createDataFrame(
             [
@@ -281,7 +281,7 @@ class TestDynamicDefaultValues:
 
     def test_column_reference(self, input_df, spark_session):
         """Substitute the cleansed values with the calculated string based on another column"""
-        default_value_func = (F.col("id") * 10).cast(T.StringType())
+        default_value_func = (F.col("id") * 10).try_cast(T.StringType())
         cleaning_definitions = dict(
             status=dict(elements=["active", "inactive"], mode="allow", default=default_value_func)
         )
@@ -430,8 +430,8 @@ class TestCleansedValuesAreLoggedAsStruct:
          ).awaitTermination()
 
         output_df = spark_session.read.format("delta").load(output_table_location)
-        output_df_sorted = output_df.sort(["a", "b", "c", "d", F.col("cleansed_values_enum").cast(T.StringType())])
-        expected_output_df_sorted = expected_output_df_for_tests_with_multiple_cleansing_rules.sort(["a", "b", "c", "d", F.col("cleansed_values_enum").cast(T.StringType())])
+        output_df_sorted = output_df.sort(["a", "b", "c", "d", F.col("cleansed_values_enum").try_cast(T.StringType())])
+        expected_output_df_sorted = expected_output_df_for_tests_with_multiple_cleansing_rules.sort(["a", "b", "c", "d", F.col("cleansed_values_enum").try_cast(T.StringType())])
 
         assert_df_equality(expected_output_df_sorted, output_df_sorted, ignore_nullable=True)
 
@@ -600,8 +600,8 @@ class TestCleansedValuesAreLoggedAsMap:
          ).awaitTermination()
 
         output_df = spark_session.read.parquet(output_table_location)
-        output_df_sorted = output_df.sort(["a", "b", "c", "d", F.col("cleansed_values_enum").cast(T.StringType())])
-        expected_output_df_sorted = expected_output_df_for_tests_with_multiple_cleansing_rules.sort(["a", "b", "c", "d", F.col("cleansed_values_enum").cast(T.StringType())])
+        output_df_sorted = output_df.sort(["a", "b", "c", "d", F.col("cleansed_values_enum").try_cast(T.StringType())])
+        expected_output_df_sorted = expected_output_df_for_tests_with_multiple_cleansing_rules.sort(["a", "b", "c", "d", F.col("cleansed_values_enum").try_cast(T.StringType())])
 
         assert_df_equality(expected_output_df_sorted, output_df_sorted, ignore_nullable=True)
 
@@ -635,7 +635,7 @@ class TestCleansedValuesAreLoggedAsMap:
          ).awaitTermination()
 
         output_df = spark_session.read.format("delta").load(output_table_location)
-        output_df_sorted = output_df.sort(["a", "b", "c", "d", F.col("cleansed_values_enum").cast(T.StringType())])
-        expected_output_df_sorted = expected_output_df_for_tests_with_multiple_cleansing_rules.sort(["a", "b", "c", "d", F.col("cleansed_values_enum").cast(T.StringType())])
+        output_df_sorted = output_df.sort(["a", "b", "c", "d", F.col("cleansed_values_enum").try_cast(T.StringType())])
+        expected_output_df_sorted = expected_output_df_for_tests_with_multiple_cleansing_rules.sort(["a", "b", "c", "d", F.col("cleansed_values_enum").try_cast(T.StringType())])
 
         assert_df_equality(expected_output_df_sorted, output_df_sorted, ignore_nullable=True)

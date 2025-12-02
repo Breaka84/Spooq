@@ -6,6 +6,8 @@ from tests import DATA_FOLDER
 from spooq import extractor as E
 from spooq import transformer as T
 from spooq import loader as L
+from spooq.transformer.mapper import MissingColumnHandling
+from spooq.transformer import mapper_transformations as spq
 from spooq.pipeline import Pipeline
 
 
@@ -20,27 +22,27 @@ class TestPipeline(object):
     def transformer_params(self):
         # fmt: off
         return {"mapping": [
-            ("id",                 "id",                       "IntegerType"),
-            ("guid",               "guid",                     "StringType()"),
-            ("created_at",         "meta.created_at_sec",      "timestamp_s_to_s"),
-            ("created_at_ms",      "meta.created_at_ms",       "timestamp_ms_to_ms"),
-            ("version",            "meta.version",             "IntegerType()"),
-            ("birthday",           "birthday",                 "TimestampType"),
-            ("location_struct",    "location",                 "as_is"),
-            ("latitude",           "location.latitude",        "DoubleType"),
-            ("longitude",          "location.longitude",       "DoubleType"),
-            ("birthday_str",       "attributes.birthday",      "StringType"),
-            ("email",              "attributes.email",         "StringType"),
-            ("myspace",            "attributes.myspace",       "StringType"),
-            ("first_name",         "attributes.first_name",    "StringBoolean"),
-            ("last_name",          "attributes.last_name",     "StringBoolean"),
-            ("gender",             "attributes.gender",        "StringType"),
-            ("ip_address",         "attributes.ip_address",    "StringType"),
-            ("university",         "attributes.university",    "StringType"),
-            ("friends",            "attributes.friends",       "no_change"),
-            ("friends_json",       "attributes.friends",       "json_string"),
+            ("id",                 "id",                       "int"),
+            ("guid",               "guid",                     "string"),
+            ("created_at",         "meta.created_at_sec",      spq.as_is(cast="long")),
+            ("created_at_ms",      "meta.created_at_ms",       spq.as_is(cast="long")),
+            ("version",            "meta.version",             "integer"),
+            ("birthday",           "birthday",                 "timestamp"),
+            ("location_struct",    "location",                 spq.as_is),
+            ("latitude",           "location.latitude",        "double"),
+            ("longitude",          "location.longitude",       "double"),
+            ("birthday_str",       "attributes.birthday",      "string"),
+            ("email",              "attributes.email",         "string"),
+            ("myspace",            "attributes.myspace",       "string"),
+            ("first_name",         "attributes.first_name",    "boolean"),
+            ("last_name",          "attributes.last_name",     "boolean"),
+            ("gender",             "attributes.gender",        "string"),
+            ("ip_address",         "attributes.ip_address",    "string"),
+            ("university",         "attributes.university",    "string"),
+            ("friends",            "attributes.friends",       spq.as_is),
+            ("friends_json",       "attributes.friends",       spq.to_json_string),
         ],
-            "ignore_missing_columns": True
+            "missing_column_handling": MissingColumnHandling.nullify
         }
         # fmt: on
 
