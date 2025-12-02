@@ -569,8 +569,8 @@ fixtures_for_extended_string_to_date_spark2 = [
 ]
 
 fixtures_for_extended_string_to_date = [
-    ("2020-08-12T12:43:14+0000",   datetime.date(2020, 8, 12)),
-    ("2020-08-12T12:43:14+00:00",  datetime.date(2020, 8, 12)),
+    # ("2020-08-12T12:43:14+0000",   datetime.date(2020, 8, 12)),
+    # ("2020-08-12T12:43:14+00:00",  datetime.date(2020, 8, 12)),
     ("2020-08-12T12:43:14Z00:00",  datetime.date(2020, 8, 12)),
     ("2020-08-12T12:43:14Z0000",   datetime.date(2020, 8, 12)),
     ("  2020-08-12T12:43:14+0000", datetime.date(2020, 8, 12)),

@@ -4,9 +4,7 @@ verify_ssl = true
 name = "pypi"
 
 [dev-packages]
-# Developing / Debugging
 ipython = "9.6.0"
-# Testing
 doubles = "1.5.3"
 Faker = "37.11.0"
 pytest = "8.4.2"
@@ -19,7 +17,6 @@ pytest-random-order = "1.2.0"
 mock = "5.2.0"
 pytest-env = "1.2.0"
 chispa = "0.11.1"
-# Documentation
 recommonmark = "0.7.1"
 sphinx = "8.2.3"
 sphinxcontrib-plantuml = "0.31"
@@ -32,7 +29,6 @@ pyarrow = "22.0.0"
 sphinx-markdown-builder = "0.6.8"
 sphinx-jekyll-builder = "0.3.0"
 grip = "4.6.2"
-# Others
 bump2version = "1.0.1"
 twine = "6.2.0"
 semver = "3.0.4"
@@ -42,9 +38,9 @@ black = "25.9.0"
 [packages]
 future = "*"
 spooq = {path = ".", editable = true}
-pyspark = "4.0.1"
-delta-spark = "4.0.0"
 requests = "*"
+pyspark = "==4.0.1"
+delta-spark = "==4.0.0"
 
 [requires]
 python_version = "3.11"

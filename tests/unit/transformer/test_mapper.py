@@ -14,7 +14,7 @@ from pyspark.sql.utils import AnalysisException
 from chispa.dataframe_comparer import assert_df_equality
 
 from spooq.transformer.annotator import Annotator, AnnotatorMode
-from spooq.transformer.mapper import ColumnMappingNotSupported, DataTypeValidationFailed, MapperMode
+from spooq.transformer.mapper import ColumnMappingNotSupported, DataTypeValidationFailed, MapperMode, MapperParameterNotSupported
 from tests import DATA_FOLDER
 from spooq.transformer import Mapper
 from spooq.transformer.mapper import MapperMode, MissingColumnHandling
@@ -280,14 +280,18 @@ class TestSkipMissingColumns(object):
         assert not any([column in mapped_df.columns for column in attribute_columns])
 
 
-class TestExceptionWhenInvalidHandling(object):
-    """
-    Raise an exception in case both parameters skip_missing_columns and nullify_missing_columns are True
-    """
+class TestExceptionUnsupportedParameter(object):
+    def test_mode_as_string_raises_exception(self, mapping):
+        with pytest.raises(MapperParameterNotSupported):
+            Mapper(mapping=mapping, mode="replace")
 
-    def test_invalid_parameter_setting_raises_exception(self, input_df, transformer):
-        with pytest.raises(ValueError):
-            Mapper(mapping=mapping, missing_column_handling="invalid")
+    def test_missing_column_handling_as_string_raises_exception(self, mapping):
+        with pytest.raises(MapperParameterNotSupported):
+            Mapper(mapping=mapping, missing_column_handling="nullify")
+
+    def test_unsupported_ignore_missing_columns_raises_exception(self, mapping):
+        with pytest.raises(MapperParameterNotSupported):
+            Mapper(mapping=mapping, ignore_missing_columns=True)
 
 
 class TestDataTypesOfMappedDataFrame(object):
@@ -440,7 +444,7 @@ class TestValidateDataTypes:
 
     def test_spooq_transformation_as_is_string(self, input_df, matching_mapping):
         mapping_ = deepcopy(matching_mapping)
-        mapping_[0] = ("col_a", "col_a", "as_is")
+        mapping_[0] = ("col_a", "col_a", spq.as_is)
         transformer = Mapper(mapping_, mode=MapperMode.rename_and_validate)
         assert_df_equality(input_df, transformer.transform(input_df))
 
