@@ -1,6 +1,6 @@
-pyspark==3.3.0
+pyspark==4.0.1
 pandas==1.4.3
-sphinxcontrib-plantuml==0.18
+sphinxcontrib-plantuml==0.31
 docutils<0.18
 sphinx_rtd_theme
 Cython
