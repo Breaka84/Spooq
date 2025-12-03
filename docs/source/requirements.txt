@@ -1,5 +1,6 @@
 pyspark==4.0.1
-pandas==1.4.3
+pandas==2.3.3
+numpy==2.3.5
 sphinxcontrib-plantuml==0.31
 docutils<0.18
 sphinx_rtd_theme
