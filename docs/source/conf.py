@@ -33,11 +33,11 @@ from spooq._version import __version__ as version_number
 # -- Project information -----------------------------------------------------
 
 project = u'Spooq'
-copyright = u'2020, David Hohensinn'
+copyright = u'2025, David Hohensinn'
 author = u'David Hohensinn'
 
 # The short X.Y version
-version = u'3'
+version = u'4'
 # The full version, including alpha/beta/rc tags
 release = version_number
 
