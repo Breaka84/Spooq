@@ -2,6 +2,10 @@
 Changelog
 =========
 
+4.0.1 (2026-01-21)
+--------------------------------------
+* [MOD] Mapper: Support for custom separator with `str_to_array` tranformation.
+
 4.0.0 (2025-12-01) - BREAKING CHANGES! Only Spark 4+!
 --------------------------------------
 * [MOD] Spark 4+ support! Spark `<4` is no longer supported. Please use Spooq version 3.4.2 for Spark 2.x and 3.x versions.

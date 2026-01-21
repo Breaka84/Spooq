@@ -707,6 +707,28 @@ fixtures_for_str_to_array_str_to_str = [
     (None,                               None),
 ]
 
+fixtures_for_str_to_array_str_to_int_alt_separator = [
+    # input_string          # expected_int_array
+    (" [1:2:3]",            [1, 2, 3]),
+    (" []",                 [None]),
+    (" ]",                  [None]),
+    ("1:2:test",            [1, 2, None]),
+    ("t:est",               [None, None]),
+    ("1:  2.4   :  4  ", [1, 2, 4]),
+    (None,                  None),
+]
+
+fixtures_for_str_to_array_str_to_str_alt_separator = [
+    # input_string                       # expected_str_array
+    ("[item1:item2:3]",                  ["item1", "item2", "3"]),
+    ("item1:it[e]m2:it em3",             ["item1", "it[e]m2", "it em3"]),
+    ("    item1:   item2    :   item3",  ["item1", "item2", "item3"]),
+    ("[it em1: item2: item3",            ["it em1", "item2", "item3"]),
+    ("[it ] e [ m1 : [ item2 ] : item3", ["it ] e [ m1", "[ item2 ]", "item3"]),
+    (" [ item1 : item2, item3 ] ",       ["item1", "item2, item3"]),  # note comma inside item
+    (None,                               None),
+]
+
 fixtures_for_map_values_string_for_string_without_default_case_sensitive = [
     # mapping = {"whitelist": "allowlist", "blacklist": "blocklist"}
     # ignore_case = False
