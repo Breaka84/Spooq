@@ -4,7 +4,7 @@ Changelog
 
 4.0.1 (2026-01-21)
 --------------------------------------
-* [MOD] Mapper: Support for custom separator with `str_to_array` tranformation.
+* [MOD] Mapper: Support for custom separators for `str_to_array` mapper transformation.
 
 4.0.0 (2025-12-01) - BREAKING CHANGES! Only Spark 4+!
 --------------------------------------
