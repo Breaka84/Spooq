@@ -688,6 +688,36 @@ class TestStringToArray:
         )
         assert_df_equality(expected_df_, output_df, ignore_nullable=True)
 
+    @pytest.mark.parametrize(
+        argnames="input_df, expected_df",
+        argvalues=fixtures_for_str_to_array_str_to_int_alt_separator,
+        indirect=["input_df", "expected_df"],
+        ids=get_ids_for_fixture(fixtures_for_str_to_array_str_to_int_alt_separator),
+    )
+    def test_array_containing_integers_alt_separator(self, spark_session, input_df, expected_df):
+        mapping = [("mapped_name", "attributes.data.some_attribute", spq.str_to_array(sep=":", cast="int"))]
+        output_df = Mapper(mapping).transform(input_df)
+        expected_df_ = spark_session.createDataFrame(
+            expected_df.rdd,
+            schema="mapped_name ARRAY<INT>"
+        )
+        assert_df_equality(expected_df_, output_df, ignore_nullable=True)
+
+    @pytest.mark.parametrize(
+        argnames="input_df, expected_df",
+        argvalues=fixtures_for_str_to_array_str_to_str_alt_separator,
+        indirect=["input_df", "expected_df"],
+        ids=get_ids_for_fixture(fixtures_for_str_to_array_str_to_str_alt_separator),
+    )
+    def test_array_containing_strings_alt_separator(self, spark_session, input_df, expected_df):
+        mapping = [("mapped_name", "attributes.data.some_attribute", spq.str_to_array(sep=":"))]
+        output_df = Mapper(mapping).transform(input_df)
+        expected_df_ = spark_session.createDataFrame(
+            expected_df.rdd,
+            schema="mapped_name ARRAY<STRING>"
+        )
+        assert_df_equality(expected_df_, output_df, ignore_nullable=True)
+
 
 class TestMapValues:
     @pytest.mark.parametrize(

@@ -491,7 +491,8 @@ def to_timestamp(source_column=None, name=None, **kwargs: Any) -> partial:
 
 def str_to_array(source_column=None, name=None, **kwargs: Any) -> partial:
     """
-    Splits a string into a list (ArrayType).
+    Splits a string into a list (ArrayType). Supports leading/trailing whitespace, square brackets
+        and custom separators.
 
     Parameters
     ----------
@@ -502,6 +503,8 @@ def str_to_array(source_column=None, name=None, **kwargs: Any) -> partial:
 
     Keyword Arguments
     -----------------
+    sep : str, default -> ","
+        Separator that is used to split the input string.
     alt_src_cols : str, default -> no coalescing, only source_column
         Coalesce with source_column and columns from this parameter.
     cast : T.DataType(), default -> T.StringType()
@@ -551,7 +554,7 @@ def str_to_array(source_column=None, name=None, **kwargs: Any) -> partial:
         withColumn, where, ...
     """
 
-    def _inner_func(source_column, name, alt_src_cols, cast):
+    def _inner_func(source_column, name, sep, alt_src_cols, cast):
         source_column = _coalesce_source_columns(source_column, alt_src_cols)
 
         if isinstance(cast, str):
@@ -569,7 +572,7 @@ def str_to_array(source_column=None, name=None, **kwargs: Any) -> partial:
 
         return (
             F.transform(
-                F.split(F.regexp_replace(source_column, r"^\s*\[*\s*|\s*\]*\s*$", ""), r"\s*,\s*"),
+                F.split(F.regexp_replace(source_column, r"^\s*\[*\s*|\s*\]*\s*$", ""), rf"\s*{sep}\s*"),
                 transform_func,
             )
             .try_cast(output_type)
@@ -577,6 +580,7 @@ def str_to_array(source_column=None, name=None, **kwargs: Any) -> partial:
         )
 
     args = dict(
+        sep=kwargs.get("sep", ","),
         alt_src_cols=kwargs.get("alt_src_cols", False),
         cast=kwargs.get("cast", T.StringType()),
     )
